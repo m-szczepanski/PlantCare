@@ -16,6 +16,8 @@ public class PlantResponseDto
 
     public string? ProfileCommonName { get; set; }
 
+    public PlantCareTipsDto? CareTips { get; set; }
+
     public int? CustomWateringIntervalDays { get; set; }
 
     public DateTime? LastWateredAt { get; set; }

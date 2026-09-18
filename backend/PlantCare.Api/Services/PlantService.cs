@@ -31,7 +31,7 @@ public interface IPlantService
     Task<IReadOnlyList<WateringLogResponseDto>?> GetWateringHistoryAsync(int id, CancellationToken cancellationToken = default);
 }
 
-public sealed class PlantService(AppDbContext db, IWateringScheduleService schedule) : IPlantService
+public sealed class PlantService(AppDbContext db, IWateringScheduleService schedule, FeatureFlags features) : IPlantService
 {
     public async Task<IReadOnlyList<PlantResponseDto>> ListAsync(CancellationToken cancellationToken = default)
     {
@@ -191,6 +191,15 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             AcquiredDate = plant.AcquiredDate,
             PlantProfileId = plant.PlantProfileId,
             ProfileCommonName = plant.PlantProfile?.CommonName,
+            CareTips = features.CareTipsEnabled && plant.PlantProfile is { } profile
+                ? new PlantCareTipsDto
+                {
+                    CommonName = profile.CommonName,
+                    LightRequirement = profile.LightRequirement.ToString(),
+                    HumidityNotes = profile.HumidityNotes,
+                    CareTips = profile.CareTips,
+                }
+                : null,
             CustomWateringIntervalDays = plant.CustomWateringIntervalDays,
             LastWateredAt = plant.LastWateredAt,
             DueStatus = due.Status,
