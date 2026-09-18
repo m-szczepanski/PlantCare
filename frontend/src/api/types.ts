@@ -17,6 +17,12 @@ export interface Plant {
   dueMessage: string;
 }
 
+export interface Dashboard {
+  overdue: Plant[];
+  dueToday: Plant[];
+  upcoming: Plant[];
+}
+
 export interface WateringLogEntry {
   id: number;
   wateredAt: string;
