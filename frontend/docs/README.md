@@ -28,8 +28,20 @@ No Next.js / server-side rendering. This is a personal, self-hosted app on a loc
 
 ### UI Kit: shadcn/ui + Tailwind CSS
 
-- shadcn components are **composed, not modified in place** — extend via wrapper components when customization is needed.
-- Theming is centralized in `tailwind.config.ts` so restyling never requires touching component logic. This is a core customization lever since the app is meant as a template others adapt.
+shadcn/ui is the single source for all visuals in this app. The project is registered via
+`frontend/components.json`, so any component can be pulled in with:
+
+```bash
+npx shadcn@latest add <component>   # e.g. dialog, select, table, sonner
+```
+
+This drops the canonical component source into `src/components/ui/` and installs its Radix /
+cva / lucide dependencies. See `components.json` for the active preset (`new-york` style,
+`cssVariables`, green brand accent, `@/` path alias).
+
+- shadcn components are **composed, not modified in place** — extend via wrapper components (e.g. `src/components/DueStatusBadge.tsx`, `src/components/PlantForm.tsx`) when customization is needed.
+- All base tokens (colors including `popover`, `chart`, `sidebar`, light + dark) live in `src/index.css`; layout/radius/animation theming is centralized in `tailwind.config.ts`. Restyling should never require touching component logic.
+- Existing primitives: `button`, `input`, `label`, `card`, `badge`, `select`. Add more as features need them.
 
 ### Server State & Data Fetching
 

@@ -2,6 +2,13 @@ import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { usePlantProfiles } from "@/hooks/usePlantProfiles";
 import type { Plant, PlantInput } from "@/api/types";
 
@@ -78,19 +85,22 @@ export function PlantForm({ initial, submitting, error, submitLabel, onSubmit, o
 
       <div className="space-y-2">
         <Label htmlFor="profile">Species profile</Label>
-        <select
-          id="profile"
-          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          value={profileId ?? ""}
-          onChange={(e) => setProfileId(e.target.value === "" ? null : Number(e.target.value))}
+        <Select
+          value={profileId == null ? "none" : String(profileId)}
+          onValueChange={(value) => setProfileId(value === "none" ? null : Number(value))}
         >
-          <option value="">No profile</option>
-          {profiles.map((profile) => (
-            <option key={profile.id} value={profile.id}>
-              {profile.commonName} ({profile.defaultWateringIntervalDays}d)
-            </option>
-          ))}
-        </select>
+          <SelectTrigger id="profile" className="w-full">
+            <SelectValue placeholder="Select a profile" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">No profile</SelectItem>
+            {profiles.map((profile) => (
+              <SelectItem key={profile.id} value={String(profile.id)}>
+                {profile.commonName} ({profile.defaultWateringIntervalDays}d)
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

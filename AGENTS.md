@@ -47,6 +47,7 @@ npm run dev        # in frontend/
 npm run test       # Vitest
 npm run build
 npm run lint       # if configured
+npx shadcn@latest add <component>   # in frontend/ — pull in a shadcn/ui component
 
 # Full stack
 docker compose up --build
