@@ -26,7 +26,7 @@ plant-care-app/
 ├── README.md
 ├── instructions.md                  # detailed project instructions
 ├── backend/
-│   ├── PlantCare.Api/               # ASP.NET Core Web API (.NET 8/9)
+│   ├── PlantCare.Api/               # ASP.NET Core Web API (.NET 10)
 │   │   ├── Controllers/             # REST endpoints
 │   │   ├── Models/                  # EF Core entities
 │   │   ├── Dtos/                    # Data transfer objects
@@ -34,10 +34,10 @@ plant-care-app/
 │   │   ├── Services/                # scheduling, notification, care-tip logic
 │   │   ├── Seed/                    # default species/profile seed data (JSON)
 │   │   ├── Program.cs
-│   │   └── PlantCare.Api.csproj
+│   │   ├── PlantCare.Api.csproj
+│   │   └── Dockerfile               # for the API service
 │   ├── PlantCare.Api.Tests/         # unit/integration tests
-│   ├── docs/                        # backend documentation
-│   └── Dockerfile                   # for the API service
+│   └── docs/                        # backend documentation
 ├── frontend/                        # React + Vite SPA
 │   ├── src/
 │   │   ├── components/              # shadcn/ui-based components
@@ -53,13 +53,13 @@ plant-care-app/
 └── docs/                            # project-level docs (this folder)
 ```
 
-> Note: a legacy `client/` folder and a stray top-level `src/` exist in the working tree but are empty scaffolding leftovers; `frontend/` is the canonical SPA location.
+> Note: the legacy `client/` folder and stray top-level `src/` were removed during Step 1 scaffolding; `frontend/` is the canonical SPA location.
 
 ## Tech Stack
 
 | Layer | Choice | Notes |
 |-------|--------|-------|
-| Backend | ASP.NET Core Web API (.NET 8/9) | REST/JSON API |
+| Backend | ASP.NET Core Web API (.NET 10) | REST/JSON API |
 | ORM / DB | EF Core + SQLite (default) | Swappable to Postgres via provider change only |
 | Scheduling | Coravel (`IScheduledJob` + `BackgroundService`) | No extra infra; avoid Hangfire/Quartz unless job history/UI becomes a requirement |
 | Frontend | React + Vite + TypeScript | SPA, not Next.js |
@@ -147,7 +147,7 @@ services:
     volumes:
       - plant-data:/data      # SQLite file lives here
     ports:
-      - "5000:8080"
+      - "5001:8080"   # 5000 avoided: macOS AirPlay Receiver binds it
 
   web:
     build: ./frontend

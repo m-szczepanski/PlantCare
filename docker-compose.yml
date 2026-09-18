@@ -1,0 +1,31 @@
+services:
+  api:
+    build: ./backend/PlantCare.Api
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+    volumes:
+      - plant-data:/data
+    ports:
+      - "5001:8080"
+
+  web:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+
+  ntfy:
+    image: binwiederhier/ntfy
+    command: serve
+    ports:
+      - "8080:80"
+    volumes:
+      - ntfy-data:/var/lib/ntfy
+
+volumes:
+  plant-data:
+  ntfy-data:

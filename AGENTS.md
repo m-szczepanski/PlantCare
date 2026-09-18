@@ -4,7 +4,7 @@ Instructions for AI agents (and humans) working in this repo. Read this before m
 
 ## Project
 
-Self-hosted plant tracking web app: ASP.NET Core (.NET 8/9) API + React/Vite/TS SPA, EF Core + SQLite, Coravel background job, ntfy push notifications, deployed via Docker Compose. Single-user, no auth in v1.
+Self-hosted plant tracking web app: ASP.NET Core (.NET 10) API + React/Vite/TS SPA, EF Core + SQLite, Coravel background job, ntfy push notifications, deployed via Docker Compose. Single-user, no auth in v1.
 
 ## Documentation Map (read the relevant one before working)
 
@@ -20,8 +20,9 @@ Self-hosted plant tracking web app: ASP.NET Core (.NET 8/9) API + React/Vite/TS 
 
 1. Work strictly in the order of `docs/implementation-plan.md`. Do not skip steps or start the next step before the current one's acceptance criteria pass.
 2. Each step (or coherent slice) is its own scoped commit/PR, e.g. `add PlantProfile CRUD`, `add watering scheduler`.
-3. Every schema change ships with an EF Core migration committed alongside the code.
-4. Update docs when a change deviates from a documented decision.
+3. Commit as you go: within a step, commit changes incrementally, grouped by feature/functionality rather than one giant commit at the end. Use short, descriptive commit messages (repo style: lowercase `type: message`, e.g. `feat: add health endpoint`).
+4. Every schema change ships with an EF Core migration committed alongside the code.
+5. Update docs when a change deviates from a documented decision.
 
 ## Commands
 

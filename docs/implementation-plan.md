@@ -22,20 +22,20 @@ Work the steps strictly in order — each step depends on the artifacts of the p
 **What:** Finalize repo structure, `.env.example`, `docker-compose.yml`, Dockerfiles for `api` and `web`, and a health check endpoint.
 
 **How:**
-- Create `backend/PlantCare.Api` (.NET 8/9 Web API, minimal hosting in `Program.cs`) and remove the empty leftover `client/` and top-level `src/` scaffolding.
+- Create `backend/PlantCare.Api` (.NET 10 Web API, minimal hosting in `Program.cs`) and remove the empty leftover `client/` and top-level `src/` scaffolding.
 - `GET /health` returns `200 OK` with no DB dependency.
 - Dockerfiles: multi-stage build; frontend image builds the Vite bundle and serves it via nginx with an `/api` reverse proxy to the `api` service.
 - `docker-compose.yml` per the target shape in `README.md`; `.env.example` lists all env vars with comments.
 
 **Test:**
 - `docker compose up --build` from a clean checkout.
-- `curl http://localhost:5000/health` → 200. `curl http://localhost:3000` → serves the SPA shell.
+- `curl http://localhost:5001/health` → 200. `curl http://localhost:3000` → serves the SPA shell.
 
 **Acceptance criteria:**
-- [ ] Clean clone + `docker compose up` boots all services without manual fixes.
-- [ ] `/health` responds 200 from the api container.
-- [ ] SPA loads in a browser at port 3000 and can reach the API through the nginx proxy.
-- [ ] `.env.example` documents every variable the compose file reads.
+- [x] Clean clone + `docker compose up` boots all services without manual fixes.
+- [x] `/health` responds 200 from the api container.
+- [x] SPA loads in a browser at port 3000 and can reach the API through the nginx proxy.
+- [x] `.env.example` documents every variable the compose file reads.
 
 ---
 

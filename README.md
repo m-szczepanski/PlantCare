@@ -24,7 +24,7 @@ plant-care-app/
 ├── README.md
 ├── instructions.md              # detailed project instructions
 ├── backend/
-│   ├── PlantCare.Api/           # ASP.NET Core Web API (.NET 8/9)
+│   ├── PlantCare.Api/           # ASP.NET Core Web API (.NET 10)
 │   │   ├── Controllers/         # REST endpoints
 │   │   ├── Models/              # EF Core entities
 │   │   ├── Dtos/                # Data transfer objects
@@ -32,9 +32,9 @@ plant-care-app/
 │   │   ├── Services/            # scheduling, notification, care-tip logic
 │   │   ├── Seed/                # default species/profile seed data (JSON)
 │   │   ├── Program.cs
-│   │   └── PlantCare.Api.csproj
-│   ├── PlantCare.Api.Tests/     # unit/integration tests
-│   └── Dockerfile               # for the API service
+│   │   ├── PlantCare.Api.csproj
+│   │   └── Dockerfile           # for the API service
+│   └── PlantCare.Api.Tests/     # unit/integration tests
 ├── frontend/                    # React + Vite SPA
 │   ├── src/
 │   │   ├── components/          # shadcn/ui-based components
@@ -54,7 +54,7 @@ plant-care-app/
 
 | Layer | Choice | Notes |
 |-------|--------|-------|
-| Backend | ASP.NET Core Web API (.NET 8/9) | REST/JSON API |
+| Backend | ASP.NET Core Web API (.NET 10) | REST/JSON API |
 | ORM / DB | EF Core + SQLite (default) | Swappable to Postgres via provider change only |
 | Scheduling | Coravel (`IScheduledJob` + `BackgroundService`) | No extra infra needed; avoid Hangfire/Quartz unless job history/UI becomes a requirement |
 | Frontend | React + Vite + TypeScript | SPA, not Next.js |
@@ -142,7 +142,7 @@ services:
     volumes:
       - plant-data:/data      # SQLite file lives here
     ports:
-      - "5000:8080"
+      - "5001:8080"   # 5000 avoided: macOS AirPlay Receiver binds it
 
   web:
     build: ./frontend
