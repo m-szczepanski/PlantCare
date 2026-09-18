@@ -102,9 +102,14 @@ Work the steps strictly in order — each step depends on the artifacts of the p
 - Manual: mark watered → due status disappears/reset in the UI.
 
 **Acceptance criteria:**
-- [ ] Watering updates both the log and `LastWateredAt` atomically.
-- [ ] UI shows a watering history (from the log) on the detail page.
-- [ ] Dashboard/list reflect the reset immediately after the action (no stale cache).
+- [x] Watering updates both the log and `LastWateredAt` atomically.
+- [x] UI shows a watering history (from the log) on the detail page.
+- [x] Dashboard/list reflect the reset immediately after the action (no stale cache).
+
+**Deviations / notes:**
+- Atomicity is achieved by putting both changes in a single `SaveChangesAsync` call (EF's implicit transaction) instead of an explicit `BeginTransaction` — same guarantee, less code.
+- Added a small read endpoint `GET /api/plants/{id}/watering-logs` to satisfy the history criterion; the draft API surface only listed the water POST. History lives in its own DTO so the plant list/detail payloads stay untouched.
+- The "ideally" part of the list-row water button was skipped (YAGNI); it lands trivially once the dashboard (step 5) shares plant-card components.
 
 ---
 
