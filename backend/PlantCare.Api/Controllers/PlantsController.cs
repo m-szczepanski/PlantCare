@@ -46,4 +46,18 @@ public class PlantsController(IPlantService plants) : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         => await plants.DeleteAsync(id, cancellationToken) ? NoContent() : NotFound();
+
+    [HttpPost("{id:int}/water")]
+    public async Task<ActionResult<PlantResponseDto>> Water(int id, WaterPlantRequestDto? dto, CancellationToken cancellationToken)
+    {
+        var plant = await plants.WaterAsync(id, dto?.Note, cancellationToken);
+        return plant is null ? NotFound() : Ok(plant);
+    }
+
+    [HttpGet("{id:int}/watering-logs")]
+    public async Task<ActionResult<IReadOnlyList<WateringLogResponseDto>>> WateringLogs(int id, CancellationToken cancellationToken)
+    {
+        var logs = await plants.GetWateringHistoryAsync(id, cancellationToken);
+        return logs is null ? NotFound() : Ok(logs);
+    }
 }

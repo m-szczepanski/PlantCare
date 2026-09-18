@@ -29,6 +29,7 @@ GET    /api/plants/{id}
 PUT    /api/plants/{id}
 DELETE /api/plants/{id}
 POST   /api/plants/{id}/water      logs a watering event, updates LastWateredAt
+GET    /api/plants/{id}/watering-logs   watering history for a plant (newest first)
 
 GET    /api/plant-profiles         list species/profiles
 POST   /api/plant-profiles

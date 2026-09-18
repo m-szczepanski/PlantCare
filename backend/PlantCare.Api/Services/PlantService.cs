@@ -25,6 +25,10 @@ public interface IPlantService
     Task<PlantWriteResult> UpdateAsync(int id, UpdatePlantRequestDto dto, CancellationToken cancellationToken = default);
 
     Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default);
+
+    Task<PlantResponseDto?> WaterAsync(int id, string? note, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<WateringLogResponseDto>?> GetWateringHistoryAsync(int id, CancellationToken cancellationToken = default);
 }
 
 public sealed class PlantService(AppDbContext db, IWateringScheduleService schedule) : IPlantService
@@ -109,6 +113,56 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         db.Plants.Remove(plant);
         await db.SaveChangesAsync(cancellationToken);
         return true;
+    }
+
+    /// <summary>
+    /// Logs a watering event and updates <see cref="Plant.LastWateredAt"/> atomically:
+    /// both changes go out in the single implicit transaction of one SaveChanges call.
+    /// </summary>
+    public async Task<PlantResponseDto?> WaterAsync(int id, string? note, CancellationToken cancellationToken = default)
+    {
+        var plant = await db.Plants
+            .Include(p => p.PlantProfile)
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+
+        if (plant is null)
+        {
+            return null;
+        }
+
+        var wateredAt = DateTime.UtcNow;
+        plant.LastWateredAt = wateredAt;
+        db.WateringLogs.Add(new WateringLog
+        {
+            PlantId = plant.Id,
+            WateredAt = wateredAt,
+            Note = string.IsNullOrWhiteSpace(note) ? null : note.Trim(),
+        });
+
+        await db.SaveChangesAsync(cancellationToken);
+
+        return ToResponse(plant);
+    }
+
+    public async Task<IReadOnlyList<WateringLogResponseDto>?> GetWateringHistoryAsync(int id, CancellationToken cancellationToken = default)
+    {
+        if (!await db.Plants.AnyAsync(p => p.Id == id, cancellationToken))
+        {
+            return null;
+        }
+
+        return await db.WateringLogs
+            .AsNoTracking()
+            .Where(w => w.PlantId == id)
+            .OrderByDescending(w => w.WateredAt)
+            .ThenByDescending(w => w.Id)
+            .Select(w => new WateringLogResponseDto
+            {
+                Id = w.Id,
+                WateredAt = w.WateredAt,
+                Note = w.Note,
+            })
+            .ToListAsync(cancellationToken);
     }
 
     private async Task<bool> ProfileExistsAsync(int profileId, CancellationToken cancellationToken)

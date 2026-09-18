@@ -2,7 +2,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { DueStatusBadge } from "@/components/DueStatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useDeletePlant, usePlant } from "@/hooks/usePlants";
+import { useDeletePlant, usePlant, useWaterPlant, useWateringLogs } from "@/hooks/usePlants";
 
 function formatDate(value: string | null): string {
   if (!value) return "-";
@@ -15,6 +15,8 @@ export function PlantDetailPage() {
   const navigate = useNavigate();
   const { data: plant, isPending, isError, error } = usePlant(plantId);
   const deletePlant = useDeletePlant();
+  const waterPlant = useWaterPlant();
+  const { data: wateringLogs } = useWateringLogs(plantId);
 
   if (isPending) {
     return <p className="text-muted-foreground">Loading plant...</p>;
@@ -58,7 +60,30 @@ export function PlantDetailPage() {
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle>Watering history</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {wateringLogs && wateringLogs.length > 0 ? (
+            <ul className="space-y-1 text-sm">
+              {wateringLogs.map((log) => (
+                <li key={log.id} className="flex items-baseline gap-2">
+                  <span className="font-medium">{new Date(log.wateredAt).toLocaleString()}</span>
+                  {log.note ? <span className="text-muted-foreground">{log.note}</span> : null}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">No waterings logged yet.</p>
+          )}
+        </CardContent>
+      </Card>
+
       <div className="flex gap-2">
+        <Button onClick={() => waterPlant.mutate({ id: plant.id })} disabled={waterPlant.isPending}>
+          {waterPlant.isPending ? "Watering..." : "Mark as watered"}
+        </Button>
         <Button asChild>
           <Link to={`/plants/${plant.id}/edit`}>Edit</Link>
         </Button>
@@ -69,6 +94,9 @@ export function PlantDetailPage() {
           {deletePlant.isPending ? "Deleting..." : "Delete"}
         </Button>
       </div>
+      {waterPlant.isError ? (
+        <p className="text-sm text-destructive">Could not log watering: {(waterPlant.error as Error).message}</p>
+      ) : null}
     </div>
   );
 }
