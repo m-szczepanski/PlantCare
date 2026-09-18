@@ -1,0 +1,24 @@
+# OS / editor noise
+.DS_Store
+*~
+
+# .NET build output
+bin/
+obj/
+*.user
+
+# SQLite local databases (dev/test artifacts)
+*.db
+*.db-shm
+*.db-wal
+
+# Node / frontend build output
+node_modules/
+dist/
+
+# Local env and compose overrides (keep the .example files)
+.env
+docker-compose.override.yml
+
+__pycache__/
+*.pyc
