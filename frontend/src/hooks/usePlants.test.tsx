@@ -28,6 +28,7 @@ const plant: Plant = {
   acquiredDate: "2026-01-01T00:00:00",
   plantProfileId: null,
   profileCommonName: null,
+  careTips: null,
   customWateringIntervalDays: 7,
   lastWateredAt: null,
   dueStatus: "Upcoming",

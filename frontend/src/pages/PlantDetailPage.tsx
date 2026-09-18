@@ -1,4 +1,5 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { CareTipsCard } from "@/components/CareTipsCard";
 import { DueStatusBadge } from "@/components/DueStatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,6 +60,8 @@ export function PlantDetailPage() {
           <Field label="Photo" value={plant.photoUrl ?? "None"} />
         </CardContent>
       </Card>
+
+      {plant.careTips ? <CareTipsCard tips={plant.careTips} /> : null}
 
       <Card>
         <CardHeader>
