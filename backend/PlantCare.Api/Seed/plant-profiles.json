@@ -1,0 +1,66 @@
+[
+  {
+    "commonName": "Monstera",
+    "scientificName": "Monstera deliciosa",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Prefers average to high humidity; mist occasionally or use a pebble tray.",
+    "careTips": "Thrives in bright, indirect light. Water when the top 2-3 cm of soil are dry. Wipe leaves to keep them dust-free. Rotate periodically for even growth."
+  },
+  {
+    "commonName": "Snake Plant",
+    "scientificName": "Dracaena trifasciata",
+    "defaultWateringIntervalDays": 14,
+    "lightRequirement": "Low",
+    "humidityNotes": "Tolerates dry air well; no extra humidity needed.",
+    "careTips": "Extremely forgiving. Tolerates low light and neglect. Let the soil dry fully between waterings; root rot is the main risk. Feed once in spring."
+  },
+  {
+    "commonName": "Pothos",
+    "scientificName": "Epipremnum aureum",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Average household humidity is fine.",
+    "careTips": "Grows in almost any light condition. Water when the top soil is dry. Trims easily and roots in water for propagation."
+  },
+  {
+    "commonName": "Fiddle Leaf Fig",
+    "scientificName": "Ficus lyrata",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Enjoy extra humidity; group with other plants or run a humidifier nearby.",
+    "careTips": "Loves bright, filtered light and stable conditions. Keep away from drafts and radiators. Water when the top 2 cm of soil are dry; feed monthly in growing season."
+  },
+  {
+    "commonName": "Spider Plant",
+    "scientificName": "Chlorophytum comosum",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Appreciates some humidity; brown tips often mean the air is too dry.",
+    "careTips": "Easy-going and pet-safe. Bright, indirect light suits it best. Water when the top soil dries; flush the pot occasionally to clear fertilizer salts."
+  },
+  {
+    "commonName": "ZZ Plant",
+    "scientificName": "Zamioculcas zamiifolia",
+    "defaultWateringIntervalDays": 14,
+    "lightRequirement": "Low",
+    "humidityNotes": "Happy in dry air; stores water in its rhizomes.",
+    "careTips": "Near-unkillable. Tolerates low light and long dry spells. Water sparingly - let the soil dry out fully between drinks."
+  },
+  {
+    "commonName": "Peace Lily",
+    "scientificName": "Spathiphyllum wallisii",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Low",
+    "humidityNotes": "Loves humidity; mist regularly in winter.",
+    "careTips": "Droopy leaves are a clear signal it is thirsty. Prefers shade to bright sun. Keep the soil lightly moist but never waterlogged."
+  },
+  {
+    "commonName": "Aloe Vera",
+    "scientificName": "Aloe barbadensis miller",
+    "defaultWateringIntervalDays": 14,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Prefers dry air; avoid misting.",
+    "careTips": "A sunny windowsill is ideal. Water deeply but infrequently - let the soil dry completely between waterings. Use a gritty, fast-draining mix."
+  }
+]

@@ -1,0 +1,54 @@
+using Microsoft.EntityFrameworkCore;
+using PlantCare.Api.Models;
+
+namespace PlantCare.Api.Data;
+
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+{
+    public DbSet<Plant> Plants => Set<Plant>();
+
+    public DbSet<PlantProfile> PlantProfiles => Set<PlantProfile>();
+
+    public DbSet<WateringLog> WateringLogs => Set<WateringLog>();
+
+    public DbSet<NotificationLog> NotificationLogs => Set<NotificationLog>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<PlantProfile>(entity =>
+        {
+            entity.Property(p => p.LightRequirement).HasConversion<string>();
+            entity.HasIndex(p => p.CommonName).IsUnique();
+        });
+
+        modelBuilder.Entity<Plant>(entity =>
+        {
+            entity.HasOne(p => p.PlantProfile)
+                .WithMany(pp => pp.Plants)
+                .HasForeignKey(p => p.PlantProfileId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<WateringLog>(entity =>
+        {
+            entity.HasOne(w => w.Plant)
+                .WithMany(p => p.WateringLogs)
+                .HasForeignKey(w => w.PlantId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(w => new { w.PlantId, w.WateredAt });
+        });
+
+        modelBuilder.Entity<NotificationLog>(entity =>
+        {
+            entity.Property(n => n.Type).HasConversion<string>();
+
+            entity.HasOne(n => n.Plant)
+                .WithMany(p => p.NotificationLogs)
+                .HasForeignKey(n => n.PlantId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(n => new { n.PlantId, n.Type, n.SentAt });
+        });
+    }
+}

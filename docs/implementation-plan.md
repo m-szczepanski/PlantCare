@@ -53,10 +53,10 @@ Work the steps strictly in order — each step depends on the artifacts of the p
 - Backend integration test: boot the API against a temp SQLite file, verify tables exist and seed data was inserted (e.g., `GET /api/plant-profiles` later in step 3 — for now verify via context query in a unit test).
 
 **Acceptance criteria:**
-- [ ] API starts and creates/opens the SQLite DB automatically; no manual migration step for end users.
-- [ ] Initial migration file is committed and applies cleanly to an empty DB.
-- [ ] Seed profiles are inserted idempotently (restarting twice doesn't duplicate rows).
-- [ ] `LightRequirement` enum stored consistently (defined storage conversion).
+- [x] API starts and creates/opens the SQLite DB automatically; no manual migration step for end users.
+- [x] Initial migration file is committed and applies cleanly to an empty DB.
+- [x] Seed profiles are inserted idempotently (restarting twice doesn't duplicate rows).
+- [x] `LightRequirement` enum stored consistently (defined storage conversion).
 
 ---
 

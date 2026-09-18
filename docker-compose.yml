@@ -6,6 +6,7 @@ services:
         required: false
     environment:
       ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Default: ${DB_CONNECTIONSTRING:-Data Source=/data/plantcare.db}
     volumes:
       - plant-data:/data
     ports:
