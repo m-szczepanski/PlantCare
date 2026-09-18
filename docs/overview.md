@@ -1,8 +1,10 @@
-# Plant Care App
+# Plant Care App — Project Overview
 
-A self-hosted, highly customizable web app for tracking owned plants, watering reminders, and care tips. Designed to be deployed via Docker by end users as a personal/home template, not a multi-tenant SaaS.
+A self-hosted, highly customizable web app for tracking owned plants, watering reminders, and care tips. Designed to be deployed via Docker by end users as a personal/home template — **not** a multi-tenant SaaS.
 
-## Core Features (v1)s
+> Source of truth for this document: the root `README.md`. Update both when decisions change.
+
+## Core Features (v1)
 
 - CRUD for owned plants (name, species, location, photo, acquired date)
 - Watering schedule per plant, derived from a species/profile default but overridable per plant
@@ -10,45 +12,48 @@ A self-hosted, highly customizable web app for tracking owned plants, watering r
 - Care tips per species (light, humidity, temperature, fertilizing notes)
 - Simple dashboard: "due today / overdue / upcoming" view
 
-**Explicit non-goals for v1:** multi-user auth, mobile app, cloud sync. Keep it single-user, local-network friendly.
+**Explicit non-goals for v1:** multi-user auth, mobile app, cloud sync. The app stays single-user and local-network friendly.
 
 ## Repository Structure
 
 **Decision: single repo (monorepo) for backend + frontend.** For a project of this size, run by one supervisor + an AI agent, a monorepo is the right call — one Docker Compose file, one set of issues/PRs, no version drift between API and UI. Split into separate repos only if this ever becomes a multi-team or publicly distributed product with independent release cadences.
 
-```mds
+```
 plant-care-app/
 ├── docker-compose.yml
 ├── docker-compose.override.yml.example
 ├── .env.example
 ├── README.md
-├── instructions.md              # detailed project instructions
+├── instructions.md                  # detailed project instructions
 ├── backend/
-│   ├── PlantCare.Api/           # ASP.NET Core Web API (.NET 8/9)
-│   │   ├── Controllers/         # REST endpoints
-│   │   ├── Models/              # EF Core entities
-│   │   ├── Dtos/                # Data transfer objects
-│   │   ├── Data/                # DbContext, migrations
-│   │   ├── Services/            # scheduling, notification, care-tip logic
-│   │   ├── Seed/                # default species/profile seed data (JSON)
+│   ├── PlantCare.Api/               # ASP.NET Core Web API (.NET 8/9)
+│   │   ├── Controllers/             # REST endpoints
+│   │   ├── Models/                  # EF Core entities
+│   │   ├── Dtos/                    # Data transfer objects
+│   │   ├── Data/                    # DbContext, migrations
+│   │   ├── Services/                # scheduling, notification, care-tip logic
+│   │   ├── Seed/                    # default species/profile seed data (JSON)
 │   │   ├── Program.cs
 │   │   └── PlantCare.Api.csproj
-│   ├── PlantCare.Api.Tests/     # unit/integration tests
-│   └── Dockerfile               # for the API service
-├── frontend/                    # React + Vite SPA
+│   ├── PlantCare.Api.Tests/         # unit/integration tests
+│   ├── docs/                        # backend documentation
+│   └── Dockerfile                   # for the API service
+├── frontend/                        # React + Vite SPA
 │   ├── src/
-│   │   ├── components/          # shadcn/ui-based components
-│   │   ├── pages/               # route views (or use React Router paths)
-│   │   ├── api/                 # typed API client helpers
-│   │   ├── hooks/               # custom React hooks for data fetching
-│   │   └── lib/                 # utility libraries, config
-│   ├── public/                  # static assets
+│   │   ├── components/              # shadcn/ui-based components
+│   │   ├── pages/                   # route views
+│   │   ├── api/                     # typed API client helpers
+│   │   ├── hooks/                   # custom React hooks for data fetching
+│   │   └── lib/                     # utility libraries, config
+│   ├── docs/                        # frontend documentation
+│   ├── public/                      # static assets
 │   ├── index.html
 │   ├── vite.config.ts
-│   └── Dockerfile               # for the web service (serves via nginx)
-└── docs/                        # optional: expand on decisions as they're made
-    └── architecture.md
+│   └── Dockerfile                   # for the web service (serves via nginx)
+└── docs/                            # project-level docs (this folder)
 ```
+
+> Note: a legacy `client/` folder and a stray top-level `src/` exist in the working tree but are empty scaffolding leftovers; `frontend/` is the canonical SPA location.
 
 ## Tech Stack
 
@@ -56,7 +61,7 @@ plant-care-app/
 |-------|--------|-------|
 | Backend | ASP.NET Core Web API (.NET 8/9) | REST/JSON API |
 | ORM / DB | EF Core + SQLite (default) | Swappable to Postgres via provider change only |
-| Scheduling | Coravel (`IScheduledJob` + `BackgroundService`) | No extra infra needed; avoid Hangfire/Quartz unless job history/UI becomes a requirement |
+| Scheduling | Coravel (`IScheduledJob` + `BackgroundService`) | No extra infra; avoid Hangfire/Quartz unless job history/UI becomes a requirement |
 | Frontend | React + Vite + TypeScript | SPA, not Next.js |
 | UI kit | shadcn/ui + Tailwind CSS | Consistent, accessible components |
 | Notifications | ntfy (self-hosted container) | API POSTs to ntfy on due/overdue plants |
@@ -64,7 +69,7 @@ plant-care-app/
 
 ## Data Model (initial draft)
 
-```md
+```
 PlantProfile (species-level defaults — seedable/customizable)
 - Id
 - CommonName
@@ -97,11 +102,11 @@ NotificationLog (optional, for dedup/audit)
 - Type (e.g., WateringDue)
 ```
 
-Seed `PlantProfile` data from a JSON file in `backend/PlantCare.Api/Seed/` so users can extend/edit species defaults without touching code — this is the main "customization" lever for care tips and default schedules.
+`PlantProfile` data is seeded from a JSON file in `backend/PlantCare.Api/Seed/` so users can extend/edit species defaults without touching code — this is the main "customization" lever for care tips and default schedules.
 
-## API Endpoints (initial draft)
+## API Surface (initial draft)
 
-```mds
+```
 GET    /api/plants                 list owned plants (+ due status)
 POST   /api/plants
 GET    /api/plants/{id}
@@ -169,11 +174,11 @@ Add `postgres` as an optional service later if/when moving off SQLite.
 ## Conventions
 
 - **Backend**: standard .NET naming (PascalCase for types/members), controllers thin, business logic in `Services/`, DTOs separate from EF entities.
-- **Frontend**: functional components, hooks for data fetching (consider React Query/TanStack Query for server state), shadcn components composed rather than modified in place where possible.
+- **Frontend**: functional components, hooks for data fetching (consider TanStack Query for server state), shadcn components composed rather than modified in place where possible.
 - **Commits**: small, scoped commits; agentic AI changes should be reviewable in isolated PRs per feature slice (e.g., "add PlantProfile CRUD", "add watering scheduler").
 - **Migrations**: every schema change ships with an EF Core migration, committed alongside the code change that needs it.
 
-## Suggested Build Order (milestones)
+## Build Order (milestones)
 
 1. Scaffold repo structure + empty Docker Compose (containers boot, health check endpoint responds).
 2. EF Core models + SQLite + initial migration (`Plant`, `PlantProfile`).
@@ -184,8 +189,16 @@ Add `postgres` as an optional service later if/when moving off SQLite.
 7. Care tips display (from `PlantProfile`) in plant detail view.
 8. Seed data expansion + polish (shadcn theming, photo upload, empty states).
 
-## Open Questions to Resolve Early
+## Open Questions
 
 - Photo storage: local volume vs. skip photos for v1?
 - Should `CustomWateringIntervalDays` support more complex rules (e.g., seasonal adjustment) later, or stay a flat interval for v1?
 - Single ntfy topic for everything, or per-category topics (watering vs. future feature notifications)?
+
+## Documentation Map
+
+| Location | Contents |
+|----------|----------|
+| `docs/` (this folder) | Project overview, architecture, cross-cutting decisions |
+| `backend/docs/` | API design, data model & EF Core approach, scheduling/notifications, conventions |
+| `frontend/docs/` | SPA architecture, state & data fetching, UI kit/theming, API client approach |

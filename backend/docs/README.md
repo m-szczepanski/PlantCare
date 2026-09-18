@@ -1,0 +1,81 @@
+# Backend Documentation
+
+ASP.NET Core Web API (.NET 8/9) — the `backend/PlantCare.Api/` project. REST/JSON API backed by EF Core + SQLite, with a Coravel-scheduled daily watering check that pushes notifications through a self-hosted ntfy container.
+
+> See `../../docs/architecture.md` for the system-level picture.
+
+## Project Layout
+
+```
+backend/
+├── PlantCare.Api/
+│   ├── Controllers/    # REST endpoints (thin — HTTP ↔ DTO mapping only)
+│   ├── Models/         # EF Core entities
+│   ├── Dtos/           # Request/response DTOs (separate from entities)
+│   ├── Data/           # DbContext, EF Core migrations
+│   ├── Services/       # Business logic: scheduling, notification, care tips
+│   ├── Seed/           # Default species/profile seed data (JSON)
+│   └── Program.cs      # Composition root / DI registration
+├── PlantCare.Api.Tests/   # unit/integration tests
+└── Dockerfile             # API service image
+```
+
+## API Endpoints
+
+```
+GET    /api/plants                 list owned plants (+ due status)
+POST   /api/plants
+GET    /api/plants/{id}
+PUT    /api/plants/{id}
+DELETE /api/plants/{id}
+POST   /api/plants/{id}/water      logs a watering event, updates LastWateredAt
+
+GET    /api/plant-profiles         list species/profiles
+POST   /api/plant-profiles
+PUT    /api/plant-profiles/{id}
+
+GET    /api/dashboard              due today / overdue / upcoming summary
+```
+
+## Data Model
+
+- **`PlantProfile`** — species-level defaults (common/scientific name, `DefaultWateringIntervalDays`, `LightRequirement` enum Low/Medium/Bright/DirectSun, humidity notes, care tips text/markdown). Seeded from JSON in `Seed/`.
+- **`Plant`** — the user's owned instance. Optional FK to `PlantProfile`; `CustomWateringIntervalDays` (nullable) overrides the profile default; tracks `Location`, `PhotoUrl`, `AcquiredDate`, `LastWateredAt`.
+- **`WateringLog`** — history of watering events per plant (`WateredAt`, optional note).
+- **`NotificationLog`** — audit/dedup for sent notifications (`SentAt`, `Type`), preventing duplicate sends on the same day.
+
+### Persistence Approach
+
+- **EF Core + SQLite** by default; the SQLite file lives on a Docker volume (`/data`). Postgres is reachable later via a provider/connection-string change only — no query rewrites expected.
+- Every schema change ships with an EF Core migration, committed alongside the code change that requires it.
+- Seed data is loaded from JSON at startup so users can extend species defaults without touching code.
+
+## Background Scheduling & Notifications
+
+Handled with **Coravel** (`IScheduledJob` / `BackgroundService`) — deliberately chosen over Hangfire/Quartz since a single daily job needs no job-store infrastructure.
+
+Daily check flow:
+
+1. Coravel fires at the cron from `WATERING_CHECK_CRON` (env-configurable).
+2. Query plants where `LastWateredAt + interval <= today` (interval = custom override ?? profile default).
+3. For each due/overdue plant, POST a message to the ntfy container topic (e.g., `http://ntfy:80/plant-care`).
+4. Write a `NotificationLog` row to avoid duplicate sends on the same day.
+5. ntfy failure must not crash the job or block the rest of the check — degrade gracefully.
+
+## Configuration (env-driven)
+
+All runtime knobs come from environment variables / `.env`:
+
+| Variable | Purpose |
+|----------|---------|
+| `WATERING_CHECK_CRON` | Daily watering-check schedule |
+| ntfy topic/URL vars | Where notification POSTs go |
+| Connection string | SQLite path (or Postgres later) |
+| Feature flags e.g. `ENABLE_CARE_TIPS` | Toggle features without code changes |
+
+## Conventions
+
+- Standard .NET naming (PascalCase for types/members).
+- Controllers stay thin; business logic belongs in `Services/`.
+- DTOs are separate from EF Core entities — never expose entities directly.
+- Tests live in `PlantCare.Api.Tests/` (unit + integration).
