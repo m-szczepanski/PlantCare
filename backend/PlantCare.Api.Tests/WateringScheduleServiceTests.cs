@@ -97,6 +97,26 @@ public class WateringScheduleServiceTests
     }
 
     [Fact]
+    public void AfterWatering_DueStatusResets()
+    {
+        var plant = new Plant
+        {
+            NickName = "Rex",
+            Location = "Desk",
+            CustomWateringIntervalDays = 7,
+            LastWateredAt = new DateTime(2026, 3, 3),
+        };
+
+        Assert.Equal(PlantDueStatus.Overdue, _service.GetDueInfo(plant, Today).Status);
+
+        plant.LastWateredAt = Today.ToDateTime(TimeOnly.MinValue);
+
+        var due = _service.GetDueInfo(plant, Today);
+        Assert.Equal(PlantDueStatus.Upcoming, due.Status);
+        Assert.Equal(7, due.DaysUntilDue);
+    }
+
+    [Fact]
     public void CustomIntervalOverridesProfileDefault()
     {
         var plant = new Plant
