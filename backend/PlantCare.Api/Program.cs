@@ -27,6 +27,7 @@ builder.Services.AddHttpClient<INtfyPublisher, NtfyPublisher>();
 
 builder.Services.AddScheduler();
 builder.Services.AddScoped<IWateringCheckService, WateringCheckService>();
+builder.Services.AddTransient<WateringCheckJob>();
 
 var app = builder.Build();
 
@@ -42,10 +43,10 @@ using (var scope = app.Services.CreateScope())
 
 app.MapControllers();
 
-app.Services.UseScheduler(scheduler =>
-{
-    scheduler.Schedule<WateringCheckJob>().Cron(builder.Configuration["WATERING_CHECK_CRON"] ?? "0 8 * * *");
-});
+var schedulerLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Coravel.Scheduler");
+app.Services
+    .UseScheduler(scheduler => scheduler.Schedule<WateringCheckJob>().Cron(builder.Configuration["WATERING_CHECK_CRON"] ?? "0 8 * * *"))
+    .OnError(ex => schedulerLogger.LogError(ex, "A scheduled task threw an unhandled exception."));
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 

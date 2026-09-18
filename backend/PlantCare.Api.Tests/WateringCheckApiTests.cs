@@ -168,6 +168,18 @@ public class WateringCheckApiTests : IDisposable
         Assert.Equal(0, result.SkippedDuplicates);
     }
 
+    [Fact]
+    public async Task ScheduledJob_IsResolvableFromRootProvider_CoravelActivatesItPerRun()
+    {
+        // Coravel resolves the IInvocable via GetRequiredService in a fresh scope; if the
+        // registration is missing the job silently never runs, so assert it resolves.
+        await using var scope = _factory.Services.CreateAsyncScope();
+
+        var job = scope.ServiceProvider.GetRequiredService<WateringCheckJob>();
+
+        Assert.NotNull(job);
+    }
+
     private async Task<List<NotificationLog>> GetNotificationLogsAsync()
     {
         await using var scope = CreateScope();
