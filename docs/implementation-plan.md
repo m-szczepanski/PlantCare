@@ -184,9 +184,16 @@ Work the steps strictly in order — each step depends on the artifacts of the p
 - Manual: link a plant to a seeded profile with rich tips, verify formatting.
 
 **Acceptance criteria:**
-- [ ] Tips display for profiled plants and are absent (no crash/empty box) for unprofiled ones.
-- [ ] `ENABLE_CARE_TIPS=false` hides the section without code changes.
-- [ ] Profile edits (via plant-profiles endpoints) are reflected in the UI.
+- [x] Tips display for profiled plants and are absent (no crash/empty box) for unprofiled ones.
+- [x] `ENABLE_CARE_TIPS=false` hides the section without code changes.
+- [x] Profile edits (via plant-profiles endpoints) are reflected in the UI.
+
+**Deviations / notes:**
+- Profile POST/PUT landed here as deferred by the Step 3 notes. Duplicate `CommonName` returns 409 (unique index); no validation framework beyond data annotations. No profile-management UI form was built (no Step 7 AC requires one; the "Plant/profile forms" view in the frontend docs stays open for a later pass).
+- Temperature and fertilizing guidance lives inside the markdown `CareTips` text — the data model has no dedicated columns for them (light and humidity do). No schema change, hence no migration.
+- The feature flag is applied server-side: `PlantService` embeds `careTips` on plant responses only when `ENABLE_CARE_TIPS` is not `false` (default on). The SPA renders the section only when the field is non-null, so toggling the flag is an env-only change. Verified live with compose (`ENABLE_CARE_TIPS=false` → `"careTips": null`).
+- Tips are embedded in all plant payloads via the single shared mapper (list is a few rows for a single-user app); the UI only renders them on the detail view.
+- `CareTipsCard` renders the markdown via `react-markdown` (new dependency, no raw-HTML plugin so it is XSS-safe). AC3 is proven by the integration test that edits a profile via PUT and re-reads the plant detail; the final browser visual pass is left to the user.
 
 ---
 

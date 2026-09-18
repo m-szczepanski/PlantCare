@@ -17,10 +17,13 @@ internal sealed class TempDatabase : IDisposable
 
     public string ConnectionString { get; }
 
-    public WebApplicationFactory<Program> CreateFactory(Action<IServiceCollection>? configureTestServices = null) =>
+    public WebApplicationFactory<Program> CreateFactory(
+        Action<IServiceCollection>? configureTestServices = null,
+        Action<IWebHostBuilder>? configureBuilder = null) =>
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseSetting("ConnectionStrings:Default", ConnectionString);
+            configureBuilder?.Invoke(builder);
             if (configureTestServices is not null)
             {
                 builder.ConfigureTestServices(configureTestServices);

@@ -25,6 +25,7 @@ const monstera: Plant = {
   acquiredDate: "2026-01-01T00:00:00",
   plantProfileId: 2,
   profileCommonName: "Monstera",
+  careTips: null,
   customWateringIntervalDays: null,
   lastWateredAt: "2026-03-01T00:00:00",
   dueStatus: "Overdue",

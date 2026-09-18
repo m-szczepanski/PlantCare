@@ -26,6 +26,7 @@ const plant: Plant = {
   acquiredDate: "2026-01-01T00:00:00",
   plantProfileId: null,
   profileCommonName: null,
+  careTips: null,
   customWateringIntervalDays: 7,
   lastWateredAt: "2026-03-01T00:00:00",
   dueStatus: "Overdue",
@@ -75,5 +76,32 @@ describe("PlantDetailPage", () => {
 
     await waitFor(() => expect(plantsApi.water).toHaveBeenCalledWith(1, undefined));
     await waitFor(() => expect(plantsApi.wateringLogs).toHaveBeenCalledTimes(2));
+  });
+
+  it("renders care tips from the profile with markdown formatting", async () => {
+    vi.mocked(plantsApi.get).mockResolvedValue({
+      ...plant,
+      profileCommonName: "Monstera",
+      careTips: {
+        commonName: "Monstera",
+        lightRequirement: "Bright",
+        humidityNotes: "Loves misting.",
+        careTips: "Feed **monthly** in summer.",
+      },
+    });
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    expect(await screen.findByText(/Care tips — Monstera/)).toBeInTheDocument();
+    expect(screen.getByText("Bright, indirect light")).toBeInTheDocument();
+    expect(screen.getByText("Loves misting.")).toBeInTheDocument();
+    expect(screen.getByText("monthly").closest("strong")).not.toBeNull();
+  });
+
+  it("hides the care tips section for plants without a profile", async () => {
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    await screen.findByText("Monstera Mike");
+    expect(screen.queryByText(/Care tips/)).not.toBeInTheDocument();
   });
 });

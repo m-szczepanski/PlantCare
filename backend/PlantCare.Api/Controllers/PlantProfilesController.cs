@@ -12,4 +12,27 @@ public class PlantProfilesController(IPlantProfileService profiles) : Controller
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<PlantProfileResponseDto>>> List(CancellationToken cancellationToken)
         => Ok(await profiles.ListAsync(cancellationToken));
+
+    [HttpPost]
+    public async Task<ActionResult<PlantProfileResponseDto>> Create(PlantProfileRequestDto dto, CancellationToken cancellationToken)
+    {
+        var result = await profiles.CreateAsync(dto, cancellationToken);
+        return result.Status switch
+        {
+            PlantProfileWriteStatus.DuplicateName => Conflict(new ProblemDetails { Title = "Profile name already in use.", Detail = $"A plant profile named '{dto.CommonName}' already exists." }),
+            _ => StatusCode(StatusCodes.Status201Created, result.Profile),
+        };
+    }
+
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult<PlantProfileResponseDto>> Update(int id, PlantProfileRequestDto dto, CancellationToken cancellationToken)
+    {
+        var result = await profiles.UpdateAsync(id, dto, cancellationToken);
+        return result.Status switch
+        {
+            PlantProfileWriteStatus.NotFound => NotFound(),
+            PlantProfileWriteStatus.DuplicateName => Conflict(new ProblemDetails { Title = "Profile name already in use.", Detail = $"A plant profile named '{dto.CommonName}' already exists." }),
+            _ => Ok(result.Profile),
+        };
+    }
 }
