@@ -1,0 +1,74 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.md"],
+  "default_agent": "build",
+  "agent": {
+    "plan": {
+      "disable": false
+    },
+    "docs-writer": {
+      "description": "Updates project documentation to match code changes",
+      "mode": "subagent",
+      "permission": {
+        "edit": "allow",
+        "bash": "ask"
+      },
+      "prompt": "You maintain the PlantCare documentation. Read docs/overview.md, docs/architecture.md, docs/implementation-plan.md, backend/docs/README.md, and frontend/docs/README.md before editing. Keep docs consistent with the actual code; never invent features. When implementation deviates from a documented decision, update the doc and note the deviation. Match the existing docs style: concise tables, checklists, no emojis."
+    },
+    "test-runner": {
+      "description": "Runs backend and frontend test suites and reports failures",
+      "mode": "subagent",
+      "permission": {
+        "edit": "deny",
+        "bash": "allow"
+      },
+      "prompt": "You run tests for PlantCare. Backend: dotnet test backend/PlantCare.Api.Tests. Frontend: npm run test in frontend/. Report pass/fail counts and, for failures, the failing test names with the shortest relevant assertion output. Do not fix code; only report."
+    }
+  },
+  "command": {
+    "next-step": {
+      "description": "Implement the next step from the implementation plan",
+      "agent": "build",
+      "template": "Read docs/implementation-plan.md and AGENTS.md. Identify the first step whose acceptance criteria are not all met. Implement that step (and only that step) following its How section, write the tests described in its Test section, and verify every acceptance criterion checklist item. Do not start the next step. Finish with a summary of which criteria pass and any that could not be verified. $ARGUMENTS"
+    },
+    "verify-step": {
+      "description": "Verify acceptance criteria for a given plan step",
+      "agent": "build",
+      "template": "Read docs/implementation-plan.md. For the step number given in $ARGUMENTS, check every acceptance criterion against the current code: run the relevant test suites (dotnet test backend/PlantCare.Api.Tests, npm run test in frontend/), and inspect code where a criterion is not test-covered. Report each criterion as PASS, FAIL, or NOT VERIFIABLE, with one line of evidence per item."
+    },
+    "update-docs": {
+      "description": "Sync documentation with recent code changes",
+      "agent": "docs-writer",
+      "template": "Review the recent changes (git diff and git log) and update the relevant docs (docs/, backend/docs/, frontend/docs/) so they match the code. Keep edits minimal and focused on what changed. $ARGUMENTS"
+    },
+    "run-tests": {
+      "description": "Run all test suites and report results",
+      "agent": "test-runner",
+      "template": "Run the full test suites: dotnet test backend/PlantCare.Api.Tests and npm run test in frontend/. Report results. $ARGUMENTS"
+    }
+  },
+  "permission": {
+    "edit": "allow",
+    "bash": {
+      "git status": "allow",
+      "git diff*": "allow",
+      "git log*": "allow",
+      "git add *": "allow",
+      "git commit *": "ask",
+      "git push*": "ask",
+      "dotnet build*": "allow",
+      "dotnet test*": "allow",
+      "dotnet ef *": "allow",
+      "npm install": "ask",
+      "npm run *": "allow",
+      "docker compose up*": "ask",
+      "docker compose down*": "allow",
+      "rm *": "deny",
+      "*": "ask"
+    }
+  },
+  "compaction": {
+    "auto": true,
+    "tail_turns": 15
+  }
+}
