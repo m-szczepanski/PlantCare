@@ -39,7 +39,8 @@ This drops the canonical component source into `src/components/ui/` and installs
 cva / lucide dependencies. See `components.json` for the active preset (`new-york` style,
 `cssVariables`, green brand accent, `@/` path alias).
 
-- shadcn components are **composed, not modified in place** — extend via wrapper components (e.g. `src/components/DueStatusBadge.tsx`, `src/components/PlantForm.tsx`) when customization is needed.
+- shadcn components are **composed, not modified in place** — extend via wrapper components (e.g. `src/components/DueStatusBadge.tsx`, `src/components/PlantForm.tsx`, `src/components/PlantCard.tsx`, `src/components/CareTipsCard.tsx`) when customization is needed.
+- Profile care tips render via `react-markdown` (markdown text from `PlantProfile.CareTips`); no raw-HTML plugin is enabled, so profile text is XSS-safe.
 - All base tokens (colors including `popover`, `chart`, `sidebar`, light + dark) live in `src/index.css`; layout/radius/animation theming is centralized in `tailwind.config.ts`. Restyling should never require touching component logic.
 - Existing primitives: `button`, `input`, `label`, `card`, `badge`, `select`. Add more as features need them.
 
