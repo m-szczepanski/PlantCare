@@ -24,6 +24,16 @@ Self-hosted plant tracking web app: ASP.NET Core (.NET 10) API + React/Vite/TS S
 4. Every schema change ships with an EF Core migration committed alongside the code.
 5. Update docs when a change deviates from a documented decision.
 
+## Before Implementing (every step)
+
+- Read through the documentation first — both project docs (`docs/overview.md`, `docs/architecture.md`) and technical docs (`backend/docs/README.md`, `frontend/docs/README.md`) — plus the current step in `docs/implementation-plan.md`. Never start coding without this.
+
+## After Implementing (every step)
+
+- Check the acceptance criteria for the current step in `docs/implementation-plan.md`. All of them must be met. The only valid reason to skip one is if the implementation had to be done differently from what the task says (something changed in the meantime and we adjusted to it) — in that case, note the deviation.
+- All projects must build after the step is done: `dotnet build backend/PlantCare.Api` and `npm run build` in `frontend/` must succeed. A step is never finished with a broken build.
+- Always update `docs/implementation-plan.md` after implementation: tick off met acceptance criteria and adjust the remaining steps if reality diverged from the plan.
+
 ## Commands
 
 ```bash
