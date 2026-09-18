@@ -16,6 +16,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 
 builder.Services.AddScoped<IWateringScheduleService, WateringScheduleService>();
 builder.Services.AddScoped<IPlantService, PlantService>();
+builder.Services.AddScoped<IPlantProfileService, PlantProfileService>();
 
 var app = builder.Build();
 
