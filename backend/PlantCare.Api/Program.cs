@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Coravel;
 using Microsoft.EntityFrameworkCore;
 using PlantCare.Api.Data;
 using PlantCare.Api.Seed;
@@ -19,6 +20,14 @@ builder.Services.AddScoped<IPlantService, PlantService>();
 builder.Services.AddScoped<IPlantProfileService, PlantProfileService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 
+var ntfyBaseUrl = builder.Configuration["NTFY_URL"] ?? "http://ntfy:80";
+var ntfyTopic = builder.Configuration["NTFY_TOPIC"] ?? "plant-care";
+builder.Services.AddSingleton(new NtfyOptions(ntfyBaseUrl, ntfyTopic));
+builder.Services.AddHttpClient<INtfyPublisher, NtfyPublisher>();
+
+builder.Services.AddScheduler();
+builder.Services.AddScoped<IWateringCheckService, WateringCheckService>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -32,6 +41,11 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.MapControllers();
+
+app.Services.UseScheduler(scheduler =>
+{
+    scheduler.Schedule<WateringCheckJob>().Cron(builder.Configuration["WATERING_CHECK_CRON"] ?? "0 8 * * *");
+});
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 
