@@ -1,6 +1,6 @@
 # Backend Documentation
 
-ASP.NET Core Web API (.NET 8/9) — the `backend/PlantCare.Api/` project. REST/JSON API backed by EF Core + SQLite, with a Coravel-scheduled daily watering check that pushes notifications through a self-hosted ntfy container.
+ASP.NET Core Web API (.NET 10) — the `backend/PlantCare.Api/` project. REST/JSON API backed by EF Core + SQLite, with a Coravel-scheduled daily watering check that pushes notifications through a self-hosted ntfy container.
 
 > See `../../docs/architecture.md` for the system-level picture.
 
@@ -15,9 +15,9 @@ backend/
 │   ├── Data/           # DbContext, EF Core migrations
 │   ├── Services/       # Business logic: scheduling, notification, care tips
 │   ├── Seed/           # Default species/profile seed data (JSON)
-│   └── Program.cs      # Composition root / DI registration
-├── PlantCare.Api.Tests/   # unit/integration tests
-└── Dockerfile             # API service image
+│   ├── Program.cs      # Composition root / DI registration
+│   └── Dockerfile      # API service image
+└── PlantCare.Api.Tests/   # unit/integration tests
 ```
 
 ## API Endpoints

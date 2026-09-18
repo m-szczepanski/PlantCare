@@ -4,7 +4,7 @@ Instructions for AI agents (and humans) working in this repo. Read this before m
 
 ## Project
 
-Self-hosted plant tracking web app: ASP.NET Core (.NET 8/9) API + React/Vite/TS SPA, EF Core + SQLite, Coravel background job, ntfy push notifications, deployed via Docker Compose. Single-user, no auth in v1.
+Self-hosted plant tracking web app: ASP.NET Core (.NET 10) API + React/Vite/TS SPA, EF Core + SQLite, Coravel background job, ntfy push notifications, deployed via Docker Compose. Single-user, no auth in v1.
 
 ## Documentation Map (read the relevant one before working)
 
