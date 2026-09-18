@@ -5,6 +5,7 @@ import type { PlantInput } from "@/api/types";
 export const plantKeys = {
   all: ["plants"] as const,
   detail: (id: number) => ["plants", id] as const,
+  wateringLogs: (id: number) => ["plants", id, "watering-logs"] as const,
 };
 
 export function usePlants() {
@@ -46,5 +47,24 @@ export function useDeletePlant() {
   return useMutation({
     mutationFn: (id: number) => plantsApi.remove(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: plantKeys.all }),
+  });
+}
+
+export function useWaterPlant() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, note }: { id: number; note?: string }) => plantsApi.water(id, note),
+    onSuccess: (plant) => {
+      queryClient.invalidateQueries({ queryKey: plantKeys.all });
+      queryClient.setQueryData(plantKeys.detail(plant.id), plant);
+    },
+  });
+}
+
+export function useWateringLogs(id: number) {
+  return useQuery({
+    queryKey: plantKeys.wateringLogs(id),
+    queryFn: () => plantsApi.wateringLogs(id),
+    enabled: Number.isInteger(id),
   });
 }

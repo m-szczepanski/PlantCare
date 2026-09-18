@@ -60,7 +60,7 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 
 ## API Surface Used
 
-All endpoints under `/api/*` — plants CRUD, `POST /api/plants/{id}/water`, plant-profiles list/create/update, and the dashboard summary. Shapes are defined by the backend's DTOs (see `backend/docs/README.md`).
+All endpoints under `/api/*` — plants CRUD, `POST /api/plants/{id}/water` and `GET /api/plants/{id}/watering-logs` (detail page history), plant-profiles list/create/update, and the dashboard summary. Shapes are defined by the backend's DTOs (see `backend/docs/README.md`).
 
 ## Conventions
 

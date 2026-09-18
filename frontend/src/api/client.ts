@@ -1,4 +1,4 @@
-import type { Plant, PlantInput, PlantProfileOption } from "./types";
+import type { Plant, PlantInput, PlantProfileOption, WateringLogEntry } from "./types";
 
 export interface HealthResponse {
   status: string;
@@ -64,6 +64,12 @@ export const plantsApi = {
   update: (id: number, input: PlantInput) =>
     request<Plant>(`/plants/${id}`, { method: "PUT", body: JSON.stringify(input) }),
   remove: (id: number) => request<void>(`/plants/${id}`, { method: "DELETE" }),
+  water: (id: number, note?: string) =>
+    request<Plant>(`/plants/${id}/water`, {
+      method: "POST",
+      body: JSON.stringify(note ? { note } : {}),
+    }),
+  wateringLogs: (id: number) => request<WateringLogEntry[]>(`/plants/${id}/watering-logs`),
 };
 
 export const plantProfilesApi = {

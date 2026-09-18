@@ -17,6 +17,12 @@ export interface Plant {
   dueMessage: string;
 }
 
+export interface WateringLogEntry {
+  id: number;
+  wateredAt: string;
+  note: string | null;
+}
+
 export interface PlantProfileOption {
   id: number;
   commonName: string;

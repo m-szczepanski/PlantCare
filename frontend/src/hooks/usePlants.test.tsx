@@ -7,7 +7,15 @@ import type { Plant } from "@/api/types";
 import { useCreatePlant, usePlants } from "@/hooks/usePlants";
 
 vi.mock("@/api/client", () => ({
-  plantsApi: { list: vi.fn(), get: vi.fn(), create: vi.fn(), update: vi.fn(), remove: vi.fn() },
+  plantsApi: {
+    list: vi.fn(),
+    get: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    remove: vi.fn(),
+    water: vi.fn(),
+    wateringLogs: vi.fn(),
+  },
   plantProfilesApi: { list: vi.fn().mockResolvedValue([]) },
   ApiError: class ApiError extends Error {},
 }));
