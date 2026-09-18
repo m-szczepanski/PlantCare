@@ -1,11 +1,22 @@
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using PlantCare.Api.Data;
 using PlantCare.Api.Seed;
+using PlantCare.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("Default") ?? "Data Source=plantcare.db";
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
+
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
+
+builder.Services.AddScoped<IWateringScheduleService, WateringScheduleService>();
+builder.Services.AddScoped<IPlantService, PlantService>();
+builder.Services.AddScoped<IPlantProfileService, PlantProfileService>();
 
 var app = builder.Build();
 
@@ -18,6 +29,8 @@ using (var scope = app.Services.CreateScope())
     var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(typeof(SeedLoader).FullName!);
     await SeedLoader.LoadPlantProfilesAsync(db, seedFile, logger);
 }
+
+app.MapControllers();
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 

@@ -74,10 +74,17 @@ Work the steps strictly in order — each step depends on the artifacts of the p
 - Manual: create a plant in the UI, see it in the list, open detail.
 
 **Acceptance criteria:**
-- [ ] All six plant endpoints behave per the API contract (including `400` on invalid payloads).
-- [ ] Due status appears in the list payload and is correct for edge cases (never watered, overdue, due today).
-- [ ] UI can create, view, edit, and delete a plant end-to-end.
-- [ ] API client is fully typed; no raw `fetch` in components.
+- [x] All plant CRUD endpoints behave per the API contract (including `400` on invalid payloads).
+- [x] Due status appears in the list payload and is correct for edge cases (never watered, overdue, due today).
+- [x] UI can create, view, edit, and delete a plant end-to-end.
+- [x] API client is fully typed; no raw `fetch` in components.
+
+**Deviations / notes:**
+- The criteria said "six plant endpoints", but the `POST /api/plants/{id}/water` endpoint is explicitly Step 4's scope. Step 3 ships the five CRUD endpoints (`GET` list, `GET` by id, `POST`, `PUT`, `DELETE`); watering lands in Step 4.
+- Added a minimal `GET /api/plant-profiles` read endpoint (Step 2's notes already anticipated it): the create/edit form needs the species list to populate the profile picker so a plant can inherit a default watering interval. Profile create/update (POST/PUT) remain Step 7 scope.
+- Frontend tooling had to be introduced in this step (it didn't exist after Steps 1–2): React Router, TanStack Query, Tailwind CSS + shadcn base primitives, and the Vitest/React Testing Library harness.
+- `WateringScheduleService` is the single source of truth for due-date math (custom interval → profile default; anchor = `LastWateredAt ?? AcquiredDate`), reused later by the dashboard (Step 5) and notification job (Step 6).
+
 
 ---
 

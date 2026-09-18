@@ -1,0 +1,46 @@
+import { Link, Navigate, Outlet, Route, Routes } from "react-router-dom";
+import { PlantDetailPage } from "@/pages/PlantDetailPage";
+import { PlantFormPage } from "@/pages/PlantFormPage";
+import { PlantsPage } from "@/pages/PlantsPage";
+
+function Layout() {
+  return (
+    <div className="min-h-screen">
+      <header className="border-b">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+          <Link to="/plants" className="text-lg font-bold">
+            PlantCare
+          </Link>
+          <nav className="flex gap-4 text-sm">
+            <Link to="/plants" className="text-muted-foreground hover:text-foreground">
+              Plants
+            </Link>
+            <Link to="/plants/new" className="text-muted-foreground hover:text-foreground">
+              Add plant
+            </Link>
+          </nav>
+        </div>
+      </header>
+      <main className="mx-auto max-w-5xl px-6 py-8">
+        <Outlet />
+      </main>
+    </div>
+  );
+}
+
+export function App() {
+  return (
+    <Routes>
+      <Route element={<Layout />}>
+        <Route index element={<Navigate to="/plants" replace />} />
+        <Route path="/plants" element={<PlantsPage />} />
+        <Route path="/plants/new" element={<PlantFormPage />} />
+        <Route path="/plants/:id" element={<PlantDetailPage />} />
+        <Route path="/plants/:id/edit" element={<PlantFormPage />} />
+        <Route path="*" element={<Navigate to="/plants" replace />} />
+      </Route>
+    </Routes>
+  );
+}
+
+export default App;
