@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ApiError, plantsApi } from "@/api/client";
+import { ApiError, dashboardApi, plantsApi } from "@/api/client";
 
 function jsonResponse(status: number, body: unknown) {
   return new Response(JSON.stringify(body), {
@@ -61,5 +61,14 @@ describe("plantsApi client", () => {
 
     const error = await plantsApi.get(99).catch((e) => e);
     expect(error).toBeInstanceOf(ApiError);
+  });
+
+  it("dashboardApi.get() hits GET /api/dashboard", async () => {
+    vi.mocked(fetch).mockResolvedValue(jsonResponse(200, { overdue: [], dueToday: [], upcoming: [] }));
+
+    const result = await dashboardApi.get();
+
+    expect(fetch).toHaveBeenCalledWith("/api/dashboard", expect.objectContaining({}));
+    expect(result).toEqual({ overdue: [], dueToday: [], upcoming: [] });
   });
 });

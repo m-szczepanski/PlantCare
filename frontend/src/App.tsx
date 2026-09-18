@@ -1,4 +1,5 @@
 import { Link, Navigate, Outlet, Route, Routes } from "react-router-dom";
+import { DashboardPage } from "@/pages/DashboardPage";
 import { PlantDetailPage } from "@/pages/PlantDetailPage";
 import { PlantFormPage } from "@/pages/PlantFormPage";
 import { PlantsPage } from "@/pages/PlantsPage";
@@ -8,10 +9,13 @@ function Layout() {
     <div className="min-h-screen">
       <header className="border-b">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <Link to="/plants" className="text-lg font-bold">
+          <Link to="/" className="text-lg font-bold">
             PlantCare
           </Link>
           <nav className="flex gap-4 text-sm">
+            <Link to="/" className="text-muted-foreground hover:text-foreground">
+              Dashboard
+            </Link>
             <Link to="/plants" className="text-muted-foreground hover:text-foreground">
               Plants
             </Link>
@@ -32,7 +36,7 @@ export function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route index element={<Navigate to="/plants" replace />} />
+        <Route index element={<DashboardPage />} />
         <Route path="/plants" element={<PlantsPage />} />
         <Route path="/plants/new" element={<PlantFormPage />} />
         <Route path="/plants/:id" element={<PlantDetailPage />} />

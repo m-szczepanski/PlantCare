@@ -127,9 +127,16 @@ Work the steps strictly in order — each step depends on the artifacts of the p
 - Frontend component tests with seeded mock data.
 
 **Acceptance criteria:**
-- [ ] Every plant appears in exactly one of the three buckets; ordering within buckets is deterministic (e.g., most-overdue first).
-- [ ] Dashboard is the default route and matches API output.
-- [ ] Empty state (no plants) renders gracefully.
+- [x] Every plant appears in exactly one of the three buckets; ordering within buckets is deterministic (e.g., most-overdue first).
+- [x] Dashboard is the default route and matches API output.
+- [x] Empty state (no plants) renders gracefully.
+
+**Deviations / notes:**
+- `DashboardService` partitions the output of `IPlantService.ListAsync()` in memory — no duplicated due-date or mapping logic (single source of truth kept in the step-3 services).
+- Plants with `NotScheduled` due status (no interval from custom or profile) land in the `upcoming` bucket, sorted last. This preserves the "exactly one of the three buckets" rule without inventing a fourth bucket; the UI badge still shows "No watering schedule".
+- Bucket ordering: `overdue` = most-overdue first, `upcoming` = soonest-due first (unscheduled last), `dueToday` = by name; all ties broken by ordinal name.
+- Extracted `PlantCard` from `PlantsPage` so list and dashboard share one card component.
+- Empty buckets are hidden entirely rather than rendering empty headers; the no-plants empty state links to the add-plant form.
 
 ---
 

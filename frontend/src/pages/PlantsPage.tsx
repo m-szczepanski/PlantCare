@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { DueStatusBadge } from "@/components/DueStatusBadge";
+import { PlantCard } from "@/components/PlantCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { usePlants } from "@/hooks/usePlants";
@@ -50,20 +50,7 @@ export function PlantsPage() {
       <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {plants.map((plant) => (
           <li key={plant.id}>
-            <Card className="transition-shadow hover:shadow-md">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between gap-2">
-                  <Link to={`/plants/${plant.id}`} className="text-lg font-semibold hover:underline">
-                    {plant.nickName}
-                  </Link>
-                  <DueStatusBadge plant={plant} />
-                </div>
-                <p className="mt-1 text-sm text-muted-foreground">{plant.location}</p>
-                {plant.profileCommonName ? (
-                  <p className="text-sm text-muted-foreground">{plant.profileCommonName}</p>
-                ) : null}
-              </CardContent>
-            </Card>
+            <PlantCard plant={plant} />
           </li>
         ))}
       </ul>
