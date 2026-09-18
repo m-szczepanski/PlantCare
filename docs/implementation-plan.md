@@ -156,10 +156,18 @@ Work the steps strictly in order — each step depends on the artifacts of the p
 - Manual: run compose with ntfy, subscribe to the topic, force a plant overdue, trigger the check, verify push arrives.
 
 **Acceptance criteria:**
-- [ ] Job runs on the configured cron and is idempotent per day (no duplicate notifications).
-- [ ] ntfy outage never crashes the job or blocks remaining plants; failure is logged.
-- [ ] `NotificationLog` records every actual send with type and timestamp.
-- [ ] A real push notification arrives on a subscribed device in the manual test.
+- [x] Job runs on the configured cron and is idempotent per day (no duplicate notifications).
+- [x] ntfy outage never crashes the job or blocks remaining plants; failure is logged.
+- [x] `NotificationLog` records every actual send with type and timestamp.
+- [x] A real push notification arrives on a subscribed device in the manual test.
+
+**Deviations / notes:**
+- No dev-only trigger endpoint was added; the plan's alternative ("make the service method public and test it directly") was used. `WateringCheckService.RunAsync` is public, returns a `WateringCheckResult` (sent/dedup-skipped/failed counts) and is exercised directly in integration tests against a recording `INtfyPublisher` fake.
+- Due-plant filtering reuses `IPlantService.ListAsync()` (and through it `WateringScheduleService`), keeping a single source of truth for due-date math.
+- ntfy is published through a typed `HttpClient` (`AddHttpClient<INtfyPublisher, NtfyPublisher>`); config comes from `NTFY_URL`/`NTFY_TOPIC` (defaults already in `.env.example`). The publisher throws on non-2xx; the check service catches per-plant and continues.
+- Pitfall hit: Coravel v6 resolves the `IInvocable` via `GetRequiredService` and silently swallows the failure if the job type isn't registered. Fixed by registering `WateringCheckJob` in DI, adding a regression test that asserts it resolves, and wiring `OnError` to log unhandled scheduled-task exceptions.
+- API image build fix (surfaced during the manual Docker test): backend had no `.dockerignore`, so the local `obj/` overwrote the container's restore output and `dotnet publish` failed with `NETSDK1064`. Added `backend/PlantCare.Api/.dockerignore` (`bin/`, `obj/`).
+- Manual check: `docker compose up` with `WATERING_CHECK_CRON=* * * * *`, an overdue plant, and a real ntfy subscriber — first tick delivered the push, later ticks were dedup-skipped and no duplicate arrived.
 
 ---
 
