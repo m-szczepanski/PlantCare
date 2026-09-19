@@ -7,12 +7,13 @@ import { renderWithProviders } from "@/test/render";
 
 vi.mock("@/api/client", () => ({
   roomsApi: { list: vi.fn(), create: vi.fn(), update: vi.fn(), remove: vi.fn() },
+  plantsApi: { list: vi.fn().mockResolvedValue([]) },
   ApiError: class ApiError extends Error {},
 }));
 
 const rooms: Room[] = [
-  { id: 1, name: "Living room", orientation: "South", plantCount: 2 },
-  { id: 2, name: "Hallway", orientation: null, plantCount: 0 },
+  { id: 1, name: "Living room", orientation: "South", lightExposure: "Bright", humidity: "Medium", temperatureCelsius: 21, plantCount: 2 },
+  { id: 2, name: "Hallway", orientation: null, lightExposure: null, humidity: null, temperatureCelsius: null, plantCount: 0 },
 ];
 
 beforeEach(() => {
@@ -31,8 +32,32 @@ describe("RoomsPage", () => {
     expect(screen.getByText(/No orientation set · 0 plants/)).toBeInTheDocument();
   });
 
+  it("shows environment chips and saves edits with environment values", async () => {
+    vi.mocked(roomsApi.update).mockResolvedValue(rooms[0]);
+
+    renderWithProviders(<RoomsPage />, { route: "/rooms" });
+
+    expect(await screen.findByText("Medium humidity")).toBeInTheDocument();
+    expect(screen.getByText("21°C")).toBeInTheDocument();
+
+    fireEvent.change(screen.getAllByLabelText("Average temperature (°C)")[0], { target: { value: "19" } });
+    const save = screen.getAllByRole("button", { name: "Save" })[0];
+    expect(save).toBeEnabled();
+    fireEvent.click(save);
+
+    await waitFor(() =>
+      expect(roomsApi.update).toHaveBeenCalledWith(1, {
+        name: "Living room",
+        orientation: "South",
+        lightExposure: "Bright",
+        humidity: "Medium",
+        temperatureCelsius: 19,
+      }),
+    );
+  });
+
   it("creates a room through the API", async () => {
-    vi.mocked(roomsApi.create).mockResolvedValue({ id: 3, name: "Study", orientation: null, plantCount: 0 });
+    vi.mocked(roomsApi.create).mockResolvedValue({ id: 3, name: "Study", orientation: null, lightExposure: null, humidity: null, temperatureCelsius: null, plantCount: 0 });
 
     renderWithProviders(<RoomsPage />, { route: "/rooms" });
 

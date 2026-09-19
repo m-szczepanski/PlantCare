@@ -21,6 +21,7 @@ function plant(over: Partial<Plant>): Plant {
     daysUntilDue: 3,
     nextDueDate: null,
     dueMessage: "",
+    roomLightMatch: null,
     ...over,
   };
 }

@@ -23,6 +23,7 @@ function plant(over: Partial<Plant>): Plant {
     wateringIntervalDays: 7,
     daysUntilDue: 4,
     nextDueDate: null,
+    roomLightMatch: null,
     dueMessage: "4 days until due",
     ...over,
   };

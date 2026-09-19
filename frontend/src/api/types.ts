@@ -4,16 +4,31 @@ export type LightRequirement = "Low" | "Medium" | "Bright" | "DirectSun";
 
 export type RoomOrientation = "North" | "East" | "South" | "West";
 
+export type HumidityLevel = "Low" | "Medium" | "High";
+
+export type RoomLightMatch =
+  | "Good"
+  | "SlightlyTooBright"
+  | "SlightlyTooDark"
+  | "MuchTooBright"
+  | "MuchTooDark";
+
 export interface Room {
   id: number;
   name: string;
   orientation: RoomOrientation | null;
+  lightExposure: LightRequirement | null;
+  humidity: HumidityLevel | null;
+  temperatureCelsius: number | null;
   plantCount: number;
 }
 
 export interface RoomInput {
   name: string;
   orientation?: RoomOrientation | null;
+  lightExposure?: LightRequirement | null;
+  humidity?: HumidityLevel | null;
+  temperatureCelsius?: number | null;
 }
 
 export interface PlantCareTips {
@@ -40,6 +55,7 @@ export interface Plant {
   daysUntilDue: number | null;
   nextDueDate: string | null;
   dueMessage: string;
+  roomLightMatch: RoomLightMatch | null;
 }
 
 export interface Dashboard {
