@@ -121,6 +121,10 @@ Every chunk follows the AGENTS.md workflow: acceptance criteria defined before c
   - `feature/ical-feed` — `GET /api/calendar.ics` (`CalendarService`: recurring all-day VEVENTs with RRULE/UID, CRLF + folding + escaping) and nginx `= /calendar.ics` proxy so phones can subscribe on the LAN.
   - `feature/wall-mode` — `/wall` outside the shell: auto-refreshes the dashboard every 60s (`useDashboard(refetchMs)`), live clock, shared `dashboardSections` extraction.
   - `feature/collection-insights` — `GET /api/insights` (`InsightsService`: totals, species diversity, most-neglected, 30-day adherence vs expected waterings, on-time streaks, 12-month counts) + `/insights` page with tiles, monthly bars (sr-only table) and three list cards.
+- **Epic 5 ships as one PR: `epic/rooms-environment`** — two of three chunks done:
+  - `feature/room-entity` — `Room` (name unique, orientation) + EF migration that copies distinct `Plants.Location` values into rooms and rewires `Plant.RoomId` (free-text column dropped); rooms CRUD (`/api/rooms`, 409 on duplicate, SetNull on delete); room picker + inline "quickly add a room" in the plant form; `/rooms` admin page with per-room plant list; dashboard `?group=room` view. ntfy text now uses the room name.
+  - `feature/room-environment` — optional room params (light exposure, humidity, temperature °C) with a second migration; `RoomLightMatch` computed server-side (profile `LightRequirement` vs room exposure, `Good/Slightly*/MuchToo*`), surfaced as `RoomLightBadge` on detail and in the rooms view ("wrong room" flag at ≥2 levels).
+  - `feature/room-sensors` — **deferred: the plan itself flags this as needing a design decision first** (which smart-home source: MQTT/HA, read-only sync model, secrets). No code was invented for it; revisit as its own epic-6-style slice once the source is chosen.
 
 ## Suggested sequencing
 

@@ -6,7 +6,7 @@ A self-hosted, highly customizable web app for tracking owned plants, watering r
 
 ## Core Features (v1)
 
-- CRUD for owned plants (name, species, location, photo URL, acquired date)
+- CRUD for owned plants (name, species, room, photo URL, acquired date)
 - Watering schedule per plant, derived from a species/profile default but overridable per plant
 - Daily background check that flags plants due for watering and sends a push notification
 - Care tips per species (light, humidity notes, plus markdown care notes covering topics like temperature and fertilizing)
@@ -84,7 +84,7 @@ Plant (user's owned instance)
 - Id
 - PlantProfileId (FK, nullable — user can create a plant without a profile)
 - NickName
-- Location (e.g., "Living room window")
+- Room (FK to a `Room` entity: name + orientation, optional light/humidity/temperature; replaced the old free-text location, migrated from distinct values)
 - PhotoUrl (nullable)
 - AcquiredDate
 - CustomWateringIntervalDays (nullable — overrides profile default)

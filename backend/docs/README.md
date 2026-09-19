@@ -33,6 +33,11 @@ POST   /api/plants/{id}/photo      multipart upload (field `file`) — stores th
 DELETE /api/plants/{id}/water      undo: removes the newest watering log, rewinds LastWateredAt to the previous one (no-op without logs)
 GET    /api/plants/{id}/watering-logs   watering history for a plant (newest first)
 
+GET    /api/rooms                  list rooms (+ orientation, environment params, plant counts)
+POST   /api/rooms                  create room (unique name, 409 on duplicate)
+PUT    /api/rooms/{id}             update room
+DELETE /api/rooms/{id}             delete room (plants keep existing, RoomId set null)
+
 GET    /api/plant-profiles         list species/profiles
 POST   /api/plant-profiles
 PUT    /api/plant-profiles/{id}
@@ -47,7 +52,8 @@ GET    /api/insights               read-only collection stats: totals, species d
 ## Data Model
 
 - **`PlantProfile`** — species-level defaults (common/scientific name, `DefaultWateringIntervalDays`, `LightRequirement` enum Low/Medium/Bright/DirectSun, humidity notes, care tips text/markdown). Seeded from JSON in `Seed/`.
-- **`Plant`** — the user's owned instance. Optional FK to `PlantProfile`; `CustomWateringIntervalDays` (nullable) overrides the profile default; tracks `Location`, `PhotoUrl`, `AcquiredDate`, `LastWateredAt`.
+- **`Room`** — a physical room: `Name` (unique), optional `Orientation` (North/East/South/West) and environment params (`LightExposure` reusing the `LightRequirement` scale, `Humidity` Low/Medium/High, `TemperatureCelsius`). Replaced the old free-text `Plant.Location` (migration copies distinct values into rooms and rewires the FK).
+- **`Plant`** — the user's owned instance. Optional FK to `PlantProfile`; `CustomWateringIntervalDays` (nullable) overrides the profile default; tracks `RoomId` (FK, SetNull), `PhotoUrl`, `AcquiredDate`, `LastWateredAt`. `PlantService` also exposes `RoomLightMatch` on the response: profile `LightRequirement` vs the room's `LightExposure` (`Good` / `SlightlyToo*` / `MuchToo*` — the "wrong room" flag at ≥2 levels), null when either side is unknown.
 - **`WateringLog`** — history of watering events per plant (`WateredAt`, optional note).
 - **`NotificationLog`** — audit/dedup for sent notifications (`SentAt`, `Type`), preventing duplicate sends on the same day.
 
