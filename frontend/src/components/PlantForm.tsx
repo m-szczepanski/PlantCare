@@ -10,6 +10,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { usePlantProfiles } from "@/hooks/usePlantProfiles";
+import { cn } from "@/lib/utils";
+import { touchButton, touchField } from "@/lib/ui";
 import type { Plant, PlantInput } from "@/api/types";
 
 function toDateValue(iso: string | null | undefined): string {
@@ -69,6 +71,7 @@ export function PlantForm({ initial, submitting, error, submitLabel, onSubmit, o
           value={nickName}
           onChange={(e) => setNickName(e.target.value)}
           placeholder="Monstera Mike"
+          className={touchField}
         />
       </div>
 
@@ -80,6 +83,7 @@ export function PlantForm({ initial, submitting, error, submitLabel, onSubmit, o
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           placeholder="Living room window"
+          className={touchField}
         />
       </div>
 
@@ -89,7 +93,7 @@ export function PlantForm({ initial, submitting, error, submitLabel, onSubmit, o
           value={profileId == null ? "none" : String(profileId)}
           onValueChange={(value) => setProfileId(value === "none" ? null : Number(value))}
         >
-          <SelectTrigger id="profile" className="w-full">
+          <SelectTrigger id="profile" className={cn("w-full", touchField)}>
             <SelectValue placeholder="Select a profile" />
           </SelectTrigger>
           <SelectContent>
@@ -113,6 +117,7 @@ export function PlantForm({ initial, submitting, error, submitLabel, onSubmit, o
             value={customInterval}
             onChange={(e) => setCustomInterval(e.target.value)}
             placeholder="Overrides profile"
+            className={touchField}
           />
         </div>
 
@@ -124,6 +129,7 @@ export function PlantForm({ initial, submitting, error, submitLabel, onSubmit, o
             required
             value={acquiredDate}
             onChange={(e) => setAcquiredDate(e.target.value)}
+            className={touchField}
           />
         </div>
       </div>
@@ -136,6 +142,7 @@ export function PlantForm({ initial, submitting, error, submitLabel, onSubmit, o
             type="date"
             value={lastWateredAt}
             onChange={(e) => setLastWateredAt(e.target.value)}
+            className={touchField}
           />
         </div>
 
@@ -146,17 +153,18 @@ export function PlantForm({ initial, submitting, error, submitLabel, onSubmit, o
             value={photoUrl}
             onChange={(e) => setPhotoUrl(e.target.value)}
             placeholder="https://..."
+            className={touchField}
           />
         </div>
       </div>
 
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
-      <div className="flex gap-2 pt-2">
-        <Button type="submit" disabled={submitting}>
+      <div className="flex flex-wrap gap-2 pt-2">
+        <Button type="submit" disabled={submitting} className={touchButton}>
           {submitting ? "Saving..." : submitLabel}
         </Button>
-        <Button type="button" variant="ghost" onClick={onCancel} disabled={submitting}>
+        <Button type="button" variant="ghost" onClick={onCancel} disabled={submitting} className={touchButton}>
           Cancel
         </Button>
       </div>

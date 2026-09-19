@@ -5,6 +5,7 @@ import { PlantCardSkeletonGrid } from "@/components/PlantCardSkeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { usePlants } from "@/hooks/usePlants";
+import { touchButton } from "@/lib/ui";
 
 export function PlantsPage() {
   const { data: plants, isPending, isError, error } = usePlants();
@@ -39,9 +40,9 @@ export function PlantsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-bold">Plants</h1>
-        <Button asChild>
+        <Button asChild className={touchButton}>
           <Link to="/plants/new">Add plant</Link>
         </Button>
       </div>

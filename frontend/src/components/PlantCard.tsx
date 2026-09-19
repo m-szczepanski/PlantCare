@@ -15,7 +15,7 @@ export function PlantCard({ plant }: { plant: Plant }) {
           className="h-14 w-14 shrink-0"
         />
         <div className="min-w-0 flex-1">
-          <Link to={`/plants/${plant.id}`} className="text-lg font-semibold hover:underline">
+          <Link to={`/plants/${plant.id}`} className="text-lg font-semibold break-words hover:underline">
             {plant.nickName}
           </Link>
           <p className="mt-1 text-sm text-muted-foreground">{plant.location}</p>

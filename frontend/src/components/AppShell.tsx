@@ -74,7 +74,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </Sidebar>
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur">
-          <SidebarTrigger />
+          <SidebarTrigger className="h-11 w-11 sm:h-8 sm:w-8" />
           <Link to="/" className="flex items-center gap-1.5 font-bold md:hidden">
             <Leaf className="h-4 w-4 text-primary" />
             PlantCare
