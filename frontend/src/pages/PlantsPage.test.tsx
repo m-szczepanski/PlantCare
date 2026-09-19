@@ -95,4 +95,18 @@ describe("PlantsPage", () => {
     expect(await screen.findByText("Monstera Mike")).toBeInTheDocument();
     expect(screen.getByText("2 of 2")).toBeInTheDocument();
   });
+
+  it("restores filters from the URL for shareable deep links", async () => {
+    vi.mocked(plantsApi.list).mockResolvedValue([
+      monstera,
+      { ...monstera, id: 2, nickName: "Golden Pothos", location: "Bathroom", profileCommonName: "Pothos" },
+    ]);
+
+    renderWithProviders(<PlantsPage />, { route: "/plants?q=Poth" });
+
+    const searchInput = await screen.findByLabelText("Search plants");
+    expect(searchInput).toHaveValue("Poth");
+    expect(await screen.findByText("Golden Pothos")).toBeInTheDocument();
+    expect(screen.queryByText("Monstera Mike")).not.toBeInTheDocument();
+  });
 });

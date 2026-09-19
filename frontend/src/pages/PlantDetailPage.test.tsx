@@ -59,7 +59,10 @@ describe("PlantDetailPage", () => {
     renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
 
     expect(await screen.findByText("Soaked thoroughly")).toBeInTheDocument();
-    expect(screen.getByText("Monstera Mike")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Monstera Mike", level: 1 })).toBeInTheDocument();
+    const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
+    expect(within(breadcrumb).getByRole("link", { name: "Plants" })).toBeInTheDocument();
+    expect(within(breadcrumb).getByText("Monstera Mike")).toHaveAttribute("aria-current", "page");
   });
 
   it("shows a card-shaped skeleton while the plant loads", () => {
@@ -185,7 +188,7 @@ describe("PlantDetailPage", () => {
   it("hides the care tips section for plants without a profile", async () => {
     renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
 
-    await screen.findByText("Monstera Mike");
+    await screen.findByRole("heading", { level: 1, name: "Monstera Mike" });
     expect(screen.queryByText(/Care tips/)).not.toBeInTheDocument();
   });
 });

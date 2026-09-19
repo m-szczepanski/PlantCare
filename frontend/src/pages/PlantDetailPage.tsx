@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AlertTriangle, Droplets } from "lucide-react";
 import { CareTipsCard } from "@/components/CareTipsCard";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { DueStatusBadge } from "@/components/DueStatusBadge";
 import { EmptyState } from "@/components/EmptyState";
 import { PlantDetailSkeleton } from "@/components/PlantDetailSkeleton";
@@ -91,6 +92,9 @@ export function PlantDetailPage() {
 
   return (
     <div className="space-y-4">
+      <Breadcrumbs
+        items={[{ label: "Home", to: "/" }, { label: "Plants", to: "/plants" }, { label: plant.nickName }]}
+      />
       <div className="flex items-center justify-between gap-2">
         <h1 className="text-2xl font-bold break-words">{plant.nickName}</h1>
         <DueStatusBadge plant={plant} />
