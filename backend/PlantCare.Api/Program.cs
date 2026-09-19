@@ -26,6 +26,7 @@ builder.Services.AddScoped<IPlantService, PlantService>();
 builder.Services.AddScoped<IPlantProfileService, PlantProfileService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<ICalendarService, CalendarService>();
+builder.Services.AddScoped<IInsightsService, InsightsService>();
 
 var ntfyBaseUrl = builder.Configuration["NTFY_URL"] ?? "http://ntfy:80";
 var ntfyTopic = builder.Configuration["NTFY_TOPIC"] ?? "plant-care";
