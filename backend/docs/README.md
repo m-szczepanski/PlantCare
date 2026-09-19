@@ -29,6 +29,7 @@ GET    /api/plants/{id}
 PUT    /api/plants/{id}
 DELETE /api/plants/{id}
 POST   /api/plants/{id}/water      logs a watering event, updates LastWateredAt
+POST   /api/plants/{id}/photo      multipart upload (field `file`) — stores the photo, sets PhotoUrl to its /uploads/ path
 GET    /api/plants/{id}/watering-logs   watering history for a plant (newest first)
 
 GET    /api/plant-profiles         list species/profiles
@@ -72,7 +73,12 @@ All runtime knobs come from environment variables / `.env`:
 | `WATERING_CHECK_CRON` | Watering-check cron expression (default `0 8 * * *`) |
 | `NTFY_URL` / `NTFY_TOPIC` | Where notification POSTs go (defaults `http://ntfy:80`, `plant-care`) |
 | `ConnectionStrings__Default` | SQLite path (or Postgres later) |
+| `PHOTO_STORAGE_PATH` | Directory for uploaded plant photos (default `/data/uploads`, the `plant-photos` volume; override for bare local runs) |
 | `ENABLE_CARE_TIPS` | Set to `false` to hide the care tips section on plant detail (default on) |
+
+### Photo storage
+
+`PlantPhotoStorage` (Services) persists uploads under `{PHOTO_STORAGE_PATH}/plants/{plantId}/{guid}{ext}` — jpeg/png/webp/gif only, max 5 MB — and returns the public URL `/uploads/plants/...`. nginx serves that prefix from the same volume (see `docs/architecture.md` decision 7). Replacing a photo deletes the previous managed file best-effort; deleting a plant removes its upload directory.
 
 ## Conventions
 
