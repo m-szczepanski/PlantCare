@@ -63,6 +63,16 @@ describe("plantsApi client", () => {
     expect(error).toBeInstanceOf(ApiError);
   });
 
+  it("undoWater() sends DELETE /api/plants/{id}/water", async () => {
+    vi.mocked(fetch).mockResolvedValue(jsonResponse(200, { id: 3 }));
+
+    await plantsApi.undoWater(3);
+
+    const [url, init] = vi.mocked(fetch).mock.calls[0];
+    expect(url).toBe("/api/plants/3/water");
+    expect(init?.method).toBe("DELETE");
+  });
+
   it("dashboardApi.get() hits GET /api/dashboard", async () => {
     vi.mocked(fetch).mockResolvedValue(jsonResponse(200, { overdue: [], dueToday: [], upcoming: [] }));
 

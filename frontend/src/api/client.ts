@@ -72,6 +72,7 @@ export const plantsApi = {
       method: "POST",
       body: JSON.stringify(note ? { note } : {}),
     }),
+  undoWater: (id: number) => request<Plant>(`/plants/${id}/water`, { method: "DELETE" }),
   uploadPhoto: async (id: number, file: File): Promise<Plant> => {
     const form = new FormData();
     form.append("file", file);
