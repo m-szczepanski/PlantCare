@@ -22,6 +22,7 @@ Improvement ideas collected after the v1.0 release. This is a parking lot, not a
 
 ## Functionality Improvements
 
+- First-class sites with orientation: promote `Plant.Location` (free text) to a `Site` entity — room, window orientation (N/E/S/W, none), and light exposure (direct/bright/low, distance from window, shaded by furniture). The app then matches a profile's `LightRequirement` against each site: recommends high-light plants for south/west windows and low-light-tolerant ones for north spots, flags plants sitting in the wrong site ("this Monstera wants more light — try the south window"), and offers a per-site view of "plants that suit this spot".
 - iCal feed for the care schedule (`GET /api/calendar.ics`): subscribe from any calendar app so waterings show up next to the rest of the week.
 - Care journal / growth log: dated photo + note entries per plant ("growth time-lapse"), distinct from watering notes; feeds a before/after comparison view.
 - Plant diagnostics helper: structured symptom checklist per species ("yellow leaves → likely overwatering") stored in the profile; optional experimental step — self-hosted vision model on a journal photo (flag-gated, out of v1 scope creep territory).
@@ -31,7 +32,6 @@ Improvement ideas collected after the v1.0 release. This is a parking lot, not a
 - Toxicity awareness: `ToxicToPets`/`ToxicToChildren` flags on the profile with warning badges on cards and in the notification text.
 - Collection insights page: total plants, species diversity, most-neglected plants, watering adherence/streak stats, seasonal trends — read-only aggregation over existing logs.
 - Bulk actions: "water all" in a dashboard bucket or per location (currently one-by-one only).
-
 - Care task types beyond watering (misting, fertilizing, repotting, rotating): generalize `WateringLog`/schedule into a per-plant `CareTask` with type + interval; "mark as done" per task type.
 - Seasonal watering adjustments (resolved non-goal in v1): interval multipliers per season or a simple "reduce in winter" flag per profile/plant.
 - Due notification improvements: single digest message instead of one ntfy post per plant; overdue escalation (e.g., re-notify at higher ntfy priority after N days); configurable per-plant notification on/off.
