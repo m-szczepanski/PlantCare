@@ -202,5 +202,7 @@ Add `postgres` as an optional service later if/when moving off SQLite.
 | Location | Contents |
 |----------|----------|
 | `docs/` (this folder) | Project overview, architecture, cross-cutting decisions |
+| `docs/ideas.md` | Post-v1 improvement ideas backlog (parking lot) |
+| `docs/improvement-plan.md` | Deliverable chunks derived from the ideas backlog, with proposed branches |
 | `backend/docs/` | API design, data model & EF Core approach, scheduling/notifications, conventions |
 | `frontend/docs/` | SPA architecture, state & data fetching, UI kit/theming, API client approach |

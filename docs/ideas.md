@@ -1,6 +1,6 @@
 # Ideas Backlog
 
-Improvement ideas collected after the v1.0 release. This is a parking lot, not a plan — items are rough, unordered, and must be scoped into `implementation-plan.md` before any work starts. Guardrails from `AGENTS.md` (no multi-user auth, no extra infra, single-user focus) still apply.
+Improvement ideas collected after the v1.0 release. This is a parking lot, not a plan — items are rough and unordered; `improvement-plan.md` groups them into deliverable chunks with proposed branches. Guardrails from `AGENTS.md` (no multi-user auth, no extra infra, single-user focus) still apply.
 
 ## UI Improvements
 
