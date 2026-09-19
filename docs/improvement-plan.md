@@ -101,6 +101,7 @@ Every chunk follows the AGENTS.md workflow: acceptance criteria defined before c
 - `feature/theme-toggle` — done. `ThemeProvider` + `useTheme` (light/dark/system, persisted in `localStorage`, system-following), `ModeToggle` dropdown in the header, pre-paint FOUC script in `index.html`, Vitest coverage; dark tokens unchanged in `index.css`.
 - `feature/app-shell` — done. shadcn `sidebar`-based `AppShell` (brand + Dashboard/Plants/Add plant nav with route-driven active state, mobile off-canvas with sidebar trigger, theme toggle in the sticky top bar); `App.tsx` layout now delegates to it.
 - `feature/feedback-toasts` — done. `sonner` `<Toaster />` mounted in `main.tsx`; create/update/delete/water hooks emit success + error toasts via `src/lib/toast.ts` (API `detail` preferred for 400s); removed the ad-hoc "Could not log watering" paragraph. Deviation: the generated `ui/sonner.tsx` was rewritten to use our `ThemeProvider` instead of next-themes; the plant form keeps its inline error banner on top of the failure toast (inline field errors land in `feature/plant-form-ux`).
+- `feature/loading-empty-states` — done. Card-shaped `PlantCardSkeletonGrid`/`PlantDetailSkeleton` (sr-only `role="status"` labels) replace "Loading…" text on dashboard/list/detail; shared `EmptyState` used by `NoPlantsEmptyState` (dashboard + list), the watering-history empty block, and a new "Plant not found" state for 404s on the detail page. Load-error banners kept inline.
 
 ## Suggested sequencing
 

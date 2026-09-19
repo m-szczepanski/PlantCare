@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
+import { NoPlantsEmptyState } from "@/components/NoPlantsEmptyState";
 import { PlantCard } from "@/components/PlantCard";
+import { PlantCardSkeletonGrid } from "@/components/PlantCardSkeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useDashboard } from "@/hooks/useDashboard";
@@ -15,7 +17,12 @@ export function DashboardPage() {
   const { data: dashboard, isPending, isError, error } = useDashboard();
 
   if (isPending) {
-    return <p className="text-muted-foreground">Loading dashboard...</p>;
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <PlantCardSkeletonGrid label="Loading dashboard..." />
+      </div>
+    );
   }
 
   if (isError || !dashboard) {
@@ -34,15 +41,7 @@ export function DashboardPage() {
     return (
       <div className="space-y-4">
         <h1 className="text-2xl font-bold">Dashboard</h1>
-        <Card>
-          <CardContent className="py-10 text-center text-muted-foreground">
-            You have no plants yet.{" "}
-            <Link to="/plants/new" className="font-medium text-primary underline">
-              Add your first plant
-            </Link>
-            .
-          </CardContent>
-        </Card>
+        <NoPlantsEmptyState />
       </div>
     );
   }

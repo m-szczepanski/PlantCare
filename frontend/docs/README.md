@@ -51,6 +51,12 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 - Mutation hooks (`useCreatePlant`, `useUpdatePlant`, `useDeletePlant`, `useWaterPlant`) fire the toasts themselves — pages do not message on their own; query/load errors remain inline banners.
 - The `ui/sonner.tsx` wrapper deviates from the generated shadcn version: it reads `resolvedTheme` from `ThemeProvider` (this repo has no next-themes). If it is ever re-added via the CLI, that wiring must be restored.
 
+### Loading & Empty States
+
+- Loading uses card-shaped skeletons, never plain text: `PlantCardSkeleton`/`PlantCardSkeletonGrid` for the dashboard and plants list, `PlantDetailSkeleton` for the detail page. Each exposes a `role="status"` container with an sr-only "Loading…" label and `aria-hidden` placeholder cards.
+- Empty states share one `EmptyState` component (icon + title + description + optional action). Consistent usages: `NoPlantsEmptyState` (dashboard + plants list), the "No waterings logged yet" block on the detail page, and the "Plant not found" 404 state (`ApiError.status === 404` on the detail page).
+- Query/load **errors** stay inline destructive banners (a 404 on the detail page is treated as not-found, not an error); mutation failures go to toasts.
+
 ### App Shell
 
 - `src/components/AppShell.tsx` is the single layout wrapper (used by `App.tsx`): a persistent shadcn sidebar with the brand and the main nav (Dashboard / Plants / Add plant — future entries like Rooms/Settings go here), an active-item state driven by the route, a sticky top bar on mobile (sidebar trigger + brand), and the theme toggle.

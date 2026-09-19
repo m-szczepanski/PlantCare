@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import { dashboardApi } from "@/api/client";
 import type { Dashboard, Plant } from "@/api/types";
 import DashboardPage from "@/pages/DashboardPage";
@@ -66,11 +66,22 @@ describe("DashboardPage", () => {
     expect(screen.queryByText("Due today")).not.toBeInTheDocument();
   });
 
+  it("shows card skeletons while the dashboard loads", () => {
+    vi.mocked(dashboardApi.get).mockReturnValue(new Promise(() => {}));
+
+    renderWithProviders(<DashboardPage />);
+
+    const status = screen.getByRole("status");
+    expect(within(status).getByText("Loading dashboard...")).toBeInTheDocument();
+    expect(screen.queryByText("Overdue")).not.toBeInTheDocument();
+  });
+
   it("shows the empty state when there are no plants", async () => {
     vi.mocked(dashboardApi.get).mockResolvedValue(emptyDashboard);
 
     renderWithProviders(<DashboardPage />);
 
-    expect(await screen.findByText(/You have no plants yet/i)).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "No plants yet" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Add your first plant" })).toBeInTheDocument();
   });
 });

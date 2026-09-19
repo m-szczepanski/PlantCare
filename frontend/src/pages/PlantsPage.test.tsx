@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { screen, waitFor } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import { plantsApi } from "@/api/client";
 import type { Plant } from "@/api/types";
 import PlantsPage from "@/pages/PlantsPage";
@@ -50,13 +50,21 @@ describe("PlantsPage", () => {
     expect(screen.getByText("3 days overdue")).toBeInTheDocument();
   });
 
+  it("shows card skeletons while the list loads", () => {
+    vi.mocked(plantsApi.list).mockReturnValue(new Promise(() => {}));
+
+    renderWithProviders(<PlantsPage />);
+
+    const status = screen.getByRole("status");
+    expect(within(status).getByText("Loading plants...")).toBeInTheDocument();
+  });
+
   it("shows the empty state when there are no plants", async () => {
     vi.mocked(plantsApi.list).mockResolvedValue([]);
 
     renderWithProviders(<PlantsPage />);
 
-    await waitFor(() =>
-      expect(screen.getByText(/You have no plants yet/i)).toBeInTheDocument(),
-    );
+    await screen.findByRole("heading", { name: "No plants yet" });
+    expect(screen.getByRole("link", { name: "Add your first plant" })).toBeInTheDocument();
   });
 });
