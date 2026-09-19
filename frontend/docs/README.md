@@ -39,7 +39,8 @@ This drops the canonical component source into `src/components/ui/` and installs
 cva / lucide dependencies. See `components.json` for the active preset (`new-york` style,
 `cssVariables`, green brand accent, `@/` path alias).
 
-- shadcn components are **composed, not modified in place** — extend via wrapper components (e.g. `src/components/DueStatusBadge.tsx`, `src/components/PlantForm.tsx`, `src/components/PlantCard.tsx`, `src/components/CareTipsCard.tsx`) when customization is needed.
+- shadcn components are **composed, not modified in place** — extend via wrapper components (e.g. `src/components/DueStatusBadge.tsx`, `src/components/PlantForm.tsx`, `src/components/PlantCard.tsx`, `src/components/PlantPhoto.tsx`, `src/components/CareTipsCard.tsx`) when customization is needed.
+- `PlantPhoto` renders the profile `PhotoUrl` (lazy, `alt` = nickname) on cards and detail, swapping in a dashed placeholder illustration when there is no photo or the image fails to load (`onError` fallback). Uploads come later with `feature/photo-upload`.
 - Profile care tips render via `react-markdown` (markdown text from `PlantProfile.CareTips`); no raw-HTML plugin is enabled, so profile text is XSS-safe.
 - All base tokens (colors including `popover`, `chart`, `sidebar`, light + dark) live in `src/index.css`; layout/radius/animation theming is centralized in `tailwind.config.ts`. Restyling should never require touching component logic.
 - Existing primitives: `button`, `input`, `label`, `card`, `badge`, `select`, `dropdown-menu`, `sidebar` (+ `sheet`, `separator`, `skeleton`, `tooltip` pulled in by it), `sonner`. Add more as features need them.
@@ -88,7 +89,7 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 |------|----------|
 | Dashboard | "due today / overdue / upcoming" summary (from `GET /api/dashboard`) |
 | Plant list | Owned plants with due status |
-| Plant detail | Plant info, care tips from its `PlantProfile`, "mark as watered" action, watering history |
+| Plant detail | Plant info, photo (or placeholder), care tips from its `PlantProfile`, "mark as watered" action, watering history |
 | Plant form | Create/edit plants; species profiles are managed via the API only (no profile form UI yet) |
 
 ## API Surface Used

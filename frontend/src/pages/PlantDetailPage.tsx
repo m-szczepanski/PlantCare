@@ -4,6 +4,7 @@ import { CareTipsCard } from "@/components/CareTipsCard";
 import { DueStatusBadge } from "@/components/DueStatusBadge";
 import { EmptyState } from "@/components/EmptyState";
 import { PlantDetailSkeleton } from "@/components/PlantDetailSkeleton";
+import { PlantPhoto } from "@/components/PlantPhoto";
 import { ApiError } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -74,6 +75,12 @@ export function PlantDetailPage() {
         <DueStatusBadge plant={plant} />
       </div>
 
+      <PlantPhoto
+        photoUrl={plant.photoUrl}
+        nickName={plant.nickName}
+        className="h-64 w-full sm:h-72"
+      />
+
       <Card>
         <CardHeader>
           <CardTitle>Details</CardTitle>
@@ -85,7 +92,6 @@ export function PlantDetailPage() {
           <Field label="Last watered" value={formatInstant(plant.lastWateredAt, false)} />
           <Field label="Watering interval" value={plant.wateringIntervalDays ? `${plant.wateringIntervalDays} days` : "Not scheduled"} />
           <Field label="Next due" value={formatDate(plant.nextDueDate)} />
-          <Field label="Photo" value={plant.photoUrl ?? "None"} />
         </CardContent>
       </Card>
 
