@@ -7,14 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useWaterPlant } from "@/hooks/usePlants";
+import { dashboardSections } from "@/lib/dashboard";
 import { touchButton } from "@/lib/ui";
-import type { Dashboard, Plant } from "@/api/types";
-
-const sections: { key: string; title: string; select: (d: Dashboard) => Plant[] }[] = [
-  { key: "overdue", title: "Overdue", select: (d) => d.overdue },
-  { key: "dueToday", title: "Due today", select: (d) => d.dueToday },
-  { key: "upcoming", title: "Upcoming", select: (d) => d.upcoming },
-];
 
 export function DashboardPage() {
   const { data: dashboard, isPending, isError, error } = useDashboard();
@@ -61,7 +55,7 @@ export function DashboardPage() {
 
       <DashboardStatsStrip dashboard={dashboard} />
 
-      {sections.map((section) => {
+      {dashboardSections.map((section) => {
         const plants = section.select(dashboard);
         if (plants.length === 0) return null;
         return (
