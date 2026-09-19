@@ -57,6 +57,13 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 - Empty states share one `EmptyState` component (icon + title + description + optional action). Consistent usages: `NoPlantsEmptyState` (dashboard + plants list), the "No waterings logged yet" block on the detail page, and the "Plant not found" 404 state (`ApiError.status === 404` on the detail page).
 - Query/load **errors** stay inline destructive banners (a 404 on the detail page is treated as not-found, not an error); mutation failures go to toasts.
 
+### PWA / Installability
+
+- `public/manifest.webmanifest` declares the standalone app (name, `start_url: /`, `theme_color #16a34a`) with 192/512 + maskable icons; `index.html` links it plus favicon (SVG with PNG fallback), `apple-touch-icon`, theme-color, and the mobile-web-app meta tags.
+- Icons are generated deterministically from `scripts/generate-icons.mjs` (pure Node, no image deps): `node scripts/generate-icons.mjs` regenerates everything under `public/icons/`; `public/favicon.svg` is the same leaf mark in vector form.
+- `nginx.conf` serves `.webmanifest` as `application/manifest+json` (nginx's default mime types don't know the extension).
+- No service worker in v1 — install works without one; offline caching stays out of scope (see project non-goals).
+
 ### App Shell
 
 - `src/components/AppShell.tsx` is the single layout wrapper (used by `App.tsx`): a persistent shadcn sidebar with the brand and the main nav (Dashboard / Plants / Add plant — future entries like Rooms/Settings go here), an active-item state driven by the route, a sticky top bar on mobile (sidebar trigger + brand), and the theme toggle.
