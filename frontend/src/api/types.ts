@@ -33,6 +33,44 @@ export interface Dashboard {
   upcoming: Plant[];
 }
 
+export interface SpeciesCount {
+  plantProfileId: number;
+  commonName: string;
+  plantCount: number;
+}
+
+export interface NeglectedPlant {
+  plantId: number;
+  nickName: string;
+  daysSinceLastWatering: number;
+}
+
+export interface PlantStreak {
+  plantId: number;
+  nickName: string;
+  consecutiveOnTimeWaterings: number;
+}
+
+export interface MonthlyCount {
+  month: string;
+  count: number;
+}
+
+export interface Insights {
+  totalPlants: number;
+  scheduledPlants: number;
+  unscheduledPlants: number;
+  speciesCount: number;
+  species: SpeciesCount[];
+  mostNeglected: NeglectedPlant[];
+  adherenceWindowDays: number;
+  adherencePercent: number;
+  expectedWateringsInWindow: number;
+  actualWateringsInWindow: number;
+  streaks: PlantStreak[];
+  monthlyWaterings: MonthlyCount[];
+}
+
 export interface WateringLogEntry {
   id: number;
   wateredAt: string;

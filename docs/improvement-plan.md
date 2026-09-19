@@ -115,6 +115,12 @@ Every chunk follows the AGENTS.md workflow: acceptance criteria defined before c
 - `feature/keyboard-shortcuts` — done. `KeyboardShortcuts` in the shell: `n` new plant, `w` water focused card (focusable `data-plant-card` + `data-water-button`), `/` focus `#plant-search`; ignored while typing or with modifiers.
 - `feature/routing-polish` — done. `Breadcrumbs` on list/detail/form (detail ends with the plant name), `ScrollRestoration` keyed on router location, list filters moved to URL search params (`?q=&due=&sort=`) for shareable/back-restorable deep links; detail URLs already existed.
 - **Epic 3 ships as one PR: `epic/watering-care-ux`** (optimistic-watering and plant-form-ux were merged individually before the one-epic-one-PR switch; viz + search + shortcuts + routing ride the epic branch). Next epics follow the new convention.
+- **Epic 4 ships as one PR: `epic/dashboard-views`** — all five chunks done.
+  - `feature/dashboard-stats` — `DashboardStatsStrip` (overdue / due today / total tiles, `role="group"` labels, red-on-overdue, green "All caught up" band when nothing needs water).
+  - `feature/calendar-view` — `/calendar` route + nav entry; week (next 7 days) and month (navigable) grids from `projectOccurrences` (`lib/scheduleProjection.ts`, clamps overdue to today); a11y labels per day.
+  - `feature/ical-feed` — `GET /api/calendar.ics` (`CalendarService`: recurring all-day VEVENTs with RRULE/UID, CRLF + folding + escaping) and nginx `= /calendar.ics` proxy so phones can subscribe on the LAN.
+  - `feature/wall-mode` — `/wall` outside the shell: auto-refreshes the dashboard every 60s (`useDashboard(refetchMs)`), live clock, shared `dashboardSections` extraction.
+  - `feature/collection-insights` — `GET /api/insights` (`InsightsService`: totals, species diversity, most-neglected, 30-day adherence vs expected waterings, on-time streaks, 12-month counts) + `/insights` page with tiles, monthly bars (sr-only table) and three list cards.
 
 ## Suggested sequencing
 

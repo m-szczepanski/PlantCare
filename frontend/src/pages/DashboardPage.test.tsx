@@ -47,10 +47,26 @@ describe("DashboardPage", () => {
 
     renderWithProviders(<DashboardPage />);
 
-    expect(await screen.findByRole("heading", { name: "Overdue" })).toBeInTheDocument();
-    expect(screen.getByText("Thirsty Theo")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { level: 2, name: "Overdue" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Overdue: 1" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Due today: 1" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Plants: 3" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Thirsty Theo" })).toBeInTheDocument();
     expect(screen.getByText("Parched Paula")).toBeInTheDocument();
     expect(screen.getByText("Fine Fiona")).toBeInTheDocument();
+  });
+
+  it("shows the all-caught-up state when nothing is overdue or due today", async () => {
+    vi.mocked(dashboardApi.get).mockResolvedValue({
+      ...emptyDashboard,
+      upcoming: [plant({ id: 3, nickName: "Fine Fiona" })],
+    });
+
+    renderWithProviders(<DashboardPage />);
+
+    await screen.findByText("Fine Fiona");
+    expect(screen.getByRole("group", { name: "Overdue: 0" })).toBeInTheDocument();
+    expect(screen.getByText(/All caught up/i)).toBeInTheDocument();
   });
 
   it("hides empty sections", async () => {
