@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import type { PlantInput } from "@/api/types";
 import { PlantForm } from "@/components/PlantForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { errorMessage } from "@/lib/toast";
+import { splitApiError } from "@/lib/validation";
 import { useCreatePlant, usePlant, useUpdatePlant } from "@/hooks/usePlants";
 
 export function PlantFormPage() {
@@ -32,6 +32,7 @@ export function PlantFormPage() {
 
 function CreatePlant({ onDone }: { onDone: () => void }) {
   const create = useCreatePlant();
+  const split = splitApiError(create.error);
 
   function handleSubmit(input: PlantInput) {
     create.mutate(input, { onSuccess: onDone });
@@ -40,7 +41,8 @@ function CreatePlant({ onDone }: { onDone: () => void }) {
   return (
     <PlantForm
       submitting={create.isPending}
-      error={create.error ? errorMessage(create.error) : null}
+      error={split.banner}
+      fieldErrors={split.fields}
       submitLabel="Create plant"
       onSubmit={handleSubmit}
       onCancel={onDone}
@@ -51,6 +53,7 @@ function CreatePlant({ onDone }: { onDone: () => void }) {
 function EditPlant({ plantId, onDone }: { plantId: number; onDone: () => void }) {
   const { data: plant, isPending, isError } = usePlant(plantId);
   const update = useUpdatePlant();
+  const split = splitApiError(update.error);
 
   if (isPending) {
     return <p className="text-muted-foreground">Loading plant...</p>;
@@ -68,7 +71,8 @@ function EditPlant({ plantId, onDone }: { plantId: number; onDone: () => void })
     <PlantForm
       initial={plant}
       submitting={update.isPending}
-      error={update.error ? errorMessage(update.error) : null}
+      error={split.banner}
+      fieldErrors={split.fields}
       submitLabel="Save changes"
       onSubmit={handleSubmit}
       onCancel={onDone}

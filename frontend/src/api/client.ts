@@ -9,12 +9,19 @@ const BASE_URL = "/api";
 export class ApiError extends Error {
   readonly status: number;
   readonly detail?: string;
+  readonly errors?: Record<string, string[]>;
 
-  constructor(status: number, message: string, detail?: string) {
+  constructor(
+    status: number,
+    message: string,
+    detail?: string,
+    errors?: Record<string, string[]>,
+  ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.detail = detail;
+    this.errors = errors;
   }
 }
 
@@ -35,10 +42,14 @@ async function unwrap<T>(response: Response, path: string): Promise<T> {
   const body = text ? safeParse(text) : null;
 
   if (!response.ok) {
-    const detail =
-      (body as { detail?: string } | null)?.detail ??
-      firstValidationMessage(body as { errors?: Record<string, string[]> } | null);
-    throw new ApiError(response.status, `Request to ${path} failed (${response.status})`, detail);
+    const errorBody = body as { detail?: string; errors?: Record<string, string[]> } | null;
+    const detail = errorBody?.detail ?? firstValidationMessage(errorBody);
+    throw new ApiError(
+      response.status,
+      `Request to ${path} failed (${response.status})`,
+      detail,
+      errorBody?.errors,
+    );
   }
 
   return body as T;
