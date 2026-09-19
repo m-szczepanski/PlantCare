@@ -27,7 +27,7 @@ const monstera: Plant = {
   profileCommonName: "Monstera",
   careTips: null,
   customWateringIntervalDays: null,
-  lastWateredAt: "2026-03-01T00:00:00",
+  lastWateredAt: new Date(Date.now() - 3 * 86_400_000).toISOString(),
   dueStatus: "Overdue",
   wateringIntervalDays: 7,
   daysUntilDue: -3,
@@ -47,7 +47,10 @@ describe("PlantsPage", () => {
 
     expect(await screen.findByText("Monstera Mike")).toBeInTheDocument();
     expect(screen.getByText("Living room")).toBeInTheDocument();
-    expect(screen.getByText("3 days overdue")).toBeInTheDocument();
+    expect(screen.getByText("3")).toBeInTheDocument();
+    expect(screen.getByText("days overdue")).toBeInTheDocument();
+    expect(screen.getByText("Overdue")).toBeInTheDocument();
+    expect(screen.getByText("Watered 3 days ago")).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "No photo of Monstera Mike" })).toBeInTheDocument();
   });
 
