@@ -99,6 +99,7 @@ Every chunk follows the AGENTS.md workflow: acceptance criteria defined before c
 ## Progress
 
 - `feature/theme-toggle` — done. `ThemeProvider` + `useTheme` (light/dark/system, persisted in `localStorage`, system-following), `ModeToggle` dropdown in the header, pre-paint FOUC script in `index.html`, Vitest coverage; dark tokens unchanged in `index.css`.
+- `feature/app-shell` — done. shadcn `sidebar`-based `AppShell` (brand + Dashboard/Plants/Add plant nav with route-driven active state, mobile off-canvas with sidebar trigger, theme toggle in the sticky top bar); `App.tsx` layout now delegates to it.
 
 ## Suggested sequencing
 
