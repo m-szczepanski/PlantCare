@@ -7,12 +7,13 @@ export function PlantCardSkeleton() {
       <CardContent className="flex items-start gap-4 p-6">
         <Skeleton className="h-14 w-14 shrink-0" />
         <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <Skeleton className="h-6 w-1/2" />
-            <Skeleton className="h-5 w-20 rounded-full" />
-          </div>
+          <Skeleton className="h-6 w-1/2" />
           <Skeleton className="mt-3 h-4 w-1/3" />
-          <Skeleton className="mt-2 h-4 w-2/5" />
+          <Skeleton className="mt-3 h-5 w-40" />
+        </div>
+        <div className="shrink-0 space-y-1 text-right">
+          <Skeleton className="ml-auto h-7 w-10" />
+          <Skeleton className="ml-auto h-3 w-16" />
         </div>
       </CardContent>
     </Card>

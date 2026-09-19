@@ -47,7 +47,7 @@ describe("DashboardPage", () => {
 
     renderWithProviders(<DashboardPage />);
 
-    expect(await screen.findByText("Overdue")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Overdue" })).toBeInTheDocument();
     expect(screen.getByText("Thirsty Theo")).toBeInTheDocument();
     expect(screen.getByText("Parched Paula")).toBeInTheDocument();
     expect(screen.getByText("Fine Fiona")).toBeInTheDocument();
@@ -61,9 +61,9 @@ describe("DashboardPage", () => {
 
     renderWithProviders(<DashboardPage />);
 
-    expect(await screen.findByText("Upcoming")).toBeInTheDocument();
-    expect(screen.queryByText("Overdue")).not.toBeInTheDocument();
-    expect(screen.queryByText("Due today")).not.toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Upcoming" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Overdue" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Due today" })).not.toBeInTheDocument();
   });
 
   it("shows card skeletons while the dashboard loads", () => {
