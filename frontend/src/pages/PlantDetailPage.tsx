@@ -105,9 +105,6 @@ export function PlantDetailPage() {
           {deletePlant.isPending ? "Deleting..." : "Delete"}
         </Button>
       </div>
-      {waterPlant.isError ? (
-        <p className="text-sm text-destructive">Could not log watering: {(waterPlant.error as Error).message}</p>
-      ) : null}
     </div>
   );
 }

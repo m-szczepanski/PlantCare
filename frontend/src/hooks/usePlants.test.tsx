@@ -2,9 +2,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
+import { toast } from "sonner";
 import { plantsApi } from "@/api/client";
 import type { Plant } from "@/api/types";
-import { useCreatePlant, usePlants } from "@/hooks/usePlants";
+import { useCreatePlant, usePlants, useWaterPlant } from "@/hooks/usePlants";
+
+vi.mock("sonner", () => ({
+  toast: { success: vi.fn(), error: vi.fn() },
+}));
 
 vi.mock("@/api/client", () => ({
   plantsApi: {
@@ -47,6 +52,9 @@ describe("usePlants hooks", () => {
   beforeEach(() => {
     vi.mocked(plantsApi.list).mockReset();
     vi.mocked(plantsApi.create).mockReset();
+    vi.mocked(plantsApi.water).mockReset();
+    vi.mocked(toast.success).mockReset();
+    vi.mocked(toast.error).mockReset();
   });
 
   it("usePlants resolves the fetched list", async () => {
@@ -66,5 +74,27 @@ describe("usePlants hooks", () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(plantsApi.create).toHaveBeenCalledTimes(1);
+  });
+
+  it("useCreatePlant shows a success toast", async () => {
+    vi.mocked(plantsApi.create).mockResolvedValue(plant);
+
+    const { result } = renderHook(() => useCreatePlant(), { wrapper });
+    result.current.mutate({ nickName: "Pothos", location: "Shelf", acquiredDate: "2026-01-01T00:00:00" });
+
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith("Plant added", {
+      description: "Pothos is on the list.",
+    }));
+  });
+
+  it("useWaterPlant shows a failure toast with the error message", async () => {
+    vi.mocked(plantsApi.water).mockRejectedValue(new Error("boom"));
+
+    const { result } = renderHook(() => useWaterPlant(), { wrapper });
+    result.current.mutate({ id: 1 });
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("Could not log watering", {
+      description: "boom",
+    }));
   });
 });

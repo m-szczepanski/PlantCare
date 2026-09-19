@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { plantsApi } from "@/api/client";
 import type { PlantInput } from "@/api/types";
+import { toastError } from "@/lib/toast";
 
 export const plantKeys = {
   all: ["plants"] as const,
@@ -27,7 +29,11 @@ export function useCreatePlant() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: PlantInput) => plantsApi.create(input),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: plantKeys.all }),
+    onSuccess: (plant) => {
+      queryClient.invalidateQueries({ queryKey: plantKeys.all });
+      toast.success("Plant added", { description: `${plant.nickName} is on the list.` });
+    },
+    onError: (error) => toastError("Could not add plant", error),
   });
 }
 
@@ -38,7 +44,9 @@ export function useUpdatePlant() {
     onSuccess: (plant) => {
       queryClient.invalidateQueries({ queryKey: plantKeys.all });
       queryClient.setQueryData(plantKeys.detail(plant.id), plant);
+      toast.success("Plant updated", { description: `${plant.nickName} saved.` });
     },
+    onError: (error) => toastError("Could not update plant", error),
   });
 }
 
@@ -46,7 +54,11 @@ export function useDeletePlant() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => plantsApi.remove(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: plantKeys.all }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: plantKeys.all });
+      toast.success("Plant deleted");
+    },
+    onError: (error) => toastError("Could not delete plant", error),
   });
 }
 
@@ -57,7 +69,9 @@ export function useWaterPlant() {
     onSuccess: (plant) => {
       queryClient.invalidateQueries({ queryKey: plantKeys.all });
       queryClient.setQueryData(plantKeys.detail(plant.id), plant);
+      toast.success("Watered", { description: `${plant.nickName} logged.` });
     },
+    onError: (error) => toastError("Could not log watering", error),
   });
 }
 

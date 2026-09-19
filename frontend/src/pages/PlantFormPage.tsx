@@ -1,8 +1,8 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { ApiError } from "@/api/client";
 import type { PlantInput } from "@/api/types";
 import { PlantForm } from "@/components/PlantForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { errorMessage } from "@/lib/toast";
 import { useCreatePlant, usePlant, useUpdatePlant } from "@/hooks/usePlants";
 
 export function PlantFormPage() {
@@ -40,7 +40,7 @@ function CreatePlant({ onDone }: { onDone: () => void }) {
   return (
     <PlantForm
       submitting={create.isPending}
-      error={errorMessage(create.error)}
+      error={create.error ? errorMessage(create.error) : null}
       submitLabel="Create plant"
       onSubmit={handleSubmit}
       onCancel={onDone}
@@ -68,18 +68,12 @@ function EditPlant({ plantId, onDone }: { plantId: number; onDone: () => void })
     <PlantForm
       initial={plant}
       submitting={update.isPending}
-      error={errorMessage(update.error)}
+      error={update.error ? errorMessage(update.error) : null}
       submitLabel="Save changes"
       onSubmit={handleSubmit}
       onCancel={onDone}
     />
   );
-}
-
-function errorMessage(error: unknown): string | null {
-  if (!error) return null;
-  if (error instanceof ApiError && error.detail) return error.detail;
-  return (error as Error).message;
 }
 
 export default PlantFormPage;
