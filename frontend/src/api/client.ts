@@ -20,10 +20,13 @@ export class ApiError extends Error {
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${BASE_URL}${path}`, {
-    headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
     ...init,
+    headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
   });
+  return unwrap<T>(response, path);
+}
 
+async function unwrap<T>(response: Response, path: string): Promise<T> {
   if (response.status === 204) {
     return undefined as T;
   }
@@ -69,6 +72,12 @@ export const plantsApi = {
       method: "POST",
       body: JSON.stringify(note ? { note } : {}),
     }),
+  uploadPhoto: async (id: number, file: File): Promise<Plant> => {
+    const form = new FormData();
+    form.append("file", file);
+    const response = await fetch(`${BASE_URL}/plants/${id}/photo`, { method: "POST", body: form });
+    return unwrap<Plant>(response, `/plants/${id}/photo`);
+  },
   wateringLogs: (id: number) => request<WateringLogEntry[]>(`/plants/${id}/watering-logs`),
 };
 

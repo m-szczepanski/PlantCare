@@ -71,4 +71,27 @@ describe("plantsApi client", () => {
     expect(fetch).toHaveBeenCalledWith("/api/dashboard", expect.objectContaining({}));
     expect(result).toEqual({ overdue: [], dueToday: [], upcoming: [] });
   });
+
+  it("uploadPhoto() POSTs the file as multipart form data", async () => {
+    vi.mocked(fetch).mockResolvedValue(jsonResponse(200, { id: 1, photoUrl: "/uploads/plants/1/a.png" }));
+
+    const result = await plantsApi.uploadPhoto(1, new File(["data"], "a.png", { type: "image/png" }));
+
+    const [url, init] = vi.mocked(fetch).mock.calls[0];
+    expect(url).toBe("/api/plants/1/photo");
+    expect(init?.method).toBe("POST");
+    expect(init?.headers).toBeUndefined();
+    expect(init?.body).toBeInstanceOf(FormData);
+    expect((init?.body as FormData).get("file")).toBeInstanceOf(File);
+    expect(result.photoUrl).toBe("/uploads/plants/1/a.png");
+  });
+
+  it("uploadPhoto maps the ProblemDetails message to ApiError detail", async () => {
+    vi.mocked(fetch).mockResolvedValue(jsonResponse(400, { title: "Unsupported photo.", detail: "Unsupported photo type 'application/pdf'." }));
+
+    await expect(plantsApi.uploadPhoto(1, new File(["x"], "a.pdf", { type: "application/pdf" }))).rejects.toMatchObject({
+      status: 400,
+      detail: "Unsupported photo type 'application/pdf'.",
+    });
+  });
 });
