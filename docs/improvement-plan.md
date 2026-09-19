@@ -1,6 +1,6 @@
 # Improvement Plan (post-v1)
 
-Deliverable chunks derived from `ideas.md`. Each chunk is one scoped branch/PR (repo convention: `feature/<name>`), sized to be reviewable on its own and shippable without breaking v1. This is a proposal — reorder freely; only the listed dependencies are hard.
+Deliverable chunks derived from `ideas.md`. Each chunk is one scoped commit group inside an **epic branch/PR** (repo convention since Epic 3: one PR per epic, `epic/<name>` off main — chunks stay the unit of work and acceptance, the epic is the unit of review and shipping). Chunks remain sized to be shippable without breaking v1. This is a proposal — reorder freely; only the listed dependencies are hard.
 
 Every chunk follows the AGENTS.md workflow: acceptance criteria defined before coding, builds green (`dotnet build`, `npm run build`), tests for new behavior, migration with any schema change, docs updated.
 

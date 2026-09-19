@@ -19,7 +19,7 @@ Self-hosted plant tracking web app: ASP.NET Core (.NET 10) API + React/Vite/TS S
 ## Workflow
 
 1. Work strictly in the order of `docs/implementation-plan.md`. Do not skip steps or start the next step before the current one's acceptance criteria pass.
-2. Each step (or coherent slice) is its own scoped commit/PR, e.g. `add PlantProfile CRUD`, `add watering scheduler`.
+2. Post-v1 work follows `docs/improvement-plan.md`: **one branch/PR per epic** (`epic/<name>` off main). Within the branch, each deliverable chunk gets its own scoped commits, in chunk order. (The historical per-chunk `feature/*` branches for Epics 1–3's early chunks were merged individually and stay as-is.)
 3. Commit as you go: within a step, commit changes incrementally, grouped by feature/functionality rather than one giant commit at the end. Use short, descriptive commit messages (repo style: lowercase `type: message`, e.g. `feat: add health endpoint`).
 4. Every schema change ships with an EF Core migration committed alongside the code.
 5. Update docs when a change deviates from a documented decision.
