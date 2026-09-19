@@ -106,5 +106,6 @@ All endpoints under `/api/*` — plants CRUD, `POST /api/plants/{id}/water`, `PO
 
 - Functional components only.
 - Server state via hooks (TanStack Query); local UI state stays in the component.
+- `useWaterPlant` is optimistic: `onMutate` patches the cached plant (list + detail) with the computed "just watered" state, failures roll the cache back, and the success toast carries an **Undo** action calling `DELETE /api/plants/{id}/water`. Destructive actions (delete plant) go through a shadcn `alert-dialog` confirm, never `window.confirm`.
 - Compose shadcn primitives into app-specific components rather than editing generated files.
 - Keep design tokens/theming centralized so the template is easy to re-theme.
