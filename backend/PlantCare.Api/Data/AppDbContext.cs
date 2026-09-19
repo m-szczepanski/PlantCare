@@ -7,6 +7,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
     public DbSet<Plant> Plants => Set<Plant>();
 
+    public DbSet<Room> Rooms => Set<Room>();
+
     public DbSet<PlantProfile> PlantProfiles => Set<PlantProfile>();
 
     public DbSet<WateringLog> WateringLogs => Set<WateringLog>();
@@ -21,11 +23,22 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.HasIndex(p => p.CommonName).IsUnique();
         });
 
+        modelBuilder.Entity<Room>(entity =>
+        {
+            entity.Property(r => r.Orientation).HasConversion<string>();
+            entity.HasIndex(r => r.Name).IsUnique();
+        });
+
         modelBuilder.Entity<Plant>(entity =>
         {
             entity.HasOne(p => p.PlantProfile)
                 .WithMany(pp => pp.Plants)
                 .HasForeignKey(p => p.PlantProfileId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(p => p.Room)
+                .WithMany(r => r.Plants)
+                .HasForeignKey(p => p.RoomId)
                 .OnDelete(DeleteBehavior.SetNull);
         });
 

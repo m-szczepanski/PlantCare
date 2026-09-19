@@ -10,7 +10,9 @@ public class Plant
 
     public required string NickName { get; set; }
 
-    public required string Location { get; set; }
+    public int? RoomId { get; set; }
+
+    public Room? Room { get; set; }
 
     public string? PhotoUrl { get; set; }
 

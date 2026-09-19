@@ -27,6 +27,7 @@ public class PlantsController(IPlantService plants) : ControllerBase
         return result.Status switch
         {
             PlantWriteStatus.InvalidProfile => BadRequest(new ProblemDetails { Title = "Unknown plant profile.", Detail = $"No plant profile with id {dto.PlantProfileId} exists." }),
+            PlantWriteStatus.InvalidRoom => BadRequest(new ProblemDetails { Title = "Unknown room.", Detail = $"No room with id {dto.RoomId} exists." }),
             _ => CreatedAtAction(nameof(Get), new { id = result.Plant!.Id }, result.Plant),
         };
     }
@@ -39,6 +40,7 @@ public class PlantsController(IPlantService plants) : ControllerBase
         {
             PlantWriteStatus.NotFound => NotFound(),
             PlantWriteStatus.InvalidProfile => BadRequest(new ProblemDetails { Title = "Unknown plant profile.", Detail = $"No plant profile with id {dto.PlantProfileId} exists." }),
+            PlantWriteStatus.InvalidRoom => BadRequest(new ProblemDetails { Title = "Unknown room.", Detail = $"No room with id {dto.RoomId} exists." }),
             _ => Ok(result.Plant),
         };
     }

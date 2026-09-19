@@ -6,7 +6,9 @@ public class PlantResponseDto
 
     public required string NickName { get; set; }
 
-    public required string Location { get; set; }
+    public int? RoomId { get; set; }
+
+    public string? RoomName { get; set; }
 
     public string? PhotoUrl { get; set; }
 
