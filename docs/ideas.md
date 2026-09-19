@@ -22,9 +22,6 @@ Improvement ideas collected after the v1.0 release. This is a parking lot, not a
 
 ## Functionality Improvements
 
-- Environmental readings per location (room): temperature and humidity captured manually, via CSV import, or pulled from existing smart-home sensors; stored as time series, charted on the location view, and compared against the species profile's light/humidity guidance with out-of-range alerts.
-- Home Assistant / MQTT integration: publish plants as sensors/binary sensors (HA MQTT discovery) and subscribe to sensor topics for the environment data above — makes PlantCare a first-class citizen of the home dashboard instead of a silo.
-- Soil-moistness feedback loop: ingest BLE soil sensors (Xiaomi/Govee-style) to shift due dates when the substrate dries faster/slower than the schedule assumes.
 - iCal feed for the care schedule (`GET /api/calendar.ics`): subscribe from any calendar app so waterings show up next to the rest of the week.
 - Care journal / growth log: dated photo + note entries per plant ("growth time-lapse"), distinct from watering notes; feeds a before/after comparison view.
 - Plant diagnostics helper: structured symptom checklist per species ("yellow leaves → likely overwatering") stored in the profile; optional experimental step — self-hosted vision model on a journal photo (flag-gated, out of v1 scope creep territory).
