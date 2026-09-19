@@ -44,7 +44,13 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 - `PlantCard` layout: photo, name/location/species, `DueStatusBadge` (short status **text + icon** — accessible without relying on color) with a relative "Watered 3 days ago" line (`src/lib/dates.ts`), and `DueCount` — days-until-due as the primary number ("3 / days overdue" red, "Now / due today", "4 / days to go", "— / not scheduled").
 - Profile care tips render via `react-markdown` (markdown text from `PlantProfile.CareTips`); no raw-HTML plugin is enabled, so profile text is XSS-safe. Output is styled with `@tailwindcss/typography` (`prose prose-sm prose-neutral dark:prose-invert max-w-none` on the care-notes block in `CareTipsCard`) — headings, lists, links and quotes all theme-aware. A TOC for very long tips is not built (seed tips are short; revisit with `feature/seed-expansion`).
 - All base tokens (colors including `popover`, `chart`, `sidebar`, light + dark) live in `src/index.css`; layout/radius/animation theming is centralized in `tailwind.config.ts`. Restyling should never require touching component logic.
-- Existing primitives: `button`, `input`, `label`, `card`, `badge`, `select`, `dropdown-menu`, `sidebar` (+ `sheet`, `separator`, `skeleton`, `tooltip` pulled in by it), `sonner`. Add more as features need them.
+- Existing primitives: `button`, `input`, `label`, `card`, `badge`, `select`, `dropdown-menu`, `sidebar` (+ `sheet`, `separator`, `skeleton`, `tooltip` pulled in by it), `sonner`, `popover` + `command` + `dialog` (profile combobox), `alert-dialog`. Add more as features need them.
+
+### Forms
+
+- `PlantForm` UX: the species profile picker is a searchable combobox (`ProfileCombobox` = Popover + Command); a `role="status"` line previews the effective next watering date (custom interval wins, otherwise profile default, otherwise "no schedule"); `acquiredDate` defaults to today for new plants; the custom-interval placeholder shows the selected profile's default.
+- API 400 responses with `ProblemDetails.errors` map to per-field messages via `splitApiError` (`src/lib/validation.ts`) — PascalCase keys become camelCase field names, inputs get `aria-invalid`; only non-field errors (e.g. unknown profile) render as the banner above the buttons.
+- jsdom needs `ResizeObserver`/`scrollIntoView` stubs (in `src/test/setup.ts`) for Popover/Command/dialog rendering in tests.
 
 ### Feedback & Toasts
 
