@@ -31,7 +31,7 @@ export function PlantCard({ plant, onWater, isWatering }: PlantCardProps) {
           <Link to={`/plants/${plant.id}`} className="text-lg font-semibold break-words hover:underline">
             {plant.nickName}
           </Link>
-          <p className="mt-1 text-sm text-muted-foreground">{plant.location}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{plant.roomName ?? "No room"}</p>
           {plant.profileCommonName ? (
             <p className="text-sm text-muted-foreground">{plant.profileCommonName}</p>
           ) : null}

@@ -2,7 +2,7 @@ import type { Plant, PlantDueStatus } from "@/api/types";
 
 export type DueFilter = "all" | PlantDueStatus;
 
-export type SortKey = "name" | "location" | "soonestDue" | "recentlyWatered";
+export type SortKey = "name" | "room" | "soonestDue" | "recentlyWatered";
 
 export interface PlantQuery {
   search: string;
@@ -20,7 +20,7 @@ const DUE_FILTERS: { value: DueFilter; label: string }[] = [
 
 const SORT_OPTIONS: { value: SortKey; label: string }[] = [
   { value: "name", label: "Name A–Z" },
-  { value: "location", label: "Location" },
+  { value: "room", label: "Room" },
   { value: "soonestDue", label: "Soonest due" },
   { value: "recentlyWatered", label: "Recently watered" },
 ];
@@ -30,7 +30,7 @@ export const sortOptions = SORT_OPTIONS;
 
 function matchesSearch(plant: Plant, query: string): boolean {
   if (query === "") return true;
-  const haystack = [plant.nickName, plant.location, plant.profileCommonName ?? ""]
+  const haystack = [plant.nickName, plant.roomName ?? "", plant.profileCommonName ?? ""]
     .join(" ")
     .toLowerCase();
   return haystack.includes(query);
@@ -58,8 +58,8 @@ export function filterPlants(plants: Plant[], query: PlantQuery): Plant[] {
     case "name":
       sorted.sort((a, b) => a.nickName.localeCompare(b.nickName));
       break;
-    case "location":
-      sorted.sort((a, b) => a.location.localeCompare(b.location) || a.nickName.localeCompare(b.nickName));
+    case "room":
+      sorted.sort((a, b) => (a.roomName ?? "\uffff").localeCompare(b.roomName ?? "\uffff") || a.nickName.localeCompare(b.nickName));
       break;
     case "soonestDue":
       sorted.sort((a, b) => dueValue(a) - dueValue(b));

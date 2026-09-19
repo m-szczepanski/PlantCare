@@ -2,6 +2,20 @@ export type PlantDueStatus = "NotScheduled" | "Overdue" | "DueToday" | "Upcoming
 
 export type LightRequirement = "Low" | "Medium" | "Bright" | "DirectSun";
 
+export type RoomOrientation = "North" | "East" | "South" | "West";
+
+export interface Room {
+  id: number;
+  name: string;
+  orientation: RoomOrientation | null;
+  plantCount: number;
+}
+
+export interface RoomInput {
+  name: string;
+  orientation?: RoomOrientation | null;
+}
+
 export interface PlantCareTips {
   commonName: string;
   lightRequirement: LightRequirement;
@@ -12,7 +26,8 @@ export interface PlantCareTips {
 export interface Plant {
   id: number;
   nickName: string;
-  location: string;
+  roomId: number | null;
+  roomName: string | null;
   photoUrl: string | null;
   acquiredDate: string;
   plantProfileId: number | null;
@@ -86,7 +101,7 @@ export interface PlantProfileOption {
 
 export interface PlantInput {
   nickName: string;
-  location: string;
+  roomId?: number | null;
   photoUrl?: string | null;
   acquiredDate: string;
   customWateringIntervalDays?: number | null;

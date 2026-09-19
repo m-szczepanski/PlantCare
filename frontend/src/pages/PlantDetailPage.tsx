@@ -111,7 +111,7 @@ export function PlantDetailPage() {
           <CardTitle>Details</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
-          <Field label="Location" value={plant.location} />
+          <Field label="Room" value={plant.roomName ?? "None"} />
           <Field label="Species profile" value={plant.profileCommonName ?? "None"} />
           <Field label="Acquired" value={formatDate(plant.acquiredDate)} />
           <Field label="Last watered" value={formatInstant(plant.lastWateredAt, false)} />

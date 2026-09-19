@@ -3,7 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ProfileCombobox } from "@/components/ProfileCombobox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { usePlantProfiles } from "@/hooks/usePlantProfiles";
+import { useCreateRoom, useRooms } from "@/hooks/useRooms";
 import { touchButton, touchField } from "@/lib/ui";
 import type { Plant, PlantInput } from "@/api/types";
 
@@ -27,9 +35,12 @@ export interface PlantFormProps {
 
 export function PlantForm({ initial, submitting, error, fieldErrors = {}, submitLabel, onSubmit, onCancel }: PlantFormProps) {
   const { data: profiles = [] } = usePlantProfiles();
+  const { data: rooms = [] } = useRooms();
+  const createRoom = useCreateRoom();
 
   const [nickName, setNickName] = useState(initial?.nickName ?? "");
-  const [location, setLocation] = useState(initial?.location ?? "");
+  const [roomId, setRoomId] = useState<number | null>(initial?.roomId ?? null);
+  const [newRoomName, setNewRoomName] = useState("");
   const [photoUrl, setPhotoUrl] = useState(initial?.photoUrl ?? "");
   const [profileId, setProfileId] = useState<number | null>(initial?.plantProfileId ?? null);
   const [customInterval, setCustomInterval] = useState<string>(
@@ -66,7 +77,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
 
     onSubmit({
       nickName: nickName.trim(),
-      location: location.trim(),
+      roomId,
       photoUrl: photoUrl.trim() || null,
       acquiredDate: fromDateString(acquiredDate) ?? new Date().toISOString(),
       plantProfileId: profileId,
@@ -92,17 +103,46 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="location">Location</Label>
-        <Input
-          id="location"
-          required
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder="Living room window"
-          aria-invalid={fieldErrors.location ? true : undefined}
-          className={touchField}
-        />
-        <FieldError message={fieldErrors.location} />
+        <Label htmlFor="room">Room</Label>
+        <Select
+          value={roomId == null ? "none" : String(roomId)}
+          onValueChange={(value) => setRoomId(value === "none" ? null : Number(value))}
+        >
+          <SelectTrigger id="room" className={touchField}>
+            <SelectValue placeholder="No room" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">No room</SelectItem>
+            {rooms.map((room) => (
+              <SelectItem key={room.id} value={String(room.id)}>
+                {room.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <div className="flex gap-2">
+          <Input
+            aria-label="New room name"
+            value={newRoomName}
+            onChange={(e) => setNewRoomName(e.target.value)}
+            placeholder="Quickly add a room"
+            className={touchField}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            disabled={newRoomName.trim() === "" || createRoom.isPending}
+            onClick={() =>
+              createRoom.mutate(
+                { name: newRoomName.trim() },
+                { onSuccess: (room) => { setRoomId(room.id); setNewRoomName(""); } },
+              )
+            }
+          >
+            {createRoom.isPending ? "Adding..." : "Add"}
+          </Button>
+        </div>
+        <FieldError message={fieldErrors.roomId} />
       </div>
 
       <div className="space-y-2">

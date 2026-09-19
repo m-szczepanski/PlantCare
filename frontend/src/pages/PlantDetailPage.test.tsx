@@ -22,7 +22,9 @@ vi.mock("@/api/client", () => ({
 const plant: Plant = {
   id: 1,
   nickName: "Monstera Mike",
-  location: "Living room",
+  roomId: null,
+
+  roomName: "Living room",
   photoUrl: null,
   acquiredDate: "2026-01-01T00:00:00",
   plantProfileId: null,

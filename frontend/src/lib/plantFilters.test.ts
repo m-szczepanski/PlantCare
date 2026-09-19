@@ -6,7 +6,9 @@ function plant(over: Partial<Plant>): Plant {
   return {
     id: 1,
     nickName: "Alpha",
-    location: "Kitchen",
+    roomId: null,
+
+    roomName: "Kitchen",
     photoUrl: null,
     acquiredDate: "2026-01-01T00:00:00",
     plantProfileId: null,
@@ -24,16 +26,19 @@ function plant(over: Partial<Plant>): Plant {
 }
 
 const plants = [
-  plant({ id: 1, nickName: "Zoe", location: "Bedroom", profileCommonName: "Pothos", dueStatus: "Overdue", daysUntilDue: -2, lastWateredAt: "2026-03-01T00:00:00" }),
-  plant({ id: 2, nickName: "Monstera Mike", location: "Living room", profileCommonName: "Monstera", dueStatus: "DueToday", daysUntilDue: 0, lastWateredAt: "2026-03-10T00:00:00" }),
-  plant({ id: 3, nickName: "Bamboo", location: "Office", dueStatus: "Upcoming", daysUntilDue: 5, lastWateredAt: null }),
+  plant({ id: 1, nickName: "Zoe", roomId: null,
+ roomName: "Bedroom", profileCommonName: "Pothos", dueStatus: "Overdue", daysUntilDue: -2, lastWateredAt: "2026-03-01T00:00:00" }),
+  plant({ id: 2, nickName: "Monstera Mike", roomId: null,
+ roomName: "Living room", profileCommonName: "Monstera", dueStatus: "DueToday", daysUntilDue: 0, lastWateredAt: "2026-03-10T00:00:00" }),
+  plant({ id: 3, nickName: "Bamboo", roomId: null,
+ roomName: "Office", dueStatus: "Upcoming", daysUntilDue: 5, lastWateredAt: null }),
 ];
 
 const query = { search: "", due: "all", sort: "name" } as const;
 const names = (list: Plant[]) => list.map((p) => p.nickName);
 
 describe("filterPlants", () => {
-  it("searches across name, location and species", () => {
+  it("searches across name, room and species", () => {
     expect(names(filterPlants(plants, { ...query, search: "pot" }))).toEqual(["Zoe"]);
     expect(names(filterPlants(plants, { ...query, search: "office" }))).toEqual(["Bamboo"]);
     expect(names(filterPlants(plants, { ...query, search: "MONSTERA" }))).toEqual(["Monstera Mike"]);
@@ -44,9 +49,9 @@ describe("filterPlants", () => {
     expect(names(filterPlants(plants, { ...query, due: "NotScheduled" }))).toEqual([]);
   });
 
-  it("sorts by name and location", () => {
+  it("sorts by name and room", () => {
     expect(names(filterPlants(plants, { ...query, sort: "name" }))).toEqual(["Bamboo", "Monstera Mike", "Zoe"]);
-    expect(names(filterPlants(plants, { ...query, sort: "location" }))).toEqual(["Zoe", "Monstera Mike", "Bamboo"]);
+    expect(names(filterPlants(plants, { ...query, sort: "room" }))).toEqual(["Zoe", "Monstera Mike", "Bamboo"]);
   });
 
   it("sorts by soonest due with unscheduled last", () => {
