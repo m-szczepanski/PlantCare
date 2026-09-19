@@ -79,7 +79,9 @@ export function PlantsPage() {
 
       <div className="flex flex-wrap items-center gap-2">
         <Input
+          id="plant-search"
           aria-label="Search plants"
+          title="Focus with /"
           placeholder="Search name, species, location..."
           value={search}
           onChange={(event) => setSearch(event.target.value)}

@@ -1,6 +1,7 @@
 import type { ComponentType, ReactNode } from "react";
 import { Leaf, LayoutDashboard, Plus, Sprout } from "lucide-react";
 import { Link, NavLink, useLocation } from "react-router-dom";
+import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
 import { ModeToggle } from "@/components/ModeToggle";
 import {
   Sidebar,
@@ -38,6 +39,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <SidebarProvider>
+      <KeyboardShortcuts />
       <Sidebar collapsible="offcanvas">
         <SidebarHeader>
           <SidebarMenu>

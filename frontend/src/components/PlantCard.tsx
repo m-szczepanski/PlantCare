@@ -16,7 +16,11 @@ interface PlantCardProps {
 
 export function PlantCard({ plant, onWater, isWatering }: PlantCardProps) {
   return (
-    <Card className="transition-shadow hover:shadow-md">
+    <Card
+      data-plant-card={plant.id}
+      tabIndex={0}
+      className="transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
       <CardContent className="flex items-start gap-4 p-6">
         <PlantPhoto
           photoUrl={plant.photoUrl}
@@ -38,6 +42,8 @@ export function PlantCard({ plant, onWater, isWatering }: PlantCardProps) {
               <Button
                 size="sm"
                 variant="outline"
+                data-water-button
+                title="Water this plant (w)"
                 className={`${touchButton} ml-auto`}
                 disabled={isWatering}
                 onClick={() => onWater(plant)}
