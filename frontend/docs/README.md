@@ -42,7 +42,14 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 - shadcn components are **composed, not modified in place** — extend via wrapper components (e.g. `src/components/DueStatusBadge.tsx`, `src/components/PlantForm.tsx`, `src/components/PlantCard.tsx`, `src/components/CareTipsCard.tsx`) when customization is needed.
 - Profile care tips render via `react-markdown` (markdown text from `PlantProfile.CareTips`); no raw-HTML plugin is enabled, so profile text is XSS-safe.
 - All base tokens (colors including `popover`, `chart`, `sidebar`, light + dark) live in `src/index.css`; layout/radius/animation theming is centralized in `tailwind.config.ts`. Restyling should never require touching component logic.
-- Existing primitives: `button`, `input`, `label`, `card`, `badge`, `select`. Add more as features need them.
+- Existing primitives: `button`, `input`, `label`, `card`, `badge`, `select`, `dropdown-menu`. Add more as features need them.
+
+### Theming
+
+- `src/components/ThemeProvider.tsx` provides `useTheme()` with three modes: `light`, `dark`, `system`. The preference persists in `localStorage` under `ui-theme` and defaults to `system`; in system mode the app follows `prefers-color-scheme` and reacts to live changes.
+- `src/components/ModeToggle.tsx` is the dropdown control for the preference; it lives in the header (`src/App.tsx`).
+- Dark mode is class-based (`dark` on `<html>`); a small inline script in `index.html` applies the class before first paint to avoid a theme flash.
+- Tokens themselves stay centralized in `src/index.css` — the provider only toggles the class.
 
 ### Server State & Data Fetching
 

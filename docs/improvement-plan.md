@@ -96,6 +96,10 @@ Every chunk follows the AGENTS.md workflow: acceptance criteria defined before c
 | `feature/onboarding` | First-run dashboard: add-plant prompt + ntfy subscribe link/topic from config | app-status (config echo) | UX: onboarding |
 | `feature/postgres-profile` | Optional Postgres compose profile tested + documented | — | Func: Postgres |
 
+## Progress
+
+- `feature/theme-toggle` — done. `ThemeProvider` + `useTheme` (light/dark/system, persisted in `localStorage`, system-following), `ModeToggle` dropdown in the header, pre-paint FOUC script in `index.html`, Vitest coverage; dark tokens unchanged in `index.css`.
+
 ## Suggested sequencing
 
 1. Epics 1 and 3 first — they change how the app feels with zero schema risk.
