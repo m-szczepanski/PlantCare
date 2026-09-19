@@ -2,7 +2,6 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using PlantCare.Api.Dtos;
-using PlantCare.Api.Models;
 using Xunit;
 
 namespace PlantCare.Api.Tests;

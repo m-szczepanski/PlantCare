@@ -53,14 +53,14 @@ GET    /api/dashboard              due today / overdue / upcoming summary
 
 ## Background Scheduling & Notifications
 
-Handled with **Coravel** (`IScheduledJob` / `BackgroundService`) — deliberately chosen over Hangfire/Quartz since a single daily job needs no job-store infrastructure.
+Handled with **Coravel** — `IInvocable` jobs run on Coravel's hosted scheduler, deliberately chosen over Hangfire/Quartz since a single daily job needs no job-store infrastructure. The scheduled job type must be registered in DI (Coravel resolves invocables via `GetRequiredService`).
 
 Daily check flow:
 
-1. Coravel fires at the cron from `WATERING_CHECK_CRON` (env-configurable).
-2. Query plants where `LastWateredAt + interval <= today` (interval = custom override ?? profile default).
+1. Coravel fires at the cron from `WATERING_CHECK_CRON` (default `0 8 * * *`).
+2. Query plants where `LastWateredAt + interval <= today` (interval = custom override ?? profile default); shared logic lives in `WateringScheduleService`.
 3. For each due/overdue plant, POST a message to the ntfy container topic (e.g., `http://ntfy:80/plant-care`).
-4. Write a `NotificationLog` row to avoid duplicate sends on the same day.
+4. Write a `NotificationLog` row to avoid duplicate sends on the same day (at most one `WateringDue` per plant per day).
 5. ntfy failure must not crash the job or block the rest of the check — degrade gracefully.
 
 ## Configuration (env-driven)
@@ -69,10 +69,10 @@ All runtime knobs come from environment variables / `.env`:
 
 | Variable | Purpose |
 |----------|---------|
-| `WATERING_CHECK_CRON` | Daily watering-check schedule |
-| ntfy topic/URL vars | Where notification POSTs go |
-| Connection string | SQLite path (or Postgres later) |
-| Feature flags e.g. `ENABLE_CARE_TIPS` | Toggle features without code changes |
+| `WATERING_CHECK_CRON` | Watering-check cron expression (default `0 8 * * *`) |
+| `NTFY_URL` / `NTFY_TOPIC` | Where notification POSTs go (defaults `http://ntfy:80`, `plant-care`) |
+| `ConnectionStrings__Default` | SQLite path (or Postgres later) |
+| `ENABLE_CARE_TIPS` | Set to `false` to hide the care tips section on plant detail (default on) |
 
 ## Conventions
 
