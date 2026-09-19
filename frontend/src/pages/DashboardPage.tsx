@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { DashboardStatsStrip } from "@/components/DashboardStatsStrip";
 import { NoPlantsEmptyState } from "@/components/NoPlantsEmptyState";
 import { PlantCard } from "@/components/PlantCard";
 import { PlantCardSkeletonGrid } from "@/components/PlantCardSkeleton";
@@ -57,6 +58,8 @@ export function DashboardPage() {
           <Link to="/plants/new">Add plant</Link>
         </Button>
       </div>
+
+      <DashboardStatsStrip dashboard={dashboard} />
 
       {sections.map((section) => {
         const plants = section.select(dashboard);
