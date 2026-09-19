@@ -306,6 +306,25 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             DaysUntilDue = due.DaysUntilDue,
             NextDueDate = due.NextDueDate?.ToDateTime(TimeOnly.MinValue),
             DueMessage = due.Message,
+            RoomLightMatch = ComputeRoomLightMatch(plant),
+        };
+    }
+
+    private static RoomLightMatch? ComputeRoomLightMatch(Plant plant)
+    {
+        if (plant.PlantProfile is null || plant.Room?.LightExposure is not { } exposure)
+        {
+            return null;
+        }
+
+        var diff = (int)exposure - (int)plant.PlantProfile.LightRequirement;
+        return diff switch
+        {
+            0 => RoomLightMatch.Good,
+            1 => RoomLightMatch.SlightlyTooBright,
+            -1 => RoomLightMatch.SlightlyTooDark,
+            >= 2 => RoomLightMatch.MuchTooBright,
+            <= -2 => RoomLightMatch.MuchTooDark,
         };
     }
 }

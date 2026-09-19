@@ -26,6 +26,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<Room>(entity =>
         {
             entity.Property(r => r.Orientation).HasConversion<string>();
+            entity.Property(r => r.LightExposure).HasConversion<string>();
+            entity.Property(r => r.Humidity).HasConversion<string>();
             entity.HasIndex(r => r.Name).IsUnique();
         });
 

@@ -10,4 +10,11 @@ public class RoomRequestDto
     public required string Name { get; set; }
 
     public RoomOrientation? Orientation { get; set; }
+
+    public LightRequirement? LightExposure { get; set; }
+
+    public HumidityLevel? Humidity { get; set; }
+
+    [Range(-10, 45)]
+    public int? TemperatureCelsius { get; set; }
 }

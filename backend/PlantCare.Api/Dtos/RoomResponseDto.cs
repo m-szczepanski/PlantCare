@@ -10,5 +10,11 @@ public class RoomResponseDto
 
     public RoomOrientation? Orientation { get; set; }
 
+    public LightRequirement? LightExposure { get; set; }
+
+    public HumidityLevel? Humidity { get; set; }
+
+    public int? TemperatureCelsius { get; set; }
+
     public required int PlantCount { get; set; }
 }

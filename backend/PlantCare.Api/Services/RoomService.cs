@@ -45,7 +45,14 @@ public sealed class RoomService(AppDbContext db) : IRoomService
             return new RoomWriteResult(RoomWriteStatus.DuplicateName);
         }
 
-        var room = new Room { Name = name, Orientation = dto.Orientation };
+        var room = new Room
+        {
+            Name = name,
+            Orientation = dto.Orientation,
+            LightExposure = dto.LightExposure,
+            Humidity = dto.Humidity,
+            TemperatureCelsius = dto.TemperatureCelsius,
+        };
         db.Rooms.Add(room);
         await db.SaveChangesAsync(cancellationToken);
 
@@ -68,6 +75,9 @@ public sealed class RoomService(AppDbContext db) : IRoomService
 
         room.Name = name;
         room.Orientation = dto.Orientation;
+        room.LightExposure = dto.LightExposure;
+        room.Humidity = dto.Humidity;
+        room.TemperatureCelsius = dto.TemperatureCelsius;
         await db.SaveChangesAsync(cancellationToken);
 
         return new RoomWriteResult(RoomWriteStatus.Success, await ReloadAsync(room.Id, cancellationToken));
@@ -101,6 +111,9 @@ public sealed class RoomService(AppDbContext db) : IRoomService
         Id = room.Id,
         Name = room.Name,
         Orientation = room.Orientation,
+        LightExposure = room.LightExposure,
+        Humidity = room.Humidity,
+        TemperatureCelsius = room.TemperatureCelsius,
         PlantCount = room.Plants.Count,
     };
 }
