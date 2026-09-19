@@ -54,6 +54,13 @@ public class PlantsController(IPlantService plants) : ControllerBase
         return plant is null ? NotFound() : Ok(plant);
     }
 
+    [HttpDelete("{id:int}/water")]
+    public async Task<ActionResult<PlantResponseDto>> UndoWater(int id, CancellationToken cancellationToken)
+    {
+        var plant = await plants.UndoWaterAsync(id, cancellationToken);
+        return plant is null ? NotFound() : Ok(plant);
+    }
+
     [HttpPost("{id:int}/photo")]
     [RequestSizeLimit(10_000_000)]
     public async Task<ActionResult<PlantResponseDto>> UploadPhoto(int id, IFormFile? file, CancellationToken cancellationToken)
