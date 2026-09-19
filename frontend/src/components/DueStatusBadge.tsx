@@ -1,5 +1,4 @@
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 import type { Plant } from "@/api/types";
 
 const variantByStatus: Record<Plant["dueStatus"], "default" | "destructive" | "secondary" | "outline"> = {
@@ -9,10 +8,6 @@ const variantByStatus: Record<Plant["dueStatus"], "default" | "destructive" | "s
   NotScheduled: "outline",
 };
 
-export function DueStatusBadge({ plant, className }: { plant: Plant; className?: string }) {
-  return (
-    <Badge variant={variantByStatus[plant.dueStatus]} className={cn("capitalize", className)}>
-      {plant.dueMessage}
-    </Badge>
-  );
+export function DueStatusBadge({ plant }: { plant: Plant }) {
+  return <Badge variant={variantByStatus[plant.dueStatus]} className="capitalize">{plant.dueMessage}</Badge>;
 }

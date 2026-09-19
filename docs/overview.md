@@ -6,11 +6,12 @@ A self-hosted, highly customizable web app for tracking owned plants, watering r
 
 ## Core Features (v1)
 
-- CRUD for owned plants (name, species, location, photo, acquired date)
+- CRUD for owned plants (name, species, location, photo URL, acquired date)
 - Watering schedule per plant, derived from a species/profile default but overridable per plant
 - Daily background check that flags plants due for watering and sends a push notification
-- Care tips per species (light, humidity, temperature, fertilizing notes)
+- Care tips per species (light, humidity notes, plus markdown care notes covering topics like temperature and fertilizing)
 - Simple dashboard: "due today / overdue / upcoming" view
+- "Mark as watered" action with a per-plant watering history
 
 **Explicit non-goals for v1:** multi-user auth, mobile app, cloud sync. The app stays single-user and local-network friendly.
 
@@ -24,7 +25,7 @@ plant-care-app/
 ├── docker-compose.override.yml.example
 ├── .env.example
 ├── README.md
-├── instructions.md                  # detailed project instructions
+├── AGENTS.md                     # working instructions for agents and humans
 ├── backend/
 │   ├── PlantCare.Api/               # ASP.NET Core Web API (.NET 10)
 │   │   ├── Controllers/             # REST endpoints
@@ -61,13 +62,13 @@ plant-care-app/
 |-------|--------|-------|
 | Backend | ASP.NET Core Web API (.NET 10) | REST/JSON API |
 | ORM / DB | EF Core + SQLite (default) | Swappable to Postgres via provider change only |
-| Scheduling | Coravel (`IScheduledJob` + `BackgroundService`) | No extra infra; avoid Hangfire/Quartz unless job history/UI becomes a requirement |
+| Scheduling | Coravel (`IInvocable` jobs on a hosted scheduler) | No extra infra; avoid Hangfire/Quartz unless job history/UI becomes a requirement |
 | Frontend | React + Vite + TypeScript | SPA, not Next.js |
 | UI kit | shadcn/ui + Tailwind CSS | Consistent, accessible components |
 | Notifications | ntfy (self-hosted container) | API POSTs to ntfy on due/overdue plants |
 | Containerization | Docker Compose | `api`, `web`, `ntfy`, optional `postgres` |
 
-## Data Model (initial draft)
+## Data Model
 
 ```
 PlantProfile (species-level defaults — seedable/customizable)
@@ -104,7 +105,7 @@ NotificationLog (optional, for dedup/audit)
 
 `PlantProfile` data is seeded from a JSON file in `backend/PlantCare.Api/Seed/` so users can extend/edit species defaults without touching code — this is the main "customization" lever for care tips and default schedules.
 
-## API Surface (initial draft)
+## API Surface
 
 ```
 GET    /api/plants                 list owned plants (+ due status)
@@ -113,6 +114,7 @@ GET    /api/plants/{id}
 PUT    /api/plants/{id}
 DELETE /api/plants/{id}
 POST   /api/plants/{id}/water      logs a watering event, updates LastWateredAt
+GET    /api/plants/{id}/watering-logs   watering history for a plant (newest first)
 
 GET    /api/plant-profiles         list species/profiles
 POST   /api/plant-profiles
@@ -123,10 +125,10 @@ GET    /api/dashboard              due today / overdue / upcoming summary
 
 ## Notification Flow
 
-1. A `BackgroundService` (via Coravel) runs once daily (configurable via env var, e.g. `WATERING_CHECK_CRON`).
+1. Coravel's hosted scheduler fires on a cron from `WATERING_CHECK_CRON` (default `0 8 * * *`).
 2. It queries plants where `LastWateredAt + interval <= today`.
 3. For each due/overdue plant, POST a message to the `ntfy` container's topic (e.g., `http://ntfy:80/plant-care`).
-4. Log the notification in `NotificationLog` to avoid duplicate sends on the same day.
+4. Log the notification in `NotificationLog` to avoid duplicate sends on the same day; a failed send is logged and skipped, never aborting the run.
 5. User subscribes to the ntfy topic from their phone/desktop ntfy app or browser.
 
 ## Customization Strategy
@@ -189,11 +191,11 @@ Add `postgres` as an optional service later if/when moving off SQLite.
 7. Care tips display (from `PlantProfile`) in plant detail view.
 8. Seed data expansion + polish (shadcn theming, photo upload, empty states).
 
-## Open Questions
+## Open Questions (resolved)
 
-- Photo storage: local volume vs. skip photos for v1?
-- Should `CustomWateringIntervalDays` support more complex rules (e.g., seasonal adjustment) later, or stay a flat interval for v1?
-- Single ntfy topic for everything, or per-category topics (watering vs. future feature notifications)?
+- **Photo storage:** uploads skipped for v1; `PhotoUrl` holds an externally hosted URL.
+- **Watering intervals:** flat profile default with per-plant override; no seasonal rules in v1.
+- **ntfy topics:** single topic via `NTFY_TOPIC`; revisit if a second notification category appears.
 
 ## Documentation Map
 

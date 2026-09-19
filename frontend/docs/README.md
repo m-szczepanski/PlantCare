@@ -56,8 +56,8 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 |------|----------|
 | Dashboard | "due today / overdue / upcoming" summary (from `GET /api/dashboard`) |
 | Plant list | Owned plants with due status |
-| Plant detail | Plant info, care tips from its `PlantProfile`, "mark as watered" action |
-| Plant/profile forms | Create/edit plants and species profiles |
+| Plant detail | Plant info, care tips from its `PlantProfile`, "mark as watered" action, watering history |
+| Plant form | Create/edit plants; species profiles are managed via the API only (no profile form UI yet) |
 
 ## API Surface Used
 

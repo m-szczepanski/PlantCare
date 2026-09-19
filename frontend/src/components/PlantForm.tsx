@@ -54,7 +54,7 @@ export function PlantForm({ initial, submitting, error, submitLabel, onSubmit, o
       photoUrl: photoUrl.trim() || null,
       acquiredDate: fromDateString(acquiredDate) ?? new Date().toISOString(),
       plantProfileId: profileId,
-      customWateringIntervalDays: Number.isFinite(intervalDays as number) ? intervalDays : null,
+      customWateringIntervalDays: intervalDays !== null && Number.isFinite(intervalDays) ? intervalDays : null,
       lastWateredAt: fromDateString(lastWateredAt),
     });
   }

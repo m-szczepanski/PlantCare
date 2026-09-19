@@ -3,7 +3,6 @@ using PlantCare.Api.Models;
 
 namespace PlantCare.Api.Dtos;
 
-/// <summary>Shared create/update payload for plant profiles.</summary>
 public class PlantProfileRequestDto
 {
     [Required]

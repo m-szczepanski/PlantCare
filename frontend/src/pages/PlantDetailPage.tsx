@@ -10,6 +10,14 @@ function formatDate(value: string | null): string {
   return new Date(value).toLocaleDateString();
 }
 
+// The API stores watering instants as naive UTC strings; without the Z suffix
+// browsers would read them back as local time and show the wrong moment.
+function formatInstant(value: string | null, withTime: boolean): string {
+  if (!value) return "-";
+  const date = new Date(value.endsWith("Z") ? value : `${value}Z`);
+  return withTime ? date.toLocaleString() : date.toLocaleDateString();
+}
+
 export function PlantDetailPage() {
   const { id } = useParams();
   const plantId = Number(id);
@@ -54,7 +62,7 @@ export function PlantDetailPage() {
           <Field label="Location" value={plant.location} />
           <Field label="Species profile" value={plant.profileCommonName ?? "None"} />
           <Field label="Acquired" value={formatDate(plant.acquiredDate)} />
-          <Field label="Last watered" value={formatDate(plant.lastWateredAt)} />
+          <Field label="Last watered" value={formatInstant(plant.lastWateredAt, false)} />
           <Field label="Watering interval" value={plant.wateringIntervalDays ? `${plant.wateringIntervalDays} days` : "Not scheduled"} />
           <Field label="Next due" value={formatDate(plant.nextDueDate)} />
           <Field label="Photo" value={plant.photoUrl ?? "None"} />
@@ -72,7 +80,7 @@ export function PlantDetailPage() {
             <ul className="space-y-1 text-sm">
               {wateringLogs.map((log) => (
                 <li key={log.id} className="flex items-baseline gap-2">
-                  <span className="font-medium">{new Date(log.wateredAt).toLocaleString()}</span>
+                  <span className="font-medium">{formatInstant(log.wateredAt, true)}</span>
                   {log.note ? <span className="text-muted-foreground">{log.note}</span> : null}
                 </li>
               ))}

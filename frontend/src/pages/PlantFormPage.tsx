@@ -49,11 +49,15 @@ function CreatePlant({ onDone }: { onDone: () => void }) {
 }
 
 function EditPlant({ plantId, onDone }: { plantId: number; onDone: () => void }) {
-  const { data: plant, isPending } = usePlant(plantId);
+  const { data: plant, isPending, isError } = usePlant(plantId);
   const update = useUpdatePlant();
 
-  if (isPending || !plant) {
+  if (isPending) {
     return <p className="text-muted-foreground">Loading plant...</p>;
+  }
+
+  if (isError || !plant) {
+    return <p className="text-destructive">Could not load plant.</p>;
   }
 
   function handleSubmit(input: PlantInput) {

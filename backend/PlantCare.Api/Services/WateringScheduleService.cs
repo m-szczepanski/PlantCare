@@ -17,10 +17,7 @@ public interface IWateringScheduleService
     PlantDueInfo GetDueInfo(Plant plant, DateOnly today);
 }
 
-/// <summary>
-/// Single source of truth for watering due-date/status logic. Reused by the plant
-/// endpoints (step 3), the dashboard (step 5) and the notification job (step 6).
-/// </summary>
+/// <summary>Single source of truth for watering due-date/status logic.</summary>
 public sealed class WateringScheduleService : IWateringScheduleService
 {
     public PlantDueInfo GetDueInfo(Plant plant) => GetDueInfo(plant, DateOnly.FromDateTime(DateTime.UtcNow.Date));
