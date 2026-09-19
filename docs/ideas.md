@@ -17,8 +17,23 @@ Improvement ideas collected after the v1.0 release. This is a parking lot, not a
 - Markdown rendering tweaks for care tips: styled headings/lists/table of contents for long tips.
 - Loading skeletons matching card layout instead of spinners/text.
 - Favicon + PWA manifest + icons (installable on phone home screen without a native app — stays within non-goals).
+- Wall/tablet dashboard mode: read-only auto-refreshing full-screen route (no chrome, big cards) for a home tablet — turns the app into an ambient plant-care display.
+- Upcoming-care calendar view: week/month grid of scheduled waterings/tasks alongside the bucket-based dashboard.
 
 ## Functionality Improvements
+
+- Environmental readings per location (room): temperature and humidity captured manually, via CSV import, or pulled from existing smart-home sensors; stored as time series, charted on the location view, and compared against the species profile's light/humidity guidance with out-of-range alerts.
+- Home Assistant / MQTT integration: publish plants as sensors/binary sensors (HA MQTT discovery) and subscribe to sensor topics for the environment data above — makes PlantCare a first-class citizen of the home dashboard instead of a silo.
+- Soil-moistness feedback loop: ingest BLE soil sensors (Xiaomi/Govee-style) to shift due dates when the substrate dries faster/slower than the schedule assumes.
+- iCal feed for the care schedule (`GET /api/calendar.ics`): subscribe from any calendar app so waterings show up next to the rest of the week.
+- Care journal / growth log: dated photo + note entries per plant ("growth time-lapse"), distinct from watering notes; feeds a before/after comparison view.
+- Plant diagnostics helper: structured symptom checklist per species ("yellow leaves → likely overwatering") stored in the profile; optional experimental step — self-hosted vision model on a journal photo (flag-gated, out of v1 scope creep territory).
+- Repot & substrate lifecycle: pot size, soil mix, last-repot date, next-repot reminder (soil refresh intervals), drainage notes per plant.
+- Fertilizing as a first-class schedule with flush/season reminders, not just free-text care tips.
+- Water details per plant: amount, method (tap/filtered/rainwater) and notes — matters for species sensitive to chlorine/fluoride.
+- Toxicity awareness: `ToxicToPets`/`ToxicToChildren` flags on the profile with warning badges on cards and in the notification text.
+- Collection insights page: total plants, species diversity, most-neglected plants, watering adherence/streak stats, seasonal trends — read-only aggregation over existing logs.
+- Bulk actions: "water all" in a dashboard bucket or per location (currently one-by-one only).
 
 - Care task types beyond watering (misting, fertilizing, repotting, rotating): generalize `WateringLog`/schedule into a per-plant `CareTask` with type + interval; "mark as done" per task type.
 - Seasonal watering adjustments (resolved non-goal in v1): interval multipliers per season or a simple "reduce in winter" flag per profile/plant.
