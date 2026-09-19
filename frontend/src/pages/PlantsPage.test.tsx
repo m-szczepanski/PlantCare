@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { screen, within } from "@testing-library/react";
+import { fireEvent, screen, within } from "@testing-library/react";
 import { plantsApi } from "@/api/client";
 import type { Plant } from "@/api/types";
 import PlantsPage from "@/pages/PlantsPage";
@@ -70,5 +70,29 @@ describe("PlantsPage", () => {
 
     await screen.findByRole("heading", { name: "No plants yet" });
     expect(screen.getByRole("link", { name: "Add your first plant" })).toBeInTheDocument();
+  });
+
+  it("filters, shows a no-results state, and clears via the toolbar", async () => {
+    vi.mocked(plantsApi.list).mockResolvedValue([
+      monstera,
+      { ...monstera, id: 2, nickName: "Golden Pothos", location: "Bathroom", profileCommonName: "Pothos" },
+    ]);
+
+    renderWithProviders(<PlantsPage />);
+
+    await screen.findByText("Monstera Mike");
+    expect(screen.getByText("2 of 2")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Search plants"), { target: { value: "pothos" } });
+    expect(await screen.findByText("Golden Pothos")).toBeInTheDocument();
+    expect(screen.queryByText("Monstera Mike")).not.toBeInTheDocument();
+    expect(screen.getByText("1 of 2")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Search plants"), { target: { value: "zzz" } });
+    expect(await screen.findByRole("heading", { name: "No matching plants" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Clear filters" }));
+    expect(await screen.findByText("Monstera Mike")).toBeInTheDocument();
+    expect(screen.getByText("2 of 2")).toBeInTheDocument();
   });
 });

@@ -53,6 +53,10 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 - `WateringHistoryChart` renders the last 6 months of watering counts as simple div-bars (uses the `chart-1` token, no chart library) above the history list; counts are grouped by local month from the naive-UTC log timestamps, an sr-only table exposes the data, and it hides itself when the window is empty.
 - jsdom needs `ResizeObserver`/`scrollIntoView` stubs (in `src/test/setup.ts`) for Popover/Command/dialog rendering in tests.
 
+### List filtering
+
+- Plant list query state (search text, due filter, sort key) lives in `PlantsPage`; the pure logic is `filterPlants` in `src/lib/plantFilters.ts` (client-side, single-user dataset, no mutation of the input). The search input keeps the accessible name "Search plants" (the `keyboard-shortcuts` chunk will focus it via `/`). No-results is a distinct empty state with a clear-filters action, separate from "No plants yet".
+
 ### Feedback & Toasts
 
 - All mutation hooks report success/failure through the `sonner` toast system; `<Toaster />` is mounted once in `src/main.tsx` (top-center).
@@ -101,7 +105,7 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 | View | Contents |
 |------|----------|
 | Dashboard | "due today / overdue / upcoming" summary (from `GET /api/dashboard`) |
-| Plant list | Owned plants with due status |
+| Plant list | Owned plants with due status, search (name/species/location), due-status filter, and sort (name / location / soonest due / recently watered) |
 | Plant detail | Plant info, photo (or placeholder), care tips from its `PlantProfile`, "mark as watered" action, watering history with monthly bar chart |
 | Plant form | Create/edit plants; species profiles are managed via the API only (no profile form UI yet) |
 
