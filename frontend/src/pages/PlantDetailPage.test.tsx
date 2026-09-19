@@ -91,6 +91,18 @@ describe("PlantDetailPage", () => {
     ).toBeInTheDocument();
   });
 
+  it("renders the plant photo block from the profile photo url", async () => {
+    vi.mocked(plantsApi.get).mockResolvedValue({
+      ...plant,
+      photoUrl: "https://example.com/mike.jpg",
+    });
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    const img = await screen.findByRole("img", { name: "Monstera Mike" });
+    expect(img).toHaveAttribute("src", "https://example.com/mike.jpg");
+  });
+
   it("marks the plant as watered through the API client", async () => {
     renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
 

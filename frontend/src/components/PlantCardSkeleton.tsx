@@ -4,13 +4,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function PlantCardSkeleton() {
   return (
     <Card>
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between gap-2">
-          <Skeleton className="h-6 w-1/2" />
-          <Skeleton className="h-5 w-20 rounded-full" />
+      <CardContent className="flex items-start gap-4 p-6">
+        <Skeleton className="h-14 w-14 shrink-0" />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <Skeleton className="h-6 w-1/2" />
+            <Skeleton className="h-5 w-20 rounded-full" />
+          </div>
+          <Skeleton className="mt-3 h-4 w-1/3" />
+          <Skeleton className="mt-2 h-4 w-2/5" />
         </div>
-        <Skeleton className="mt-3 h-4 w-1/3" />
-        <Skeleton className="mt-2 h-4 w-2/5" />
       </CardContent>
     </Card>
   );

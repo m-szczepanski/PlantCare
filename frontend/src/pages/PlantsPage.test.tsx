@@ -48,6 +48,7 @@ describe("PlantsPage", () => {
     expect(await screen.findByText("Monstera Mike")).toBeInTheDocument();
     expect(screen.getByText("Living room")).toBeInTheDocument();
     expect(screen.getByText("3 days overdue")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "No photo of Monstera Mike" })).toBeInTheDocument();
   });
 
   it("shows card skeletons while the list loads", () => {
