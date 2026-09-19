@@ -1,6 +1,10 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { AlertTriangle, Droplets } from "lucide-react";
 import { CareTipsCard } from "@/components/CareTipsCard";
 import { DueStatusBadge } from "@/components/DueStatusBadge";
+import { EmptyState } from "@/components/EmptyState";
+import { PlantDetailSkeleton } from "@/components/PlantDetailSkeleton";
+import { ApiError } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDeletePlant, usePlant, useWaterPlant, useWateringLogs } from "@/hooks/usePlants";
@@ -28,14 +32,30 @@ export function PlantDetailPage() {
   const { data: wateringLogs } = useWateringLogs(plantId);
 
   if (isPending) {
-    return <p className="text-muted-foreground">Loading plant...</p>;
+    return <PlantDetailSkeleton />;
   }
 
   if (isError || !plant) {
+    if (error instanceof ApiError && error.status === 404) {
+      return (
+        <div className="mx-auto max-w-xl">
+          <EmptyState
+            icon={AlertTriangle}
+            title="Plant not found"
+            description="It may have been deleted, or the link is out of date."
+            action={
+              <Button asChild variant="outline">
+                <Link to="/plants">Back to plants</Link>
+              </Button>
+            }
+          />
+        </div>
+      );
+    }
     return (
       <Card>
         <CardContent className="pt-6 text-destructive">
-          Could not load plant: {(error as Error)?.message ?? "Not found"}
+          Could not load plant: {(error as Error)?.message ?? "Unknown error"}
         </CardContent>
       </Card>
     );
@@ -86,7 +106,11 @@ export function PlantDetailPage() {
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-muted-foreground">No waterings logged yet.</p>
+            <EmptyState
+              icon={Droplets}
+              title="No waterings logged yet"
+              description="Water this plant and the log will show up here."
+            />
           )}
         </CardContent>
       </Card>

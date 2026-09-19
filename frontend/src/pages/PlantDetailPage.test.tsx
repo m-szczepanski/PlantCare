@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, screen, waitFor } from "@testing-library/react";
-import { plantsApi } from "@/api/client";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { ApiError, plantsApi } from "@/api/client";
 import type { Plant, WateringLogEntry } from "@/api/types";
 import PlantDetailPage from "@/pages/PlantDetailPage";
 import { renderWithProviders } from "@/test/render";
@@ -61,12 +61,34 @@ describe("PlantDetailPage", () => {
     expect(screen.getByText("Monstera Mike")).toBeInTheDocument();
   });
 
+  it("shows a card-shaped skeleton while the plant loads", () => {
+    vi.mocked(plantsApi.get).mockReturnValue(new Promise(() => {}));
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    const status = screen.getByRole("status");
+    expect(within(status).getByText("Loading plant...")).toBeInTheDocument();
+  });
+
+  it("shows a not-found empty state for missing plants", async () => {
+    vi.mocked(plantsApi.get).mockRejectedValue(
+      Object.assign(new ApiError(404, "missing"), { status: 404 }),
+    );
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    expect(await screen.findByRole("heading", { name: "Plant not found" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Back to plants" })).toBeInTheDocument();
+  });
+
   it("shows an empty history state when nothing was logged", async () => {
     vi.mocked(plantsApi.wateringLogs).mockResolvedValue([]);
 
     renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
 
-    expect(await screen.findByText(/No waterings logged yet/i)).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: "No waterings logged yet" }),
+    ).toBeInTheDocument();
   });
 
   it("marks the plant as watered through the API client", async () => {
