@@ -6,6 +6,7 @@ import { DueStatusBadge } from "@/components/DueStatusBadge";
 import { EmptyState } from "@/components/EmptyState";
 import { PlantDetailSkeleton } from "@/components/PlantDetailSkeleton";
 import { PlantPhoto } from "@/components/PlantPhoto";
+import { WateringHistoryChart } from "@/components/WateringHistoryChart";
 import { ApiError } from "@/api/client";
 import {
   AlertDialog,
@@ -121,16 +122,19 @@ export function PlantDetailPage() {
         <CardHeader>
           <CardTitle>Watering history</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           {wateringLogs && wateringLogs.length > 0 ? (
-            <ul className="space-y-1 text-sm">
-              {wateringLogs.map((log) => (
-                <li key={log.id} className="flex items-baseline gap-2">
-                  <span className="font-medium">{formatInstant(log.wateredAt, true)}</span>
-                  {log.note ? <span className="text-muted-foreground">{log.note}</span> : null}
-                </li>
-              ))}
-            </ul>
+            <>
+              <WateringHistoryChart logs={wateringLogs} />
+              <ul className="space-y-1 text-sm">
+                {wateringLogs.map((log) => (
+                  <li key={log.id} className="flex items-baseline gap-2">
+                    <span className="font-medium">{formatInstant(log.wateredAt, true)}</span>
+                    {log.note ? <span className="text-muted-foreground">{log.note}</span> : null}
+                  </li>
+                ))}
+              </ul>
+            </>
           ) : (
             <EmptyState
               icon={Droplets}
