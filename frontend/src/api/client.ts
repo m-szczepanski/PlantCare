@@ -1,4 +1,4 @@
-import type { Dashboard, Plant, PlantInput, PlantProfileOption, WateringLogEntry } from "./types";
+import type { Dashboard, Insights, Plant, PlantInput, PlantProfileOption, WateringLogEntry } from "./types";
 
 export interface HealthResponse {
   status: string;
@@ -99,6 +99,10 @@ export const plantProfilesApi = {
 
 export const dashboardApi = {
   get: () => request<Dashboard>("/dashboard"),
+};
+
+export const insightsApi = {
+  get: () => request<Insights>("/insights"),
 };
 
 export const healthApi = {
