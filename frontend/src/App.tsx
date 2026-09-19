@@ -1,4 +1,5 @@
 import { Link, Navigate, Outlet, Route, Routes } from "react-router-dom";
+import { ModeToggle } from "@/components/ModeToggle";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { PlantDetailPage } from "@/pages/PlantDetailPage";
 import { PlantFormPage } from "@/pages/PlantFormPage";
@@ -12,17 +13,20 @@ function Layout() {
           <Link to="/" className="text-lg font-bold">
             PlantCare
           </Link>
-          <nav className="flex gap-4 text-sm">
-            <Link to="/" className="text-muted-foreground hover:text-foreground">
-              Dashboard
-            </Link>
-            <Link to="/plants" className="text-muted-foreground hover:text-foreground">
-              Plants
-            </Link>
-            <Link to="/plants/new" className="text-muted-foreground hover:text-foreground">
-              Add plant
-            </Link>
-          </nav>
+          <div className="flex items-center gap-4">
+            <nav className="flex gap-4 text-sm">
+              <Link to="/" className="text-muted-foreground hover:text-foreground">
+                Dashboard
+              </Link>
+              <Link to="/plants" className="text-muted-foreground hover:text-foreground">
+                Plants
+              </Link>
+              <Link to="/plants/new" className="text-muted-foreground hover:text-foreground">
+                Add plant
+              </Link>
+            </nav>
+            <ModeToggle />
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-6 py-8">
