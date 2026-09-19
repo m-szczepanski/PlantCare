@@ -92,6 +92,61 @@ public class WateringApiTests : IDisposable
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Fact]
+    public async Task UndoWater_RemovesLatestLog_AndRewindsLastWateredAt()
+    {
+        var plant = await CreatePlant(customWateringIntervalDays: 7);
+        await _client.PostAsJsonAsync($"/api/plants/{plant.Id}/water", new { note = "first" });
+        await _client.PostAsJsonAsync($"/api/plants/{plant.Id}/water", new { note = "second" });
+
+        var response = await _client.DeleteAsync($"/api/plants/{plant.Id}/water");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var undone = await response.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
+        Assert.NotNull(undone);
+        var logs = await _client.GetFromJsonAsync<List<WateringLogResponseDto>>($"/api/plants/{plant.Id}/watering-logs", Options);
+        Assert.NotNull(logs);
+        Assert.Single(logs);
+        Assert.Equal("first", logs[0].Note);
+        Assert.Equal(logs[0].WateredAt, undone.LastWateredAt);
+    }
+
+    [Fact]
+    public async Task UndoWater_LastLog_RemovesIt_AndClearsLastWateredAt()
+    {
+        var plant = await CreatePlant(customWateringIntervalDays: 7);
+        await _client.PostAsJsonAsync($"/api/plants/{plant.Id}/water", new { });
+
+        var response = await _client.DeleteAsync($"/api/plants/{plant.Id}/water");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var undone = await response.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
+        Assert.Null(undone!.LastWateredAt);
+
+        var logs = await _client.GetFromJsonAsync<List<WateringLogResponseDto>>($"/api/plants/{plant.Id}/watering-logs", Options);
+        Assert.Empty(logs!);
+    }
+
+    [Fact]
+    public async Task UndoWater_NoLogs_IsNoOp()
+    {
+        var plant = await CreatePlant(customWateringIntervalDays: 7, lastWateredAt: Today.AddDays(-2));
+
+        var response = await _client.DeleteAsync($"/api/plants/{plant.Id}/water");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var undone = await response.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
+        Assert.Equal(Today.AddDays(-2), undone!.LastWateredAt!.Value.Date);
+    }
+
+    [Fact]
+    public async Task UndoWater_UnknownPlant_Returns404()
+    {
+        var response = await _client.DeleteAsync("/api/plants/424242/water");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
     private async Task<PlantResponseDto> CreatePlant(int? customWateringIntervalDays = null, DateTime? lastWateredAt = null)
     {
         var created = await _client.PostAsJsonAsync("/api/plants", new

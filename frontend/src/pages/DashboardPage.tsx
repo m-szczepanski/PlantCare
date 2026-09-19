@@ -5,6 +5,7 @@ import { PlantCardSkeletonGrid } from "@/components/PlantCardSkeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useDashboard } from "@/hooks/useDashboard";
+import { useWaterPlant } from "@/hooks/usePlants";
 import { touchButton } from "@/lib/ui";
 import type { Dashboard, Plant } from "@/api/types";
 
@@ -16,6 +17,7 @@ const sections: { key: string; title: string; select: (d: Dashboard) => Plant[] 
 
 export function DashboardPage() {
   const { data: dashboard, isPending, isError, error } = useDashboard();
+  const water = useWaterPlant();
 
   if (isPending) {
     return (
@@ -65,7 +67,11 @@ export function DashboardPage() {
             <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {plants.map((plant) => (
                 <li key={plant.id}>
-                  <PlantCard plant={plant} />
+                  <PlantCard
+                    plant={plant}
+                    onWater={(p) => water.mutate({ id: p.id })}
+                    isWatering={water.isPending && water.variables?.id === plant.id}
+                  />
                 </li>
               ))}
             </ul>

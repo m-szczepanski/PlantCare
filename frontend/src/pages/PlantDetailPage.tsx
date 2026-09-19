@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useState, useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AlertTriangle, Droplets } from "lucide-react";
 import { CareTipsCard } from "@/components/CareTipsCard";
@@ -7,6 +7,17 @@ import { EmptyState } from "@/components/EmptyState";
 import { PlantDetailSkeleton } from "@/components/PlantDetailSkeleton";
 import { PlantPhoto } from "@/components/PlantPhoto";
 import { ApiError } from "@/api/client";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDeletePlant, usePlant, useUploadPlantPhoto, useWaterPlant, useWateringLogs } from "@/hooks/usePlants";
@@ -35,6 +46,7 @@ export function PlantDetailPage() {
   const uploadPhoto = useUploadPlantPhoto(plantId);
   const { data: wateringLogs } = useWateringLogs(plantId);
   const photoInputRef = useRef<HTMLInputElement>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   if (isPending) {
     return <PlantDetailSkeleton />;
@@ -67,9 +79,13 @@ export function PlantDetailPage() {
   }
 
   async function handleDelete() {
-    if (!window.confirm(`Delete ${plant!.nickName}?`)) return;
-    await deletePlant.mutateAsync(plant!.id);
-    navigate("/plants");
+    setDeleteDialogOpen(false);
+    try {
+      await deletePlant.mutateAsync(plant!.id);
+      navigate("/plants");
+    } catch {
+      // the hook already surfaced the failure toast
+    }
   }
 
   return (
@@ -151,9 +167,30 @@ export function PlantDetailPage() {
         <Button variant="outline" asChild className={touchButton}>
           <Link to="/plants">Back to list</Link>
         </Button>
-        <Button variant="destructive" onClick={handleDelete} disabled={deletePlant.isPending} className={touchButton}>
-          {deletePlant.isPending ? "Deleting..." : "Delete"}
-        </Button>
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive" disabled={deletePlant.isPending} className={touchButton}>
+              {deletePlant.isPending ? "Deleting..." : "Delete"}
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete {plant.nickName}?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This removes the plant and its watering history. This cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                onClick={handleDelete}
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

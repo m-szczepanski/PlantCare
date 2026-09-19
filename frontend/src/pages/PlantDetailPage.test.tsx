@@ -133,6 +133,26 @@ describe("PlantDetailPage", () => {
     expect(button).toHaveClass("min-h-11", "sm:min-h-9");
   });
 
+  it("confirms deletion in a dialog", async () => {
+    const remove = vi.fn().mockResolvedValue(undefined);
+    vi.mocked(plantsApi.remove).mockImplementation(remove);
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    fireEvent.click(await screen.findByRole("button", { name: "Delete" }));
+    const dialog = await screen.findByRole("alertdialog");
+    expect(dialog).toHaveTextContent("Delete Monstera Mike?");
+
+    fireEvent.click(within(dialog).getByRole("button", { name: "Cancel" }));
+    await waitFor(() => expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument());
+    expect(remove).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    const confirmed = await screen.findByRole("alertdialog");
+    fireEvent.click(within(confirmed).getByRole("button", { name: "Delete" }));
+    await waitFor(() => expect(remove).toHaveBeenCalledWith(1));
+  });
+
   it("marks the plant as watered through the API client", async () => {
     renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
 

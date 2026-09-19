@@ -30,6 +30,7 @@ PUT    /api/plants/{id}
 DELETE /api/plants/{id}
 POST   /api/plants/{id}/water      logs a watering event, updates LastWateredAt
 POST   /api/plants/{id}/photo      multipart upload (field `file`) — stores the photo, sets PhotoUrl to its /uploads/ path
+DELETE /api/plants/{id}/water      undo: removes the newest watering log, rewinds LastWateredAt to the previous one (no-op without logs)
 GET    /api/plants/{id}/watering-logs   watering history for a plant (newest first)
 
 GET    /api/plant-profiles         list species/profiles

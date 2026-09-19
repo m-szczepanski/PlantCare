@@ -1,11 +1,20 @@
 import { Link } from "react-router-dom";
+import { Droplets } from "lucide-react";
 import { DueCount, DueStatusBadge } from "@/components/DueStatusBadge";
 import { PlantPhoto } from "@/components/PlantPhoto";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { wateredRelative } from "@/lib/dates";
+import { touchButton } from "@/lib/ui";
 import type { Plant } from "@/api/types";
 
-export function PlantCard({ plant }: { plant: Plant }) {
+interface PlantCardProps {
+  plant: Plant;
+  onWater?: (plant: Plant) => void;
+  isWatering?: boolean;
+}
+
+export function PlantCard({ plant, onWater, isWatering }: PlantCardProps) {
   return (
     <Card className="transition-shadow hover:shadow-md">
       <CardContent className="flex items-start gap-4 p-6">
@@ -25,6 +34,18 @@ export function PlantCard({ plant }: { plant: Plant }) {
           <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1">
             <DueStatusBadge plant={plant} />
             <span className="text-xs text-muted-foreground">{wateredRelative(plant.lastWateredAt)}</span>
+            {onWater ? (
+              <Button
+                size="sm"
+                variant="outline"
+                className={`${touchButton} ml-auto`}
+                disabled={isWatering}
+                onClick={() => onWater(plant)}
+              >
+                <Droplets className="h-4 w-4" aria-hidden="true" />
+                {isWatering ? "Watering..." : "Water"}
+              </Button>
+            ) : null}
           </div>
         </div>
         <DueCount plant={plant} />

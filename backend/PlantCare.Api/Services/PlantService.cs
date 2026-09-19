@@ -37,6 +37,8 @@ public interface IPlantService
 
     Task<PlantResponseDto?> WaterAsync(int id, string? note, CancellationToken cancellationToken = default);
 
+    Task<PlantResponseDto?> UndoWaterAsync(int id, CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<WateringLogResponseDto>?> GetWateringHistoryAsync(int id, CancellationToken cancellationToken = default);
 
     Task<PlantPhotoResult> UploadPhotoAsync(int id, Stream content, string? contentType, CancellationToken cancellationToken = default);
@@ -152,6 +154,44 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         });
 
         await db.SaveChangesAsync(cancellationToken);
+
+        return ToResponse(plant);
+    }
+
+    /// <summary>
+    /// Removes the most recent watering log and rewinds <see cref="Plant.LastWateredAt"/>
+    /// to the next newest entry (or null). A no-op when the plant has no logs.
+    /// </summary>
+    public async Task<PlantResponseDto?> UndoWaterAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var plant = await db.Plants
+            .Include(p => p.PlantProfile)
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+
+        if (plant is null)
+        {
+            return null;
+        }
+
+        var latest = await db.WateringLogs
+            .Where(w => w.PlantId == id)
+            .OrderByDescending(w => w.WateredAt)
+            .ThenByDescending(w => w.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (latest is not null)
+        {
+            db.WateringLogs.Remove(latest);
+
+            var previous = await db.WateringLogs
+                .Where(w => w.PlantId == id && w.Id != latest.Id)
+                .OrderByDescending(w => w.WateredAt)
+                .ThenByDescending(w => w.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            plant.LastWateredAt = previous?.WateredAt;
+            await db.SaveChangesAsync(cancellationToken);
+        }
 
         return ToResponse(plant);
     }

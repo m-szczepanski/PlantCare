@@ -1,7 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { plantsApi } from "@/api/client";
-import type { PlantInput } from "@/api/types";
+import type { Plant, PlantInput } from "@/api/types";
 import { toastError } from "@/lib/toast";
 
 export const plantKeys = {
@@ -9,6 +9,21 @@ export const plantKeys = {
   detail: (id: number) => ["plants", id] as const,
   wateringLogs: (id: number) => ["plants", id, "watering-logs"] as const,
 };
+
+function optimisticWatered(plant: Plant): Plant {
+  const now = new Date();
+  const interval = plant.wateringIntervalDays;
+  const nextDueDate = interval ? new Date(now.getTime() + interval * 86_400_000) : null;
+
+  return {
+    ...plant,
+    lastWateredAt: now.toISOString(),
+    dueStatus: interval ? "Upcoming" : "NotScheduled",
+    daysUntilDue: interval,
+    nextDueDate: nextDueDate ? nextDueDate.toISOString() : null,
+    dueMessage: interval ? `${interval} days until due` : "Not scheduled",
+  };
+}
 
 export function usePlants() {
   return useQuery({
@@ -66,13 +81,52 @@ export function useWaterPlant() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, note }: { id: number; note?: string }) => plantsApi.water(id, note),
+    onMutate: async ({ id }) => {
+      const previousList = queryClient.getQueryData<Plant[]>(plantKeys.all);
+      const previousDetail = queryClient.getQueryData<Plant>(plantKeys.detail(id));
+      const target = previousDetail ?? previousList?.find((p) => p.id === id);
+
+      if (previousList) {
+        queryClient.setQueryData(
+          plantKeys.all,
+          previousList.map((p) => (p.id === id ? optimisticWatered(p) : p)),
+        );
+      }
+      if (target) {
+        queryClient.setQueryData(plantKeys.detail(id), optimisticWatered(target));
+      }
+
+      return { previousList, previousDetail };
+    },
+    onError: (error, { id }, context) => {
+      if (context?.previousList) {
+        queryClient.setQueryData(plantKeys.all, context.previousList);
+      }
+      if (context?.previousDetail) {
+        queryClient.setQueryData(plantKeys.detail(id), context.previousDetail);
+      }
+      toastError("Could not log watering", error);
+    },
     onSuccess: (plant) => {
       queryClient.invalidateQueries({ queryKey: plantKeys.all });
       queryClient.setQueryData(plantKeys.detail(plant.id), plant);
-      toast.success("Watered", { description: `${plant.nickName} logged.` });
+      toast.success("Watered", {
+        description: `${plant.nickName} logged.`,
+        action: { label: "Undo", onClick: () => void undoWatering(plant.id, queryClient) },
+      });
     },
-    onError: (error) => toastError("Could not log watering", error),
   });
+}
+
+async function undoWatering(id: number, queryClient: QueryClient) {
+  try {
+    const plant = await plantsApi.undoWater(id);
+    queryClient.setQueryData(plantKeys.detail(plant.id), plant);
+    queryClient.invalidateQueries({ queryKey: plantKeys.all });
+    toast.success("Watering undone", { description: `${plant.nickName} restored.` });
+  } catch (error) {
+    toastError("Could not undo watering", error);
+  }
 }
 
 export function useWateringLogs(id: number) {

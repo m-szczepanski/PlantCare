@@ -26,6 +26,9 @@ public class DashboardServiceTests
         public Task<PlantResponseDto?> WaterAsync(int id, string? note, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
+        public Task<PlantResponseDto?> UndoWaterAsync(int id, CancellationToken cancellationToken = default)
+            => throw new NotSupportedException();
+
         public Task<IReadOnlyList<WateringLogResponseDto>?> GetWateringHistoryAsync(int id, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 

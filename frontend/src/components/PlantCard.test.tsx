@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import type { ReactElement } from "react";
 import { PlantCard } from "@/components/PlantCard";
@@ -95,5 +95,20 @@ describe("PlantCard", () => {
     renderCard(<PlantCard plant={plant({})} />);
 
     expect(screen.getByText("Not watered yet")).toBeInTheDocument();
+  });
+
+  it("shows an inline water button wired to the callback", () => {
+    const onWater = vi.fn();
+    const p = plant({ id: 7 });
+    renderCard(<PlantCard plant={p} onWater={onWater} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Water" }));
+    expect(onWater).toHaveBeenCalledWith(p);
+  });
+
+  it("hides the water button while a watering is in flight", () => {
+    renderCard(<PlantCard plant={plant({})} onWater={vi.fn()} isWatering />);
+
+    expect(screen.getByRole("button", { name: "Watering..." })).toBeDisabled();
   });
 });

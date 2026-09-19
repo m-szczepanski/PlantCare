@@ -4,11 +4,12 @@ import { PlantCard } from "@/components/PlantCard";
 import { PlantCardSkeletonGrid } from "@/components/PlantCardSkeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { usePlants } from "@/hooks/usePlants";
+import { usePlants, useWaterPlant } from "@/hooks/usePlants";
 import { touchButton } from "@/lib/ui";
 
 export function PlantsPage() {
   const { data: plants, isPending, isError, error } = usePlants();
+  const water = useWaterPlant();
 
   if (isPending) {
     return (
@@ -50,7 +51,11 @@ export function PlantsPage() {
       <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {plants.map((plant) => (
           <li key={plant.id}>
-            <PlantCard plant={plant} />
+            <PlantCard
+              plant={plant}
+              onWater={(p) => water.mutate({ id: p.id })}
+              isWatering={water.isPending && water.variables?.id === plant.id}
+            />
           </li>
         ))}
       </ul>
