@@ -26,20 +26,25 @@ beforeEach(() => {
 });
 
 describe("PlantForm", () => {
-  it("shows the live next-due preview from a searched profile selection", async () => {
-    renderForm();
+  it(
+    "shows the live next-due preview from a searched profile selection",
+    async () => {
+      renderForm();
 
-    fireEvent.click(await screen.findByRole("combobox"));
-    fireEvent.change(screen.getByPlaceholderText("Search profiles..."), { target: { value: "Poth" } });
+      fireEvent.click(await screen.findByRole("combobox"));
+      fireEvent.change(screen.getByPlaceholderText("Search profiles..."), { target: { value: "Poth" } });
 
-    expect(screen.queryByText("Monstera (7d)")).not.toBeInTheDocument();
-    fireEvent.click(await screen.findByRole("option", { name: "Pothos (10d)" }));
+      expect(screen.queryByText("Monstera (7d)")).not.toBeInTheDocument();
+      fireEvent.click(await screen.findByRole("option", { name: "Pothos (10d)" }));
 
-    expect(screen.getByRole("combobox")).toHaveTextContent("Pothos (10d)");
-    expect(screen.getByRole("status")).toHaveTextContent("Next watering due");
-    expect(screen.getByRole("status")).toHaveTextContent("in 10 days");
-    expect(screen.getByPlaceholderText("Profile default: 10")).toBeInTheDocument();
-  });
+      expect(screen.getByRole("combobox")).toHaveTextContent("Pothos (10d)");
+      expect(screen.getByRole("status")).toHaveTextContent("Next watering due");
+      expect(screen.getByRole("status")).toHaveTextContent("in 10 days");
+      expect(screen.getByPlaceholderText("Profile default: 10")).toBeInTheDocument();
+    },
+    // cmdk list rendering is slow under jsdom
+    30_000,
+  );
 
   it("previews a manually entered custom interval", async () => {
     renderForm();
