@@ -29,7 +29,7 @@ All services run side by side in a single Docker Compose project on the user's m
 
 1. **Monorepo** — backend and frontend live in one repo so a single Docker Compose file, one issue tracker, and one CI pipeline cover everything. Rationale: single maintainer + AI agent, no independent release cadences.
 2. **SQLite first** — simplest possible persistence for a self-hosted, single-user app; the EF Core provider is the only thing that changes if Postgres is ever needed. No DB server container required by default.
-3. **Coravel for scheduling** — a daily watering check doesn't justify Hangfire/Quartz infrastructure (dashboards, job stores). An `IScheduledJob`/`BackgroundService` with a cron from env config covers the requirement.
+3. **Coravel for scheduling** — a daily watering check doesn't justify Hangfire/Quartz infrastructure (dashboards, job stores). `IInvocable` jobs on Coravel's hosted scheduler with a cron from env config cover the requirement.
 4. **ntfy for push** — avoids building mobile push infrastructure (APNs/FCM accounts, certificates). Users subscribe to a topic in the ntfy app; the API POSTs plain HTTP messages.
 5. **Data over code customization** — species defaults and care tips ship as seed JSON (`backend/PlantCare.Api/Seed/`), editable by users without recompiling. Env vars drive schedule, ntfy topic/URL, and feature flags.
 6. **Thin controllers** — controllers only map HTTP ↔ DTOs; business logic (due-date computation, notification dedup) lives in `Services/`.

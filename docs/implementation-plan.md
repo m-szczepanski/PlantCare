@@ -199,22 +199,30 @@ Work the steps strictly in order — each step depends on the artifacts of the p
 
 ## Step 8 — Polish
 
-**What:** Photo upload, empty states, shadcn theming pass, seed data expansion.
+**What:** Production-readiness audit across the whole repo (re-scoped from the original photo-upload plan), plus empty/loading/error state and theming checks.
 
 **How:**
-- Photo: local-volume storage behind a static-file route from the API; `PhotoUrl` stores the served path. Keep upload size/type limits. (If the open question resolves to "skip photos for v1", ship without it and document that.)
-- Expand `Seed/` JSON with a broader species set.
-- Consistent theming via `tailwind.config.ts`; audit all views for spacing/typography/empty/loading states.
+- Strip comments that restate code or reference build steps; keep only comments explaining non-obvious behavior (atomicity, contracts, timezone handling, the Coravel DI gotcha).
+- Hunt dead code and dead imports (unused `using` sweep via IDE0005, unused props/exports, empty unreferenced files).
+- Sync all docs with the implemented state (root `README.md`, `docs/overview.md`, `docs/architecture.md`, `backend/docs`, `frontend/docs`), and fold resolved open questions back in.
+- Fix logic gaps found during the pass.
 
 **Test:**
-- Upload integration test (valid image, rejected types, size limit).
+- Full backend + frontend test suites green after each change.
 - Manual pass through every view with zero plants, one plant, and many plants.
 
 **Acceptance criteria:**
-- [ ] (If in scope) photo uploads persist across container restarts and render in list/detail.
-- [ ] No view shows a blank screen in any state (loading, empty, error).
-- [ ] Theme changes in `tailwind.config.ts` propagate across the whole app.
-- [ ] Seed set covers the common species a home user would recognize.
+- [x] (If in scope) photo uploads persist across container restarts and render in list/detail. — *Not in scope: the open question resolved to "skip uploads for v1"; `PhotoUrl` accepts an externally hosted URL.*
+- [x] No view shows a blank screen in any state (loading, empty, error).
+- [x] Theme changes in `tailwind.config.ts` propagate across the whole app.
+- [x] Seed set covers the common species a home user would recognize.
+
+**Deviations / notes:**
+- Re-scoped: no photo-upload endpoint/storage was built (v1 keeps the URL field only); seed expansion deferred — the 8 shipped species already satisfy the AC.
+- Logic fixes found in the audit: watering instants are naive UTC strings, so the detail page now parses them as UTC (previously every browser re-interpreted them as local wall time, shifting "Last watered" and the history); the edit-plant screen no longer hangs on "Loading plant..." when the plant is missing/deleted (404 now renders an error); the care-interval input no longer relies on an `as number` cast.
+- Dead code removed: unused `using PlantCare.Api.Models` in `CareTipsApiTests`, the never-passed `className` prop on `DueStatusBadge`, and the empty, unreferenced `instructions.md` (its intended content lives in `AGENTS.md` and `docs/`).
+- `healthApi` is intentionally kept (not dead): reserved for a future status display; nginx already proxies `/api/health`.
+- Docs aligned to code: Coravel described accurately (`IInvocable` + hosted scheduler, not `IScheduledJob`/`BackgroundService`); `GET /api/plants/{id}/watering-logs` added to every endpoint list; config tables name `NTFY_URL`/`NTFY_TOPIC` and document defaults; README tree matches the real layout; resolved open questions recorded.
 
 ---
 
