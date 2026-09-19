@@ -86,7 +86,7 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 
 ### App Shell
 
-- `src/components/AppShell.tsx` is the single layout wrapper (used by `App.tsx`): a persistent shadcn sidebar with the brand and the main nav (Dashboard / Plants / Add plant — future entries like Rooms/Settings go here), an active-item state driven by the route, a sticky top bar on mobile (sidebar trigger + brand), and the theme toggle.
+- `src/components/AppShell.tsx` is the single layout wrapper (used by `App.tsx`): a persistent shadcn sidebar with the brand and the main nav (Dashboard / Calendar / Insights / Plants / Add plant — future entries like Rooms/Settings go here), an active-item state driven by the route, a sticky top bar on mobile (sidebar trigger + brand), and the theme toggle. `/wall` deliberately renders outside the shell.
 - The responsive "is mobile" state comes from `src/hooks/use-mobile.tsx` (shadcn's `useIsMobile`).
 
 ### Theming
@@ -111,10 +111,13 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 
 | View | Contents |
 |------|----------|
-| Dashboard | "due today / overdue / upcoming" summary (from `GET /api/dashboard`) |
+| Dashboard | Stats strip (overdue / due today / total, green "all caught up" state) + "due today / overdue / upcoming" summary |
+| Calendar | Week/month grid of upcoming care, projected client-side from each plant's `nextDueDate` + interval (`src/lib/scheduleProjection.ts`); overdue plants land on today |
+| Insights | Read-only collection stats from `GET /api/insights`: totals, species diversity, most-neglected, 30-day adherence, on-time streaks, monthly watering bars |
 | Plant list | Owned plants with due status, search (name/species/location), due-status filter, and sort (name / location / soonest due / recently watered) |
 | Plant detail | Plant info, photo (or placeholder), care tips from its `PlantProfile`, "mark as watered" action, watering history with monthly bar chart |
 | Plant form | Create/edit plants; species profiles are managed via the API only (no profile form UI yet) |
+| Wall mode (`/wall`) | Read-only auto-refreshing (60s) full-screen route for a home tablet — no shell/nav chrome, big cards + stats strip. Not in the nav; bookmark the URL. Calendar feed for phones: `/calendar.ics` (nginx proxies to `GET /api/calendar.ics`) |
 
 ## API Surface Used
 

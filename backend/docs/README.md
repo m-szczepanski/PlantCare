@@ -38,7 +38,11 @@ POST   /api/plant-profiles
 PUT    /api/plant-profiles/{id}
 
 GET    /api/dashboard              due today / overdue / upcoming summary
+GET    /api/calendar.ics           iCalendar (RFC 5545) feed: one recurring all-day event per scheduled plant
+GET    /api/insights               read-only collection stats: totals, species diversity, most-neglected, 30-day adherence, on-time streaks, 12-month watering counts
 ```
+
+`CalendarService` and `InsightsService` both reuse `IPlantService`'s schedule computation (single source of truth). ICS output uses CRLF line endings with 74-char folding and text escaping; adherence counts logs in the last 30 days against `window / interval` expectations; a streak is consecutive recent waterings whose gaps stay within `interval + 2` days.
 
 ## Data Model
 
