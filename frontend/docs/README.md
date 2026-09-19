@@ -40,7 +40,7 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 `cssVariables`, green brand accent, `@/` path alias).
 
 - shadcn components are **composed, not modified in place** — extend via wrapper components (e.g. `src/components/DueStatusBadge.tsx`, `src/components/PlantForm.tsx`, `src/components/PlantCard.tsx`, `src/components/PlantPhoto.tsx`, `src/components/CareTipsCard.tsx`) when customization is needed.
-- `PlantPhoto` renders the profile `PhotoUrl` (lazy, `alt` = nickname) on cards and detail, swapping in a dashed placeholder illustration when there is no photo or the image fails to load (`onError` fallback). Uploads come later with `feature/photo-upload`.
+- `PlantPhoto` renders the profile `PhotoUrl` (lazy, `alt` = nickname) on cards and detail, swapping in a dashed placeholder illustration when there is no photo or the image fails to load (`onError` fallback). Uploaded photos live under `/uploads/...` (served by nginx from the shared `plant-photos` volume); the detail page's "Upload photo" button posts multipart to `POST /api/plants/{id}/photo` via `useUploadPlantPhoto`. The URL field in the plant form remains for externally hosted photos.
 - Profile care tips render via `react-markdown` (markdown text from `PlantProfile.CareTips`); no raw-HTML plugin is enabled, so profile text is XSS-safe.
 - All base tokens (colors including `popover`, `chart`, `sidebar`, light + dark) live in `src/index.css`; layout/radius/animation theming is centralized in `tailwind.config.ts`. Restyling should never require touching component logic.
 - Existing primitives: `button`, `input`, `label`, `card`, `badge`, `select`, `dropdown-menu`, `sidebar` (+ `sheet`, `separator`, `skeleton`, `tooltip` pulled in by it), `sonner`. Add more as features need them.
@@ -94,7 +94,7 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 
 ## API Surface Used
 
-All endpoints under `/api/*` — plants CRUD, `POST /api/plants/{id}/water` and `GET /api/plants/{id}/watering-logs` (detail page history), plant-profiles list/create/update, and the dashboard summary. Shapes are defined by the backend's DTOs (see `backend/docs/README.md`).
+All endpoints under `/api/*` — plants CRUD, `POST /api/plants/{id}/water`, `POST /api/plants/{id}/photo` (multipart upload), `GET /api/plants/{id}/watering-logs` (detail page history), plant-profiles list/create/update, and the dashboard summary. Shapes are defined by the backend's DTOs (see `backend/docs/README.md`). Uploaded photos are static files served by nginx under `/uploads/*`, outside the API surface.
 
 ## Conventions
 

@@ -82,3 +82,16 @@ export function useWateringLogs(id: number) {
     enabled: Number.isInteger(id),
   });
 }
+
+export function useUploadPlantPhoto(id: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (file: File) => plantsApi.uploadPhoto(id, file),
+    onSuccess: (plant) => {
+      queryClient.invalidateQueries({ queryKey: plantKeys.all });
+      queryClient.setQueryData(plantKeys.detail(plant.id), plant);
+      toast.success("Photo uploaded", { description: `${plant.nickName} updated.` });
+    },
+    onError: (error) => toastError("Could not upload photo", error),
+  });
+}

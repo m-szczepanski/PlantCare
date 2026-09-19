@@ -33,6 +33,7 @@ All services run side by side in a single Docker Compose project on the user's m
 4. **ntfy for push** — avoids building mobile push infrastructure (APNs/FCM accounts, certificates). Users subscribe to a topic in the ntfy app; the API POSTs plain HTTP messages.
 5. **Data over code customization** — species defaults and care tips ship as seed JSON (`backend/PlantCare.Api/Seed/`), editable by users without recompiling. Env vars drive schedule, ntfy topic/URL, and feature flags.
 6. **Thin controllers** — controllers only map HTTP ↔ DTOs; business logic (due-date computation, notification dedup) lives in `Services/`.
+7. **Photos on a shared volume, served by nginx** — uploads are written by the API to the `plant-photos` volume (`/data/uploads`) and served statically by the web container from the same volume under `/uploads/*` (read-only mount). The DB only stores the `/uploads/...` path in `Plant.PhotoUrl`. Chosen over API-served files (no image bandwidth through the app) and over mounting `plant-data` itself (would expose the SQLite DB through the web root).
 
 ## Data Flow: Watering Notification
 

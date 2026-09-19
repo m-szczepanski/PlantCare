@@ -14,6 +14,7 @@ vi.mock("@/api/client", () => ({
     remove: vi.fn(),
     water: vi.fn(),
     wateringLogs: vi.fn(),
+    uploadPhoto: vi.fn(),
   },
   ApiError: class ApiError extends Error {},
 }));
@@ -101,6 +102,28 @@ describe("PlantDetailPage", () => {
 
     const img = await screen.findByRole("img", { name: "Monstera Mike" });
     expect(img).toHaveAttribute("src", "https://example.com/mike.jpg");
+  });
+
+  it("uploads a picked photo and shows it on the plant", async () => {
+    vi.mocked(plantsApi.uploadPhoto).mockImplementation(async () => {
+      const updated = { ...plant, photoUrl: "/uploads/plants/1/new.png" };
+      vi.mocked(plantsApi.get).mockResolvedValue(updated);
+      return updated;
+    });
+
+    const { container } = renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    await screen.findByRole("heading", { name: "Monstera Mike" });
+    const fileInput = container.querySelector<HTMLInputElement>('input[type="file"]');
+    expect(fileInput).not.toBeNull();
+
+    fireEvent.change(fileInput!, {
+      target: { files: [new File(["data"], "new.png", { type: "image/png" })] },
+    });
+
+    await waitFor(() => expect(plantsApi.uploadPhoto).toHaveBeenCalledWith(1, expect.any(File)));
+    const img = await screen.findByRole("img", { name: "Monstera Mike" });
+    expect(img).toHaveAttribute("src", "/uploads/plants/1/new.png");
   });
 
   it("marks the plant as watered through the API client", async () => {

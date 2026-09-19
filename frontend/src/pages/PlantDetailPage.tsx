@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AlertTriangle, Droplets } from "lucide-react";
 import { CareTipsCard } from "@/components/CareTipsCard";
@@ -8,7 +9,7 @@ import { PlantPhoto } from "@/components/PlantPhoto";
 import { ApiError } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useDeletePlant, usePlant, useWaterPlant, useWateringLogs } from "@/hooks/usePlants";
+import { useDeletePlant, usePlant, useUploadPlantPhoto, useWaterPlant, useWateringLogs } from "@/hooks/usePlants";
 
 function formatDate(value: string | null): string {
   if (!value) return "-";
@@ -30,7 +31,9 @@ export function PlantDetailPage() {
   const { data: plant, isPending, isError, error } = usePlant(plantId);
   const deletePlant = useDeletePlant();
   const waterPlant = useWaterPlant();
+  const uploadPhoto = useUploadPlantPhoto(plantId);
   const { data: wateringLogs } = useWateringLogs(plantId);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   if (isPending) {
     return <PlantDetailSkeleton />;
@@ -121,9 +124,25 @@ export function PlantDetailPage() {
         </CardContent>
       </Card>
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
+        <input
+          ref={photoInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          className="hidden"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) {
+              uploadPhoto.mutate(file);
+            }
+            event.target.value = "";
+          }}
+        />
         <Button onClick={() => waterPlant.mutate({ id: plant.id })} disabled={waterPlant.isPending}>
           {waterPlant.isPending ? "Watering..." : "Mark as watered"}
+        </Button>
+        <Button variant="secondary" onClick={() => photoInputRef.current?.click()} disabled={uploadPhoto.isPending}>
+          {uploadPhoto.isPending ? "Uploading..." : plant.photoUrl ? "Change photo" : "Upload photo"}
         </Button>
         <Button asChild>
           <Link to={`/plants/${plant.id}/edit`}>Edit</Link>

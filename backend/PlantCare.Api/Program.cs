@@ -17,6 +17,10 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 
 builder.Services.AddSingleton(new FeatureFlags(builder.Configuration.GetValue("ENABLE_CARE_TIPS", true)));
 
+var photoStoragePath = builder.Configuration["PHOTO_STORAGE_PATH"] ?? "/data/uploads";
+builder.Services.AddSingleton(new PlantPhotoOptions(photoStoragePath));
+builder.Services.AddSingleton<IPlantPhotoStorage, PlantPhotoStorage>();
+
 builder.Services.AddScoped<IWateringScheduleService, WateringScheduleService>();
 builder.Services.AddScoped<IPlantService, PlantService>();
 builder.Services.AddScoped<IPlantProfileService, PlantProfileService>();
