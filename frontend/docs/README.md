@@ -56,6 +56,13 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 ### List filtering
 
 - Plant list query state (search text, due filter, sort key) lives in `PlantsPage`; the pure logic is `filterPlants` in `src/lib/plantFilters.ts` (client-side, single-user dataset, no mutation of the input). The search input keeps the accessible name "Search plants" (the `keyboard-shortcuts` chunk will focus it via `/`). No-results is a distinct empty state with a clear-filters action, separate from "No plants yet".
+- The list state is synced to URL search params (`?q=&due=&sort=`, defaults omitted, `replace: true`) — shareable deep links and back-navigation restore filters automatically.
+
+### Routing & Shortcuts
+
+- `Breadcrumbs` (shadcn-less, hand-rolled) renders at the top of the plants list, plant detail (ends with the plant's nickname, `aria-current="page"`) and the plant form; ancestor crumbs are links.
+- `ScrollRestoration` (mounted in `AppShell`) remembers window scroll per router `location.key` and reapplies it when returning forward/back. Plant detail URLs (`/plants/:id`) remain the deep-link unit.
+- `KeyboardShortcuts` (mounted in `AppShell`): `n` → new plant, `w` → water the focused card (cards are focusable via `data-plant-card` + `tabIndex`, the button carries `data-water-button`), `/` → focus `#plant-search` (only present on the plants list). Ignored while typing in inputs and when modifier keys are held; the Water/Add buttons carry `title` hints.
 
 ### Feedback & Toasts
 
