@@ -78,6 +78,11 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 - Dark mode is class-based (`dark` on `<html>`); a small inline script in `index.html` applies the class before first paint to avoid a theme flash.
 - Tokens themselves stay centralized in `src/index.css` — the provider only toggles the class.
 
+### Mobile
+
+- `src/lib/ui.ts` holds the shared responsive classes: `touchButton` (≥44px targets below `sm`), `touchField` (h-11 + `text-base` on phones to stop iOS focus-zoom, compact from `sm`), `touchIcon`.
+- Audit (phone width ~360–390px): dashboard/list/detail cards are single-column grids; headers wrap (`flex-wrap`); action rows wrap; long plant names break (`break-words`); sidebar collapses to the off-canvas sheet with a 44px trigger; theme toggle stays 44px on mobile. Generated shadcn files are untouched — classes are passed in at usage sites.
+
 ### Server State & Data Fetching
 
 - Typed API client helpers live in `src/api/` — all HTTP access goes through them; components never call `fetch` directly.
