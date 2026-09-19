@@ -5,6 +5,7 @@ import { PlantCardSkeletonGrid } from "@/components/PlantCardSkeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useDashboard } from "@/hooks/useDashboard";
+import { touchButton } from "@/lib/ui";
 import type { Dashboard, Plant } from "@/api/types";
 
 const sections: { key: string; title: string; select: (d: Dashboard) => Plant[] }[] = [
@@ -48,9 +49,9 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-bold">Dashboard</h1>
-        <Button asChild>
+        <Button asChild className={touchButton}>
           <Link to="/plants/new">Add plant</Link>
         </Button>
       </div>

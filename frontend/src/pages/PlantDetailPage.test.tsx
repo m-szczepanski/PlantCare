@@ -126,6 +126,13 @@ describe("PlantDetailPage", () => {
     expect(img).toHaveAttribute("src", "/uploads/plants/1/new.png");
   });
 
+  it("gives the phone action buttons touch-friendly targets", async () => {
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    const button = await screen.findByRole("button", { name: "Mark as watered" });
+    expect(button).toHaveClass("min-h-11", "sm:min-h-9");
+  });
+
   it("marks the plant as watered through the API client", async () => {
     renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
 

@@ -20,8 +20,10 @@ describe("AppShell", () => {
     renderShell("/");
 
     expect(screen.getByText("page content")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Toggle Sidebar" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Toggle theme" })).toBeInTheDocument();
+    const trigger = screen.getByRole("button", { name: "Toggle Sidebar" });
+    expect(trigger).toBeInTheDocument();
+    expect(trigger).toHaveClass("h-11", "sm:h-8");
+    expect(screen.getByRole("button", { name: "Toggle theme" })).toHaveClass("h-11", "sm:h-9");
     expect(screen.getByRole("link", { name: "Dashboard" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Plants" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Add plant" })).toBeInTheDocument();

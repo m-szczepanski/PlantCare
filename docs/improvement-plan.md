@@ -107,6 +107,7 @@ Every chunk follows the AGENTS.md workflow: acceptance criteria defined before c
 - `feature/photo-upload` — done. Storage decision (architecture.md #7): API writes to the `plant-photos` volume at `{PHOTO_STORAGE_PATH}/plants/{id}/{guid}` (jpeg/png/webp/gif, 5 MB cap); nginx serves `/uploads/*` read-only from the same volume. `POST /api/plants/{id}/photo` multipart endpoint + old-file cleanup, `useUploadPlantPhoto` hook with toasts, "Upload photo" button on detail. Form keeps its external-URL field.
 - `feature/plant-card-redesign` — done. `DueCount` (days-until-due as the primary number; red for overdue) + short status badge with icon **and** text (no color-only meaning) + "Watered N days ago" relative line (`lib/dates.ts`) on `PlantCard`; skeleton mirrored. Note: badge labels ("Overdue") now coexist with dashboard section headings — tests target headings by role.
 - `feature/care-tips-markdown` — done. `@tailwindcss/typography` added; care notes render through `prose prose-sm prose-neutral dark:prose-invert` in `CareTipsCard` (was ad-hoc `[&_h1]` classes). Deviation: optional TOC skipped — seed tips average ~140 chars; revisit in `seed-expansion`.
+- `feature/mobile-layout-pass` — done. Shared `lib/ui.ts` touch classes (`min-h-11` buttons, `h-11 text-base` fields below `sm`); sidebar trigger + theme toggle enlarged on phones; wrapping headers/action rows; `break-words` names. Epic 2 complete.
 
 ## Suggested sequencing
 

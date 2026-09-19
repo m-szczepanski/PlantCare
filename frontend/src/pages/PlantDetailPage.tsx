@@ -10,6 +10,7 @@ import { ApiError } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDeletePlant, usePlant, useUploadPlantPhoto, useWaterPlant, useWateringLogs } from "@/hooks/usePlants";
+import { touchButton } from "@/lib/ui";
 
 function formatDate(value: string | null): string {
   if (!value) return "-";
@@ -74,7 +75,7 @@ export function PlantDetailPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold">{plant.nickName}</h1>
+        <h1 className="text-2xl font-bold break-words">{plant.nickName}</h1>
         <DueStatusBadge plant={plant} />
       </div>
 
@@ -138,19 +139,19 @@ export function PlantDetailPage() {
             event.target.value = "";
           }}
         />
-        <Button onClick={() => waterPlant.mutate({ id: plant.id })} disabled={waterPlant.isPending}>
+        <Button onClick={() => waterPlant.mutate({ id: plant.id })} disabled={waterPlant.isPending} className={touchButton}>
           {waterPlant.isPending ? "Watering..." : "Mark as watered"}
         </Button>
-        <Button variant="secondary" onClick={() => photoInputRef.current?.click()} disabled={uploadPhoto.isPending}>
+        <Button variant="secondary" onClick={() => photoInputRef.current?.click()} disabled={uploadPhoto.isPending} className={touchButton}>
           {uploadPhoto.isPending ? "Uploading..." : plant.photoUrl ? "Change photo" : "Upload photo"}
         </Button>
-        <Button asChild>
+        <Button asChild className={touchButton}>
           <Link to={`/plants/${plant.id}/edit`}>Edit</Link>
         </Button>
-        <Button variant="outline" asChild>
+        <Button variant="outline" asChild className={touchButton}>
           <Link to="/plants">Back to list</Link>
         </Button>
-        <Button variant="destructive" onClick={handleDelete} disabled={deletePlant.isPending}>
+        <Button variant="destructive" onClick={handleDelete} disabled={deletePlant.isPending} className={touchButton}>
           {deletePlant.isPending ? "Deleting..." : "Delete"}
         </Button>
       </div>
