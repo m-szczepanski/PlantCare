@@ -109,6 +109,7 @@ Every chunk follows the AGENTS.md workflow: acceptance criteria defined before c
 - `feature/care-tips-markdown` — done. `@tailwindcss/typography` added; care notes render through `prose prose-sm prose-neutral dark:prose-invert` in `CareTipsCard` (was ad-hoc `[&_h1]` classes). Deviation: optional TOC skipped — seed tips average ~140 chars; revisit in `seed-expansion`.
 - `feature/mobile-layout-pass` — done. Shared `lib/ui.ts` touch classes (`min-h-11` buttons, `h-11 text-base` fields below `sm`); sidebar trigger + theme toggle enlarged on phones; wrapping headers/action rows; `break-words` names. Epic 2 complete.
 - `feature/optimistic-watering` — done. Water button on dashboard/list `PlantCard`s (via `onWater` prop); `useWaterPlant` patches cached list+detail in `onMutate`, rolls back on error, and the success toast carries **Undo** → new `DELETE /api/plants/{id}/water` endpoint (removes newest log, rewinds LastWateredAt, no-op without logs). Delete now uses a shadcn `alert-dialog` confirm instead of `window.confirm`.
+- `feature/plant-form-ux` — done. `ProfileCombobox` (Popover+Command) replaces the profile Select with type-ahead search; live `role="status"` next-due preview (custom interval overrides profile default); `ApiError` now carries `ProblemDetails.errors`, `splitApiError` maps them to camelCase per-field messages with `aria-invalid` (banner kept only for non-field errors). Acquired-date-today default already existed.
 
 ## Suggested sequencing
 
