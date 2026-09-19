@@ -28,6 +28,9 @@ public class DashboardServiceTests
 
         public Task<IReadOnlyList<WateringLogResponseDto>?> GetWateringHistoryAsync(int id, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
+
+        public Task<PlantPhotoResult> UploadPhotoAsync(int id, Stream content, string? contentType, CancellationToken cancellationToken = default)
+            => throw new NotSupportedException();
     }
 
     private static PlantResponseDto Plant(int id, PlantDueStatus status, int? daysUntilDue, string? nickName = null)

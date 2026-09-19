@@ -54,6 +54,26 @@ public class PlantsController(IPlantService plants) : ControllerBase
         return plant is null ? NotFound() : Ok(plant);
     }
 
+    [HttpPost("{id:int}/photo")]
+    [RequestSizeLimit(10_000_000)]
+    public async Task<ActionResult<PlantResponseDto>> UploadPhoto(int id, IFormFile? file, CancellationToken cancellationToken)
+    {
+        if (file is null || file.Length == 0)
+        {
+            return BadRequest(new ProblemDetails { Title = "No photo supplied.", Detail = "Send the image in the multipart form field \"file\"." });
+        }
+
+        await using var stream = file.OpenReadStream();
+        var result = await plants.UploadPhotoAsync(id, stream, file.ContentType, cancellationToken);
+
+        return result.Status switch
+        {
+            PlantPhotoStatus.NotFound => NotFound(),
+            PlantPhotoStatus.InvalidFile => BadRequest(new ProblemDetails { Title = "Unsupported photo.", Detail = result.Error }),
+            _ => Ok(result.Plant),
+        };
+    }
+
     [HttpGet("{id:int}/watering-logs")]
     public async Task<ActionResult<IReadOnlyList<WateringLogResponseDto>>> WateringLogs(int id, CancellationToken cancellationToken)
     {

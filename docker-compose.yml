@@ -7,8 +7,10 @@ services:
     environment:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__Default: ${DB_CONNECTIONSTRING:-Data Source=/data/plantcare.db}
+      PHOTO_STORAGE_PATH: /data/uploads
     volumes:
       - plant-data:/data
+      - plant-photos:/data/uploads
     ports:
       - "5001:8080"
 
@@ -16,6 +18,8 @@ services:
     build: ./frontend
     ports:
       - "3000:80"
+    volumes:
+      - plant-photos:/usr/share/nginx/html/uploads:ro
     depends_on:
       - api
 
@@ -29,4 +33,5 @@ services:
 
 volumes:
   plant-data:
+  plant-photos:
   ntfy-data:

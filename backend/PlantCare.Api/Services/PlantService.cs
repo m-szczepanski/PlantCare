@@ -14,6 +14,15 @@ public enum PlantWriteStatus
 
 public sealed record PlantWriteResult(PlantWriteStatus Status, PlantResponseDto? Plant = null);
 
+public enum PlantPhotoStatus
+{
+    Success,
+    NotFound,
+    InvalidFile,
+}
+
+public sealed record PlantPhotoResult(PlantPhotoStatus Status, PlantResponseDto? Plant = null, string? Error = null);
+
 public interface IPlantService
 {
     Task<IReadOnlyList<PlantResponseDto>> ListAsync(CancellationToken cancellationToken = default);
@@ -29,9 +38,11 @@ public interface IPlantService
     Task<PlantResponseDto?> WaterAsync(int id, string? note, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<WateringLogResponseDto>?> GetWateringHistoryAsync(int id, CancellationToken cancellationToken = default);
+
+    Task<PlantPhotoResult> UploadPhotoAsync(int id, Stream content, string? contentType, CancellationToken cancellationToken = default);
 }
 
-public sealed class PlantService(AppDbContext db, IWateringScheduleService schedule, FeatureFlags features) : IPlantService
+public sealed class PlantService(AppDbContext db, IWateringScheduleService schedule, FeatureFlags features, IPlantPhotoStorage photos) : IPlantService
 {
     public async Task<IReadOnlyList<PlantResponseDto>> ListAsync(CancellationToken cancellationToken = default)
     {
@@ -112,6 +123,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
 
         db.Plants.Remove(plant);
         await db.SaveChangesAsync(cancellationToken);
+        photos.DeletePlantDirectory(plant.Id);
         return true;
     }
 
@@ -163,6 +175,33 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
                 Note = w.Note,
             })
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<PlantPhotoResult> UploadPhotoAsync(int id, Stream content, string? contentType, CancellationToken cancellationToken = default)
+    {
+        var plant = await db.Plants.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        if (plant is null)
+        {
+            return new PlantPhotoResult(PlantPhotoStatus.NotFound);
+        }
+
+        string photoUrl;
+        try
+        {
+            photoUrl = await photos.SaveAsync(id, content, contentType ?? string.Empty, cancellationToken);
+        }
+        catch (InvalidDataException ex)
+        {
+            return new PlantPhotoResult(PlantPhotoStatus.InvalidFile, Error: ex.Message);
+        }
+
+        var previousUrl = plant.PhotoUrl;
+        plant.PhotoUrl = photoUrl;
+        await db.SaveChangesAsync(cancellationToken);
+
+        photos.DeleteIfManaged(previousUrl);
+
+        return new PlantPhotoResult(PlantPhotoStatus.Success, await ReloadAsync(plant.Id, cancellationToken));
     }
 
     private async Task<bool> ProfileExistsAsync(int profileId, CancellationToken cancellationToken)
