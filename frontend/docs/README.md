@@ -42,7 +42,14 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 - shadcn components are **composed, not modified in place** — extend via wrapper components (e.g. `src/components/DueStatusBadge.tsx`, `src/components/PlantForm.tsx`, `src/components/PlantCard.tsx`, `src/components/CareTipsCard.tsx`) when customization is needed.
 - Profile care tips render via `react-markdown` (markdown text from `PlantProfile.CareTips`); no raw-HTML plugin is enabled, so profile text is XSS-safe.
 - All base tokens (colors including `popover`, `chart`, `sidebar`, light + dark) live in `src/index.css`; layout/radius/animation theming is centralized in `tailwind.config.ts`. Restyling should never require touching component logic.
-- Existing primitives: `button`, `input`, `label`, `card`, `badge`, `select`, `dropdown-menu`, `sidebar` (+ `sheet`, `separator`, `skeleton`, `tooltip` pulled in by it). Add more as features need them.
+- Existing primitives: `button`, `input`, `label`, `card`, `badge`, `select`, `dropdown-menu`, `sidebar` (+ `sheet`, `separator`, `skeleton`, `tooltip` pulled in by it), `sonner`. Add more as features need them.
+
+### Feedback & Toasts
+
+- All mutation hooks report success/failure through the `sonner` toast system; `<Toaster />` is mounted once in `src/main.tsx` (top-center).
+- `src/lib/toast.ts` centralizes the rules: `toastError(title, error)` derives the description from the API error (`ApiError.detail` first, so 400 validation messages surface), plus `errorMessage()` for anything that still needs inline rendering.
+- Mutation hooks (`useCreatePlant`, `useUpdatePlant`, `useDeletePlant`, `useWaterPlant`) fire the toasts themselves — pages do not message on their own; query/load errors remain inline banners.
+- The `ui/sonner.tsx` wrapper deviates from the generated shadcn version: it reads `resolvedTheme` from `ThemeProvider` (this repo has no next-themes). If it is ever re-added via the CLI, that wiring must be restored.
 
 ### App Shell
 
