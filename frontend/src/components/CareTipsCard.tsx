@@ -28,7 +28,7 @@ export function CareTipsCard({ tips }: { tips: PlantCareTips }) {
         </div>
         <div>
           <dt className="text-muted-foreground">Care notes</dt>
-          <dd className="mt-1 space-y-2 [&_h1]:text-lg [&_h1]:font-semibold [&_h2]:font-semibold [&_li]:ml-5 [&_li]:list-disc [&_strong]:font-semibold">
+          <dd className="prose prose-sm prose-neutral mt-1 max-w-none dark:prose-invert">
             <Markdown>{tips.careTips}</Markdown>
           </dd>
         </div>
