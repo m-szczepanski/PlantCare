@@ -1,6 +1,6 @@
 # Improvement Plan (post-v1)
 
-Deliverable chunks derived from `ideas.md`. Each chunk is one scoped branch/PR (repo convention: `feature/<name>`), sized to be reviewable on its own and shippable without breaking v1. This is a proposal — reorder freely; only the listed dependencies are hard.
+Deliverable chunks derived from `ideas.md`. Each chunk is one scoped commit group inside an **epic branch/PR** (repo convention since Epic 3: one PR per epic, `epic/<name>` off main — chunks stay the unit of work and acceptance, the epic is the unit of review and shipping). Chunks remain sized to be shippable without breaking v1. This is a proposal — reorder freely; only the listed dependencies are hard.
 
 Every chunk follows the AGENTS.md workflow: acceptance criteria defined before coding, builds green (`dotnet build`, `npm run build`), tests for new behavior, migration with any schema change, docs updated.
 
@@ -110,6 +110,11 @@ Every chunk follows the AGENTS.md workflow: acceptance criteria defined before c
 - `feature/mobile-layout-pass` — done. Shared `lib/ui.ts` touch classes (`min-h-11` buttons, `h-11 text-base` fields below `sm`); sidebar trigger + theme toggle enlarged on phones; wrapping headers/action rows; `break-words` names. Epic 2 complete.
 - `feature/optimistic-watering` — done. Water button on dashboard/list `PlantCard`s (via `onWater` prop); `useWaterPlant` patches cached list+detail in `onMutate`, rolls back on error, and the success toast carries **Undo** → new `DELETE /api/plants/{id}/water` endpoint (removes newest log, rewinds LastWateredAt, no-op without logs). Delete now uses a shadcn `alert-dialog` confirm instead of `window.confirm`.
 - `feature/plant-form-ux` — done. `ProfileCombobox` (Popover+Command) replaces the profile Select with type-ahead search; live `role="status"` next-due preview (custom interval overrides profile default); `ApiError` now carries `ProblemDetails.errors`, `splitApiError` maps them to camelCase per-field messages with `aria-invalid` (banner kept only for non-field errors). Acquired-date-today default already existed.
+- `feature/watering-history-viz` — done. `WateringHistoryChart` on the detail card: dependency-free monthly bars (last 6 months, `chart-1` token) over the existing logs endpoint, sr-only data table, hidden when the window is empty. Test timeout raised for cmdk-heavy suites.
+- `feature/plant-search-filters` — done. Search (name/species/location) + due-status filter + sort (name/location/soonest due/recently watered) on the plants list via pure `filterPlants` (`lib/plantFilters.ts`); "N of M" count; distinct "No matching plants" empty state with clear-filters action. cmdk combobox test given an explicit 30s timeout (flaky under default 5s in jsdom).
+- `feature/keyboard-shortcuts` — done. `KeyboardShortcuts` in the shell: `n` new plant, `w` water focused card (focusable `data-plant-card` + `data-water-button`), `/` focus `#plant-search`; ignored while typing or with modifiers.
+- `feature/routing-polish` — done. `Breadcrumbs` on list/detail/form (detail ends with the plant name), `ScrollRestoration` keyed on router location, list filters moved to URL search params (`?q=&due=&sort=`) for shareable/back-restorable deep links; detail URLs already existed.
+- **Epic 3 ships as one PR: `epic/watering-care-ux`** (optimistic-watering and plant-form-ux were merged individually before the one-epic-one-PR switch; viz + search + shortcuts + routing ride the epic branch). Next epics follow the new convention.
 
 ## Suggested sequencing
 

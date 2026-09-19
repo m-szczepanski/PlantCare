@@ -50,7 +50,19 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 
 - `PlantForm` UX: the species profile picker is a searchable combobox (`ProfileCombobox` = Popover + Command); a `role="status"` line previews the effective next watering date (custom interval wins, otherwise profile default, otherwise "no schedule"); `acquiredDate` defaults to today for new plants; the custom-interval placeholder shows the selected profile's default.
 - API 400 responses with `ProblemDetails.errors` map to per-field messages via `splitApiError` (`src/lib/validation.ts`) — PascalCase keys become camelCase field names, inputs get `aria-invalid`; only non-field errors (e.g. unknown profile) render as the banner above the buttons.
+- `WateringHistoryChart` renders the last 6 months of watering counts as simple div-bars (uses the `chart-1` token, no chart library) above the history list; counts are grouped by local month from the naive-UTC log timestamps, an sr-only table exposes the data, and it hides itself when the window is empty.
 - jsdom needs `ResizeObserver`/`scrollIntoView` stubs (in `src/test/setup.ts`) for Popover/Command/dialog rendering in tests.
+
+### List filtering
+
+- Plant list query state (search text, due filter, sort key) lives in `PlantsPage`; the pure logic is `filterPlants` in `src/lib/plantFilters.ts` (client-side, single-user dataset, no mutation of the input). The search input keeps the accessible name "Search plants" (the `keyboard-shortcuts` chunk will focus it via `/`). No-results is a distinct empty state with a clear-filters action, separate from "No plants yet".
+- The list state is synced to URL search params (`?q=&due=&sort=`, defaults omitted, `replace: true`) — shareable deep links and back-navigation restore filters automatically.
+
+### Routing & Shortcuts
+
+- `Breadcrumbs` (shadcn-less, hand-rolled) renders at the top of the plants list, plant detail (ends with the plant's nickname, `aria-current="page"`) and the plant form; ancestor crumbs are links.
+- `ScrollRestoration` (mounted in `AppShell`) remembers window scroll per router `location.key` and reapplies it when returning forward/back. Plant detail URLs (`/plants/:id`) remain the deep-link unit.
+- `KeyboardShortcuts` (mounted in `AppShell`): `n` → new plant, `w` → water the focused card (cards are focusable via `data-plant-card` + `tabIndex`, the button carries `data-water-button`), `/` → focus `#plant-search` (only present on the plants list). Ignored while typing in inputs and when modifier keys are held; the Water/Add buttons carry `title` hints.
 
 ### Feedback & Toasts
 
@@ -100,8 +112,8 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 | View | Contents |
 |------|----------|
 | Dashboard | "due today / overdue / upcoming" summary (from `GET /api/dashboard`) |
-| Plant list | Owned plants with due status |
-| Plant detail | Plant info, photo (or placeholder), care tips from its `PlantProfile`, "mark as watered" action, watering history |
+| Plant list | Owned plants with due status, search (name/species/location), due-status filter, and sort (name / location / soonest due / recently watered) |
+| Plant detail | Plant info, photo (or placeholder), care tips from its `PlantProfile`, "mark as watered" action, watering history with monthly bar chart |
 | Plant form | Create/edit plants; species profiles are managed via the API only (no profile form UI yet) |
 
 ## API Surface Used

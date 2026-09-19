@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import type { PlantInput } from "@/api/types";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PlantForm } from "@/components/PlantForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { splitApiError } from "@/lib/validation";
@@ -13,6 +14,13 @@ export function PlantFormPage() {
 
   return (
     <div className="mx-auto max-w-xl space-y-4">
+      <Breadcrumbs
+        items={[
+          { label: "Home", to: "/" },
+          { label: "Plants", to: "/plants" },
+          { label: isEdit ? "Edit plant" : "Add plant" },
+        ]}
+      />
       <h1 className="text-2xl font-bold">{isEdit ? "Edit plant" : "Add plant"}</h1>
       <Card>
         <CardHeader>

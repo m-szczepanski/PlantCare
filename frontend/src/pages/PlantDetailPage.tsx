@@ -2,10 +2,12 @@ import { useState, useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AlertTriangle, Droplets } from "lucide-react";
 import { CareTipsCard } from "@/components/CareTipsCard";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { DueStatusBadge } from "@/components/DueStatusBadge";
 import { EmptyState } from "@/components/EmptyState";
 import { PlantDetailSkeleton } from "@/components/PlantDetailSkeleton";
 import { PlantPhoto } from "@/components/PlantPhoto";
+import { WateringHistoryChart } from "@/components/WateringHistoryChart";
 import { ApiError } from "@/api/client";
 import {
   AlertDialog,
@@ -90,6 +92,9 @@ export function PlantDetailPage() {
 
   return (
     <div className="space-y-4">
+      <Breadcrumbs
+        items={[{ label: "Home", to: "/" }, { label: "Plants", to: "/plants" }, { label: plant.nickName }]}
+      />
       <div className="flex items-center justify-between gap-2">
         <h1 className="text-2xl font-bold break-words">{plant.nickName}</h1>
         <DueStatusBadge plant={plant} />
@@ -121,16 +126,19 @@ export function PlantDetailPage() {
         <CardHeader>
           <CardTitle>Watering history</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           {wateringLogs && wateringLogs.length > 0 ? (
-            <ul className="space-y-1 text-sm">
-              {wateringLogs.map((log) => (
-                <li key={log.id} className="flex items-baseline gap-2">
-                  <span className="font-medium">{formatInstant(log.wateredAt, true)}</span>
-                  {log.note ? <span className="text-muted-foreground">{log.note}</span> : null}
-                </li>
-              ))}
-            </ul>
+            <>
+              <WateringHistoryChart logs={wateringLogs} />
+              <ul className="space-y-1 text-sm">
+                {wateringLogs.map((log) => (
+                  <li key={log.id} className="flex items-baseline gap-2">
+                    <span className="font-medium">{formatInstant(log.wateredAt, true)}</span>
+                    {log.note ? <span className="text-muted-foreground">{log.note}</span> : null}
+                  </li>
+                ))}
+              </ul>
+            </>
           ) : (
             <EmptyState
               icon={Droplets}
