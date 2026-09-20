@@ -177,6 +177,13 @@ export interface PlantProfileInput {
   diagnosisChecklist?: string | null;
 }
 
+export interface JournalEntry {
+  id: number;
+  entryDate: string;
+  photoUrl: string | null;
+  text: string | null;
+}
+
 export interface PlantNote {
   id: number;
   createdAt: string;

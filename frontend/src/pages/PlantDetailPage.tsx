@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { AlertTriangle, Droplets } from "lucide-react";
 import { CareTasksCard } from "@/components/CareTasksCard";
 import { DiagnosticsCard } from "@/components/DiagnosticsCard";
+import { JournalCard } from "@/components/JournalCard";
 import { CareTipsCard } from "@/components/CareTipsCard";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { DueStatusBadge } from "@/components/DueStatusBadge";
@@ -317,6 +318,8 @@ export function PlantDetailPage() {
       </Card>
 
       <CareTasksCard plantId={plantId} />
+
+      <JournalCard plantId={plantId} nickName={plant.nickName} />
 
       <Card>
         <CardHeader>

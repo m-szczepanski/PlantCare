@@ -9,7 +9,7 @@ public sealed record PlantPhotoOptions(string RootPath);
 /// </summary>
 public interface IPlantPhotoStorage
 {
-    Task<string> SaveAsync(int plantId, Stream content, string contentType, CancellationToken cancellationToken = default);
+    Task<string> SaveAsync(int plantId, Stream content, string contentType, string? subdirectory = null, CancellationToken cancellationToken = default);
 
     void DeleteIfManaged(string? photoUrl);
 
@@ -39,7 +39,7 @@ public sealed class PlantPhotoStorage(PlantPhotoOptions options) : IPlantPhotoSt
 
     public static IReadOnlyCollection<string> SupportedContentTypes => AllowedTypes.Keys.ToList();
 
-    public async Task<string> SaveAsync(int plantId, Stream content, string contentType, CancellationToken cancellationToken = default)
+    public async Task<string> SaveAsync(int plantId, Stream content, string contentType, string? subdirectory = null, CancellationToken cancellationToken = default)
     {
         if (!TryGetExtension(contentType, out var extension))
         {
@@ -51,7 +51,10 @@ public sealed class PlantPhotoStorage(PlantPhotoOptions options) : IPlantPhotoSt
             throw new InvalidDataException("Photo exceeds the 5 MB limit.");
         }
 
-        var directory = Path.Combine(options.RootPath, "plants", plantId.ToString());
+        var relative = subdirectory is null
+            ? Path.Combine("plants", plantId.ToString())
+            : Path.Combine("plants", plantId.ToString(), subdirectory);
+        var directory = Path.Combine(options.RootPath, relative);
         Directory.CreateDirectory(directory);
 
         var fileName = $"{Guid.NewGuid():N}{extension}";
@@ -61,7 +64,10 @@ public sealed class PlantPhotoStorage(PlantPhotoOptions options) : IPlantPhotoSt
             await content.CopyToAsync(target, cancellationToken);
         }
 
-        return $"{PublicUrlPrefix}plants/{plantId}/{fileName}";
+        var publicPath = subdirectory is null
+            ? $"{PublicUrlPrefix}plants/{plantId}/{fileName}"
+            : $"{PublicUrlPrefix}plants/{plantId}/{subdirectory}/{fileName}";
+        return publicPath;
     }
 
     public void DeleteIfManaged(string? photoUrl)

@@ -174,7 +174,7 @@ describe("PlantDetailPage", () => {
     const { container } = renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
 
     await screen.findByRole("heading", { name: "Monstera Mike" });
-    const fileInput = container.querySelector<HTMLInputElement>('input[type="file"]');
+    const fileInput = container.querySelector<HTMLInputElement>('input[type="file"].hidden');
     expect(fileInput).not.toBeNull();
 
     fireEvent.change(fileInput!, {
@@ -182,8 +182,9 @@ describe("PlantDetailPage", () => {
     });
 
     await waitFor(() => expect(plantsApi.uploadPhoto).toHaveBeenCalledWith(1, expect.any(File)));
-    const img = await screen.findByRole("img", { name: "Monstera Mike" });
-    expect(img).toHaveAttribute("src", "/uploads/plants/1/new.png");
+    await waitFor(() =>
+      expect(container.querySelector('img[src="/uploads/plants/1/new.png"]')).not.toBeNull(),
+    );
   });
 
   it("gives the phone action buttons touch-friendly targets", async () => {

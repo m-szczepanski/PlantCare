@@ -292,7 +292,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         string photoUrl;
         try
         {
-            photoUrl = await photos.SaveAsync(id, content, contentType ?? string.Empty, cancellationToken);
+            photoUrl = await photos.SaveAsync(id, content, contentType ?? string.Empty, null, cancellationToken);
         }
         catch (InvalidDataException ex)
         {
