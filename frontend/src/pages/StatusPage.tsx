@@ -18,6 +18,15 @@ const outcomeLabels: Record<string, string> = {
   "delivery-failed": "delivery failed",
 };
 
+function readText(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(file);
+  });
+}
+
 function formatInstant(value: string): string {
   const date = new Date(value.endsWith("Z") ? value : `${value}Z`);
   return date.toLocaleString();
@@ -31,7 +40,7 @@ export function StatusPage() {
   async function handleImport(file: File) {
     setImporting(true);
     try {
-      const document: unknown = JSON.parse(await new Response(file).text());
+      const document: unknown = JSON.parse(await readText(file));
       const result = await backupApi.importDocument(document);
       toast.success("Import finished", { description: describeImport(result) });
     } catch (err) {
