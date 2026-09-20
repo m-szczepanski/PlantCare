@@ -147,7 +147,7 @@
     "removePhoto": "Remove",
     "photoHint": "JPEG, PNG, WebP or GIF, up to 5 MB.",
     "photoTooLarge": "The photo is larger than {{max}} MB.",
-    "photoBadType": "Unsupported photo type - use JPEG, PNG, WebP or GIF.",
+    "photoBadType": "Unsupported photo type - use JPEG, PNG, WebP or GIF (HEIC is not supported).",
     "noSchedulePreview": "No watering schedule — pick a profile or set an interval.",
     "nextDuePreview": "Next watering due: {{date}} ({{when}})",
     "today": "today",

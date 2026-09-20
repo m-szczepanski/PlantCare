@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 import { AlertTriangle, Droplets } from "lucide-react";
 import { CareTasksCard } from "@/components/CareTasksCard";
 import { DiagnosticsCard } from "@/components/DiagnosticsCard";
@@ -12,6 +13,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { PlantDetailSkeleton } from "@/components/PlantDetailSkeleton";
 import { RoomLightBadge } from "@/components/RoomLightBadge";
 import { PlantPhoto } from "@/components/PlantPhoto";
+import { PHOTO_MAX_BYTES, photoFileError } from "@/components/PhotoPicker";
 import { WateringHistoryChart } from "@/components/WateringHistoryChart";
 import { ApiError } from "@/api/client";
 import {
@@ -364,10 +366,14 @@ export function PlantDetailPage() {
           className="hidden"
           onChange={(event) => {
             const file = event.target.files?.[0];
-            if (file) {
-              uploadPhoto.mutate(file);
-            }
             event.target.value = "";
+            if (!file) return;
+            const errorKey = photoFileError(file);
+            if (errorKey) {
+              toast.error(i18n.t("toasts.photoUploadFailed"), { description: i18n.t(errorKey, { max: PHOTO_MAX_BYTES / 1024 / 1024 }) });
+              return;
+            }
+            uploadPhoto.mutate(file);
           }}
         />
         <Button onClick={waterNow} disabled={waterPlant.isPending} className={touchButton}>

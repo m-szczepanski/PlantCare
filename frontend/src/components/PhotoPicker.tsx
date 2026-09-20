@@ -7,6 +7,14 @@ import { touchButton } from "@/lib/ui";
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 export const PHOTO_MAX_BYTES = 5 * 1024 * 1024;
 
+export type PhotoFileErrorKey = "form.photoBadType" | "form.photoTooLarge";
+
+export function photoFileError(file: File): PhotoFileErrorKey | null {
+  if (!ACCEPTED_TYPES.includes(file.type)) return "form.photoBadType";
+  if (file.size > PHOTO_MAX_BYTES) return "form.photoTooLarge";
+  return null;
+}
+
 export interface PhotoPickerProps {
   currentUrl: string | null;
   nickName: string;
@@ -36,12 +44,9 @@ export function PhotoPicker({ currentUrl, nickName, value, onChange }: PhotoPick
       onChange(null);
       return;
     }
-    if (!ACCEPTED_TYPES.includes(file.type)) {
-      setError(t("form.photoBadType"));
-      return;
-    }
-    if (file.size > PHOTO_MAX_BYTES) {
-      setError(t("form.photoTooLarge", { max: PHOTO_MAX_BYTES / 1024 / 1024 }));
+    const errorKey = photoFileError(file);
+    if (errorKey) {
+      setError(t(errorKey, { max: PHOTO_MAX_BYTES / 1024 / 1024 }));
       return;
     }
     onChange(file);
