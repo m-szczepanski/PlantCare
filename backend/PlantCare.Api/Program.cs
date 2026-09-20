@@ -28,6 +28,7 @@ builder.Services.AddScoped<IPlantProfileService, PlantProfileService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<ICareTaskService, CareTaskService>();
 builder.Services.AddScoped<IJournalService, JournalService>();
+builder.Services.AddScoped<IExportImportService, ExportImportService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<ICalendarService, CalendarService>();
 builder.Services.AddScoped<IInsightsService, InsightsService>();
