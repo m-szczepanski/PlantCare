@@ -1,5 +1,21 @@
 export type PlantDueStatus = "NotScheduled" | "Overdue" | "DueToday" | "Upcoming";
 
+export type CareTaskType = "Watering" | "Fertilizing";
+
+export interface CareTask {
+  id: number;
+  type: CareTaskType;
+  intervalDays: number | null;
+  lastDoneAt: string | null;
+  reduceInWinter: boolean | null;
+  dueStatus: PlantDueStatus;
+  daysUntilDue: number | null;
+  nextDueDate: string | null;
+  dueMessage: string;
+  inWinterNow: boolean;
+  hint: string | null;
+}
+
 export type LightRequirement = "Low" | "Medium" | "Bright" | "DirectSun";
 
 export type RoomOrientation = "North" | "East" | "South" | "West";

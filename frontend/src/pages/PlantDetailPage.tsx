@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AlertTriangle, Droplets } from "lucide-react";
+import { CareTasksCard } from "@/components/CareTasksCard";
 import { CareTipsCard } from "@/components/CareTipsCard";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { DueStatusBadge } from "@/components/DueStatusBadge";
@@ -239,6 +240,8 @@ export function PlantDetailPage() {
           </div>
         </CardContent>
       </Card>
+
+      <CareTasksCard plantId={plantId} />
 
       <Card>
         <CardHeader>

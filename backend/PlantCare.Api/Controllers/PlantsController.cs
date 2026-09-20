@@ -91,6 +91,22 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks) 
         return tasks is null ? NotFound() : Ok(tasks);
     }
 
+    [HttpPost("{id:int}/care-tasks")]
+    public async Task<ActionResult<CareTaskResponseDto>> CreateCareTask(int id, CreateCareTaskRequestDto dto, CancellationToken cancellationToken)
+    {
+        var result = await careTasks.CreateAsync(id, dto.Type, dto.IntervalDays, dto.ReduceInWinter, cancellationToken);
+        return result.Status switch
+        {
+            CareTaskWriteStatus.NotFound => NotFound(),
+            CareTaskWriteStatus.AlreadyExists => Conflict(new ProblemDetails { Title = "This plant already has that care task." }),
+            _ => Created($"/api/plants/{id}/care-tasks", result.Task),
+        };
+    }
+
+    [HttpDelete("{id:int}/care-tasks/{taskId:int}")]
+    public async Task<IActionResult> DeleteCareTask(int id, int taskId, CancellationToken cancellationToken)
+        => await careTasks.DeleteAsync(id, taskId, cancellationToken) ? NoContent() : NotFound();
+
     [HttpPost("{id:int}/care-tasks/{type}/done")]
     public async Task<ActionResult<CareTaskResponseDto>> MarkCareTaskDone(int id, string type, WaterPlantRequestDto? dto, CancellationToken cancellationToken)
     {

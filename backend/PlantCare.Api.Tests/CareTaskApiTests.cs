@@ -122,6 +122,40 @@ public class CareTaskApiTests : IDisposable
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
+    [Fact]
+    public async Task Fertilizing_AddListMarkDoneAndRemove()
+    {
+        var plant = await CreatePlant();
+
+        var created = await _client.PostAsJsonAsync(
+            $"/api/plants/{plant.Id}/care-tasks",
+            new { type = "Fertilizing", intervalDays = 30, reduceInWinter = true },
+            Options);
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        var task = await created.Content.ReadFromJsonAsync<CareTaskResponseDto>(Options);
+
+        var tasks = await _client.GetFromJsonAsync<List<CareTaskResponseDto>>($"/api/plants/{plant.Id}/care-tasks", Options);
+        Assert.Equal(2, tasks!.Count);
+        Assert.Contains("Fertilizing", tasks.Select(t => t.Type.ToString()));
+
+        var done = await _client.PostAsJsonAsync($"/api/plants/{plant.Id}/care-tasks/fertilizing/done", new { }, Options);
+        done.EnsureSuccessStatusCode();
+        var doneTask = await done.Content.ReadFromJsonAsync<CareTaskResponseDto>(Options);
+        Assert.NotNull(doneTask!.LastDoneAt);
+
+        var duplicate = await _client.PostAsJsonAsync(
+            $"/api/plants/{plant.Id}/care-tasks",
+            new { type = "Fertilizing", intervalDays = 14 },
+            Options);
+        Assert.Equal(HttpStatusCode.Conflict, duplicate.StatusCode);
+
+        var delete = await _client.DeleteAsync($"/api/plants/{plant.Id}/care-tasks/{task!.Id}");
+        Assert.Equal(HttpStatusCode.NoContent, delete.StatusCode);
+
+        var remaining = await _client.GetFromJsonAsync<List<CareTaskResponseDto>>($"/api/plants/{plant.Id}/care-tasks", Options);
+        Assert.Equal("Watering", Assert.Single(remaining!).Type.ToString());
+    }
+
     public void Dispose()
     {
         _client.Dispose();

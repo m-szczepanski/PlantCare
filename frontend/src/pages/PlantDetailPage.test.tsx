@@ -17,6 +17,10 @@ vi.mock("@/api/client", () => ({
     uploadPhoto: vi.fn(),
     notes: vi.fn(),
     addNote: vi.fn(),
+    careTasks: vi.fn(),
+    addCareTask: vi.fn(),
+    deleteCareTask: vi.fn(),
+    markCareTaskDone: vi.fn(),
   },
   ApiError: class ApiError extends Error {},
 }));
@@ -56,6 +60,21 @@ describe("PlantDetailPage", () => {
       { id: 9, createdAt: "2026-03-02T10:00:00Z", text: "New leaf unfurling" },
     ]);
     vi.mocked(plantsApi.addNote).mockReset();
+    vi.mocked(plantsApi.careTasks).mockReset().mockResolvedValue([
+      {
+        id: 1,
+        type: "Watering",
+        intervalDays: 7,
+        lastDoneAt: null,
+        reduceInWinter: null,
+        dueStatus: "Upcoming",
+        daysUntilDue: 7,
+        nextDueDate: "2026-03-11T00:00:00",
+        dueMessage: "7 days until due",
+        inWinterNow: false,
+        hint: null,
+      },
+    ]);
     vi.mocked(plantsApi.water).mockReset().mockResolvedValue({
       ...plant,
       lastWateredAt: "2026-03-04T10:00:00",
@@ -209,6 +228,60 @@ describe("PlantDetailPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Add note" }));
 
     await waitFor(() => expect(plantsApi.addNote).toHaveBeenCalledWith(1, "Yellowing tip"));
+  });
+
+  it("lists care tasks with due info and marks them done", async () => {
+    vi.mocked(plantsApi.markCareTaskDone).mockResolvedValue({
+      id: 1,
+      type: "Watering",
+      intervalDays: 7,
+      lastDoneAt: new Date().toISOString(),
+      reduceInWinter: null,
+      dueStatus: "Upcoming",
+      daysUntilDue: 7,
+      nextDueDate: "2026-03-11T00:00:00",
+      dueMessage: "7 days until due",
+      inWinterNow: false,
+      hint: null,
+    });
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    expect(await screen.findByText("Watering")).toBeInTheDocument();
+    expect(screen.getByText("7 days until due")).toBeInTheDocument();
+
+    fireEvent.click(screen.getAllByRole("button", { name: "Mark done" })[0]);
+    await waitFor(() => expect(plantsApi.markCareTaskDone).toHaveBeenCalledWith(1, "Watering"));
+  });
+
+  it("adds a fertilizing schedule", async () => {
+    vi.mocked(plantsApi.addCareTask).mockResolvedValue({
+      id: 2,
+      type: "Fertilizing",
+      intervalDays: 30,
+      lastDoneAt: null,
+      reduceInWinter: true,
+      dueStatus: "NotScheduled",
+      daysUntilDue: null,
+      nextDueDate: null,
+      dueMessage: "No watering schedule",
+      inWinterNow: false,
+      hint: null,
+    });
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    await screen.findByText("Watering");
+    fireEvent.change(screen.getByLabelText("Every (days)"), { target: { value: "30" } });
+    fireEvent.click(screen.getByRole("button", { name: "Add fertilizing" }));
+
+    await waitFor(() =>
+      expect(plantsApi.addCareTask).toHaveBeenCalledWith(1, {
+        type: "Fertilizing",
+        intervalDays: 30,
+        reduceInWinter: true,
+      }),
+    );
   });
 
   it("marks the plant as watered through the API client", async () => {

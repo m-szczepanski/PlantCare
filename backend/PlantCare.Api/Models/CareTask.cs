@@ -3,6 +3,7 @@ namespace PlantCare.Api.Models;
 public enum CareTaskType
 {
     Watering,
+    Fertilizing,
 }
 
 public enum WateringMethod

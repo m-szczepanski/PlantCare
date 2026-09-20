@@ -9,6 +9,7 @@ export const plantKeys = {
   detail: (id: number) => ["plants", id] as const,
   wateringLogs: (id: number) => ["plants", id, "watering-logs"] as const,
   notes: (id: number) => ["plants", id, "notes"] as const,
+  careTasks: (id: number) => ["plants", id, "care-tasks"] as const,
 };
 
 function optimisticWatered(plant: Plant): Plant {
@@ -137,6 +138,54 @@ export function useWateringLogs(id: number) {
     queryFn: () => plantsApi.wateringLogs(id),
     enabled: Number.isInteger(id),
   });
+}
+
+export function useCareTasks(id: number) {
+  return useQuery({
+    queryKey: plantKeys.careTasks(id),
+    queryFn: () => plantsApi.careTasks(id),
+    enabled: Number.isInteger(id),
+  });
+}
+
+export function useCareTaskMutations(id: number) {
+  const queryClient = useQueryClient();
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: plantKeys.careTasks(id) });
+    queryClient.invalidateQueries({ queryKey: plantKeys.all });
+    queryClient.invalidateQueries({ queryKey: plantKeys.detail(id) });
+    queryClient.invalidateQueries({ queryKey: plantKeys.wateringLogs(id) });
+  };
+
+  const add = useMutation({
+    mutationFn: (input: { type: "Fertilizing"; intervalDays: number; reduceInWinter?: boolean }) =>
+      plantsApi.addCareTask(id, input),
+    onSuccess: (task) => {
+      invalidate();
+      toast.success(`${task.type} schedule added`);
+    },
+    onError: (error) => toastError("Could not add care task", error),
+  });
+
+  const remove = useMutation({
+    mutationFn: (taskId: number) => plantsApi.deleteCareTask(id, taskId),
+    onSuccess: () => {
+      invalidate();
+      toast.success("Care task removed");
+    },
+    onError: (error) => toastError("Could not remove care task", error),
+  });
+
+  const markDone = useMutation({
+    mutationFn: (type: "Watering" | "Fertilizing") => plantsApi.markCareTaskDone(id, type),
+    onSuccess: (task) => {
+      invalidate();
+      toast.success(`${task.type} marked done`);
+    },
+    onError: (error) => toastError("Could not mark task done", error),
+  });
+
+  return { add, remove, markDone };
 }
 
 export function usePlantNotes(id: number) {

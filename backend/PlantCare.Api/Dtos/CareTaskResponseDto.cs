@@ -1,5 +1,5 @@
+using System.ComponentModel.DataAnnotations;
 using PlantCare.Api.Models;
-
 namespace PlantCare.Api.Dtos;
 
 public class CareTaskResponseDto
@@ -23,4 +23,18 @@ public class CareTaskResponseDto
     public required string DueMessage { get; set; }
 
     public required bool InWinterNow { get; set; }
+
+    /// <summary>Seasonal or flush reminder for this task, if any.</summary>
+    public string? Hint { get; set; }
+}
+
+public class CreateCareTaskRequestDto
+{
+    [Required]
+    public PlantCare.Api.Models.CareTaskType Type { get; set; }
+
+    [Range(1, 3650)]
+    public int IntervalDays { get; set; }
+
+    public bool ReduceInWinter { get; set; }
 }
