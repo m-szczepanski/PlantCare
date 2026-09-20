@@ -90,8 +90,14 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 
 ### App Shell
 
-- `src/components/AppShell.tsx` is the single layout wrapper (used by `App.tsx`): a persistent shadcn sidebar with the brand and the main nav (Dashboard / Calendar / Insights / Plants / Add plant — future entries like Rooms/Settings go here), an active-item state driven by the route, a sticky top bar on mobile (sidebar trigger + brand), and the theme toggle. `/wall` deliberately renders outside the shell.
+- `src/components/AppShell.tsx` is the single layout wrapper (used by `App.tsx`): a persistent shadcn sidebar with the brand and the main nav (Dashboard / Calendar / Insights / Rooms / Profiles / Status / Plants / Add plant), an active-item state driven by the route, a sticky top bar on mobile (sidebar trigger + brand), and the theme + language toggles. `/wall` deliberately renders outside the shell.
 - The responsive "is mobile" state comes from `src/hooks/use-mobile.tsx` (shadcn's `useIsMobile`).
+
+### First-Run Setup
+
+- `SetupGate` (`src/components/SetupGate.tsx`) wraps the shell in `App.tsx`: on load it reads the shared `["plants"]`/`["rooms"]` queries; when **both lists are empty** the app is treated as launching for the first time and `SetupWizard` replaces the shell (API failures fall through to the normal app). The decision is latched per page load so the wizard never unmounts mid-flow; on finish the gate invalidates all queries and renders the shell. Rooms/plants are never auto-created anywhere (the startup seed is the species profile catalog only), so a fresh database is exactly what triggers the wizard.
+- `SetupWizard` (`src/components/SetupWizard.tsx`) is a five-step card flow: Welcome → Rooms → Plants → Theme & language → All set. Rooms step reuses `useCreateRoom`/`useDeleteRoom` (name only; orientation/environment stay on `/rooms`); Plants step embeds the full `PlantForm` (remounted via `key` after each successful create so several plants can be added in a row); the preferences step writes through the existing `useTheme().setTheme` and `setLanguage()` (same `localStorage` keys as the shell toggles). Rooms/Plants steps can be skipped; the finish step summarizes the counts. All strings live under the `setup.*` i18n keys (`en`/`pl`), with Polish plural forms for the "N plants added" line.
+
 
 ### Internationalization (i18n)
 
