@@ -59,10 +59,9 @@ describe("StatusPage", () => {
     const file = new File([JSON.stringify({ schemaVersion: 1 })], "backup.json", {
       type: "application/json",
     });
-    const { container } = renderWithProvidersRef.current!;
     const input = container.querySelector<HTMLInputElement>('input[type="file"].hidden');
     expect(input).not.toBeNull();
-    fireEvent.change(input, { target: { files: [file] } });
+    fireEvent.change(input!, { target: { files: [file] } });
 
     await waitFor(() => expect(backupApi.importDocument).toHaveBeenCalledTimes(1));
   });
