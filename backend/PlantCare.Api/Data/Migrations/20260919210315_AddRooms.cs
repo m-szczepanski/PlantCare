@@ -13,17 +13,17 @@ namespace PlantCare.Api.Data.Migrations
             migrationBuilder.AddColumn<int>(
                 name: "RoomId",
                 table: "Plants",
-                type: "INTEGER",
                 nullable: true);
 
             migrationBuilder.CreateTable(
                 name: "Rooms",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Orientation = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>( nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true)
+                        .Annotation("Npgsql:ValueGenerationStrategy", Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>( nullable: false),
+                    Orientation = table.Column<string>( nullable: true)
                 },
                 constraints: table =>
                 {
@@ -39,17 +39,17 @@ namespace PlantCare.Api.Data.Migrations
             // so no existing plant data is lost by the schema change.
             migrationBuilder.Sql(
                 """
-                INSERT INTO Rooms (Name)
-                SELECT DISTINCT TRIM(Location) FROM Plants
-                WHERE Location IS NOT NULL AND TRIM(Location) <> ''
+                INSERT INTO "Rooms" ("Name")
+                SELECT DISTINCT TRIM("Location") FROM "Plants"
+                WHERE "Location" IS NOT NULL AND TRIM("Location") <> ''
                 """);
 
             migrationBuilder.Sql(
                 """
-                UPDATE Plants SET RoomId = (
-                    SELECT Rooms.Id FROM Rooms WHERE Rooms.Name = TRIM(Plants.Location)
+                UPDATE "Plants" SET "RoomId" = (
+                    SELECT "Rooms"."Id" FROM "Rooms" WHERE "Rooms"."Name" = TRIM("Plants"."Location")
                 )
-                WHERE Location IS NOT NULL AND TRIM(Location) <> ''
+                WHERE "Location" IS NOT NULL AND TRIM("Location") <> ''
                 """);
 
             migrationBuilder.CreateIndex(
@@ -85,14 +85,13 @@ namespace PlantCare.Api.Data.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "Location",
                 table: "Plants",
-                type: "TEXT",
                 nullable: false,
                 defaultValue: "");
 
             migrationBuilder.Sql(
                 """
-                UPDATE Plants SET Location = COALESCE(
-                    (SELECT Rooms.Name FROM Rooms WHERE Rooms.Id = Plants.RoomId), '')
+                UPDATE "Plants" SET "Location" = COALESCE(
+                    (SELECT "Rooms"."Name" FROM "Rooms" WHERE "Rooms"."Id" = "Plants"."RoomId"), '')
                 """);
 
             migrationBuilder.DropTable(

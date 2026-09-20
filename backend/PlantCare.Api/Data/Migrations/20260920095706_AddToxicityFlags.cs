@@ -13,14 +13,12 @@ namespace PlantCare.Api.Data.Migrations
             migrationBuilder.AddColumn<bool>(
                 name: "ToxicToChildren",
                 table: "PlantProfiles",
-                type: "INTEGER",
                 nullable: false,
                 defaultValue: false);
 
             migrationBuilder.AddColumn<bool>(
                 name: "ToxicToPets",
                 table: "PlantProfiles",
-                type: "INTEGER",
                 nullable: false,
                 defaultValue: false);
         }

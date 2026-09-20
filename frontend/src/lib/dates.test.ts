@@ -13,6 +13,12 @@ describe("formatInstant", () => {
     );
   });
 
+  it("passes through values that already carry a timezone designator", () => {
+    expect(formatInstant("2026-09-20T13:36:35+02:00")).toBe(
+      new Date("2026-09-20T13:36:35+02:00").toLocaleString(),
+    );
+  });
+
   it("handles null", () => {
     expect(formatInstant(null)).toBe("-");
   });

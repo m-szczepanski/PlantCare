@@ -13,19 +13,16 @@ namespace PlantCare.Api.Data.Migrations
             migrationBuilder.AddColumn<int>(
                 name: "PotSizeCm",
                 table: "Plants",
-                type: "INTEGER",
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "PropagatedFrom",
                 table: "Plants",
-                type: "TEXT",
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "SoilMix",
                 table: "Plants",
-                type: "TEXT",
                 nullable: true);
         }
 

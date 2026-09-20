@@ -15,6 +15,21 @@ services:
     ports:
       - "5001:8080"
 
+  db:
+    image: postgres:17-alpine
+    profiles: ["postgres"]
+    environment:
+      POSTGRES_DB: plantcare
+      POSTGRES_USER: plantcare
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-plantcare-dev}
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U plantcare -d plantcare"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   web:
     build: ./frontend
     ports:
@@ -35,4 +50,5 @@ services:
 volumes:
   plant-data:
   plant-photos:
+  pg-data:
   ntfy-data:

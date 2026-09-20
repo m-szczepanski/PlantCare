@@ -17,7 +17,6 @@ namespace PlantCare.Api.Data.Migrations
             migrationBuilder.AddColumn<bool>(
                 name: "NotifyEnabled",
                 table: "Plants",
-                type: "INTEGER",
                 nullable: false,
                 defaultValue: false);
 
@@ -25,12 +24,13 @@ namespace PlantCare.Api.Data.Migrations
                 name: "NotificationDigests",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    SentAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    PlantCount = table.Column<int>(type: "INTEGER", nullable: false),
-                    OverdueCount = table.Column<int>(type: "INTEGER", nullable: false),
-                    Priority = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>( nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true)
+                        .Annotation("Npgsql:ValueGenerationStrategy", Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SentAt = table.Column<DateTime>( nullable: false),
+                    PlantCount = table.Column<int>( nullable: false),
+                    OverdueCount = table.Column<int>( nullable: false),
+                    Priority = table.Column<int>( nullable: false)
                 },
                 constraints: table =>
                 {
@@ -57,11 +57,12 @@ namespace PlantCare.Api.Data.Migrations
                 name: "NotificationLogs",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    PlantId = table.Column<int>(type: "INTEGER", nullable: false),
-                    SentAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Type = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>( nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true)
+                        .Annotation("Npgsql:ValueGenerationStrategy", Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PlantId = table.Column<int>( nullable: false),
+                    SentAt = table.Column<DateTime>( nullable: false),
+                    Type = table.Column<string>( nullable: false)
                 },
                 constraints: table =>
                 {

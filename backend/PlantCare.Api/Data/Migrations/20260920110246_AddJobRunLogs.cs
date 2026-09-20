@@ -15,13 +15,14 @@ namespace PlantCare.Api.Data.Migrations
                 name: "JobRuns",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    RanAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    SentDigests = table.Column<int>(type: "INTEGER", nullable: false),
-                    SkippedDuplicates = table.Column<int>(type: "INTEGER", nullable: false),
-                    Failed = table.Column<int>(type: "INTEGER", nullable: false),
-                    Outcome = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>( nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true)
+                        .Annotation("Npgsql:ValueGenerationStrategy", Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RanAt = table.Column<DateTime>( nullable: false),
+                    SentDigests = table.Column<int>( nullable: false),
+                    SkippedDuplicates = table.Column<int>( nullable: false),
+                    Failed = table.Column<int>( nullable: false),
+                    Outcome = table.Column<string>( nullable: false)
                 },
                 constraints: table =>
                 {

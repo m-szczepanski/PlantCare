@@ -14,12 +14,13 @@ namespace PlantCare.Api.Data.Migrations
                 name: "CareTasks",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    PlantId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Type = table.Column<string>(type: "TEXT", nullable: false),
-                    IntervalDays = table.Column<int>(type: "INTEGER", nullable: true),
-                    LastDoneAt = table.Column<DateTime>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>( nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true)
+                        .Annotation("Npgsql:ValueGenerationStrategy", Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PlantId = table.Column<int>( nullable: false),
+                    Type = table.Column<string>( nullable: false),
+                    IntervalDays = table.Column<int>( nullable: true),
+                    LastDoneAt = table.Column<DateTime>( nullable: true)
                 },
                 constraints: table =>
                 {
@@ -36,11 +37,12 @@ namespace PlantCare.Api.Data.Migrations
                 name: "CareTaskLogs",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    CareTaskId = table.Column<int>(type: "INTEGER", nullable: false),
-                    DoneAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Note = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>( nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true)
+                        .Annotation("Npgsql:ValueGenerationStrategy", Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CareTaskId = table.Column<int>( nullable: false),
+                    DoneAt = table.Column<DateTime>( nullable: false),
+                    Note = table.Column<string>( nullable: true)
                 },
                 constraints: table =>
                 {
@@ -67,17 +69,17 @@ namespace PlantCare.Api.Data.Migrations
             // Carry every plant's watering schedule (interval override + last watered) into a typed task...
             migrationBuilder.Sql(
                 """
-                INSERT INTO CareTasks (PlantId, Type, IntervalDays, LastDoneAt)
-                SELECT Id, 'Watering', CustomWateringIntervalDays, LastWateredAt FROM Plants
+                INSERT INTO "CareTasks" ("PlantId", "Type", "IntervalDays", "LastDoneAt")
+                SELECT "Id", 'Watering', "CustomWateringIntervalDays", "LastWateredAt" FROM "Plants"
                 """);
 
             // ...and move the whole watering history into the generic task log before dropping the old tables/columns.
             migrationBuilder.Sql(
                 """
-                INSERT INTO CareTaskLogs (CareTaskId, DoneAt, Note)
-                SELECT ct.Id, w.WateredAt, w.Note
-                FROM WateringLogs w
-                JOIN CareTasks ct ON ct.PlantId = w.PlantId AND ct.Type = 'Watering'
+                INSERT INTO "CareTaskLogs" ("CareTaskId", "DoneAt", "Note")
+                SELECT ct."Id", w."WateredAt", w."Note"
+                FROM "WateringLogs" w
+                JOIN "CareTasks" ct ON ct."PlantId" = w."PlantId" AND ct."Type" = 'Watering'
                 """);
 
             migrationBuilder.DropTable(
@@ -98,31 +100,30 @@ namespace PlantCare.Api.Data.Migrations
             migrationBuilder.AddColumn<int>(
                 name: "CustomWateringIntervalDays",
                 table: "Plants",
-                type: "INTEGER",
                 nullable: true);
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "LastWateredAt",
                 table: "Plants",
-                type: "TEXT",
                 nullable: true);
 
             migrationBuilder.Sql(
                 """
-                UPDATE Plants SET
-                    CustomWateringIntervalDays = (SELECT ct.IntervalDays FROM CareTasks ct WHERE ct.PlantId = Plants.Id AND ct.Type = 'Watering'),
-                    LastWateredAt = (SELECT ct.LastDoneAt FROM CareTasks ct WHERE ct.PlantId = Plants.Id AND ct.Type = 'Watering')
+                UPDATE "Plants" SET
+                    "CustomWateringIntervalDays" = (SELECT ct."IntervalDays" FROM "CareTasks" ct WHERE ct."PlantId" = "Plants"."Id" AND ct."Type" = 'Watering'),
+                    "LastWateredAt" = (SELECT ct."LastDoneAt" FROM "CareTasks" ct WHERE ct."PlantId" = "Plants"."Id" AND ct."Type" = 'Watering')
                 """);
 
             migrationBuilder.CreateTable(
                 name: "WateringLogs",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    PlantId = table.Column<int>(type: "INTEGER", nullable: false),
-                    WateredAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Note = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>( nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true)
+                        .Annotation("Npgsql:ValueGenerationStrategy", Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PlantId = table.Column<int>( nullable: false),
+                    WateredAt = table.Column<DateTime>( nullable: false),
+                    Note = table.Column<string>( nullable: true)
                 },
                 constraints: table =>
                 {
@@ -137,11 +138,11 @@ namespace PlantCare.Api.Data.Migrations
 
             migrationBuilder.Sql(
                 """
-                INSERT INTO WateringLogs (PlantId, WateredAt, Note)
-                SELECT ct.PlantId, l.DoneAt, l.Note
-                FROM CareTaskLogs l
-                JOIN CareTasks ct ON ct.Id = l.CareTaskId
-                WHERE ct.Type = 'Watering'
+                INSERT INTO "WateringLogs" ("PlantId", "WateredAt", "Note")
+                SELECT ct."PlantId", l."DoneAt", l."Note"
+                FROM "CareTaskLogs" l
+                JOIN "CareTasks" ct ON ct."Id" = l."CareTaskId"
+                WHERE ct."Type" = 'Watering'
                 """);
 
             migrationBuilder.DropTable(

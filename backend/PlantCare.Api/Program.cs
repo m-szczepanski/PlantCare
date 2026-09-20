@@ -5,10 +5,35 @@ using PlantCare.Api.Data;
 using PlantCare.Api.Seed;
 using PlantCare.Api.Services;
 
+// The API has always exchanged naive-UTC DateTime values (SQLite stored them as
+// strings). Npgsql 6+ rejects Kind=Unspecified for timestamptz parameters, so
+// restore the legacy behavior of reading/writing them as UTC.
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("Default") ?? "Data Source=plantcare.db";
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
+var usePostgres = string.Equals(builder.Configuration["DB_PROVIDER"], "postgres", StringComparison.OrdinalIgnoreCase)
+    || connectionString.Contains("Host=", StringComparison.OrdinalIgnoreCase);
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    if (usePostgres)
+    {
+        options.UseNpgsql(connectionString);
+    }
+    else
+    {
+        options.UseSqlite(connectionString);
+    }
+
+    // The migration history is provider-portable (no hard-coded column types); the
+    // snapshot was produced by the SQLite provider, so the pending-model check fires
+    // against Npgsql's type defaults for the same schema. SQLite keeps the guard.
+    if (usePostgres)
+    {
+        options.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+    }
+});
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddOpenApi();
@@ -62,7 +87,22 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await db.Database.MigrateAsync();
+
+    // With the optional `postgres` compose profile the database container may start
+    // slightly after the API; retry instead of crash-looping.
+    for (var attempt = 1; ; attempt += 1)
+    {
+        try
+        {
+            await db.Database.MigrateAsync();
+            break;
+        }
+        catch (Exception ex) when (usePostgres && attempt < 10)
+        {
+            app.Logger.LogWarning(ex, "Database not ready (attempt {Attempt}); retrying migration.", attempt);
+            await Task.Delay(TimeSpan.FromSeconds(2));
+        }
+    }
 
     var seedFile = Path.Combine(app.Environment.ContentRootPath, "Seed", "plant-profiles.json");
     var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(typeof(SeedLoader).FullName!);

@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { backupApi } from "@/api/client";
 import { useStatus } from "@/hooks/useStatus";
 import { toastError } from "@/lib/toast";
+import { formatInstant } from "@/lib/dates";
 import { touchButton } from "@/lib/ui";
 import type { ImportResult } from "@/api/types";
 
@@ -27,10 +28,7 @@ function readText(file: File): Promise<string> {
   });
 }
 
-function formatInstant(value: string): string {
-  const date = new Date(value.endsWith("Z") ? value : `${value}Z`);
-  return date.toLocaleString();
-}
+
 
 export function StatusPage() {
   const { data: status, isPending, isError, error } = useStatus(30_000);

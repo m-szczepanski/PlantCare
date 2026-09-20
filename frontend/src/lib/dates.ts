@@ -1,9 +1,13 @@
 const DAY_MS = 86_400_000;
 
-// The API stores watering instants as naive UTC strings; without the Z suffix
-// browsers would read them back as local time and the day count would drift.
-function parseInstant(value: string): Date {
-  return new Date(value.endsWith("Z") ? value : `${value}Z`);
+// SQLite answers with naive UTC strings (no suffix); Postgres returns proper
+// ISO offsets. Append Z only when the value carries no timezone designator.
+export function hasTimezoneDesignator(value: string): boolean {
+  return /[zZ]$|[+-]\d{2}:?\d{2}$/.test(value);
+}
+
+export function parseInstant(value: string): Date {
+  return new Date(hasTimezoneDesignator(value) ? value : `${value}Z`);
 }
 
 export function daysSince(value: string | null): number | null {
@@ -20,10 +24,8 @@ export function wateredRelative(value: string | null): string {
   return `Watered ${days} days ago`;
 }
 
-// The API stores instants as naive UTC strings; without the Z suffix browsers
-// read them back as local time and show the wrong moment.
 export function formatInstant(value: string | null | undefined, withTime = true): string {
   if (!value) return "-";
-  const date = new Date(value.endsWith("Z") ? value : `${value}Z`);
+  const date = parseInstant(value);
   return withTime ? date.toLocaleString() : date.toLocaleDateString();
 }

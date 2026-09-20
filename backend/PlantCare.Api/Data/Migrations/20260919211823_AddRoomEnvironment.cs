@@ -13,19 +13,16 @@ namespace PlantCare.Api.Data.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "Humidity",
                 table: "Rooms",
-                type: "TEXT",
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "LightExposure",
                 table: "Rooms",
-                type: "TEXT",
                 nullable: true);
 
             migrationBuilder.AddColumn<int>(
                 name: "TemperatureCelsius",
                 table: "Rooms",
-                type: "INTEGER",
                 nullable: true);
         }
 

@@ -13,7 +13,6 @@ namespace PlantCare.Api.Data.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "DiagnosisChecklist",
                 table: "PlantProfiles",
-                type: "TEXT",
                 nullable: true);
         }
 
