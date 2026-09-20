@@ -1,5 +1,6 @@
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { AppShell } from "@/components/AppShell";
+import { SetupGate } from "@/components/SetupGate";
 import { CalendarPage } from "@/pages/CalendarPage";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { InsightsPage } from "@/pages/InsightsPage";
@@ -13,9 +14,11 @@ import { WallPage } from "@/pages/WallPage";
 
 function Layout() {
   return (
-    <AppShell>
-      <Outlet />
-    </AppShell>
+    <SetupGate>
+      <AppShell>
+        <Outlet />
+      </AppShell>
+    </SetupGate>
   );
 }
 
