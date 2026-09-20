@@ -87,5 +87,185 @@
     "commonName": "Alokacja Polly",
     "humidityNotes": "Wymaga wysokiej wilgotności; w suchym powietrzu szybko zasycha.",
     "careTips": "Jasne, rozproszone światło i przepuszczalne, grube podłoże. Wrażliwa na chłód — trzymaj powyżej 15°C. Zimą w spoczynku — mocno ogranicz podlewanie. Trująca dla zwierząt i dzieci."
+  },
+  {
+    "profile": "Rubber Plant",
+    "commonName": "Fikus elastyczny",
+    "humidityNotes": "Wilgotność przeciętna, pokojowa wystarczy; doceni okazjonalne zraszanie.",
+    "careTips": "Jasne, rozproszone światło; obracaj dla równomiernego wzrostu. Podlewaj, gdy wierzchnia warstwa podłoża przeschnie, i przecieraj zakurzone liście. Nie lubi zimnych przeciągów."
+  },
+  {
+    "profile": "Boston Fern",
+    "commonName": "Paproć bostońska",
+    "humidityNotes": "Silnie preferuje wysoką wilgotność; suche powietrze brązowi liście.",
+    "careTips": "Utrzymuj podłoże równomiernie wilgotne, ale nie mokre. Świetnie sprawdzi się jasna łazienka lub podstawka z kamykami. Uschnięte liście przycinaj przy podstawie."
+  },
+  {
+    "profile": "Madagascar Dragon Tree",
+    "commonName": "Dracena smocza",
+    "humidityNotes": "Wilgotność przeciętna; brązowe końcówki zwykle oznaczają suche powietrze lub sole z wody wodociągowej.",
+    "careTips": "Podlewaj, gdy wierzchnie kilka centymetrów podłoża przeschnie. Wrażliwa na fluor w wodzie z kranu - przefiltrowana woda zapobiega zasychaniu końcówek."
+  },
+  {
+    "profile": "String of Pearls",
+    "commonName": "Sznur pereł",
+    "humidityNotes": "Woli suche powietrze; zwykłe warunki pokojowe są idealne.",
+    "careTips": "Podlewaj oszczędnie - pulchne „perły” magazynują wodę. Dawaj jasne światło i bardzo przepuszczalne podłoże. Ukorzenia się łatwo: przyłóż pęd do wilgotnego podłoża."
+  },
+  {
+    "profile": "Echeveria",
+    "commonName": "Echeveria",
+    "humidityNotes": "Nie wymaga wilgotności; lubi suche powietrze.",
+    "careTips": "Dużo bezpośredniego słońca, rzadkie podlewanie i szybko przesychające podłoże utrzymują zwartą rozetę. Podlewaj przy podstawie, nie do środka rozety."
+  },
+  {
+    "profile": "Zebra Haworthia",
+    "commonName": "Haworsja wąskolistna",
+    "humidityNotes": "Woli suche powietrze; zwyczajne warunki pokojowe jej odpowiadają.",
+    "careTips": "Obficie podlej, a potem pozwól podłożu całkiem przeschnąć. Znosi cień niż większość sukulentów. Odmrostki przesadzaj przez cały rok."
+  },
+  {
+    "profile": "Parlor Palm",
+    "commonName": "Chamedora wytworna",
+    "humidityNotes": "Docenia wilgotność; zimą przy kaloryferach zraszaj.",
+    "careTips": "Jedna z najlepszych palm do półcienia. Utrzymuj lekką wilgoć podłoża i nawoź co miesiąc w okresie wzrostu. Brązujące wierzchołki oznaczają pragnienie lub suche powietrze."
+  },
+  {
+    "profile": "Money Tree",
+    "commonName": "Pachira wodna",
+    "humidityNotes": "Wilgotność przeciętna, pokojowa wystarczy.",
+    "careTips": "Podlewaj, gdy wierzchnie 5 cm podłoża przeschnie. Jasne, rozproszone światło utrzymuje błyszczące liście. Toleruje mocne cięcie przy formowaniu plecionego pnia."
+  },
+  {
+    "profile": "Philodendron Brasil",
+    "commonName": "Filodendron Brasil",
+    "humidityNotes": "Od przeciętnej do wysokiej; znosi powietrze pokojowe.",
+    "careTips": "Szybka i wybaczająca roślina pnąca. Podlewaj, gdy wierzchnia warstwa przeschnie. Pstra barwa blednie w półcieniu - dla wyrazistych pasów daj więcej światła."
+  },
+  {
+    "profile": "Pink Princess Philodendron",
+    "commonName": "Filodendron Pink Princess",
+    "humidityNotes": "Uwielbia wyższą wilgotność; podstawka z kamykami utrzyma jędrność dużych liści.",
+    "careTips": "Utrzymuj równomierną wilgoć w jasnym świetle - róż pogłębia się z ilością światła. Skracaj długie pędy, aby roślina się rozkrzewiła."
+  },
+  {
+    "profile": "Wax Plant",
+    "commonName": "Hoya woskowana",
+    "humidityNotes": "Zadowala się przeciętnym powietrzem pokojowym.",
+    "careTips": "Traktuj jak sukulent: przesuszaj między podlaniami i daj jasne światło, by zakwitła. Nie obcinaj przekwitłych pędów kwiatostanowych - kolejne kwiaty pojawią się z nich."
+  },
+  {
+    "profile": "String of Hearts",
+    "commonName": "Ceropegia Wooda",
+    "humidityNotes": "Woli powietrze suche do przeciętnego.",
+    "careTips": "Podlewaj, gdy sercowate listki zaczynają się marszczyć. Bulwiaste korzenie nie znoszą mokrego podłoża - użyj grubego, przepuszczalnego substratu."
+  },
+  {
+    "profile": "Baby Rubber Plant",
+    "commonName": "Peperomia okrągłolistna",
+    "humidityNotes": "Wilgotność przeciętna, pokojowa wystarczy.",
+    "careTips": "Błyszcząca, zwarta i łatwa. Pozwól wierzchniej warstwie przeschnąć między podlaniami. Żółknące, opadające liście oznaczają przelanie, nie pragnienie."
+  },
+  {
+    "profile": "Areca Palm",
+    "commonName": "Palma areka",
+    "humidityNotes": "Uwielbia wilgotność; suche powietrze sprzyja przędziorkom.",
+    "careTips": "Utrzymuj równomierną wilgoć w jasnym, filtrowanym świetle. Raz w roku przepłucz podłoże, wypłukując sole nawozowe."
+  },
+  {
+    "profile": "Yucca",
+    "commonName": "Juka",
+    "humidityNotes": "Woli suche powietrze.",
+    "careTips": "Bardzo odporna na suszę: pełne słońce do jasnego światła, obfite podlewanie, a potem całkowite przeschnięcie podłoża. Obracaj, żeby rosła prosto."
+  },
+  {
+    "profile": "Croton",
+    "commonName": "Kodieum pstre",
+    "humidityNotes": "Potrzebuje stałej wilgotności; zraszaj lub użyj podstawki z kamykami.",
+    "careTips": "Kolor zależy od światła: kilka godzin bezpośredniego słońca utrzymuje czerwienie i pomarańcze. Utrzymuj równomierną wilgoć i nie przenoś - źle znosi przeprowadzki."
+  },
+  {
+    "profile": "Dieffenbachia",
+    "commonName": "Diefenbachia pstrowata",
+    "humidityNotes": "Od przeciętnej do wysokiej; zraszanie utrzyma intensywną zieleń liści.",
+    "careTips": "Rośnie szybko i okazale. Podlewaj, gdy wierzchnia warstwa przeschnie. Sok podrażnia skórę i błony śluzowe - trzymaj z dala od dzieci i zwierząt."
+  },
+  {
+    "profile": "Chinese Money Plant",
+    "commonName": "Pilea peperomioides",
+    "humidityNotes": "Wilgotność przeciętna, pokojowa wystarczy.",
+    "careTips": "Obracaj doniczkę co tydzień dla symetrycznego pokroju; podlewaj, gdy wierzchnia warstwa przeschnie. Odmrostki ukorzeniają się w wodzie lub wprost w doniczce."
+  },
+  {
+    "profile": "Burro's Tail",
+    "commonName": "Sedum Morgana (ogon osła)",
+    "humidityNotes": "Woli suche powietrze.",
+    "careTips": "Podlewaj dopiero, gdy łodygi zaczynają się kurczyć. Mięsiste segmenty odpadają przy dotknięciu - przesadzaj rzadko i od razu do głębokiej doniczki."
+  },
+  {
+    "profile": "English Ivy",
+    "commonName": "Bluszcz pospolity",
+    "humidityNotes": "Lubi podwyższoną wilgotność; świetny do chłodnej sypialni.",
+    "careTips": "Woli chłodne pomieszczenie i jasne światło. Między podlaniami przesuszaj wierzchnią warstwę podłoża. W ciepłym, suchym powietrzu sprawdzaj, czy nie ma przędziorków."
+  },
+  {
+    "profile": "Inch Plant",
+    "commonName": "Tradescantia pasiasta",
+    "humidityNotes": "Wilgotność przeciętna, pokojowa wystarczy.",
+    "careTips": "Pnąca, szybka i kolorowa. Szczytkuj regularnie, żeby się rozkrzewiała; podlewaj, gdy wierzchnia warstwa przeschnie. W półcieniu fioletowo-srebrne barwy bledną."
+  },
+  {
+    "profile": "Prayer Plant",
+    "commonName": "Maranta czerwonkowa (roślina modlitewna)",
+    "humidityNotes": "Potrzebuje stałej wilgotności; suche powietrze ususza brzegi liści.",
+    "careTips": "Na noc składa liście. Utrzymuj lekką wilgoć i ciepło - zwinięte liście oznaczają pragnienie albo zimny przeciąg."
+  },
+  {
+    "profile": "Elephant Ear",
+    "commonName": "Kolokazja jadalna",
+    "humidityNotes": "Uwielbia wysoką wilgotność.",
+    "careTips": "W sezonie wzrostu jest spragniona i głodna: utrzymuj wilgoć i nawoź często. Zimą bulwa może odpoczywać w chłodzie i prawie suchym podłożu - obudzi ją podlewanie."
+  },
+  {
+    "profile": "Rex Begonia",
+    "commonName": "Begonia królewska",
+    "humidityNotes": "Uwielbia wilgotność, ale nie zmaczaj omszałych liści.",
+    "careTips": "Hoduj ją dla liści i zrywaj nieciekawe kwiaty. Podłoże ma być ledwo wilgotne - omszałe kłącza łatwo gniją w mokrej ziemi."
+  },
+  {
+    "profile": "Moth Orchid",
+    "commonName": "Falenopsis",
+    "humidityNotes": "Uwielbia wilgotność; grupowanie roślin pomaga.",
+    "careTips": "Raz w tygodniu namocz korę i daj całkowicie odcieknać - nigdy nie zostawiaj naczynia w wodzie. Lekki spadek nocnej temperatury jesienią pobudza nowe pędy kwiatowe."
+  },
+  {
+    "profile": "Norfolk Island Pine",
+    "commonName": "Araukaria wyniosła",
+    "humidityNotes": "Preferuje wysoką wilgotność; brązowe igły oznaczają suche powietrze.",
+    "careTips": "Najlepiej jej w jasnym, chłodnym pomieszczeniu. Utrzymuj lekką wilgoć - nie znosi przesychania - i unikaj nawozów z chlorkami."
+  },
+  {
+    "profile": "Umbrella Plant",
+    "commonName": "Schefflera (drzewko parasolowe)",
+    "humidityNotes": "Wilgotność przeciętna wystarczy; okazjonalne zraszanie pomaga.",
+    "careTips": "Między podlaniami pozwól wierzchniej warstwie przeschnąć. Żółknące, opadające liście to prawie zawsze przelanie. Tnij mocno, żeby pobudzić rozgałęzianie."
+  },
+  {
+    "profile": "Cast Iron Plant",
+    "commonName": "Aspidistra wyniosła",
+    "humidityNotes": "Radzi sobie zarówno w suchym, jak i wilgotnym kącie.",
+    "careTips": "Prawie nie do zabicia: znosi cień, mało wody i kompletne zaniedbanie. Od czasu do czasu przetrzyj liście, a resztę wybaczy."
+  },
+  {
+    "profile": "Asparagus Fern",
+    "commonName": "Szparag gęstokwiatowy (paprociany)",
+    "humidityNotes": "Uwielbia wilgotność; suche powietrze żółci pierzaste gałązki.",
+    "careTips": "Miękka, pierzasta i trochę pragniąca - utrzymuj lekką wilgoć. Czerwone jagody są trujące, nie wolno ich jeść. Starsze pędy wiosną wytnij przy podstawie."
+  },
+  {
+    "profile": "Cordyline",
+    "commonName": "Kordylina krzewiasta",
+    "humidityNotes": "Docenia wilgotność; zimą zraszaj.",
+    "careTips": "Wyraziste, wstęgowe liście potrzebują jasnego światła. Podlewaj, gdy wierzchnia warstwa przeschnie, i używaj wody przefiltrowanej, by końcówki nie brązowiały."
   }
 ]
