@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PhotoPicker } from "@/components/PhotoPicker";
 import { ProfileCombobox } from "@/components/ProfileCombobox";
 import {
   Select,
@@ -30,7 +31,7 @@ export interface PlantFormProps {
   error?: string | null;
   fieldErrors?: Record<string, string>;
   submitLabel: string;
-  onSubmit: (input: PlantInput) => void;
+  onSubmit: (input: PlantInput, photoFile: File | null) => void;
   onCancel: () => void;
 }
 
@@ -44,6 +45,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
   const [roomId, setRoomId] = useState<number | null>(initial?.roomId ?? null);
   const [newRoomName, setNewRoomName] = useState("");
   const [photoUrl, setPhotoUrl] = useState(initial?.photoUrl ?? "");
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [potSizeCm, setPotSizeCm] = useState(initial?.potSizeCm?.toString() ?? "");
   const [soilMix, setSoilMix] = useState(initial?.soilMix ?? "");
   const [propagatedFrom, setPropagatedFrom] = useState(initial?.propagatedFrom ?? "");
@@ -82,20 +84,23 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
     const trimmedInterval = customInterval.trim();
     const intervalDays = trimmedInterval === "" ? null : Number(trimmedInterval);
 
-    onSubmit({
-      nickName: nickName.trim(),
-      roomId,
-      photoUrl: photoUrl.trim() || null,
-      potSizeCm: potSizeCm.trim() === "" ? null : Number(potSizeCm),
-      soilMix: soilMix.trim() || null,
-      propagatedFrom: propagatedFrom.trim() || null,
-      notifyEnabled,
-      acquiredDate: fromDateString(acquiredDate) ?? new Date().toISOString(),
-      plantProfileId: profileId,
-      customWateringIntervalDays: intervalDays !== null && Number.isFinite(intervalDays) ? intervalDays : null,
-      reduceInWinter,
-      lastWateredAt: fromDateString(lastWateredAt),
-    });
+    onSubmit(
+      {
+        nickName: nickName.trim(),
+        roomId,
+        photoUrl: photoUrl.trim() || null,
+        potSizeCm: potSizeCm.trim() === "" ? null : Number(potSizeCm),
+        soilMix: soilMix.trim() || null,
+        propagatedFrom: propagatedFrom.trim() || null,
+        notifyEnabled,
+        acquiredDate: fromDateString(acquiredDate) ?? new Date().toISOString(),
+        plantProfileId: profileId,
+        customWateringIntervalDays: intervalDays !== null && Number.isFinite(intervalDays) ? intervalDays : null,
+        reduceInWinter,
+        lastWateredAt: fromDateString(lastWateredAt),
+      },
+      photoFile,
+    );
   }
 
   return (
@@ -194,18 +199,15 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="lastWateredAt">{t("form.lastWatered")}</Label>
-          <Input
-            id="lastWateredAt"
-            type="date"
-            value={lastWateredAt}
-            onChange={(e) => setLastWateredAt(e.target.value)}
-            aria-invalid={fieldErrors.lastWateredAt ? true : undefined}
-            className={touchField}
+          <Label>{t("form.photo")}</Label>
+          <PhotoPicker
+            currentUrl={photoUrl.trim() || initial?.photoUrl || null}
+            nickName={nickName.trim() || t("form.newPlant")}
+            value={photoFile}
+            onChange={setPhotoFile}
           />
-          <FieldError message={fieldErrors.lastWateredAt} />
         </div>
 
         <div className="space-y-2">
@@ -219,6 +221,21 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
             className={touchField}
           />
           <FieldError message={fieldErrors.photoUrl} />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor="lastWateredAt">{t("form.lastWatered")}</Label>
+          <Input
+            id="lastWateredAt"
+            type="date"
+            value={lastWateredAt}
+            onChange={(e) => setLastWateredAt(e.target.value)}
+            aria-invalid={fieldErrors.lastWateredAt ? true : undefined}
+            className={touchField}
+          />
+          <FieldError message={fieldErrors.lastWateredAt} />
         </div>
       </div>
 

@@ -141,6 +141,13 @@
     "vs": "vs"
   },
   "form": {
+    "photo": "Photo",
+    "choosePhoto": "Choose photo",
+    "changePhoto": "Change photo",
+    "removePhoto": "Remove",
+    "photoHint": "JPEG, PNG, WebP or GIF, up to 5 MB.",
+    "photoTooLarge": "The photo is larger than {{max}} MB.",
+    "photoBadType": "Unsupported photo type - use JPEG, PNG, WebP or GIF.",
     "noSchedulePreview": "No watering schedule — pick a profile or set an interval.",
     "nextDuePreview": "Next watering due: {{date}} ({{when}})",
     "today": "today",
@@ -158,7 +165,7 @@
     "overridesProfile": "Overrides profile",
     "acquiredDate": "Acquired date",
     "lastWatered": "Last watered",
-    "photoUrl": "Photo URL",
+    "photoUrl": "Photo URL (external, advanced)",
     "potSize": "Pot size (cm)",
     "soilMix": "Soil mix",
     "soilMixPlaceholder": "Aroid chunky blend",
@@ -461,7 +468,7 @@
       "removeAria": "Remove {{name}}"
     },
     "plants": {
-      "description": "Add your first plants. Pick a species profile to inherit its watering interval.",
+      "description": "Add your first plants. Pick a species profile to inherit its watering interval; you can attach a photo too.",
       "added_one": "{{count}} plant added so far",
       "added_other": "{{count}} plants added so far"
     },

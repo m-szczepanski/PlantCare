@@ -12,7 +12,7 @@ import {
   setLanguage,
   SUPPORTED_LANGUAGES,
 } from "@/i18n";
-import { useCreatePlant, usePlants } from "@/hooks/usePlants";
+import { useCreatePlant, usePlants, useUploadPlantPhotoToId } from "@/hooks/usePlants";
 import { useCreateRoom, useDeleteRoom, useRooms } from "@/hooks/useRooms";
 import { splitApiError } from "@/lib/validation";
 import { touchButton, touchField } from "@/lib/ui";
@@ -166,6 +166,7 @@ function RoomsStep({ rooms }: { rooms: { id: number; name: string }[] }) {
 function PlantsStep({ plants }: { plants: string[] }) {
   const { t } = useTranslation();
   const createPlant = useCreatePlant();
+  const uploadPhoto = useUploadPlantPhotoToId();
   const split = splitApiError(createPlant.error);
   const [formKey, setFormKey] = useState(0);
 
@@ -183,8 +184,13 @@ function PlantsStep({ plants }: { plants: string[] }) {
         submitting={createPlant.isPending}
         fieldErrors={split.fields}
         submitLabel={t("form.addPlant")}
-        onSubmit={(input: PlantInput) =>
-          createPlant.mutate(input, { onSuccess: () => setFormKey((key) => key + 1) })
+        onSubmit={(input: PlantInput, photoFile: File | null) =>
+          createPlant.mutate(input, {
+            onSuccess: (plant) => {
+              if (photoFile) uploadPhoto.mutate({ id: plant.id, file: photoFile });
+              setFormKey((key) => key + 1);
+            },
+          })
         }
         onCancel={() => setFormKey((key) => key + 1)}
       />

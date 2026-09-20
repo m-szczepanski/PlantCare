@@ -304,10 +304,10 @@ export function useAddPlantNote(id: number) {
   });
 }
 
-export function useUploadPlantPhoto(id: number) {
+export function useUploadPlantPhotoToId() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (file: File) => plantsApi.uploadPhoto(id, file),
+    mutationFn: ({ id, file }: { id: number; file: File }) => plantsApi.uploadPhoto(id, file),
     onSuccess: (plant) => {
       queryClient.invalidateQueries({ queryKey: plantKeys.all });
       queryClient.setQueryData(plantKeys.detail(plant.id), plant);
@@ -315,4 +315,13 @@ export function useUploadPlantPhoto(id: number) {
     },
     onError: (error) => toastError(i18n.t("toasts.photoUploadFailed"), error),
   });
+}
+
+export function useUploadPlantPhoto(id: number) {
+  const mutation = useUploadPlantPhotoToId();
+  return {
+    ...mutation,
+    mutate: (file: File) => mutation.mutate({ id, file }),
+    mutateAsync: (file: File) => mutation.mutateAsync({ id, file }),
+  };
 }

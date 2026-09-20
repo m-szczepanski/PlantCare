@@ -147,6 +147,13 @@
     "vs": "z"
   },
   "form": {
+    "photo": "Zdjęcie",
+    "choosePhoto": "Wybierz zdjęcie",
+    "changePhoto": "Zmień zdjęcie",
+    "removePhoto": "Usuń",
+    "photoHint": "JPEG, PNG, WebP lub GIF, do 5 MB.",
+    "photoTooLarge": "Zdjęcie jest większe niż {{max}} MB.",
+    "photoBadType": "Nieobsługiwany typ zdjęcia - użyj JPEG, PNG, WebP lub GIF.",
     "noSchedulePreview": "Brak harmonogramu podlewania — wybierz profil lub ustaw przedział.",
     "nextDuePreview": "Następne podlanie: {{date}} ({{when}})",
     "today": "dziś",
@@ -165,7 +172,7 @@
     "overridesProfile": "Nadpisuje profil",
     "acquiredDate": "Data pozyskania",
     "lastWatered": "Ostatnio podlano",
-    "photoUrl": "URL zdjęcia",
+    "photoUrl": "Adres URL zdjęcia (zewnętrzny, zaawansowane)",
     "potSize": "Średnica doniczki (cm)",
     "soilMix": "Mieszanka podłoża",
     "soilMixPlaceholder": "Grube podłoże dla obrazkowatych",
@@ -480,7 +487,7 @@
       "removeAria": "Usuń {{name}}"
     },
     "plants": {
-      "description": "Dodaj swoje pierwsze rośliny. Wybierz profil gatunku, aby przejąć jego częstotliwość podlewania.",
+      "description": "Dodaj swoje pierwsze rośliny. Wybierz profil gatunku, aby przejąć jego częstotliwość podlewania; możesz też dołączyć zdjęcie.",
       "added_one": "Dodano na razie {{count}} roślinę",
       "added_few": "Dodano na razie {{count}} rośliny",
       "added_many": "Dodano na razie {{count}} roślin",
