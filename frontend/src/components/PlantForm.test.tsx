@@ -95,4 +95,51 @@ describe("PlantForm", () => {
     expect(await screen.findByText("The NickName field is required.")).toBeInTheDocument();
     expect(screen.getByLabelText("Nick name")).toHaveAttribute("aria-invalid", "true");
   });
+
+  it("previews the picked photo and passes it to onSubmit", async () => {
+    const onSubmit = vi.fn();
+    const { container } = renderWithProviders(
+      <PlantForm submitting={false} submitLabel="Create plant" onSubmit={onSubmit} onCancel={vi.fn()} />,
+    );
+
+    const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = new File(["fake"], "leaf.png", { type: "image/png" });
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    expect(await screen.findByRole("button", { name: "Change photo" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Nick name"), { target: { value: "Pat" } });
+    fireEvent.click(screen.getByRole("button", { name: "Create plant" }));
+
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ nickName: "Pat" }), file);
+  });
+
+  it("rejects a too-large photo without setting it", async () => {
+    const onSubmit = vi.fn();
+    const { container } = renderWithProviders(
+      <PlantForm submitting={false} submitLabel="Create plant" onSubmit={onSubmit} onCancel={vi.fn()} />,
+    );
+
+    const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
+    const big = new File(["x".repeat(5 * 1024 * 1024 + 1)], "big.jpg", { type: "image/jpeg" });
+    fireEvent.change(fileInput, { target: { files: [big] } });
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("larger than 5 MB");
+
+    fireEvent.change(screen.getByLabelText("Nick name"), { target: { value: "Pat" } });
+    fireEvent.click(screen.getByRole("button", { name: "Create plant" }));
+    expect(onSubmit).toHaveBeenCalledWith(expect.anything(), null);
+  });
+
+  it("rejects a non-image file", async () => {
+    const { container } = renderWithProviders(
+      <PlantForm submitting={false} submitLabel="Create plant" onSubmit={vi.fn()} onCancel={vi.fn()} />,
+    );
+
+    const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
+    const doc = new File(["x"], "notes.pdf", { type: "application/pdf" });
+    fireEvent.change(fileInput, { target: { files: [doc] } });
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Unsupported photo type");
+  });
 });

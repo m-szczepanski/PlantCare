@@ -5,7 +5,12 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PlantForm } from "@/components/PlantForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { splitApiError } from "@/lib/validation";
-import { useCreatePlant, usePlant, useUpdatePlant } from "@/hooks/usePlants";
+import {
+  useCreatePlant,
+  usePlant,
+  useUpdatePlant,
+  useUploadPlantPhotoToId,
+} from "@/hooks/usePlants";
 
 export function PlantFormPage() {
   const { t } = useTranslation();
@@ -40,13 +45,19 @@ export function PlantFormPage() {
   );
 }
 
-function CreatePlant({ onDone }: { onDone: () => void }) {
+function CreatePlant({ onDone }: { onDone: (id: number) => void }) {
   const { t } = useTranslation();
   const create = useCreatePlant();
+  const upload = useUploadPlantPhotoToId();
   const split = splitApiError(create.error);
 
-  function handleSubmit(input: PlantInput) {
-    create.mutate(input, { onSuccess: onDone });
+  function handleSubmit(input: PlantInput, photoFile: File | null) {
+    create.mutate(input, {
+      onSuccess: (plant) => {
+        if (photoFile) upload.mutate({ id: plant.id, file: photoFile });
+        onDone(plant.id);
+      },
+    });
   }
 
   return (
@@ -56,7 +67,7 @@ function CreatePlant({ onDone }: { onDone: () => void }) {
       fieldErrors={split.fields}
       submitLabel={t("form.createPlant")}
       onSubmit={handleSubmit}
-      onCancel={onDone}
+      onCancel={() => onDone(-1)}
     />
   );
 }
@@ -65,6 +76,7 @@ function EditPlant({ plantId, onDone }: { plantId: number; onDone: () => void })
   const { t } = useTranslation();
   const { data: plant, isPending, isError } = usePlant(plantId);
   const update = useUpdatePlant();
+  const upload = useUploadPlantPhotoToId();
   const split = splitApiError(update.error);
 
   if (isPending) {
@@ -75,8 +87,13 @@ function EditPlant({ plantId, onDone }: { plantId: number; onDone: () => void })
     return <p className="text-destructive">{t("form.loadFailed")}</p>;
   }
 
-  function handleSubmit(input: PlantInput) {
-    update.mutate({ id: plantId, input }, { onSuccess: onDone });
+  function handleSubmit(input: PlantInput, photoFile: File | null) {
+    update.mutate({ id: plantId, input }, {
+      onSuccess: () => {
+        if (photoFile) upload.mutate({ id: plantId, file: photoFile });
+        onDone();
+      },
+    });
   }
 
   return (
