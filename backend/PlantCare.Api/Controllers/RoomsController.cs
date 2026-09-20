@@ -7,7 +7,7 @@ namespace PlantCare.Api.Controllers;
 [ApiController]
 [Route("api/rooms")]
 [Produces("application/json")]
-public class RoomsController(IRoomService rooms) : ControllerBase
+public class RoomsController(IRoomService rooms, IAppLocalizer localizer) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<RoomResponseDto>>> List(CancellationToken cancellationToken)
@@ -19,7 +19,7 @@ public class RoomsController(IRoomService rooms) : ControllerBase
         var result = await rooms.CreateAsync(dto, cancellationToken);
         return result.Status switch
         {
-            RoomWriteStatus.DuplicateName => Conflict(new ProblemDetails { Title = "A room with that name already exists." }),
+            RoomWriteStatus.DuplicateName => Conflict(new ProblemDetails { Title = localizer.T("error.duplicateRoom.title") }),
             _ => CreatedAtAction(nameof(Get), new { id = result.Room!.Id }, result.Room),
         };
     }
@@ -39,7 +39,7 @@ public class RoomsController(IRoomService rooms) : ControllerBase
         return result.Status switch
         {
             RoomWriteStatus.NotFound => NotFound(),
-            RoomWriteStatus.DuplicateName => Conflict(new ProblemDetails { Title = "A room with that name already exists." }),
+            RoomWriteStatus.DuplicateName => Conflict(new ProblemDetails { Title = localizer.T("error.duplicateRoom.title") }),
             _ => Ok(result.Room),
         };
     }

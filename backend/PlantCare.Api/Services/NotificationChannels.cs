@@ -7,7 +7,8 @@ public sealed record NotificationMessage(
     string Body,
     int Priority,
     string? ClickUrl = null,
-    string? ButtonUrl = null);
+    string? ButtonUrl = null,
+    string? ButtonLabel = null);
 
 public interface INotificationChannel
 {
@@ -26,7 +27,7 @@ public sealed class NtfyChannel(INtfyPublisher publisher) : INotificationChannel
             message.Body,
             message.Priority,
             message.ClickUrl,
-            "Water now",
+            message.ButtonLabel,
             message.ButtonUrl,
             cancellationToken);
 }
@@ -50,7 +51,7 @@ public sealed class TelegramChannel(
         var text = $"*{message.Title}*\n{message.Body}";
         if (message.ButtonUrl is not null)
         {
-            text += $"\n[Water now]({message.ButtonUrl})";
+            text += $"\n[{message.ButtonLabel ?? "Water now"}]({message.ButtonUrl})";
         }
 
         using var request = new HttpRequestMessage(

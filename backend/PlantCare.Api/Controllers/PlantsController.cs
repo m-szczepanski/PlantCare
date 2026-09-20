@@ -8,7 +8,7 @@ namespace PlantCare.Api.Controllers;
 [ApiController]
 [Route("api/plants")]
 [Produces("application/json")]
-public class PlantsController(IPlantService plants, ICareTaskService careTasks) : ControllerBase
+public class PlantsController(IPlantService plants, ICareTaskService careTasks, IAppLocalizer localizer) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<PlantResponseDto>>> List(CancellationToken cancellationToken)
@@ -27,8 +27,8 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks) 
         var result = await plants.CreateAsync(dto, cancellationToken);
         return result.Status switch
         {
-            PlantWriteStatus.InvalidProfile => BadRequest(new ProblemDetails { Title = "Unknown plant profile.", Detail = $"No plant profile with id {dto.PlantProfileId} exists." }),
-            PlantWriteStatus.InvalidRoom => BadRequest(new ProblemDetails { Title = "Unknown room.", Detail = $"No room with id {dto.RoomId} exists." }),
+            PlantWriteStatus.InvalidProfile => BadRequest(new ProblemDetails { Title = localizer.T("error.unknownProfile.title"), Detail = localizer.Tf("error.unknownProfile.detail", dto.PlantProfileId!) }),
+            PlantWriteStatus.InvalidRoom => BadRequest(new ProblemDetails { Title = localizer.T("error.unknownRoom.title"), Detail = localizer.Tf("error.unknownRoom.detail", dto.RoomId!) }),
             _ => CreatedAtAction(nameof(Get), new { id = result.Plant!.Id }, result.Plant),
         };
     }
@@ -40,8 +40,8 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks) 
         return result.Status switch
         {
             PlantWriteStatus.NotFound => NotFound(),
-            PlantWriteStatus.InvalidProfile => BadRequest(new ProblemDetails { Title = "Unknown plant profile.", Detail = $"No plant profile with id {dto.PlantProfileId} exists." }),
-            PlantWriteStatus.InvalidRoom => BadRequest(new ProblemDetails { Title = "Unknown room.", Detail = $"No room with id {dto.RoomId} exists." }),
+            PlantWriteStatus.InvalidProfile => BadRequest(new ProblemDetails { Title = localizer.T("error.unknownProfile.title"), Detail = localizer.Tf("error.unknownProfile.detail", dto.PlantProfileId!) }),
+            PlantWriteStatus.InvalidRoom => BadRequest(new ProblemDetails { Title = localizer.T("error.unknownRoom.title"), Detail = localizer.Tf("error.unknownRoom.detail", dto.RoomId!) }),
             _ => Ok(result.Plant),
         };
     }
@@ -82,7 +82,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks) 
     {
         if (file is null || file.Length == 0)
         {
-            return BadRequest(new ProblemDetails { Title = "No photo supplied.", Detail = "Send the image in the multipart form field \"file\"." });
+            return BadRequest(new ProblemDetails { Title = localizer.T("error.noPhoto.title"), Detail = localizer.T("error.noPhoto.detail") });
         }
 
         await using var stream = file.OpenReadStream();
@@ -91,7 +91,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks) 
         return result.Status switch
         {
             PlantPhotoStatus.NotFound => NotFound(),
-            PlantPhotoStatus.InvalidFile => BadRequest(new ProblemDetails { Title = "Unsupported photo.", Detail = result.Error }),
+            PlantPhotoStatus.InvalidFile => BadRequest(new ProblemDetails { Title = localizer.T("error.unsupportedPhoto.title"), Detail = result.ErrorKey is null ? null : localizer.Tf(result.ErrorKey, result.ErrorArgs ?? []) }),
             _ => Ok(result.Plant),
         };
     }
@@ -101,7 +101,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks) 
     {
         if (dto.Days is < 1 or > 365)
         {
-            return BadRequest(new ProblemDetails { Title = "Days must be between 1 and 365." });
+            return BadRequest(new ProblemDetails { Title = localizer.T("error.daysRange.title") });
         }
 
         var plant = await plants.SetSnoozeAsync(id, dto.Days, cancellationToken);
@@ -120,7 +120,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks) 
     {
         if (dto.Days is < 1 or > 365)
         {
-            return BadRequest(new ProblemDetails { Title = "Days must be between 1 and 365." });
+            return BadRequest(new ProblemDetails { Title = localizer.T("error.daysRange.title") });
         }
 
         var count = await plants.SnoozeAllAsync(dto.Days, cancellationToken);
@@ -141,7 +141,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks) 
         return result.Status switch
         {
             CareTaskWriteStatus.NotFound => NotFound(),
-            CareTaskWriteStatus.AlreadyExists => Conflict(new ProblemDetails { Title = "This plant already has that care task." }),
+            CareTaskWriteStatus.AlreadyExists => Conflict(new ProblemDetails { Title = localizer.T("error.duplicateCareTask.title") }),
             _ => Created($"/api/plants/{id}/care-tasks", result.Task),
         };
     }
@@ -155,7 +155,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks) 
     {
         if (!Enum.TryParse<CareTaskType>(type, ignoreCase: true, out var taskType))
         {
-            return BadRequest(new ProblemDetails { Title = "Unknown care task type.", Detail = $"'{type}' is not a known care task type." });
+            return BadRequest(new ProblemDetails { Title = localizer.T("error.unknownCareTaskType.title"), Detail = localizer.Tf("error.unknownCareTaskType.detail", type) });
         }
 
         var result = await careTasks.MarkDoneAsync(id, taskType, dto?.Note, dto?.AmountMilliliters, dto?.Method, cancellationToken);

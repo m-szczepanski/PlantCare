@@ -12,7 +12,7 @@ public interface ICalendarService
 /// Renders the plant due dates as an iCalendar feed of recurring all-day events,
 /// reusing <see cref="IPlantService"/> for the schedule computation.
 /// </summary>
-public sealed class CalendarService(IPlantService plants) : ICalendarService
+public sealed class CalendarService(IPlantService plants, IAppLocalizer localizer) : ICalendarService
 {
     public async Task<string> BuildFeedAsync(CancellationToken cancellationToken = default)
     {
@@ -28,7 +28,7 @@ public sealed class CalendarService(IPlantService plants) : ICalendarService
         AppendLine(sb, "PRODID:-//PlantCare//PlantCare API//EN");
         AppendLine(sb, "CALSCALE:GREGORIAN");
         AppendLine(sb, "METHOD:PUBLISH");
-        AppendLine(sb, "X-WR-CALNAME:PlantCare watering");
+        AppendLine(sb, $"X-WR-CALNAME:{localizer.T("calendar.name")}");
 
         foreach (var plant in scheduled)
         {
@@ -41,7 +41,7 @@ public sealed class CalendarService(IPlantService plants) : ICalendarService
             AppendLine(sb, $"DTSTART;VALUE=DATE:{due:yyyyMMdd}");
             AppendLine(sb, $"DTEND;VALUE=DATE:{due.AddDays(1):yyyyMMdd}");
             AppendLine(sb, $"RRULE:FREQ=DAILY;INTERVAL={interval}");
-            AppendLine(sb, $"SUMMARY:{EscapeText($"Water {plant.NickName}")}");
+            AppendLine(sb, $"SUMMARY:{EscapeText(localizer.Tf("calendar.summary", plant.NickName))}");
             AppendLine(sb, $"DESCRIPTION:{EscapeText(plant.DueMessage)}");
             AppendLine(sb, "END:VEVENT");
         }

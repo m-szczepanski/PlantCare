@@ -1,0 +1,91 @@
+[
+  {
+    "profile": "Monstera",
+    "commonName": "Monstera",
+    "humidityNotes": "Preferuje wilgotność od średniej do wysokiej; co jakiś czas zraszaj liście lub użyj podstawki z kamykami.",
+    "careTips": "Lubi jasne, rozproszone światło. Podlewaj, gdy wierzchnie 2-3 cm podłoża przeschnie. Przecieraj liście, aby usunąć kurz. Obracaj roślinę dla równomiernego wzrostu.",
+    "diagnosisChecklist": "[{\"symptom\": \"Żółknące liście\", \"causes\": [\"Przelanie\", \"Naturalne starzenie się starszych liści\", \"Doniczka wypełniona korzeniami\"]}, {\"symptom\": \"Brązowe, chrupiące brzegi liści\", \"causes\": [\"Zbyt suche powietrze\", \"Za mało wody\", \"Nagromadzenie soli z wody wodociągowej\"]}, {\"symptom\": \"Wyciągnięte łodygi, małe nowe liście\", \"causes\": [\"Za mało światła\"]}, {\"symptom\": \"Więdnięcie przy wilgotnym podłożu\", \"causes\": [\"Zgnilizna korzeni przez przelane podłoże\"]}]"
+  },
+  {
+    "profile": "Snake Plant",
+    "commonName": "Sansewieria",
+    "humidityNotes": "Dobrze znosi suche powietrze; nie potrzebuje dodatkowej wilgotności.",
+    "careTips": "Bardzo wytrzymała. Znosi słabe światło i zaniedbanie. Pozwól podłożu całkowicie przeschnąć między podlaniami — głównym ryzykiem jest zgnilizna korzeni. Nawoź raz wiosną.",
+    "diagnosisChecklist": "[{\"symptom\": \"Rozmięknięta, szklista podstawa\", \"causes\": [\"Przelanie / zgnilizna korzeni — przerwij podlewanie i przesadź do suchego podłoża\"]}, {\"symptom\": \"Pomarszczone liście\", \"causes\": [\"Silne przesuszenie\", \"Korzenie wypełniły doniczkę\"]}, {\"symptom\": \"Liście się przewracają\", \"causes\": [\"Za mało światła\", \"Przelanie\"]}]"
+  },
+  {
+    "profile": "Pothos",
+    "commonName": "Epipremnum złociste",
+    "humidityNotes": "Zwykła wilgotność powietrza w domu wystarczy.",
+    "careTips": "Rośnie praktycznie w każdym świetle. Podlewaj, gdy przeschnie wierzchnia warstwa podłoża. Łatwo się przycina i ukorzenia w wodzie."
+  },
+  {
+    "profile": "Fiddle Leaf Fig",
+    "commonName": "Figowiec lirata",
+    "humidityNotes": "Lubi podwyższoną wilgotność — grupuj ją z innymi roślinami lub postaw obok nawilżacz.",
+    "careTips": "Uwielbia jasne, rozproszone światło i stabilne warunki. Trzymaj z dala od przeciągów i kaloryferów. Podlewaj, gdy wierzchnie 2 cm podłoża przeschnie; w sezonie wzrostu nawoź co miesiąc.",
+    "diagnosisChecklist": "[{\"symptom\": \"Zrzucanie liści po przeniesieniu\", \"causes\": [\"Stres zmianą światła lub przeciągiem — zwykle się regeneruje\"]}, {\"symptom\": \"Brązowe plamy z żółtą obwódką\", \"causes\": [\"Przelanie\", \"Słaby drenaż\"]}, {\"symptom\": \"Brązowe, suche brzegi liści\", \"causes\": [\"Zbyt niska wilgotność\", \"Za mało wody\"]}]"
+  },
+  {
+    "profile": "Spider Plant",
+    "commonName": "Zielistka Sternberga",
+    "humidityNotes": "Doceni podwyższoną wilgotność; brązowe końcówki liści często oznaczają zbyt suche powietrze.",
+    "careTips": "Łatwa w uprawie i bezpieczna dla zwierząt. Najlepiej czuje się w jasnym, rozproszonym świetle. Podlewaj, gdy przeschnie wierzchnia warstwa podłoża; co jakiś czas przepłucz doniczkę czystą wodą, aby usunąć sole z nawozów."
+  },
+  {
+    "profile": "ZZ Plant",
+    "commonName": "Zamiokulkas",
+    "humidityNotes": "Wystarcza jej suche powietrze; magazynuje wodę w kłączach.",
+    "careTips": "Prawie niezniszczalna. Znosi słabe światło i długie przesuszenia. Podlewaj oszczędnie — pozwól podłożu całkowicie przeschnąć między podlaniami."
+  },
+  {
+    "profile": "Peace Lily",
+    "commonName": "Skrzydłokwiat",
+    "humidityNotes": "Uwielbia wilgotne powietrze; zimą regularnie zraszaj.",
+    "careTips": "Zwisające liście to wyraźny znak pragnienia. Wolny cień od ostrego słońca. Utrzymuj podłoże lekko wilgotne, ale nigdy mokre."
+  },
+  {
+    "profile": "Aloe Vera",
+    "commonName": "Aloes zwyczajny",
+    "humidityNotes": "Preferuje suche powietrze; nie zraszaj.",
+    "careTips": "Idealny będzie słoneczny parapet. Podlewaj obficie, ale rzadko — pozwól podłożu zupełnie przeschnąć między podlaniami. Użyj przepuszczalnego, gruboziarnistego podłoża."
+  },
+  {
+    "profile": "Calathea Orbifolia",
+    "commonName": "Kalatea orbifolia",
+    "humidityNotes": "Wymagająca: potrzebuje wysokiej wilgotności, inaczej brzegi liści szybko brązowieją.",
+    "careTips": "Utrzymuj równomiernie wilgotne podłoże, nigdy przelane. Wysoka wilgotność powietrza i tylko woda filtrowana lub deszczówka — przy kranówce końcówki liści brązowieją. Trzymaj z dala od bezpośredniego słońca.",
+    "diagnosisChecklist": "[{\"symptom\": \"Chrupiące, brązowe brzegi liści\", \"causes\": [\"Zbyt niska wilgotność\", \"Minerały lub chlor w wodzie wodociągowej\"]}, {\"symptom\": \"Zawijające się liście\", \"causes\": [\"Za mało wody\", \"Stres cieplny\"]}, {\"symptom\": \"Blaknące wzory na liściach\", \"causes\": [\"Za silne światło\"]}]"
+  },
+  {
+    "profile": "Jade Plant",
+    "commonName": "Grubosz drzewiasty",
+    "humidityNotes": "Wystarcza jej suche powietrze w pomieszczeniu.",
+    "careTips": "Sukulent: podlewaj obficie, ale rzadko, i pozwól podłożu przeschnąć. Jasne światło utrzymuje zwarty pokrój. Przesadzaj co 2-3 lata; trujący dla zwierząt.",
+    "diagnosisChecklist": "[{\"symptom\": \"Pomarszczone, miękkie liście\", \"causes\": [\"Za mało wody\", \"Uszkodzone korzenie\"]}, {\"symptom\": \"Czarne, rozmiękłe łodygi\", \"causes\": [\"Zgnilizna korzeni przez nadmiar wody\"]}, {\"symptom\": \"Opadają tylko dolne liście\", \"causes\": [\"Naturalne starzenie się dorosłej rośliny\"]}]"
+  },
+  {
+    "profile": "Bird of Paradise",
+    "commonName": "Strelitzja królewska",
+    "humidityNotes": "Doceni okazjonalne zraszanie w suchych pomieszczeniach.",
+    "careTips": "Chce najjaśniejsze okno, jakie masz. Podziel stare bryły korzeniowe, aby rozmnażać. Liście naturalnie pękają przy niskiej wilgotności — to tylko kwestia estetyki."
+  },
+  {
+    "profile": "African Violet",
+    "commonName": "Sępolia afrykańska",
+    "humidityNotes": "Lubi stabilną wilgotność powietrza w domu; chroń przed zimnymi przeciągami.",
+    "careTips": "Podlewaj od dołu lub wokół krawędzi doniczki — krople na liściach zostawiają plamy. Tylko letnia woda. Jasne, rozproszone światło zapewnia ciągłe kwitnienie."
+  },
+  {
+    "profile": "Christmas Cactus",
+    "commonName": "Zygokadus",
+    "humidityNotes": "Zwykła wilgotność w pokoju wystarczy.",
+    "careTips": "To nie kaktus pustyni: w okresie wzrostu utrzymuj lekko wilgotne podłoże. Chłodne, ciemne noce jesienią pobudzają kwitnienie. Sadzonki łatwo ukorzeniają się w wodzie."
+  },
+  {
+    "profile": "Alocasia Polly",
+    "commonName": "Alokacja Polly",
+    "humidityNotes": "Wymaga wysokiej wilgotności; w suchym powietrzu szybko zasycha.",
+    "careTips": "Jasne, rozproszone światło i przepuszczalne, grube podłoże. Wrażliwa na chłód — trzymaj powyżej 15°C. Zimą w spoczynku — mocno ogranicz podlewanie. Trująca dla zwierząt i dzieci."
+  }
+]

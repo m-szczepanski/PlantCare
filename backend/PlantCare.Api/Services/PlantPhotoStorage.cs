@@ -3,6 +3,18 @@ namespace PlantCare.Api.Services;
 public sealed record PlantPhotoOptions(string RootPath);
 
 /// <summary>
+/// Storage rejection carrying a message-catalog key (and format args) instead of
+/// final prose, so the API layer can render it in the request language.
+/// </summary>
+public sealed class PhotoStorageException(string messageKey, params object[] args)
+    : Exception($"{messageKey} {string.Join(' ', args)}")
+{
+    public string MessageKey { get; } = messageKey;
+
+    public object[] Args { get; } = args;
+}
+
+/// <summary>
 /// Stores managed plant photos under {RootPath}/plants/{plantId}/{guid}{ext} and
 /// exposes them through the public URL prefix /uploads/ (served by nginx from the
 /// same volume in Docker).
@@ -43,12 +55,12 @@ public sealed class PlantPhotoStorage(PlantPhotoOptions options) : IPlantPhotoSt
     {
         if (!TryGetExtension(contentType, out var extension))
         {
-            throw new InvalidDataException($"Unsupported photo type '{contentType}'.");
+            throw new PhotoStorageException("error.photo.unsupportedType", contentType);
         }
 
         if (content.CanSeek && content.Length > MaxBytes)
         {
-            throw new InvalidDataException("Photo exceeds the 5 MB limit.");
+            throw new PhotoStorageException("error.photo.tooLarge");
         }
 
         var relative = subdirectory is null

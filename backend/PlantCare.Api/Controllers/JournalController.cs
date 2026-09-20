@@ -7,7 +7,7 @@ namespace PlantCare.Api.Controllers;
 [ApiController]
 [Route("api/plants/{plantId:int}/journal")]
 [Produces("application/json")]
-public class JournalController(IJournalService journal) : ControllerBase
+public class JournalController(IJournalService journal, IAppLocalizer localizer) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<JournalEntryResponseDto>>> List(int plantId, CancellationToken cancellationToken)
@@ -37,7 +37,7 @@ public class JournalController(IJournalService journal) : ControllerBase
         return result.Status switch
         {
             JournalWriteStatus.PlantNotFound => NotFound(),
-            JournalWriteStatus.Empty => BadRequest(new ProblemDetails { Title = "A journal entry needs a photo, a note, or both." }),
+            JournalWriteStatus.Empty => BadRequest(new ProblemDetails { Title = localizer.T("error.journalEmpty.title") }),
             _ => Created($"/api/plants/{plantId}/journal", result.Entry),
         };
     }

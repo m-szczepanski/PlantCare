@@ -23,6 +23,7 @@ public sealed class WateringCheckService(
     IPlantService plants,
     IEnumerable<INotificationChannel> channels,
     QuickActionOptions quickActions,
+    IAppLocalizer localizer,
     ILogger<WateringCheckService> logger) : IWateringCheckService
 {
     public async Task<WateringCheckResult> RunAsync(CancellationToken cancellationToken = default)
@@ -49,18 +50,16 @@ public sealed class WateringCheckService(
 
         var overdueCount = due.Count(p => p.DueStatus == PlantDueStatus.Overdue);
         var priority = overdueCount > 0 ? 5 : 3;
-        var title = due.Count == 1
-            ? "1 plant needs water"
-            : $"{due.Count} plants need water";
+        var title = localizer.Tp("digest.title", due.Count);
         if (overdueCount > 0)
         {
-            title += $" ({overdueCount} overdue)";
+            title += localizer.Tp("digest.overdue", overdueCount);
         }
 
         var message = string.Join("\n", due.Select(p =>
             $"• {p.NickName}{(p.RoomName is null ? "" : $" ({p.RoomName})")} — {p.DueMessage}"
-            + (p.ProfileToxicToPets ? " [toxic to pets]" : "")
-            + (p.ProfileToxicToChildren ? " [toxic to children]" : "")));
+            + (p.ProfileToxicToPets ? localizer.T("digest.toxicPets") : "")
+            + (p.ProfileToxicToChildren ? localizer.T("digest.toxicChildren") : "")));
 
         string? clickUrl = string.IsNullOrWhiteSpace(quickActions.PublicBaseUrl)
             ? null
@@ -69,7 +68,7 @@ public sealed class WateringCheckService(
             ? quickActions.QuickWaterUrl(due[0].Id)
             : null;
 
-        var digest = new NotificationMessage(title, message, priority, clickUrl, buttonUrl);
+        var digest = new NotificationMessage(title, message, priority, clickUrl, buttonUrl, localizer.T("digest.button"));
         var delivered = false;
         foreach (var channel in channels)
         {

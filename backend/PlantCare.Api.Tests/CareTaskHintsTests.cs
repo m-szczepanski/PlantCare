@@ -6,6 +6,8 @@ namespace PlantCare.Api.Tests;
 
 public class CareTaskHintsTests
 {
+    private static readonly AppLocalizer Localizer = new("en");
+
     private static readonly DateOnly Summer = new(2026, 6, 15);
     private static readonly DateOnly Winter = new(2026, 1, 15);
 
@@ -23,7 +25,7 @@ public class CareTaskHintsTests
 
         Assert.Equal(
             "Winter rest: hold off feeding until spring.",
-            CareTaskHints.For(task, PlantWith(task), Winter));
+            CareTaskHints.For(task, PlantWith(task), Winter, Localizer));
     }
 
     [Fact]
@@ -33,7 +35,7 @@ public class CareTaskHintsTests
 
         Assert.Contains(
             "Flushing",
-            CareTaskHints.For(task, PlantWith(task), new DateOnly(2026, 6, 15)));
+            CareTaskHints.For(task, PlantWith(task), new DateOnly(2026, 6, 15), Localizer));
     }
 
     [Fact]
@@ -41,7 +43,7 @@ public class CareTaskHintsTests
     {
         var task = new CareTask { Type = CareTaskType.Fertilizing, LastDoneAt = new DateTime(2026, 6, 1) };
 
-        Assert.Null(CareTaskHints.For(task, PlantWith(task), Summer));
+        Assert.Null(CareTaskHints.For(task, PlantWith(task), Summer, Localizer));
     }
 
     [Fact]
@@ -49,7 +51,7 @@ public class CareTaskHintsTests
     {
         var task = new CareTask { Type = CareTaskType.Watering, IntervalDays = 7, ReduceInWinter = true };
 
-        Assert.Contains("doubled", CareTaskHints.For(task, PlantWith(task), Winter));
+        Assert.Contains("doubled", CareTaskHints.For(task, PlantWith(task), Winter, Localizer));
     }
 
     [Fact]
@@ -58,6 +60,6 @@ public class CareTaskHintsTests
         var task = new CareTask { Type = CareTaskType.Watering, IntervalDays = 7 };
         var profile = new PlantProfile { CommonName = "X", DefaultWateringIntervalDays = 7, DefaultReduceInWinter = true, HumidityNotes = "", CareTips = "" };
 
-        Assert.Contains("doubled", CareTaskHints.For(task, PlantWith(task, profile), Winter));
+        Assert.Contains("doubled", CareTaskHints.For(task, PlantWith(task, profile), Winter, Localizer));
     }
 }
