@@ -53,7 +53,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks) 
     [HttpPost("{id:int}/water")]
     public async Task<ActionResult<PlantResponseDto>> Water(int id, WaterPlantRequestDto? dto, CancellationToken cancellationToken)
     {
-        var plant = await plants.WaterAsync(id, dto?.Note, cancellationToken);
+        var plant = await plants.WaterAsync(id, dto?.Note, dto?.AmountMilliliters, dto?.Method, cancellationToken);
         return plant is null ? NotFound() : Ok(plant);
     }
 
@@ -99,7 +99,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks) 
             return BadRequest(new ProblemDetails { Title = "Unknown care task type.", Detail = $"'{type}' is not a known care task type." });
         }
 
-        var result = await careTasks.MarkDoneAsync(id, taskType, dto?.Note, cancellationToken);
+        var result = await careTasks.MarkDoneAsync(id, taskType, dto?.Note, dto?.AmountMilliliters, dto?.Method, cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 

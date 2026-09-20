@@ -36,7 +36,7 @@ public interface IPlantService
 
     Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default);
 
-    Task<PlantResponseDto?> WaterAsync(int id, string? note, CancellationToken cancellationToken = default);
+    Task<PlantResponseDto?> WaterAsync(int id, string? note, int? amountMilliliters = null, WateringMethod? method = null, CancellationToken cancellationToken = default);
 
     Task<PlantResponseDto?> UndoWaterAsync(int id, CancellationToken cancellationToken = default);
 
@@ -156,7 +156,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
     /// Logs a watering event and updates <see cref="Plant.LastWateredAt"/> atomically:
     /// both changes go out in the single implicit transaction of one SaveChanges call.
     /// </summary>
-    public async Task<PlantResponseDto?> WaterAsync(int id, string? note, CancellationToken cancellationToken = default)
+    public async Task<PlantResponseDto?> WaterAsync(int id, string? note, int? amountMilliliters = null, WateringMethod? method = null, CancellationToken cancellationToken = default)
     {
         var plant = await db.Plants
             .Include(p => p.PlantProfile)
@@ -176,6 +176,8 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         {
             DoneAt = wateredAt,
             Note = string.IsNullOrWhiteSpace(note) ? null : note.Trim(),
+            AmountMilliliters = amountMilliliters,
+            Method = method,
         });
 
         await db.SaveChangesAsync(cancellationToken);
@@ -253,6 +255,8 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
                 Id = w.Id,
                 WateredAt = w.DoneAt,
                 Note = w.Note,
+                AmountMilliliters = w.AmountMilliliters,
+                Method = w.Method,
             })
             .ToListAsync(cancellationToken);
     }

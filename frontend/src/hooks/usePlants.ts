@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { plantsApi } from "@/api/client";
-import type { Plant, PlantInput } from "@/api/types";
+import type { Plant, PlantInput, WaterDetails } from "@/api/types";
 import { toastError } from "@/lib/toast";
 
 export const plantKeys = {
@@ -80,7 +80,8 @@ export function useDeletePlant() {
 export function useWaterPlant() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, note }: { id: number; note?: string }) => plantsApi.water(id, note),
+    mutationFn: ({ id, ...details }: { id: number } & WaterDetails) =>
+      plantsApi.water(id, Object.keys(details).length > 0 ? details : undefined),
     onMutate: async ({ id }) => {
       const previousList = queryClient.getQueryData<Plant[]>(plantKeys.all);
       const previousDetail = queryClient.getQueryData<Plant>(plantKeys.detail(id));

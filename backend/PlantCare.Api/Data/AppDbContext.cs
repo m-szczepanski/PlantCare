@@ -65,6 +65,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .HasForeignKey(l => l.CareTaskId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            entity.Property(l => l.Method).HasConversion<string>();
+
             entity.HasIndex(l => new { l.CareTaskId, l.DoneAt });
         });
 

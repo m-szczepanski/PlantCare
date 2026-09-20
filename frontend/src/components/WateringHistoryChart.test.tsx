@@ -10,6 +10,8 @@ function log(daysAgo: number, id = daysAgo): WateringLogEntry {
     id,
     wateredAt: new Date(Date.now() - daysAgo * DAY_MS).toISOString().replace("Z", ""),
     note: null,
+    amountMilliliters: null,
+    method: null,
   };
 }
 

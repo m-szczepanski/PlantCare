@@ -1,4 +1,4 @@
-import type { Dashboard, Insights, Plant, PlantInput, PlantProfileOption, Room, RoomInput, WateringLogEntry } from "./types";
+import type { Dashboard, Insights, Plant, PlantInput, PlantProfileOption, Room, RoomInput, WaterDetails, WateringLogEntry } from "./types";
 
 export interface HealthResponse {
   status: string;
@@ -78,10 +78,10 @@ export const plantsApi = {
   update: (id: number, input: PlantInput) =>
     request<Plant>(`/plants/${id}`, { method: "PUT", body: JSON.stringify(input) }),
   remove: (id: number) => request<void>(`/plants/${id}`, { method: "DELETE" }),
-  water: (id: number, note?: string) =>
+  water: (id: number, details?: WaterDetails) =>
     request<Plant>(`/plants/${id}/water`, {
       method: "POST",
-      body: JSON.stringify(note ? { note } : {}),
+      body: JSON.stringify(details ?? {}),
     }),
   undoWater: (id: number) => request<Plant>(`/plants/${id}/water`, { method: "DELETE" }),
   uploadPhoto: async (id: number, file: File): Promise<Plant> => {

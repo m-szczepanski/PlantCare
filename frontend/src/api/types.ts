@@ -102,10 +102,20 @@ export interface Insights {
   monthlyWaterings: MonthlyCount[];
 }
 
+export type WateringMethod = "Tap" | "Filtered" | "Rainwater";
+
 export interface WateringLogEntry {
   id: number;
   wateredAt: string;
   note: string | null;
+  amountMilliliters: number | null;
+  method: WateringMethod | null;
+}
+
+export interface WaterDetails {
+  note?: string;
+  amountMilliliters?: number;
+  method?: WateringMethod;
 }
 
 export interface PlantProfileOption {

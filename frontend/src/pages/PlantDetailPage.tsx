@@ -23,8 +23,18 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useDeletePlant, usePlant, useUploadPlantPhoto, useWaterPlant, useWateringLogs } from "@/hooks/usePlants";
-import { touchButton } from "@/lib/ui";
+import type { WaterDetails, WateringMethod } from "@/api/types";
+import { touchButton, touchField } from "@/lib/ui";
 
 function formatDate(value: string | null): string {
   if (!value) return "-";
@@ -50,6 +60,9 @@ export function PlantDetailPage() {
   const { data: wateringLogs } = useWateringLogs(plantId);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [note, setNote] = useState("");
+  const [amount, setAmount] = useState("");
+  const [method, setMethod] = useState<WateringMethod | "none">("none");
 
   if (isPending) {
     return <PlantDetailSkeleton />;
@@ -79,6 +92,18 @@ export function PlantDetailPage() {
         </CardContent>
       </Card>
     );
+  }
+
+  function waterNow() {
+    const details: WaterDetails = {};
+    if (note.trim() !== "") details.note = note.trim();
+    const ml = Number(amount);
+    if (amount.trim() !== "" && Number.isFinite(ml)) details.amountMilliliters = ml;
+    if (method !== "none") details.method = method;
+    waterPlant.mutate({ id: plant!.id, ...details });
+    setNote("");
+    setAmount("");
+    setMethod("none");
   }
 
   async function handleDelete() {
@@ -139,8 +164,12 @@ export function PlantDetailPage() {
               <WateringHistoryChart logs={wateringLogs} />
               <ul className="space-y-1 text-sm">
                 {wateringLogs.map((log) => (
-                  <li key={log.id} className="flex items-baseline gap-2">
+                  <li key={log.id} className="flex flex-wrap items-baseline gap-2">
                     <span className="font-medium">{formatInstant(log.wateredAt, true)}</span>
+                    {log.amountMilliliters ? (
+                      <span className="text-muted-foreground">{log.amountMilliliters} ml</span>
+                    ) : null}
+                    {log.method ? <span className="text-muted-foreground">{log.method}</span> : null}
                     {log.note ? <span className="text-muted-foreground">{log.note}</span> : null}
                   </li>
                 ))}
@@ -153,6 +182,50 @@ export function PlantDetailPage() {
               description="Water this plant and the log will show up here."
             />
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Log a watering</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap items-end gap-2">
+          <div className="min-w-40 flex-1 space-y-1">
+            <Label htmlFor="waterNote">Note (optional)</Label>
+            <Input
+              id="waterNote"
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+              placeholder="e.g. Soaked thoroughly"
+              className={touchField}
+            />
+          </div>
+          <div className="w-28 space-y-1">
+            <Label htmlFor="waterAmount">ml (optional)</Label>
+            <Input
+              id="waterAmount"
+              type="number"
+              min={1}
+              value={amount}
+              onChange={(event) => setAmount(event.target.value)}
+              placeholder="250"
+              className={touchField}
+            />
+          </div>
+          <div className="w-36 space-y-1">
+            <Label htmlFor="waterMethod">Method</Label>
+            <Select value={method} onValueChange={(value) => setMethod(value as WateringMethod | "none")}>
+              <SelectTrigger id="waterMethod" className={touchField}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Any water</SelectItem>
+                <SelectItem value="Tap">Tap</SelectItem>
+                <SelectItem value="Filtered">Filtered</SelectItem>
+                <SelectItem value="Rainwater">Rainwater</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </CardContent>
       </Card>
 
@@ -170,7 +243,7 @@ export function PlantDetailPage() {
             event.target.value = "";
           }}
         />
-        <Button onClick={() => waterPlant.mutate({ id: plant.id })} disabled={waterPlant.isPending} className={touchButton}>
+        <Button onClick={waterNow} disabled={waterPlant.isPending} className={touchButton}>
           {waterPlant.isPending ? "Watering..." : "Mark as watered"}
         </Button>
         <Button variant="secondary" onClick={() => photoInputRef.current?.click()} disabled={uploadPhoto.isPending} className={touchButton}>

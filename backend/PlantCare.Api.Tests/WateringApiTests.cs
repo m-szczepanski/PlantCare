@@ -83,6 +83,23 @@ public class WateringApiTests : IDisposable
     }
 
     [Fact]
+    public async Task Water_WithAmountAndMethod_PersistedInHistory()
+    {
+        var plant = await CreatePlant(customWateringIntervalDays: 7);
+
+        var response = await _client.PostAsJsonAsync(
+            $"/api/plants/{plant.Id}/water",
+            new { note = "Evening drink", amountMilliliters = 300, method = "Rainwater" },
+            Options);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var logs = await _client.GetFromJsonAsync<List<WateringLogResponseDto>>($"/api/plants/{plant.Id}/watering-logs", Options);
+        var log = Assert.Single(logs!);
+        Assert.Equal(300, log.AmountMilliliters);
+        Assert.Equal(PlantCare.Api.Models.WateringMethod.Rainwater, log.Method);
+    }
+
+    [Fact]
     public async Task Water_OverlongNote_Returns400()
     {
         var plant = await CreatePlant(customWateringIntervalDays: 7);

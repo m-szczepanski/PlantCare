@@ -9,7 +9,7 @@ public interface ICareTaskService
 {
     Task<IReadOnlyList<CareTaskResponseDto>?> ListForPlantAsync(int plantId, CancellationToken cancellationToken = default);
 
-    Task<CareTaskResponseDto?> MarkDoneAsync(int plantId, CareTaskType type, string? note, CancellationToken cancellationToken = default);
+    Task<CareTaskResponseDto?> MarkDoneAsync(int plantId, CareTaskType type, string? note, int? amountMilliliters, WateringMethod? method, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -29,7 +29,7 @@ public sealed class CareTaskService(AppDbContext db, IWateringScheduleService sc
         return await EnsureTasksAsync(plant, cancellationToken);
     }
 
-    public async Task<CareTaskResponseDto?> MarkDoneAsync(int plantId, CareTaskType type, string? note, CancellationToken cancellationToken = default)
+    public async Task<CareTaskResponseDto?> MarkDoneAsync(int plantId, CareTaskType type, string? note, int? amountMilliliters, WateringMethod? method, CancellationToken cancellationToken = default)
     {
         var plant = await GetPlantAsync(plantId, cancellationToken);
         if (plant is null)
@@ -44,6 +44,8 @@ public sealed class CareTaskService(AppDbContext db, IWateringScheduleService sc
         {
             DoneAt = doneAt,
             Note = string.IsNullOrWhiteSpace(note) ? null : note.Trim(),
+            AmountMilliliters = amountMilliliters,
+            Method = method,
         });
         await db.SaveChangesAsync(cancellationToken);
 

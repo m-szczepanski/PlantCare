@@ -5,6 +5,13 @@ public enum CareTaskType
     Watering,
 }
 
+public enum WateringMethod
+{
+    Tap,
+    Filtered,
+    Rainwater,
+}
+
 /// <summary>
 /// A recurring care activity for a plant (one row per plant+type). The
 /// watering task replaces the old custom-interval/last-watered columns on
@@ -39,4 +46,10 @@ public class CareTaskLog
     public DateTime DoneAt { get; set; }
 
     public string? Note { get; set; }
+
+    /// <summary>Watering-only detail: amount in millilitres.</summary>
+    public int? AmountMilliliters { get; set; }
+
+    /// <summary>Watering-only detail: tap / filtered / rainwater.</summary>
+    public WateringMethod? Method { get; set; }
 }
