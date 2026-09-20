@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PlantCare.Api.Dtos;
+using PlantCare.Api.Models;
 using PlantCare.Api.Services;
 
 namespace PlantCare.Api.Controllers;
@@ -7,7 +8,7 @@ namespace PlantCare.Api.Controllers;
 [ApiController]
 [Route("api/plants")]
 [Produces("application/json")]
-public class PlantsController(IPlantService plants) : ControllerBase
+public class PlantsController(IPlantService plants, ICareTaskService careTasks) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<PlantResponseDto>>> List(CancellationToken cancellationToken)
@@ -81,6 +82,25 @@ public class PlantsController(IPlantService plants) : ControllerBase
             PlantPhotoStatus.InvalidFile => BadRequest(new ProblemDetails { Title = "Unsupported photo.", Detail = result.Error }),
             _ => Ok(result.Plant),
         };
+    }
+
+    [HttpGet("{id:int}/care-tasks")]
+    public async Task<ActionResult<IReadOnlyList<CareTaskResponseDto>>> CareTasks(int id, CancellationToken cancellationToken)
+    {
+        var tasks = await careTasks.ListForPlantAsync(id, cancellationToken);
+        return tasks is null ? NotFound() : Ok(tasks);
+    }
+
+    [HttpPost("{id:int}/care-tasks/{type}/done")]
+    public async Task<ActionResult<CareTaskResponseDto>> MarkCareTaskDone(int id, string type, WaterPlantRequestDto? dto, CancellationToken cancellationToken)
+    {
+        if (!Enum.TryParse<CareTaskType>(type, ignoreCase: true, out var taskType))
+        {
+            return BadRequest(new ProblemDetails { Title = "Unknown care task type.", Detail = $"'{type}' is not a known care task type." });
+        }
+
+        var result = await careTasks.MarkDoneAsync(id, taskType, dto?.Note, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
     }
 
     [HttpGet("{id:int}/watering-logs")]

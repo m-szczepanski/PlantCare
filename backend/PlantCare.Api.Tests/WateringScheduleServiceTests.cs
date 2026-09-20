@@ -11,12 +11,31 @@ public class WateringScheduleServiceTests
 
     private static readonly DateOnly Today = new(2026, 3, 15);
 
+    private static Plant Plant(int? intervalDays = null, DateTime? lastDoneAt = null, PlantProfile? profile = null)
+    {
+        var plant = new Plant
+        {
+            NickName = "Rex",
+            AcquiredDate = new DateTime(2026, 1, 1),
+            PlantProfile = profile,
+        };
+        plant.CareTasks.Add(new CareTask
+        {
+            Type = CareTaskType.Watering,
+            IntervalDays = intervalDays,
+            LastDoneAt = lastDoneAt,
+        });
+        return plant;
+    }
+
+    private static CareTask Watering(Plant plant) => plant.CareTasks.Single();
+
     [Fact]
     public void NoInterval_ReturnsNotScheduled()
     {
-        var plant = new Plant { NickName = "Rex", AcquiredDate = Today.ToDateTime(TimeOnly.MinValue) };
+        var plant = Plant();
 
-        var due = _service.GetDueInfo(plant, Today);
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
 
         Assert.Equal(PlantDueStatus.NotScheduled, due.Status);
         Assert.Null(due.IntervalDays);
@@ -26,15 +45,9 @@ public class WateringScheduleServiceTests
     [Fact]
     public void DueToday_ZeroDays()
     {
-        var plant = new Plant
-        {
-            NickName = "Rex",
-            AcquiredDate = new DateTime(2026, 1, 1),
-            CustomWateringIntervalDays = 7,
-            LastWateredAt = new DateTime(2026, 3, 8),
-        };
+        var plant = Plant(intervalDays: 7, lastDoneAt: new DateTime(2026, 3, 8));
 
-        var due = _service.GetDueInfo(plant, Today);
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
 
         Assert.Equal(PlantDueStatus.DueToday, due.Status);
         Assert.Equal(0, due.DaysUntilDue);
@@ -44,14 +57,9 @@ public class WateringScheduleServiceTests
     [Fact]
     public void Overdue_NegativeDays()
     {
-        var plant = new Plant
-        {
-            NickName = "Rex",
-            CustomWateringIntervalDays = 7,
-            LastWateredAt = new DateTime(2026, 3, 3),
-        };
+        var plant = Plant(intervalDays: 7, lastDoneAt: new DateTime(2026, 3, 3));
 
-        var due = _service.GetDueInfo(plant, Today);
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
 
         Assert.Equal(PlantDueStatus.Overdue, due.Status);
         Assert.Equal(-5, due.DaysUntilDue);
@@ -61,14 +69,9 @@ public class WateringScheduleServiceTests
     [Fact]
     public void DueTomorrow_SingularDay()
     {
-        var plant = new Plant
-        {
-            NickName = "Rex",
-            CustomWateringIntervalDays = 7,
-            LastWateredAt = new DateTime(2026, 3, 9),
-        };
+        var plant = Plant(intervalDays: 7, lastDoneAt: new DateTime(2026, 3, 9));
 
-        var due = _service.GetDueInfo(plant, Today);
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
 
         Assert.Equal(PlantDueStatus.Upcoming, due.Status);
         Assert.Equal(1, due.DaysUntilDue);
@@ -76,70 +79,50 @@ public class WateringScheduleServiceTests
     }
 
     [Fact]
-    public void NeverWatered_FallsBackToAcquiredDate()
+    public void NeverDone_FallsBackToAcquiredDate()
     {
-        var plant = new Plant
-        {
-            NickName = "Rex",
-            AcquiredDate = new DateTime(2026, 3, 8),
-            CustomWateringIntervalDays = 7,
-            LastWateredAt = null,
-        };
+        var plant = Plant(intervalDays: 7);
+        plant.AcquiredDate = new DateTime(2026, 3, 8);
 
-        var due = _service.GetDueInfo(plant, Today);
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
 
         Assert.Equal(PlantDueStatus.DueToday, due.Status);
         Assert.Equal(0, due.DaysUntilDue);
     }
 
     [Fact]
-    public void AfterWatering_DueStatusResets()
+    public void AfterMarkingDone_DueStatusResets()
     {
-        var plant = new Plant
-        {
-            NickName = "Rex",
-            CustomWateringIntervalDays = 7,
-            LastWateredAt = new DateTime(2026, 3, 3),
-        };
+        var plant = Plant(intervalDays: 7, lastDoneAt: new DateTime(2026, 3, 3));
 
-        Assert.Equal(PlantDueStatus.Overdue, _service.GetDueInfo(plant, Today).Status);
+        Assert.Equal(PlantDueStatus.Overdue, _service.GetDueInfo(Watering(plant), plant, Today).Status);
 
-        plant.LastWateredAt = Today.ToDateTime(TimeOnly.MinValue);
+        Watering(plant).LastDoneAt = Today.ToDateTime(TimeOnly.MinValue);
 
-        var due = _service.GetDueInfo(plant, Today);
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
         Assert.Equal(PlantDueStatus.Upcoming, due.Status);
         Assert.Equal(7, due.DaysUntilDue);
     }
 
     [Fact]
-    public void CustomIntervalOverridesProfileDefault()
+    public void TaskIntervalOverridesProfileDefault()
     {
-        var plant = new Plant
-        {
-            NickName = "Rex",
-            PlantProfile = new PlantProfile { CommonName = "Monstera", DefaultWateringIntervalDays = 7, HumidityNotes = "", CareTips = "" },
-            CustomWateringIntervalDays = 14,
-            LastWateredAt = new DateTime(2026, 3, 5),
-        };
+        var profile = new PlantProfile { CommonName = "Monstera", DefaultWateringIntervalDays = 7, HumidityNotes = "", CareTips = "" };
+        var plant = Plant(intervalDays: 14, lastDoneAt: new DateTime(2026, 3, 5), profile: profile);
 
-        var due = _service.GetDueInfo(plant, Today);
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
 
         Assert.Equal(14, due.IntervalDays);
         Assert.Equal(4, due.DaysUntilDue);
     }
 
     [Fact]
-    public void FallsBackToProfileDefaultWhenNoCustom()
+    public void FallsBackToProfileDefaultWhenTaskHasNoInterval()
     {
-        var plant = new Plant
-        {
-            NickName = "Rex",
-            PlantProfile = new PlantProfile { CommonName = "Snake Plant", DefaultWateringIntervalDays = 14, HumidityNotes = "", CareTips = "" },
-            CustomWateringIntervalDays = null,
-            LastWateredAt = new DateTime(2026, 3, 11),
-        };
+        var profile = new PlantProfile { CommonName = "Snake Plant", DefaultWateringIntervalDays = 14, HumidityNotes = "", CareTips = "" };
+        var plant = Plant(intervalDays: null, lastDoneAt: new DateTime(2026, 3, 11), profile: profile);
 
-        var due = _service.GetDueInfo(plant, Today);
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
 
         Assert.Equal(14, due.IntervalDays);
         Assert.Equal(10, due.DaysUntilDue);

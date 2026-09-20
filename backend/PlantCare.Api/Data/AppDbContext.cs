@@ -11,7 +11,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<PlantProfile> PlantProfiles => Set<PlantProfile>();
 
-    public DbSet<WateringLog> WateringLogs => Set<WateringLog>();
+    public DbSet<CareTask> CareTasks => Set<CareTask>();
+
+    public DbSet<CareTaskLog> CareTaskLogs => Set<CareTaskLog>();
 
     public DbSet<NotificationLog> NotificationLogs => Set<NotificationLog>();
 
@@ -44,14 +46,26 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .OnDelete(DeleteBehavior.SetNull);
         });
 
-        modelBuilder.Entity<WateringLog>(entity =>
+        modelBuilder.Entity<CareTask>(entity =>
         {
-            entity.HasOne(w => w.Plant)
-                .WithMany(p => p.WateringLogs)
-                .HasForeignKey(w => w.PlantId)
+            entity.Property(t => t.Type).HasConversion<string>();
+
+            entity.HasOne(t => t.Plant)
+                .WithMany(p => p.CareTasks)
+                .HasForeignKey(t => t.PlantId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasIndex(w => new { w.PlantId, w.WateredAt });
+            entity.HasIndex(t => new { t.PlantId, t.Type }).IsUnique();
+        });
+
+        modelBuilder.Entity<CareTaskLog>(entity =>
+        {
+            entity.HasOne(l => l.CareTask)
+                .WithMany(t => t.Logs)
+                .HasForeignKey(l => l.CareTaskId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(l => new { l.CareTaskId, l.DoneAt });
         });
 
         modelBuilder.Entity<NotificationLog>(entity =>

@@ -18,11 +18,7 @@ public class Plant
 
     public DateTime AcquiredDate { get; set; }
 
-    public int? CustomWateringIntervalDays { get; set; }
-
-    public DateTime? LastWateredAt { get; set; }
-
-    public List<WateringLog> WateringLogs { get; set; } = [];
+    public List<CareTask> CareTasks { get; set; } = [];
 
     public List<NotificationLog> NotificationLogs { get; set; } = [];
 }

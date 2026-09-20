@@ -21,7 +21,9 @@ public class DatabaseBootTests : IDisposable
         var tables = await GetTableNamesAsync(db);
         Assert.Contains("Plants", tables);
         Assert.Contains("PlantProfiles", tables);
-        Assert.Contains("WateringLogs", tables);
+        Assert.Contains("CareTasks", tables);
+        Assert.Contains("CareTaskLogs", tables);
+        Assert.DoesNotContain("WateringLogs", tables);
         Assert.Contains("NotificationLogs", tables);
 
         Assert.NotEmpty(await db.PlantProfiles.ToListAsync());

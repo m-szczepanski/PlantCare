@@ -12,26 +12,30 @@ public sealed record PlantDueInfo(
 
 public interface IWateringScheduleService
 {
-    PlantDueInfo GetDueInfo(Plant plant);
+    PlantDueInfo GetDueInfo(CareTask? wateringTask, Plant plant);
 
-    PlantDueInfo GetDueInfo(Plant plant, DateOnly today);
+    PlantDueInfo GetDueInfo(CareTask? wateringTask, Plant plant, DateOnly today);
 }
 
 /// <summary>Single source of truth for watering due-date/status logic.</summary>
 public sealed class WateringScheduleService : IWateringScheduleService
 {
-    public PlantDueInfo GetDueInfo(Plant plant) => GetDueInfo(plant, DateOnly.FromDateTime(DateTime.UtcNow.Date));
+    public PlantDueInfo GetDueInfo(CareTask? wateringTask, Plant plant)
+        => GetDueInfo(wateringTask, plant, DateOnly.FromDateTime(DateTime.UtcNow.Date));
 
-    public PlantDueInfo GetDueInfo(Plant plant, DateOnly today)
+    public PlantDueInfo GetDueInfo(CareTask? wateringTask, Plant plant, DateOnly today)
     {
-        var intervalDays = plant.CustomWateringIntervalDays ?? plant.PlantProfile?.DefaultWateringIntervalDays;
+        var intervalDays = wateringTask?.IntervalDays
+            ?? (((wateringTask?.Type ?? CareTaskType.Watering) == CareTaskType.Watering)
+                ? plant.PlantProfile?.DefaultWateringIntervalDays
+                : null);
 
         if (intervalDays is null or <= 0)
         {
             return new PlantDueInfo(PlantDueStatus.NotScheduled, null, null, null, "No watering schedule");
         }
 
-        var anchor = DateOnly.FromDateTime((plant.LastWateredAt ?? plant.AcquiredDate).Date);
+        var anchor = DateOnly.FromDateTime((wateringTask?.LastDoneAt ?? plant.AcquiredDate).Date);
         var nextDue = anchor.AddDays(intervalDays.Value);
         var daysUntilDue = nextDue.DayNumber - today.DayNumber;
 

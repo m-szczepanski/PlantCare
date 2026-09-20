@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PlantCare.Api.Data;
 using PlantCare.Api.Dtos;
+using PlantCare.Api.Models;
 
 namespace PlantCare.Api.Services;
 
@@ -23,18 +24,35 @@ public sealed class InsightsService(AppDbContext db) : IInsightsService
         var now = DateTime.UtcNow;
         var plants = await db.Plants
             .Include(p => p.PlantProfile)
+            .Include(p => p.CareTasks)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
-        var logs = await db.WateringLogs
+        var wateringTasks = plants
+            .ToDictionary(
+                p => p.Id,
+                p => p.CareTasks.FirstOrDefault(t => t.Type == CareTaskType.Watering));
+        var wateringTaskIds = wateringTasks.Values
+            .Where(t => t is not null)
+            .ToDictionary(t => t!.Id, t => t!.PlantId);
+
+        var logs = await db.CareTaskLogs
             .AsNoTracking()
-            .Where(w => w.WateredAt >= now.AddMonths(-MonthWindow))
-            .Select(w => new { w.PlantId, w.WateredAt })
+            .Where(w => w.DoneAt >= now.AddMonths(-MonthWindow) && w.CareTask.Type == CareTaskType.Watering)
+            .Select(w => new { w.CareTaskId, w.DoneAt })
             .ToListAsync(cancellationToken);
+
+        var logsWithPlants = logs
+            .Where(l => wateringTaskIds.ContainsKey(l.CareTaskId))
+            .Select(l => new { PlantId = wateringTaskIds[l.CareTaskId], WateredAt = l.DoneAt })
+            .ToList();
 
         var intervalByPlant = plants.ToDictionary(
             p => p.Id,
-            p => p.CustomWateringIntervalDays ?? p.PlantProfile?.DefaultWateringIntervalDays);
+            p => wateringTasks[p.Id]?.IntervalDays ?? p.PlantProfile?.DefaultWateringIntervalDays);
+        var lastWateredByPlant = plants.ToDictionary(
+            p => p.Id,
+            p => wateringTasks[p.Id]?.LastDoneAt);
         var scheduled = plants
             .Where(p => intervalByPlant[p.Id] is int days && days >= 1)
             .ToList();
@@ -57,7 +75,7 @@ public sealed class InsightsService(AppDbContext db) : IInsightsService
             {
                 PlantId = p.Id,
                 NickName = p.NickName,
-                DaysSinceLastWatering = (int)(now - (p.LastWateredAt ?? p.AcquiredDate)).TotalDays,
+                DaysSinceLastWatering = (int)(now - (lastWateredByPlant[p.Id] ?? p.AcquiredDate)).TotalDays,
             })
             .OrderByDescending(n => n.DaysSinceLastWatering)
             .Take(5)
@@ -67,7 +85,7 @@ public sealed class InsightsService(AppDbContext db) : IInsightsService
         var windowStart = now.AddDays(-AdherenceWindowDays);
         var expected = (int)Math.Round(scheduled.Sum(p =>
             (double)AdherenceWindowDays / intervalByPlant[p.Id]!.Value));
-        var actual = logs.Count(w => scheduledIds.Contains(w.PlantId) && w.WateredAt >= windowStart);
+        var actual = logsWithPlants.Count(w => scheduledIds.Contains(w.PlantId) && w.WateredAt >= windowStart);
 
         var streaks = scheduled
             .Select(p => new StreakDto
@@ -89,7 +107,7 @@ public sealed class InsightsService(AppDbContext db) : IInsightsService
             monthly.Add(new MonthlyCountDto
             {
                 Month = key,
-                Count = logs.Count(w => w.WateredAt.ToString("yyyy-MM") == key),
+                Count = logsWithPlants.Count(w => w.WateredAt.ToString("yyyy-MM") == key),
             });
         }
 
@@ -111,7 +129,7 @@ public sealed class InsightsService(AppDbContext db) : IInsightsService
 
         int Streak(int plantId, int intervalDays)
         {
-            var plantLogs = logs
+            var plantLogs = logsWithPlants
                 .Where(w => w.PlantId == plantId)
                 .OrderByDescending(w => w.WateredAt)
                 .ToList();
