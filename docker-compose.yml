@@ -6,6 +6,7 @@ services:
         required: false
     environment:
       ASPNETCORE_URLS: http://+:8080
+      TZ: ${TZ:-UTC}
       ConnectionStrings__Default: ${DB_CONNECTIONSTRING:-Data Source=/data/plantcare.db}
       PHOTO_STORAGE_PATH: /data/uploads
     volumes:

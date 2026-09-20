@@ -19,3 +19,11 @@ export function wateredRelative(value: string | null): string {
   if (days >= 14) return `Watered ${Math.floor(days / 7)} weeks ago`;
   return `Watered ${days} days ago`;
 }
+
+// The API stores instants as naive UTC strings; without the Z suffix browsers
+// read them back as local time and show the wrong moment.
+export function formatInstant(value: string | null | undefined, withTime = true): string {
+  if (!value) return "-";
+  const date = new Date(value.endsWith("Z") ? value : `${value}Z`);
+  return withTime ? date.toLocaleString() : date.toLocaleDateString();
+}
