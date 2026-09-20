@@ -84,6 +84,11 @@ export const plantsApi = {
       body: JSON.stringify(details ?? {}),
     }),
   undoWater: (id: number) => request<Plant>(`/plants/${id}/water`, { method: "DELETE" }),
+  bulkWater: (ids: number[]) =>
+    request<{ requested: number; watered: number; skippedIds: number[] }>("/plants/bulk-water", {
+      method: "POST",
+      body: JSON.stringify({ ids }),
+    }),
   uploadPhoto: async (id: number, file: File): Promise<Plant> => {
     const form = new FormData();
     form.append("file", file);

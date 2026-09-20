@@ -11,6 +11,7 @@ vi.mock("@/api/client", () => ({
     list: vi.fn().mockResolvedValue([]),
     snoozeAll: vi.fn(),
     water: vi.fn(),
+    bulkWater: vi.fn(),
   },
   ApiError: class ApiError extends Error {},
 }));
@@ -70,6 +71,23 @@ describe("DashboardPage", () => {
     expect(screen.getByRole("link", { name: "Thirsty Theo" })).toBeInTheDocument();
     expect(screen.getByText("Parched Paula")).toBeInTheDocument();
     expect(screen.getByText("Fine Fiona")).toBeInTheDocument();
+  });
+
+  it("waters a whole bucket in one batch call", async () => {
+    const { plantsApi } = await import("@/api/client");
+    vi.mocked(plantsApi.bulkWater).mockResolvedValue({ requested: 1, watered: 1, skippedIds: [] });
+    vi.mocked(dashboardApi.get).mockResolvedValue({
+      overdue: [plant({ id: 1, nickName: "Thirsty Theo", dueStatus: "Overdue", dueMessage: "2 days overdue" })],
+      dueToday: [],
+      upcoming: [],
+    });
+
+    renderWithProviders(<DashboardPage />);
+
+    const waterAll = await screen.findByRole("button", { name: "Water all" });
+    fireEvent.click(waterAll);
+
+    await waitFor(() => expect(plantsApi.bulkWater).toHaveBeenCalledWith([1]));
   });
 
   it("snoozes every plant for the vacation length", async () => {

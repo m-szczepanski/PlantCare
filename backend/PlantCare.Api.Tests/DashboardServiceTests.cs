@@ -44,6 +44,9 @@ public class DashboardServiceTests
         public Task<int> SnoozeAllAsync(int days, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
+        public Task<PlantCare.Api.Services.BulkWaterResult> BulkWaterAsync(IReadOnlyList<int> ids, CancellationToken cancellationToken = default)
+            => throw new NotSupportedException();
+
         public Task<IReadOnlyList<WateringLogResponseDto>?> GetWateringHistoryAsync(int id, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 

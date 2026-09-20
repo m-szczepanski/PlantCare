@@ -24,6 +24,8 @@ public enum PlantPhotoStatus
 
 public sealed record PlantPhotoResult(PlantPhotoStatus Status, PlantResponseDto? Plant = null, string? Error = null);
 
+public sealed record BulkWaterResult(int Requested, int Watered, IReadOnlyList<int> SkippedIds);
+
 public interface IPlantService
 {
     Task<IReadOnlyList<PlantResponseDto>> ListAsync(CancellationToken cancellationToken = default);
@@ -39,6 +41,8 @@ public interface IPlantService
     Task<PlantResponseDto?> WaterAsync(int id, string? note, int? amountMilliliters = null, WateringMethod? method = null, CancellationToken cancellationToken = default);
 
     Task<PlantResponseDto?> UndoWaterAsync(int id, CancellationToken cancellationToken = default);
+
+    Task<BulkWaterResult> BulkWaterAsync(IReadOnlyList<int> ids, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<WateringLogResponseDto>?> GetWateringHistoryAsync(int id, CancellationToken cancellationToken = default);
 
@@ -247,6 +251,27 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         }
 
         return ToResponse(plant);
+    }
+
+    public async Task<BulkWaterResult> BulkWaterAsync(IReadOnlyList<int> ids, CancellationToken cancellationToken = default)
+    {
+        var distinct = ids.Distinct().ToList();
+        var skipped = new List<int>();
+        var watered = 0;
+
+        foreach (var id in distinct)
+        {
+            if (await WaterAsync(id, null, cancellationToken: cancellationToken) is null)
+            {
+                skipped.Add(id);
+            }
+            else
+            {
+                watered++;
+            }
+        }
+
+        return new BulkWaterResult(distinct.Count, watered, skipped);
     }
 
     public async Task<IReadOnlyList<WateringLogResponseDto>?> GetWateringHistoryAsync(int id, CancellationToken cancellationToken = default)

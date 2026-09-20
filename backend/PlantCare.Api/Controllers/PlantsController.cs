@@ -57,6 +57,18 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks) 
         return plant is null ? NotFound() : Ok(plant);
     }
 
+    [HttpPost("bulk-water")]
+    public async Task<ActionResult<BulkWaterResponseDto>> BulkWater(BulkWaterRequestDto dto, CancellationToken cancellationToken)
+    {
+        var result = await plants.BulkWaterAsync(dto.Ids, cancellationToken);
+        return Ok(new BulkWaterResponseDto
+        {
+            Requested = result.Requested,
+            Watered = result.Watered,
+            SkippedIds = result.SkippedIds,
+        });
+    }
+
     [HttpDelete("{id:int}/water")]
     public async Task<ActionResult<PlantResponseDto>> UndoWater(int id, CancellationToken cancellationToken)
     {

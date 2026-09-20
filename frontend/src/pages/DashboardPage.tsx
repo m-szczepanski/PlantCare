@@ -7,7 +7,7 @@ import { PlantCardSkeletonGrid } from "@/components/PlantCardSkeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useDashboard } from "@/hooks/useDashboard";
-import { useSnoozeAllPlants, useWaterPlant } from "@/hooks/usePlants";
+import { useBulkWater, useSnoozeAllPlants, useWaterPlant } from "@/hooks/usePlants";
 import { dashboardSections, type DashboardSection } from "@/lib/dashboard";
 import type { Dashboard } from "@/api/types";
 import { touchButton } from "@/lib/ui";
@@ -16,6 +16,7 @@ export function DashboardPage() {
   const { data: dashboard, isPending, isError, error } = useDashboard();
   const water = useWaterPlant();
   const snoozeAll = useSnoozeAllPlants();
+  const bulkWater = useBulkWater();
   const [params, setParams] = useSearchParams();
   const group = params.get("group");
   const [vacationDays, setVacationDays] = useState("14");
@@ -103,7 +104,19 @@ export function DashboardPage() {
         if (plants.length === 0) return null;
         return (
           <section key={section.key} className="space-y-3">
-            <h2 className="text-lg font-semibold">{section.title}</h2>
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-lg font-semibold">{section.title}</h2>
+              {section.key !== "upcoming" ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={bulkWater.isPending}
+                  onClick={() => bulkWater.mutate(plants.map((p) => p.id))}
+                >
+                  Water all
+                </Button>
+              ) : null}
+            </div>
             <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {plants.map((plant) => (
                 <li key={plant.id}>
