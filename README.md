@@ -176,6 +176,17 @@ volumes:
 
 Add `postgres` as an optional service later if/when moving off SQLite.
 
+## Backups & Data Safety
+
+- **Export:** `GET /api/export` downloads a JSON snapshot (rooms, plant profiles, plants with care tasks, watering logs, notes and journal entries) — also available as a button on the in-app Status page.
+- **Import:** `POST /api/import` accepts the same document and merges by natural keys (room name, profile common name, plant nickname) — existing records are skipped, so re-importing the same backup is safe. Uploaded photo *files* are not part of the snapshot; keep the `plant-data` and `plant-photos` volumes backed up too:
+  ```bash
+  docker compose down
+  docker run --rm -v plantcare-app_plant-data:/data -v "$PWD:/backup" alpine tar czf /backup/plant-data-backup.tgz /data
+  docker run --rm -v plantcare-app_plant-photos:/data -v "$PWD:/backup" alpine tar czf /backup/plant-photos-backup.tgz /data
+  ```
+  (adjust the volume prefix to your compose project name; restore by extracting into fresh volumes.)
+
 ## Conventions
 
 - **Backend**: standard .NET naming (PascalCase for types/members), controllers thin, business logic in `Services/`, DTOs separate from EF entities.
@@ -198,6 +209,6 @@ All eight milestones are implemented; see `docs/implementation-plan.md` for the 
 
 ## Open Questions (resolved)
 
-- **Photo storage:** skipped uploads for v1; `PhotoUrl` accepts an externally hosted URL.
-- **Watering intervals:** stay a flat per-plant override of the profile default; no seasonal rules in v1.
+- **Photo storage:** uploads implemented post-v1 — API writes to the `plant-photos` volume, nginx serves `/uploads/*`; externally hosted `PhotoUrl`s still work.
+- **Watering intervals:** per-plant typed care tasks (watering/fertilizing/repotting) with profile defaults and an optional winter reduction (interval doubled Dec–Feb).
 - **ntfy topics:** single topic (`NTFY_TOPIC`) for all notifications; revisit if a second category is ever added.

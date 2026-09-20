@@ -15,14 +15,15 @@ namespace PlantCare.Api.Data.Migrations
                 name: "PlantProfiles",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    CommonName = table.Column<string>(type: "TEXT", nullable: false),
-                    ScientificName = table.Column<string>(type: "TEXT", nullable: true),
-                    DefaultWateringIntervalDays = table.Column<int>(type: "INTEGER", nullable: false),
-                    LightRequirement = table.Column<string>(type: "TEXT", nullable: false),
-                    HumidityNotes = table.Column<string>(type: "TEXT", nullable: false),
-                    CareTips = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>( nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true)
+                        .Annotation("Npgsql:ValueGenerationStrategy", Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CommonName = table.Column<string>( nullable: false),
+                    ScientificName = table.Column<string>( nullable: true),
+                    DefaultWateringIntervalDays = table.Column<int>( nullable: false),
+                    LightRequirement = table.Column<string>( nullable: false),
+                    HumidityNotes = table.Column<string>( nullable: false),
+                    CareTips = table.Column<string>( nullable: false)
                 },
                 constraints: table =>
                 {
@@ -33,15 +34,16 @@ namespace PlantCare.Api.Data.Migrations
                 name: "Plants",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    PlantProfileId = table.Column<int>(type: "INTEGER", nullable: true),
-                    NickName = table.Column<string>(type: "TEXT", nullable: false),
-                    Location = table.Column<string>(type: "TEXT", nullable: false),
-                    PhotoUrl = table.Column<string>(type: "TEXT", nullable: true),
-                    AcquiredDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    CustomWateringIntervalDays = table.Column<int>(type: "INTEGER", nullable: true),
-                    LastWateredAt = table.Column<DateTime>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>( nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true)
+                        .Annotation("Npgsql:ValueGenerationStrategy", Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PlantProfileId = table.Column<int>( nullable: true),
+                    NickName = table.Column<string>( nullable: false),
+                    Location = table.Column<string>( nullable: false),
+                    PhotoUrl = table.Column<string>( nullable: true),
+                    AcquiredDate = table.Column<DateTime>( nullable: false),
+                    CustomWateringIntervalDays = table.Column<int>( nullable: true),
+                    LastWateredAt = table.Column<DateTime>( nullable: true)
                 },
                 constraints: table =>
                 {
@@ -58,11 +60,12 @@ namespace PlantCare.Api.Data.Migrations
                 name: "NotificationLogs",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    PlantId = table.Column<int>(type: "INTEGER", nullable: false),
-                    SentAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Type = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>( nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true)
+                        .Annotation("Npgsql:ValueGenerationStrategy", Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PlantId = table.Column<int>( nullable: false),
+                    SentAt = table.Column<DateTime>( nullable: false),
+                    Type = table.Column<string>( nullable: false)
                 },
                 constraints: table =>
                 {
@@ -79,11 +82,12 @@ namespace PlantCare.Api.Data.Migrations
                 name: "WateringLogs",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    PlantId = table.Column<int>(type: "INTEGER", nullable: false),
-                    WateredAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Note = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>( nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true)
+                        .Annotation("Npgsql:ValueGenerationStrategy", Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PlantId = table.Column<int>( nullable: false),
+                    WateredAt = table.Column<DateTime>( nullable: false),
+                    Note = table.Column<string>( nullable: true)
                 },
                 constraints: table =>
                 {

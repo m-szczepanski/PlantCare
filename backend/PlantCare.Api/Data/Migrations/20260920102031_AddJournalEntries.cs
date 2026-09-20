@@ -15,12 +15,13 @@ namespace PlantCare.Api.Data.Migrations
                 name: "JournalEntries",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    PlantId = table.Column<int>(type: "INTEGER", nullable: false),
-                    EntryDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    PhotoUrl = table.Column<string>(type: "TEXT", nullable: true),
-                    Text = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>( nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true)
+                        .Annotation("Npgsql:ValueGenerationStrategy", Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PlantId = table.Column<int>( nullable: false),
+                    EntryDate = table.Column<DateTime>( nullable: false),
+                    PhotoUrl = table.Column<string>( nullable: true),
+                    Text = table.Column<string>( nullable: true)
                 },
                 constraints: table =>
                 {

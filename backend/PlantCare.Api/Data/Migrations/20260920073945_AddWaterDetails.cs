@@ -13,13 +13,11 @@ namespace PlantCare.Api.Data.Migrations
             migrationBuilder.AddColumn<int>(
                 name: "AmountMilliliters",
                 table: "CareTaskLogs",
-                type: "INTEGER",
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "Method",
                 table: "CareTaskLogs",
-                type: "TEXT",
                 nullable: true);
         }
 

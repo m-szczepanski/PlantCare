@@ -1,3 +1,4 @@
+import { parseInstant } from "@/lib/dates";
 import type { Plant, PlantDueStatus } from "@/api/types";
 
 export type DueFilter = "all" | PlantDueStatus;
@@ -42,8 +43,7 @@ function dueValue(plant: Plant): number {
 
 function wateredValue(plant: Plant): number {
   if (!plant.lastWateredAt) return 0;
-  const value = plant.lastWateredAt.endsWith("Z") ? plant.lastWateredAt : `${plant.lastWateredAt}Z`;
-  return new Date(value).getTime();
+  return parseInstant(plant.lastWateredAt).getTime();
 }
 
 export function filterPlants(plants: Plant[], query: PlantQuery): Plant[] {

@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { parseInstant } from "@/lib/dates";
 import type { WateringLogEntry } from "@/api/types";
 
 const MONTHS_SHOWN = 6;
@@ -10,9 +11,7 @@ interface MonthBucket {
   count: number;
 }
 
-function parseInstant(value: string): Date {
-  return new Date(value.endsWith("Z") ? value : `${value}Z`);
-}
+
 
 function bucketize(logs: WateringLogEntry[]): MonthBucket[] {
   const now = new Date();

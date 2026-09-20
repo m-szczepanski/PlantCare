@@ -11,8 +11,8 @@ using PlantCare.Api.Data;
 namespace PlantCare.Api.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260920092930_AddVacationSnooze")]
-    partial class AddVacationSnooze
+    [Migration("20260920110246_AddJobRunLogs")]
+    partial class AddJobRunLogs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -64,6 +64,49 @@ namespace PlantCare.Api.Data.Migrations
                     b.HasIndex("CareTaskId", "DoneAt");
 
                     b.ToTable("CareTaskLogs");
+                });
+
+            modelBuilder.Entity("PlantCare.Api.Models.JobRunLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("Failed");
+
+                    b.Property<string>("Outcome")
+                        .IsRequired();
+
+                    b.Property<DateTime>("RanAt");
+
+                    b.Property<int>("SentDigests");
+
+                    b.Property<int>("SkippedDuplicates");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RanAt");
+
+                    b.ToTable("JobRuns");
+                });
+
+            modelBuilder.Entity("PlantCare.Api.Models.JournalEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("EntryDate");
+
+                    b.Property<string>("PhotoUrl");
+
+                    b.Property<int>("PlantId");
+
+                    b.Property<string>("Text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlantId", "EntryDate");
+
+                    b.ToTable("JournalEntries");
                 });
 
             modelBuilder.Entity("PlantCare.Api.Models.NotificationDigest", b =>
@@ -155,6 +198,8 @@ namespace PlantCare.Api.Data.Migrations
 
                     b.Property<int>("DefaultWateringIntervalDays");
 
+                    b.Property<string>("DiagnosisChecklist");
+
                     b.Property<string>("HumidityNotes")
                         .IsRequired();
 
@@ -162,6 +207,10 @@ namespace PlantCare.Api.Data.Migrations
                         .IsRequired();
 
                     b.Property<string>("ScientificName");
+
+                    b.Property<bool>("ToxicToChildren");
+
+                    b.Property<bool>("ToxicToPets");
 
                     b.HasKey("Id");
 
@@ -215,6 +264,17 @@ namespace PlantCare.Api.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("CareTask");
+                });
+
+            modelBuilder.Entity("PlantCare.Api.Models.JournalEntry", b =>
+                {
+                    b.HasOne("PlantCare.Api.Models.Plant", "Plant")
+                        .WithMany()
+                        .HasForeignKey("PlantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Plant");
                 });
 
             modelBuilder.Entity("PlantCare.Api.Models.Plant", b =>

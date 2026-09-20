@@ -7,10 +7,12 @@ import { renderWithProviders } from "@/test/render";
 
 vi.mock("@/api/client", () => ({
   dashboardApi: { get: vi.fn() },
+  healthApi: { status: vi.fn() },
   plantsApi: {
     list: vi.fn().mockResolvedValue([]),
     snoozeAll: vi.fn(),
     water: vi.fn(),
+    bulkWater: vi.fn(),
   },
   ApiError: class ApiError extends Error {},
 }));
@@ -70,6 +72,23 @@ describe("DashboardPage", () => {
     expect(screen.getByRole("link", { name: "Thirsty Theo" })).toBeInTheDocument();
     expect(screen.getByText("Parched Paula")).toBeInTheDocument();
     expect(screen.getByText("Fine Fiona")).toBeInTheDocument();
+  });
+
+  it("waters a whole bucket in one batch call", async () => {
+    const { plantsApi } = await import("@/api/client");
+    vi.mocked(plantsApi.bulkWater).mockResolvedValue({ requested: 1, watered: 1, skippedIds: [] });
+    vi.mocked(dashboardApi.get).mockResolvedValue({
+      overdue: [plant({ id: 1, nickName: "Thirsty Theo", dueStatus: "Overdue", dueMessage: "2 days overdue" })],
+      dueToday: [],
+      upcoming: [],
+    });
+
+    renderWithProviders(<DashboardPage />);
+
+    const waterAll = await screen.findByRole("button", { name: "Water all" });
+    fireEvent.click(waterAll);
+
+    await waitFor(() => expect(plantsApi.bulkWater).toHaveBeenCalledWith([1]));
   });
 
   it("snoozes every plant for the vacation length", async () => {
@@ -138,6 +157,34 @@ describe("DashboardPage", () => {
     expect(await screen.findByRole("heading", { level: 2, name: "Kitchen" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: "Office" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { level: 2, name: "Upcoming" })).not.toBeInTheDocument();
+  });
+
+  it("shows the onboarding checklist with the ntfy subscribe link", async () => {
+    const { healthApi } = await import("@/api/client");
+    vi.mocked(healthApi.status).mockResolvedValue({
+      nowUtc: "2026-09-20T07:00:00Z",
+      timeZoneId: "UTC",
+      wateringCheckCron: "0 8 * * *",
+      lastJobRun: null,
+      lastDigest: null,
+      ntfy: {
+        baseUrl: "http://ntfy:80",
+        topic: "plant-care",
+        subscribeUrl: "http://ntfy:80/plant-care",
+        reachable: true,
+        latencyMs: 8,
+        error: null,
+      },
+    });
+    vi.mocked(dashboardApi.get).mockResolvedValue(emptyDashboard);
+
+    renderWithProviders(<DashboardPage />);
+
+    expect(await screen.findByText("Getting started")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "plant-care" })).toHaveAttribute(
+      "href",
+      "http://ntfy:80/plant-care",
+    );
   });
 
   it("shows the empty state when there are no plants", async () => {

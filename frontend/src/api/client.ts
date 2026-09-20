@@ -1,4 +1,4 @@
-import type { CareTask, CareTaskType, Dashboard, Insights, JournalEntry, Plant, PlantInput, PlantNote, PlantProfile, PlantProfileInput, PlantProfileOption, Room, RoomInput, WaterDetails, WateringLogEntry } from "./types";
+import type { CareTask, CareTaskType, Dashboard, ImportResult, Insights, JournalEntry, Plant, PlantInput, PlantNote, PlantProfile, PlantProfileInput, PlantProfileOption, Room, RoomInput, StatusInfo, WaterDetails, WateringLogEntry } from "./types";
 
 export interface HealthResponse {
   status: string;
@@ -84,6 +84,11 @@ export const plantsApi = {
       body: JSON.stringify(details ?? {}),
     }),
   undoWater: (id: number) => request<Plant>(`/plants/${id}/water`, { method: "DELETE" }),
+  bulkWater: (ids: number[]) =>
+    request<{ requested: number; watered: number; skippedIds: number[] }>("/plants/bulk-water", {
+      method: "POST",
+      body: JSON.stringify({ ids }),
+    }),
   uploadPhoto: async (id: number, file: File): Promise<Plant> => {
     const form = new FormData();
     form.append("file", file);
@@ -146,4 +151,11 @@ export const insightsApi = {
 
 export const healthApi = {
   get: () => request<HealthResponse>("/health"),
+  status: () => request<StatusInfo>("/status"),
+};
+
+export const backupApi = {
+  exportUrl: `${BASE_URL}/export`,
+  importDocument: (document: unknown) =>
+    request<ImportResult>("/import", { method: "POST", body: JSON.stringify(document) }),
 };

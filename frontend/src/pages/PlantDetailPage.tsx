@@ -49,18 +49,11 @@ import {
 } from "@/hooks/usePlants";
 import type { WaterDetails, WateringMethod } from "@/api/types";
 import { touchButton, touchField } from "@/lib/ui";
+import { formatInstant } from "@/lib/dates";
 
 function formatDate(value: string | null): string {
   if (!value) return "-";
   return new Date(value).toLocaleDateString();
-}
-
-// The API stores watering instants as naive UTC strings; without the Z suffix
-// browsers would read them back as local time and show the wrong moment.
-function formatInstant(value: string | null, withTime: boolean): string {
-  if (!value) return "-";
-  const date = new Date(value.endsWith("Z") ? value : `${value}Z`);
-  return withTime ? date.toLocaleString() : date.toLocaleDateString();
 }
 
 export function PlantDetailPage() {
@@ -352,7 +345,7 @@ export function PlantDetailPage() {
                 <li key={note.id} className="rounded-md border p-3">
                   <p>{note.text}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {new Date(note.createdAt).toLocaleString()}
+                    {formatInstant(note.createdAt)}
                   </p>
                 </li>
               ))}

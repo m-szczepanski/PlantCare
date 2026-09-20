@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { CircleCheck, CircleDashed } from "lucide-react";
 import { DashboardStatsStrip } from "@/components/DashboardStatsStrip";
 import { NoPlantsEmptyState } from "@/components/NoPlantsEmptyState";
 import { PlantCard } from "@/components/PlantCard";
 import { PlantCardSkeletonGrid } from "@/components/PlantCardSkeleton";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDashboard } from "@/hooks/useDashboard";
-import { useSnoozeAllPlants, useWaterPlant } from "@/hooks/usePlants";
+import { useStatus } from "@/hooks/useStatus";
+import { useBulkWater, useSnoozeAllPlants, useWaterPlant } from "@/hooks/usePlants";
 import { dashboardSections, type DashboardSection } from "@/lib/dashboard";
 import type { Dashboard } from "@/api/types";
 import { touchButton } from "@/lib/ui";
@@ -16,6 +18,7 @@ export function DashboardPage() {
   const { data: dashboard, isPending, isError, error } = useDashboard();
   const water = useWaterPlant();
   const snoozeAll = useSnoozeAllPlants();
+  const bulkWater = useBulkWater();
   const [params, setParams] = useSearchParams();
   const group = params.get("group");
   const [vacationDays, setVacationDays] = useState("14");
@@ -46,6 +49,7 @@ export function DashboardPage() {
       <div className="space-y-4">
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <NoPlantsEmptyState />
+        <OnboardingStep />
       </div>
     );
   }
@@ -103,7 +107,19 @@ export function DashboardPage() {
         if (plants.length === 0) return null;
         return (
           <section key={section.key} className="space-y-3">
-            <h2 className="text-lg font-semibold">{section.title}</h2>
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-lg font-semibold">{section.title}</h2>
+              {section.key !== "upcoming" ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={bulkWater.isPending}
+                  onClick={() => bulkWater.mutate(plants.map((p) => p.id))}
+                >
+                  Water all
+                </Button>
+              ) : null}
+            </div>
             <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {plants.map((plant) => (
                 <li key={plant.id}>
@@ -136,3 +152,51 @@ function roomSections(dashboard: Dashboard): DashboardSection[] {
 }
 
 export default DashboardPage;
+
+function OnboardingStep() {
+  const { data: status } = useStatus();
+
+  if (!status) {
+    return null;
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Getting started</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2 text-sm">
+        <p className="flex items-center gap-2">
+          <CircleDashed className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+          Add your first plant above.
+        </p>
+        <p className="flex items-center gap-2">
+          {status.ntfy.reachable ? (
+            <CircleCheck className="h-4 w-4 text-primary" aria-hidden="true" />
+          ) : (
+            <CircleDashed className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+          )}
+          {status.ntfy.reachable ? (
+            <span>
+              Subscribe to reminders: open{" "}
+              <a
+                href={status.ntfy.subscribeUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="font-medium text-primary underline"
+              >
+                {status.ntfy.topic}
+              </a>{" "}
+              in the ntfy app and tap the bell.
+            </span>
+          ) : (
+            <span className="text-muted-foreground">
+              The notification server ({status.ntfy.baseUrl}) is not reachable — watering digests
+              will start once it is up.
+            </span>
+          )}
+        </p>
+      </CardContent>
+    </Card>
+  );
+}

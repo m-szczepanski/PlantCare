@@ -75,6 +75,27 @@ public class WateringApiTests : IDisposable
     }
 
     [Fact]
+    public async Task BulkWater_WatersGivenPlants_SkipsUnknown()
+    {
+        var a = await CreatePlant(customWateringIntervalDays: 7, lastWateredAt: Today.AddDays(-10));
+        var b = await CreatePlant(customWateringIntervalDays: 7, lastWateredAt: Today.AddDays(-9));
+
+        var response = await _client.PostAsJsonAsync("/api/plants/bulk-water", new
+        {
+            ids = new[] { a.Id, b.Id, 424242 },
+        }, Options);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<BulkWaterResponseDto>(Options);
+        Assert.Equal(3, body!.Requested);
+        Assert.Equal(2, body.Watered);
+        Assert.Equal([424242], body.SkippedIds);
+
+        var fetched = await GetPlant(a.Id);
+        Assert.Equal(PlantDueStatus.Upcoming, fetched.DueStatus);
+    }
+
+    [Fact]
     public async Task WateringLogs_UnknownPlant_Returns404()
     {
         var response = await _client.GetAsync("/api/plants/424242/watering-logs");

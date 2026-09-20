@@ -144,6 +144,14 @@ Every chunk follows the AGENTS.md workflow: acceptance criteria defined before c
   - `feature/toxicity-flags` — `ToxicToPets`/`ToxicToChildren` on profiles (migration + seed annotations), warning icon on cards (accessible label), destructive badges on detail, `[toxic to pets]` tags in the watering digest.
   - `feature/diagnostics-checklist` — per-profile `DiagnosisChecklist` JSON (server-validated, `InvalidChecklist` → 400), seeded for 5 species, rendered as collapsible symptom→cause cards on detail, editable in the profiles form.
   - `feature/care-journal` — `JournalEntry` entity + multipart `POST /api/plants/{id}/journal` (date/note/photo via the storage volume under `plants/{id}/journal/`), list + delete endpoints, `JournalCard` on detail with entry list and before/after comparison.
+- **Epic 9 ships as one PR: `epic/platform-data`** — all seven chunks done.
+  - `feature/bulk-water` — `POST /api/plants/bulk-water {ids}` (per-plant loop in the service, one response summary); "Water all" button on every non-upcoming dashboard bucket in both grouping modes.
+  - `feature/data-export-import` — `GET /api/export` snapshot (rooms, profiles, plants incl. care tasks + logs, notes, journal) and `POST /api/import` merging by natural keys (idempotent); export button + import file picker on the Status page; backup/volume docs in the root README.
+  - `feature/openapi` — ASP.NET Core built-in OpenAPI (`AddOpenApi`/`MapOpenApi`, no Swashbuckle dependency), served at `/openapi/v1.json` and proxied through nginx.
+  - `feature/app-status` — `GET /api/status`: last job run (new `JobRuns` audit rows written on every check), last digest, live ntfy probe (2 s timeout, never crashes), cron, time zones; `/status` page (nav item) with the `healthApi.status` client addition.
+  - `feature/timezone-config` — `TZ` env for the api container (compose + `.env.example`; cron fires in that zone), status echoes server tz; naive-UTC parsing centralized in `lib/dates.ts` (`parseInstant` only appends `Z` when no tz designator).
+  - `feature/onboarding` — "Getting started" checklist on the empty dashboard: add-plant CTA + ntfy subscribe link built from `/api/status` (topic + reachability from config).
+  - `feature/postgres-profile` — optional `postgres` compose profile (`db` service + `pg-data` volume): Npgsql provider switch, migration history made provider-portable (explicit value-generation strategies, no hard-coded column types, legacy timestamp behavior), retry-until-ready migration; verified end-to-end against PostgreSQL 17 (full migration chain + CRUD/water/ics/export smoke).
 
 ## Suggested sequencing
 

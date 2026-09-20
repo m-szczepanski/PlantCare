@@ -97,7 +97,9 @@ All runtime knobs come from environment variables / `.env`:
 | `NTFY_URL` / `NTFY_TOPIC` | Where notification POSTs go (defaults `http://ntfy:80`, `plant-care`) |
 | `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` | Set both to also deliver digests via Telegram |
 | `QUICK_ACTION_SECRET` / `QUICK_ACTION_URL_BASE` | Shared secret for quick-water buttons / public origin used to build the links |
-| `ConnectionStrings__Default` | SQLite path (or Postgres later) |
+| `ConnectionStrings__Default` | SQLite path; with the postgres profile use `Host=db;Database=plantcare;Username=plantcare;Password=…` |
+| `DB_PROVIDER` | `postgres` forces the Npgsql provider (otherwise inferred from a `Host=` connection string); default SQLite |
+| `POSTGRES_PASSWORD` | Password for the optional `db` service under the `postgres` compose profile |
 | `PHOTO_STORAGE_PATH` | Directory for uploaded plant photos (default `/data/uploads`, the `plant-photos` volume; override for bare local runs) |
 | `ENABLE_CARE_TIPS` | Set to `false` to hide the care tips section on plant detail (default on) |
 

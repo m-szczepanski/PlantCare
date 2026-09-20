@@ -122,6 +122,21 @@ export function useWaterPlant() {
   });
 }
 
+export function useBulkWater() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (ids: number[]) => plantsApi.bulkWater(ids),
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: plantKeys.all });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      toast.success("Watered", {
+        description: `${result.watered} of ${result.requested} plants logged.`,
+      });
+    },
+    onError: (error) => toastError("Could not water the selection", error),
+  });
+}
+
 async function undoWatering(id: number, queryClient: QueryClient) {
   try {
     const plant = await plantsApi.undoWater(id);

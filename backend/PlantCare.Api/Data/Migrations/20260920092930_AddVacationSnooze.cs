@@ -14,7 +14,6 @@ namespace PlantCare.Api.Data.Migrations
             migrationBuilder.AddColumn<DateTime>(
                 name: "SnoozedUntil",
                 table: "Plants",
-                type: "TEXT",
                 nullable: true);
         }
 

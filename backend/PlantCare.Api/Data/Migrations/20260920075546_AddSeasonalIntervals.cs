@@ -13,14 +13,12 @@ namespace PlantCare.Api.Data.Migrations
             migrationBuilder.AddColumn<bool>(
                 name: "DefaultReduceInWinter",
                 table: "PlantProfiles",
-                type: "INTEGER",
                 nullable: false,
                 defaultValue: false);
 
             migrationBuilder.AddColumn<bool>(
                 name: "ReduceInWinter",
                 table: "CareTasks",
-                type: "INTEGER",
                 nullable: true);
         }
 

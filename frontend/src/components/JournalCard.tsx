@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { PlantPhoto } from "@/components/PlantPhoto";
 import { useJournalEntries, useJournalMutations } from "@/hooks/usePlants";
 import { touchButton, touchField } from "@/lib/ui";
+import { formatInstant } from "@/lib/dates";
 
 function today(): string {
   return new Date().toISOString().slice(0, 10);
@@ -102,7 +103,7 @@ export function JournalCard({ plantId, nickName }: { plantId: number; nickName: 
                   />
                   <figcaption className="text-xs text-muted-foreground">
                     {index === 0 ? "Before" : "After"} ·{" "}
-                    {new Date(entry.entryDate).toLocaleDateString()}
+                    {formatInstant(entry.entryDate, false)}
                     {entry.text ? ` — ${entry.text}` : ""}
                   </figcaption>
                 </figure>
@@ -122,7 +123,7 @@ export function JournalCard({ plantId, nickName }: { plantId: number; nickName: 
                 <PlantPhoto photoUrl={entry.photoUrl} nickName={nickName} className="h-10 w-10 shrink-0" />
                 <div className="min-w-0 flex-1">
                   <span className="font-medium">
-                    {new Date(entry.entryDate).toLocaleDateString()}
+                    {formatInstant(entry.entryDate, false)}
                   </span>
                   {entry.text ? (
                     <span className="ml-2 text-muted-foreground">{entry.text}</span>
@@ -152,7 +153,7 @@ export function JournalCard({ plantId, nickName }: { plantId: number; nickName: 
             >
               {sortedForSelect.map((entry) => (
                 <option key={entry.id} value={String(entry.id)}>
-                  {new Date(entry.entryDate).toLocaleDateString()}
+                  {formatInstant(entry.entryDate, false)}
                 </option>
               ))}
             </select>
@@ -165,7 +166,7 @@ export function JournalCard({ plantId, nickName }: { plantId: number; nickName: 
             >
               {sortedForSelect.map((entry) => (
                 <option key={entry.id} value={String(entry.id)}>
-                  {new Date(entry.entryDate).toLocaleDateString()}
+                  {formatInstant(entry.entryDate, false)}
                 </option>
               ))}
             </select>

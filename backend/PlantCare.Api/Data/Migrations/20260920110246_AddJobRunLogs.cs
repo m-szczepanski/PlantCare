@@ -6,44 +6,40 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PlantCare.Api.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class AddPlantNotes : Migration
+    public partial class AddJobRunLogs : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "PlantNotes",
+                name: "JobRuns",
                 columns: table => new
                 {
                     Id = table.Column<int>( nullable: false)
                         .Annotation("Sqlite:Autoincrement", true)
                         .Annotation("Npgsql:ValueGenerationStrategy", Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    PlantId = table.Column<int>( nullable: false),
-                    CreatedAt = table.Column<DateTime>( nullable: false),
-                    Text = table.Column<string>( nullable: false)
+                    RanAt = table.Column<DateTime>( nullable: false),
+                    SentDigests = table.Column<int>( nullable: false),
+                    SkippedDuplicates = table.Column<int>( nullable: false),
+                    Failed = table.Column<int>( nullable: false),
+                    Outcome = table.Column<string>( nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PlantNotes", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PlantNotes_Plants_PlantId",
-                        column: x => x.PlantId,
-                        principalTable: "Plants",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                    table.PrimaryKey("PK_JobRuns", x => x.Id);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_PlantNotes_PlantId_CreatedAt",
-                table: "PlantNotes",
-                columns: new[] { "PlantId", "CreatedAt" });
+                name: "IX_JobRuns_RanAt",
+                table: "JobRuns",
+                column: "RanAt");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "PlantNotes");
+                name: "JobRuns");
         }
     }
 }
