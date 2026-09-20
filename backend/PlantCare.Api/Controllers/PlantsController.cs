@@ -103,6 +103,20 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks) 
         return result is null ? NotFound() : Ok(result);
     }
 
+    [HttpGet("{id:int}/notes")]
+    public async Task<ActionResult<IReadOnlyList<PlantNoteResponseDto>>> Notes(int id, CancellationToken cancellationToken)
+    {
+        var notes = await plants.GetNotesAsync(id, cancellationToken);
+        return notes is null ? NotFound() : Ok(notes);
+    }
+
+    [HttpPost("{id:int}/notes")]
+    public async Task<ActionResult<PlantNoteResponseDto>> AddNote(int id, PlantNoteRequestDto dto, CancellationToken cancellationToken)
+    {
+        var note = await plants.AddNoteAsync(id, dto.Text, cancellationToken);
+        return note is null ? NotFound() : Created($"/api/plants/{id}/notes/{note.Id}", note);
+    }
+
     [HttpGet("{id:int}/watering-logs")]
     public async Task<ActionResult<IReadOnlyList<WateringLogResponseDto>>> WateringLogs(int id, CancellationToken cancellationToken)
     {

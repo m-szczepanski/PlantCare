@@ -15,6 +15,8 @@ vi.mock("@/api/client", () => ({
     water: vi.fn(),
     wateringLogs: vi.fn(),
     uploadPhoto: vi.fn(),
+    notes: vi.fn(),
+    addNote: vi.fn(),
   },
   ApiError: class ApiError extends Error {},
 }));
@@ -49,6 +51,10 @@ describe("PlantDetailPage", () => {
   beforeEach(() => {
     vi.mocked(plantsApi.get).mockReset().mockResolvedValue(plant);
     vi.mocked(plantsApi.wateringLogs).mockReset().mockResolvedValue(logs);
+    vi.mocked(plantsApi.notes).mockReset().mockResolvedValue([
+      { id: 9, createdAt: "2026-03-02T10:00:00Z", text: "New leaf unfurling" },
+    ]);
+    vi.mocked(plantsApi.addNote).mockReset();
     vi.mocked(plantsApi.water).mockReset().mockResolvedValue({
       ...plant,
       lastWateredAt: "2026-03-04T10:00:00",
@@ -185,6 +191,23 @@ describe("PlantDetailPage", () => {
     await waitFor(() =>
       expect(plantsApi.water).toHaveBeenCalledWith(1, { amountMilliliters: 250, method: "Filtered" }),
     );
+  });
+
+  it("lists plant notes and adds new ones", async () => {
+    vi.mocked(plantsApi.addNote).mockResolvedValue({
+      id: 10,
+      createdAt: new Date().toISOString(),
+      text: "Yellowing tip",
+    });
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    expect(await screen.findByText("New leaf unfurling")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("New note"), { target: { value: "Yellowing tip" } });
+    fireEvent.click(screen.getByRole("button", { name: "Add note" }));
+
+    await waitFor(() => expect(plantsApi.addNote).toHaveBeenCalledWith(1, "Yellowing tip"));
   });
 
   it("marks the plant as watered through the API client", async () => {

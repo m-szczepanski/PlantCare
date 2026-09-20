@@ -1,4 +1,4 @@
-import type { Dashboard, Insights, Plant, PlantInput, PlantProfileOption, Room, RoomInput, WaterDetails, WateringLogEntry } from "./types";
+import type { Dashboard, Insights, Plant, PlantInput, PlantNote, PlantProfileOption, Room, RoomInput, WaterDetails, WateringLogEntry } from "./types";
 
 export interface HealthResponse {
   status: string;
@@ -91,6 +91,9 @@ export const plantsApi = {
     return unwrap<Plant>(response, `/plants/${id}/photo`);
   },
   wateringLogs: (id: number) => request<WateringLogEntry[]>(`/plants/${id}/watering-logs`),
+  notes: (id: number) => request<PlantNote[]>(`/plants/${id}/notes`),
+  addNote: (id: number, text: string) =>
+    request<PlantNote>(`/plants/${id}/notes`, { method: "POST", body: JSON.stringify({ text }) }),
 };
 
 export const plantProfilesApi = {

@@ -43,6 +43,10 @@ public interface IPlantService
     Task<IReadOnlyList<WateringLogResponseDto>?> GetWateringHistoryAsync(int id, CancellationToken cancellationToken = default);
 
     Task<PlantPhotoResult> UploadPhotoAsync(int id, Stream content, string? contentType, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<PlantNoteResponseDto>?> GetNotesAsync(int id, CancellationToken cancellationToken = default);
+
+    Task<PlantNoteResponseDto?> AddNoteAsync(int id, string text, CancellationToken cancellationToken = default);
 }
 
 public sealed class PlantService(AppDbContext db, IWateringScheduleService schedule, FeatureFlags features, IPlantPhotoStorage photos) : IPlantService
@@ -286,6 +290,52 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         photos.DeleteIfManaged(previousUrl);
 
         return new PlantPhotoResult(PlantPhotoStatus.Success, await ReloadAsync(plant.Id, cancellationToken));
+    }
+
+    public async Task<IReadOnlyList<PlantNoteResponseDto>?> GetNotesAsync(int id, CancellationToken cancellationToken = default)
+    {
+        if (!await db.Plants.AnyAsync(p => p.Id == id, cancellationToken))
+        {
+            return null;
+        }
+
+        return await db.PlantNotes
+            .AsNoTracking()
+            .Where(n => n.PlantId == id)
+            .OrderByDescending(n => n.CreatedAt)
+            .ThenByDescending(n => n.Id)
+            .Select(n => new PlantNoteResponseDto
+            {
+                Id = n.Id,
+                CreatedAt = n.CreatedAt,
+                Text = n.Text,
+            })
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<PlantNoteResponseDto?> AddNoteAsync(int id, string text, CancellationToken cancellationToken = default)
+    {
+        var plant = await db.Plants.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        if (plant is null)
+        {
+            return null;
+        }
+
+        var note = new PlantNote
+        {
+            PlantId = plant.Id,
+            CreatedAt = DateTime.UtcNow,
+            Text = text.Trim(),
+        };
+        db.PlantNotes.Add(note);
+        await db.SaveChangesAsync(cancellationToken);
+
+        return new PlantNoteResponseDto
+        {
+            Id = note.Id,
+            CreatedAt = note.CreatedAt,
+            Text = note.Text,
+        };
     }
 
     private async Task<bool> ProfileExistsAsync(int profileId, CancellationToken cancellationToken)

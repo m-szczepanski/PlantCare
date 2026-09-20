@@ -32,7 +32,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useDeletePlant, usePlant, useUploadPlantPhoto, useWaterPlant, useWateringLogs } from "@/hooks/usePlants";
+import {
+  useAddPlantNote,
+  useDeletePlant,
+  usePlant,
+  usePlantNotes,
+  useUploadPlantPhoto,
+  useWaterPlant,
+  useWateringLogs,
+} from "@/hooks/usePlants";
 import type { WaterDetails, WateringMethod } from "@/api/types";
 import { touchButton, touchField } from "@/lib/ui";
 
@@ -58,6 +66,9 @@ export function PlantDetailPage() {
   const waterPlant = useWaterPlant();
   const uploadPhoto = useUploadPlantPhoto(plantId);
   const { data: wateringLogs } = useWateringLogs(plantId);
+  const { data: notes } = usePlantNotes(plantId);
+  const addNote = useAddPlantNote(plantId);
+  const [noteText, setNoteText] = useState("");
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [note, setNote] = useState("");
@@ -226,6 +237,46 @@ export function PlantDetailPage() {
               </SelectContent>
             </Select>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Notes</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex flex-wrap gap-2">
+            <Input
+              aria-label="New note"
+              value={noteText}
+              onChange={(event) => setNoteText(event.target.value)}
+              placeholder="Health check, repotting thoughts..."
+              className={`min-w-48 flex-1 ${touchField}`}
+            />
+            <Button
+              disabled={noteText.trim() === "" || addNote.isPending}
+              onClick={() =>
+                addNote.mutate(noteText.trim(), { onSuccess: () => setNoteText("") })
+              }
+              className={touchButton}
+            >
+              {addNote.isPending ? "Adding..." : "Add note"}
+            </Button>
+          </div>
+          {!notes || notes.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No notes yet.</p>
+          ) : (
+            <ul className="space-y-2 text-sm">
+              {notes.map((note) => (
+                <li key={note.id} className="rounded-md border p-3">
+                  <p>{note.text}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {new Date(note.createdAt).toLocaleString()}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
         </CardContent>
       </Card>
 

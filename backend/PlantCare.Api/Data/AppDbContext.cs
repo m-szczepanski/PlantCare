@@ -15,6 +15,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<CareTaskLog> CareTaskLogs => Set<CareTaskLog>();
 
+    public DbSet<PlantNote> PlantNotes => Set<PlantNote>();
+
     public DbSet<NotificationLog> NotificationLogs => Set<NotificationLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -56,6 +58,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasIndex(t => new { t.PlantId, t.Type }).IsUnique();
+        });
+
+        modelBuilder.Entity<PlantNote>(entity =>
+        {
+            entity.HasOne(n => n.Plant)
+                .WithMany()
+                .HasForeignKey(n => n.PlantId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(n => new { n.PlantId, n.CreatedAt });
         });
 
         modelBuilder.Entity<CareTaskLog>(entity =>

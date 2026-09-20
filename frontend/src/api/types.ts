@@ -125,6 +125,12 @@ export interface PlantProfileOption {
   defaultWateringIntervalDays: number;
 }
 
+export interface PlantNote {
+  id: number;
+  createdAt: string;
+  text: string;
+}
+
 export interface PlantInput {
   nickName: string;
   roomId?: number | null;

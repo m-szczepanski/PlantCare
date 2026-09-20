@@ -8,6 +8,7 @@ export const plantKeys = {
   all: ["plants"] as const,
   detail: (id: number) => ["plants", id] as const,
   wateringLogs: (id: number) => ["plants", id, "watering-logs"] as const,
+  notes: (id: number) => ["plants", id, "notes"] as const,
 };
 
 function optimisticWatered(plant: Plant): Plant {
@@ -135,6 +136,26 @@ export function useWateringLogs(id: number) {
     queryKey: plantKeys.wateringLogs(id),
     queryFn: () => plantsApi.wateringLogs(id),
     enabled: Number.isInteger(id),
+  });
+}
+
+export function usePlantNotes(id: number) {
+  return useQuery({
+    queryKey: plantKeys.notes(id),
+    queryFn: () => plantsApi.notes(id),
+    enabled: Number.isInteger(id),
+  });
+}
+
+export function useAddPlantNote(id: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (text: string) => plantsApi.addNote(id, text),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: plantKeys.notes(id) });
+      toast.success("Note added");
+    },
+    onError: (error) => toastError("Could not add note", error),
   });
 }
 
