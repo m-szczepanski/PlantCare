@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Leaf } from "lucide-react";
 import { DashboardStatsStrip } from "@/components/DashboardStatsStrip";
 import { PlantCard } from "@/components/PlantCard";
@@ -11,6 +12,7 @@ const REFRESH_MS = 60_000;
 
 // Read-only ambient view for a wall tablet: no nav chrome, auto-refreshing.
 export function WallPage() {
+  const { t, i18n } = useTranslation();
   const { data: dashboard, isPending, isError, error } = useDashboard(REFRESH_MS);
   const [now, setNow] = useState(() => new Date());
 
@@ -30,17 +32,17 @@ export function WallPage() {
           className="text-2xl tabular-nums text-muted-foreground"
           dateTime={now.toISOString()}
         >
-          {now.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}{" "}
-          {now.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+          {now.toLocaleDateString(i18n.language, { weekday: "short", month: "short", day: "numeric" })}{" "}
+          {now.toLocaleTimeString(i18n.language, { hour: "2-digit", minute: "2-digit" })}
         </time>
       </header>
 
       {isPending ? (
-        <PlantCardSkeletonGrid count={6} label="Loading dashboard..." />
+        <PlantCardSkeletonGrid count={6} label={t("dashboard.loading")} />
       ) : isError || !dashboard ? (
         <Card>
           <CardContent className="pt-6 text-destructive">
-            Could not load dashboard: {(error as Error)?.message ?? "Unknown error"}
+            {t("dashboard.loadError", { message: (error as Error)?.message ?? t("common.unknownError") })}
           </CardContent>
         </Card>
       ) : (
@@ -51,7 +53,7 @@ export function WallPage() {
             if (plants.length === 0) return null;
             return (
               <section key={section.key} className="space-y-3">
-                <h2 className="text-lg font-semibold">{section.title}</h2>
+                <h2 className="text-lg font-semibold">{section.titleKey ? t(section.titleKey) : section.title}</h2>
                 <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {plants.map((plant) => (
                     <li key={plant.id}>

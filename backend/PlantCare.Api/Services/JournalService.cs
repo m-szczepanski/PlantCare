@@ -84,7 +84,7 @@ public sealed class JournalService(AppDbContext db, IPlantPhotoStorage photos) :
             {
                 photoUrl = await photos.SaveAsync(plantId, photo, photoContentType ?? string.Empty, "journal", cancellationToken);
             }
-            catch (InvalidDataException)
+            catch (Exception ex) when (ex is InvalidDataException or PhotoStorageException)
             {
                 return new JournalWriteResult(JournalWriteStatus.Empty);
             }

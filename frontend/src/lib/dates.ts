@@ -1,3 +1,5 @@
+import i18n from "@/i18n";
+
 const DAY_MS = 86_400_000;
 
 // SQLite answers with naive UTC strings (no suffix); Postgres returns proper
@@ -17,15 +19,16 @@ export function daysSince(value: string | null): number | null {
 
 export function wateredRelative(value: string | null): string {
   const days = daysSince(value);
-  if (days === null) return "Not watered yet";
-  if (days <= 0) return "Watered today";
-  if (days === 1) return "Watered yesterday";
-  if (days >= 14) return `Watered ${Math.floor(days / 7)} weeks ago`;
-  return `Watered ${days} days ago`;
+  if (days === null) return i18n.t("dates.notWatered");
+  if (days <= 0) return i18n.t("dates.wateredToday");
+  if (days === 1) return i18n.t("dates.wateredYesterday");
+  if (days >= 14) return i18n.t("dates.wateredWeeksAgo", { count: Math.floor(days / 7) });
+  return i18n.t("dates.wateredDaysAgo", { count: days });
 }
 
 export function formatInstant(value: string | null | undefined, withTime = true): string {
   if (!value) return "-";
   const date = parseInstant(value);
-  return withTime ? date.toLocaleString() : date.toLocaleDateString();
+  const locale = i18n.language;
+  return withTime ? date.toLocaleString(locale) : date.toLocaleDateString(locale);
 }

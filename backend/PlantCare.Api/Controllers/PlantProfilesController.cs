@@ -7,7 +7,7 @@ namespace PlantCare.Api.Controllers;
 [ApiController]
 [Route("api/plant-profiles")]
 [Produces("application/json")]
-public class PlantProfilesController(IPlantProfileService profiles) : ControllerBase
+public class PlantProfilesController(IPlantProfileService profiles, IAppLocalizer localizer) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<PlantProfileResponseDto>>> List(CancellationToken cancellationToken)
@@ -19,8 +19,8 @@ public class PlantProfilesController(IPlantProfileService profiles) : Controller
         var result = await profiles.CreateAsync(dto, cancellationToken);
         return result.Status switch
         {
-            PlantProfileWriteStatus.DuplicateName => Conflict(new ProblemDetails { Title = "Profile name already in use.", Detail = $"A plant profile named '{dto.CommonName}' already exists." }),
-            PlantProfileWriteStatus.InvalidChecklist => BadRequest(new ProblemDetails { Title = "Invalid diagnosis checklist.", Detail = "Provide a JSON array of { symptom, causes[] } entries with non-empty values." }),
+            PlantProfileWriteStatus.DuplicateName => Conflict(new ProblemDetails { Title = localizer.T("error.duplicateProfile.title"), Detail = localizer.Tf("error.duplicateProfile.detail", dto.CommonName) }),
+            PlantProfileWriteStatus.InvalidChecklist => BadRequest(new ProblemDetails { Title = localizer.T("error.invalidChecklist.title"), Detail = localizer.T("error.invalidChecklist.detail") }),
             _ => StatusCode(StatusCodes.Status201Created, result.Profile),
         };
     }
@@ -32,8 +32,8 @@ public class PlantProfilesController(IPlantProfileService profiles) : Controller
         return result.Status switch
         {
             PlantProfileWriteStatus.NotFound => NotFound(),
-            PlantProfileWriteStatus.DuplicateName => Conflict(new ProblemDetails { Title = "Profile name already in use.", Detail = $"A plant profile named '{dto.CommonName}' already exists." }),
-            PlantProfileWriteStatus.InvalidChecklist => BadRequest(new ProblemDetails { Title = "Invalid diagnosis checklist.", Detail = "Provide a JSON array of { symptom, causes[] } entries with non-empty values." }),
+            PlantProfileWriteStatus.DuplicateName => Conflict(new ProblemDetails { Title = localizer.T("error.duplicateProfile.title"), Detail = localizer.Tf("error.duplicateProfile.detail", dto.CommonName) }),
+            PlantProfileWriteStatus.InvalidChecklist => BadRequest(new ProblemDetails { Title = localizer.T("error.invalidChecklist.title"), Detail = localizer.T("error.invalidChecklist.detail") }),
             _ => Ok(result.Profile),
         };
     }

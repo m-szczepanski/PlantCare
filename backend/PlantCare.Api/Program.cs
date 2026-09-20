@@ -44,6 +44,11 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 
 builder.Services.AddSingleton(new FeatureFlags(builder.Configuration.GetValue("ENABLE_CARE_TIPS", true)));
 
+var defaultLanguage = builder.Configuration["APP_LANGUAGE"] ?? "en";
+builder.Services.AddSingleton(new AppLanguageOptions(
+    PlantCare.Api.Services.Localization.Messages.IsSupported(defaultLanguage) ? defaultLanguage : "en"));
+builder.Services.AddScoped<IAppLocalizer, RequestAppLocalizer>();
+
 var photoStoragePath = builder.Configuration["PHOTO_STORAGE_PATH"] ?? "/data/uploads";
 builder.Services.AddSingleton(new PlantPhotoOptions(photoStoragePath));
 builder.Services.AddSingleton<IPlantPhotoStorage, PlantPhotoStorage>();
@@ -104,13 +109,15 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    var seedFile = Path.Combine(app.Environment.ContentRootPath, "Seed", "plant-profiles.json");
+    var seedDirectory = Path.Combine(app.Environment.ContentRootPath, "Seed");
+    var seedFile = Path.Combine(seedDirectory, "plant-profiles.json");
     var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(typeof(SeedLoader).FullName!);
     await SeedLoader.LoadPlantProfilesAsync(db, seedFile, logger);
     await SeedLoader.LoadCustomProfilesAsync(
         db,
         builder.Configuration["SEED_CUSTOM_PATH"] ?? "/data/seed-custom",
         logger);
+    await SeedLoader.LoadProfileTranslationsAsync(db, seedDirectory, logger);
 }
 
 app.MapOpenApi();

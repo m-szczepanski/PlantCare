@@ -29,7 +29,7 @@ public sealed record CareTaskWriteResult(CareTaskWriteStatus Status, CareTaskRes
 /// Generic typed care-task operations ("mark as done" per type). Watering stays
 /// a task of type Watering; the /water endpoint keeps working through it.
 /// </summary>
-public sealed class CareTaskService(AppDbContext db, IWateringScheduleService schedule) : ICareTaskService
+public sealed class CareTaskService(AppDbContext db, IWateringScheduleService schedule, IAppLocalizer localizer) : ICareTaskService
 {
     public static readonly HashSet<int> WinterMonths = [12, 1, 2];
 
@@ -137,7 +137,7 @@ public sealed class CareTaskService(AppDbContext db, IWateringScheduleService sc
         return task;
     }
 
-    private static CareTaskResponseDto ToResponse(CareTask task, PlantDueInfo due, Plant plant) => new()
+    private CareTaskResponseDto ToResponse(CareTask task, PlantDueInfo due, Plant plant) => new()
     {
         Id = task.Id,
         Type = task.Type,
@@ -149,6 +149,6 @@ public sealed class CareTaskService(AppDbContext db, IWateringScheduleService sc
         DaysUntilDue = due.DaysUntilDue,
         NextDueDate = due.NextDueDate?.ToDateTime(TimeOnly.MinValue),
         DueMessage = due.Message,
-        Hint = CareTaskHints.For(task, plant, DateOnly.FromDateTime(DateTime.UtcNow)),
+        Hint = CareTaskHints.For(task, plant, DateOnly.FromDateTime(DateTime.UtcNow), localizer),
     };
 }

@@ -22,7 +22,7 @@ public enum PlantPhotoStatus
     InvalidFile,
 }
 
-public sealed record PlantPhotoResult(PlantPhotoStatus Status, PlantResponseDto? Plant = null, string? Error = null);
+public sealed record PlantPhotoResult(PlantPhotoStatus Status, PlantResponseDto? Plant = null, string? ErrorKey = null, object[]? ErrorArgs = null);
 
 public sealed record BulkWaterResult(int Requested, int Watered, IReadOnlyList<int> SkippedIds);
 
@@ -59,12 +59,12 @@ public interface IPlantService
     Task<int> SnoozeAllAsync(int days, CancellationToken cancellationToken = default);
 }
 
-public sealed class PlantService(AppDbContext db, IWateringScheduleService schedule, FeatureFlags features, IPlantPhotoStorage photos) : IPlantService
+public sealed class PlantService(AppDbContext db, IWateringScheduleService schedule, FeatureFlags features, IPlantPhotoStorage photos, IAppLocalizer localizer) : IPlantService
 {
     public async Task<IReadOnlyList<PlantResponseDto>> ListAsync(CancellationToken cancellationToken = default)
     {
         var plants = await db.Plants
-            .Include(p => p.PlantProfile)
+            .Include(p => p.PlantProfile!.Translations)
             .Include(p => p.Room)
             .Include(p => p.CareTasks)
             .OrderBy(p => p.NickName)
@@ -76,7 +76,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
     public async Task<PlantResponseDto?> GetAsync(int id, CancellationToken cancellationToken = default)
     {
         var plant = await db.Plants
-            .Include(p => p.PlantProfile)
+            .Include(p => p.PlantProfile!.Translations)
             .Include(p => p.Room)
             .Include(p => p.CareTasks)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
@@ -183,7 +183,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
     public async Task<PlantResponseDto?> WaterAsync(int id, string? note, int? amountMilliliters = null, WateringMethod? method = null, CancellationToken cancellationToken = default)
     {
         var plant = await db.Plants
-            .Include(p => p.PlantProfile)
+            .Include(p => p.PlantProfile!.Translations)
             .Include(p => p.Room)
             .Include(p => p.CareTasks)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
@@ -216,7 +216,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
     public async Task<PlantResponseDto?> UndoWaterAsync(int id, CancellationToken cancellationToken = default)
     {
         var plant = await db.Plants
-            .Include(p => p.PlantProfile)
+            .Include(p => p.PlantProfile!.Translations)
             .Include(p => p.Room)
             .Include(p => p.CareTasks)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
@@ -319,9 +319,11 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         {
             photoUrl = await photos.SaveAsync(id, content, contentType ?? string.Empty, null, cancellationToken);
         }
-        catch (InvalidDataException ex)
+        catch (Exception ex) when (ex is InvalidDataException or PhotoStorageException)
         {
-            return new PlantPhotoResult(PlantPhotoStatus.InvalidFile, Error: ex.Message);
+            return ex is PhotoStorageException photoError
+                ? new PlantPhotoResult(PlantPhotoStatus.InvalidFile, ErrorKey: photoError.MessageKey, ErrorArgs: photoError.Args)
+                : new PlantPhotoResult(PlantPhotoStatus.InvalidFile, ErrorKey: ex.Message);
         }
 
         var previousUrl = plant.PhotoUrl;
@@ -336,7 +338,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
     public async Task<PlantResponseDto?> SetSnoozeAsync(int id, int days, CancellationToken cancellationToken = default)
     {
         var plant = await db.Plants
-            .Include(p => p.PlantProfile)
+            .Include(p => p.PlantProfile!.Translations)
             .Include(p => p.Room)
             .Include(p => p.CareTasks)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
@@ -356,7 +358,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
     public async Task<PlantResponseDto?> ClearSnoozeAsync(int id, CancellationToken cancellationToken = default)
     {
         var plant = await db.Plants
-            .Include(p => p.PlantProfile)
+            .Include(p => p.PlantProfile!.Translations)
             .Include(p => p.Room)
             .Include(p => p.CareTasks)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
@@ -452,7 +454,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
     {
         var plant = await db.Plants
             .AsNoTracking()
-            .Include(p => p.PlantProfile)
+            .Include(p => p.PlantProfile!.Translations)
             .Include(p => p.Room)
             .Include(p => p.CareTasks)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
@@ -464,6 +466,8 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
     {
         var watering = WateringTask(plant);
         var due = schedule.GetDueInfo(watering, plant);
+        var profile = plant.PlantProfile;
+        var translation = ProfileTranslations.Pick(profile, localizer.Language);
 
         return new PlantResponseDto
         {
@@ -479,17 +483,17 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             SnoozedUntil = plant.SnoozedUntil,
             AcquiredDate = plant.AcquiredDate,
             PlantProfileId = plant.PlantProfileId,
-            ProfileCommonName = plant.PlantProfile?.CommonName,
-            ProfileToxicToPets = plant.PlantProfile?.ToxicToPets ?? false,
-            ProfileToxicToChildren = plant.PlantProfile?.ToxicToChildren ?? false,
-            CareTips = features.CareTipsEnabled && plant.PlantProfile is { } profile
+            ProfileCommonName = ProfileTranslations.LocalizedCommonName(profile, translation) ?? plant.PlantProfile?.CommonName,
+            ProfileToxicToPets = profile?.ToxicToPets ?? false,
+            ProfileToxicToChildren = profile?.ToxicToChildren ?? false,
+            CareTips = features.CareTipsEnabled && profile is { } p
                 ? new PlantCareTipsDto
                 {
-                    CommonName = profile.CommonName,
-                    LightRequirement = profile.LightRequirement.ToString(),
-                    HumidityNotes = profile.HumidityNotes,
-                    CareTips = profile.CareTips,
-                    DiagnosisChecklist = profile.DiagnosisChecklist,
+                    CommonName = ProfileTranslations.LocalizedCommonName(p, translation) ?? p.CommonName,
+                    LightRequirement = p.LightRequirement.ToString(),
+                    HumidityNotes = ProfileTranslations.LocalizedHumidityNotes(p, translation),
+                    CareTips = ProfileTranslations.LocalizedCareTips(p, translation),
+                    DiagnosisChecklist = ProfileTranslations.LocalizedDiagnosisChecklist(p, translation),
                 }
                 : null,
             CustomWateringIntervalDays = watering?.IntervalDays,

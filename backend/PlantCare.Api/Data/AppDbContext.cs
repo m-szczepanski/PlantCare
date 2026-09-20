@@ -23,12 +23,24 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<NotificationDigest> NotificationDigests => Set<NotificationDigest>();
 
+    public DbSet<PlantProfileTranslation> PlantProfileTranslations => Set<PlantProfileTranslation>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<PlantProfile>(entity =>
         {
             entity.Property(p => p.LightRequirement).HasConversion<string>();
             entity.HasIndex(p => p.CommonName).IsUnique();
+        });
+
+        modelBuilder.Entity<PlantProfileTranslation>(entity =>
+        {
+            entity.HasOne(t => t.PlantProfile)
+                .WithMany(p => p.Translations)
+                .HasForeignKey(t => t.PlantProfileId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(t => new { t.PlantProfileId, t.Language }).IsUnique();
         });
 
         modelBuilder.Entity<Room>(entity =>

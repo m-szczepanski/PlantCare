@@ -20,18 +20,24 @@ namespace PlantCare.Api.Data.Migrations
             modelBuilder.Entity("PlantCare.Api.Models.CareTask", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
 
-                    b.Property<int?>("IntervalDays");
+                    b.Property<int?>("IntervalDays")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<DateTime?>("LastDoneAt");
+                    b.Property<DateTime?>("LastDoneAt")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("PlantId");
+                    b.Property<int>("PlantId")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<bool?>("ReduceInWinter");
+                    b.Property<bool?>("ReduceInWinter")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Type")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -44,17 +50,23 @@ namespace PlantCare.Api.Data.Migrations
             modelBuilder.Entity("PlantCare.Api.Models.CareTaskLog", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
 
-                    b.Property<int?>("AmountMilliliters");
+                    b.Property<int?>("AmountMilliliters")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<int>("CareTaskId");
+                    b.Property<int>("CareTaskId")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("DoneAt");
+                    b.Property<DateTime>("DoneAt")
+                        .HasColumnType("TEXT");
 
-                    b.Property<string>("Method");
+                    b.Property<string>("Method")
+                        .HasColumnType("TEXT");
 
-                    b.Property<string>("Note");
+                    b.Property<string>("Note")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -66,18 +78,24 @@ namespace PlantCare.Api.Data.Migrations
             modelBuilder.Entity("PlantCare.Api.Models.JobRunLog", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
 
-                    b.Property<int>("Failed");
+                    b.Property<int>("Failed")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Outcome")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("RanAt");
+                    b.Property<DateTime>("RanAt")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("SentDigests");
+                    b.Property<int>("SentDigests")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<int>("SkippedDuplicates");
+                    b.Property<int>("SkippedDuplicates")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -89,15 +107,20 @@ namespace PlantCare.Api.Data.Migrations
             modelBuilder.Entity("PlantCare.Api.Models.JournalEntry", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("EntryDate");
+                    b.Property<DateTime>("EntryDate")
+                        .HasColumnType("TEXT");
 
-                    b.Property<string>("PhotoUrl");
+                    b.Property<string>("PhotoUrl")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("PlantId");
+                    b.Property<int>("PlantId")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<string>("Text");
+                    b.Property<string>("Text")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -109,15 +132,20 @@ namespace PlantCare.Api.Data.Migrations
             modelBuilder.Entity("PlantCare.Api.Models.NotificationDigest", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
 
-                    b.Property<int>("OverdueCount");
+                    b.Property<int>("OverdueCount")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<int>("PlantCount");
+                    b.Property<int>("PlantCount")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<int>("Priority");
+                    b.Property<int>("Priority")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("SentAt");
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -129,28 +157,39 @@ namespace PlantCare.Api.Data.Migrations
             modelBuilder.Entity("PlantCare.Api.Models.Plant", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("AcquiredDate");
+                    b.Property<DateTime>("AcquiredDate")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("NickName")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
-                    b.Property<bool>("NotifyEnabled");
+                    b.Property<bool>("NotifyEnabled")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<string>("PhotoUrl");
+                    b.Property<string>("PhotoUrl")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int?>("PlantProfileId");
+                    b.Property<int?>("PlantProfileId")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<int?>("PotSizeCm");
+                    b.Property<int?>("PotSizeCm")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<string>("PropagatedFrom");
+                    b.Property<string>("PropagatedFrom")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int?>("RoomId");
+                    b.Property<int?>("RoomId")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<DateTime?>("SnoozedUntil");
+                    b.Property<DateTime?>("SnoozedUntil")
+                        .HasColumnType("TEXT");
 
-                    b.Property<string>("SoilMix");
+                    b.Property<string>("SoilMix")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -164,14 +203,18 @@ namespace PlantCare.Api.Data.Migrations
             modelBuilder.Entity("PlantCare.Api.Models.PlantNote", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("CreatedAt");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("PlantId");
+                    b.Property<int>("PlantId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Text")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -183,31 +226,42 @@ namespace PlantCare.Api.Data.Migrations
             modelBuilder.Entity("PlantCare.Api.Models.PlantProfile", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("CareTips")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CommonName")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
-                    b.Property<bool>("DefaultReduceInWinter");
+                    b.Property<bool>("DefaultReduceInWinter")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<int>("DefaultWateringIntervalDays");
+                    b.Property<int>("DefaultWateringIntervalDays")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<string>("DiagnosisChecklist");
+                    b.Property<string>("DiagnosisChecklist")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("HumidityNotes")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("LightRequirement")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
-                    b.Property<string>("ScientificName");
+                    b.Property<string>("ScientificName")
+                        .HasColumnType("TEXT");
 
-                    b.Property<bool>("ToxicToChildren");
+                    b.Property<bool>("ToxicToChildren")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<bool>("ToxicToPets");
+                    b.Property<bool>("ToxicToPets")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -217,21 +271,60 @@ namespace PlantCare.Api.Data.Migrations
                     b.ToTable("PlantProfiles");
                 });
 
+            modelBuilder.Entity("PlantCare.Api.Models.PlantProfileTranslation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CareTips")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CommonName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DiagnosisChecklist")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("HumidityNotes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("PlantProfileId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlantProfileId", "Language")
+                        .IsUnique();
+
+                    b.ToTable("PlantProfileTranslations");
+                });
+
             modelBuilder.Entity("PlantCare.Api.Models.Room", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
 
-                    b.Property<string>("Humidity");
+                    b.Property<string>("Humidity")
+                        .HasColumnType("TEXT");
 
-                    b.Property<string>("LightExposure");
+                    b.Property<string>("LightExposure")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
-                    b.Property<string>("Orientation");
+                    b.Property<string>("Orientation")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int?>("TemperatureCelsius");
+                    b.Property<int?>("TemperatureCelsius")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -302,6 +395,17 @@ namespace PlantCare.Api.Data.Migrations
                     b.Navigation("Plant");
                 });
 
+            modelBuilder.Entity("PlantCare.Api.Models.PlantProfileTranslation", b =>
+                {
+                    b.HasOne("PlantCare.Api.Models.PlantProfile", "PlantProfile")
+                        .WithMany("Translations")
+                        .HasForeignKey("PlantProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PlantProfile");
+                });
+
             modelBuilder.Entity("PlantCare.Api.Models.CareTask", b =>
                 {
                     b.Navigation("Logs");
@@ -315,6 +419,8 @@ namespace PlantCare.Api.Data.Migrations
             modelBuilder.Entity("PlantCare.Api.Models.PlantProfile", b =>
                 {
                     b.Navigation("Plants");
+
+                    b.Navigation("Translations");
                 });
 
             modelBuilder.Entity("PlantCare.Api.Models.Room", b =>

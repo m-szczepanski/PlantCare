@@ -1,10 +1,12 @@
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function PlantDetailSkeleton() {
+  const { t } = useTranslation();
   return (
     <div role="status">
-      <span className="sr-only">Loading plant...</span>
+      <span className="sr-only">{t("common.loadingPlant")}</span>
       <div className="space-y-4" aria-hidden="true">
         <div className="flex items-center justify-between gap-2">
           <Skeleton className="h-8 w-1/3" />

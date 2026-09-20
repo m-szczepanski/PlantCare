@@ -7,7 +7,7 @@ using PlantCare.Api.Services;
 namespace PlantCare.Api.Controllers;
 
 [ApiController]
-public class ExportImportController(IExportImportService exportImport) : ControllerBase
+public class ExportImportController(IExportImportService exportImport, IAppLocalizer localizer) : ControllerBase
 {
     [HttpGet("api/export")]
     public async Task<IActionResult> Export(CancellationToken cancellationToken)
@@ -36,7 +36,7 @@ public class ExportImportController(IExportImportService exportImport) : Control
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new ProblemDetails { Title = "Import failed.", Detail = ex.Message });
+            return BadRequest(new ProblemDetails { Title = localizer.T("error.importFailed.title"), Detail = ex.Message });
         }
     }
 }

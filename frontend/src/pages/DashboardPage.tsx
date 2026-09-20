@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
 import { CircleCheck, CircleDashed } from "lucide-react";
 import { DashboardStatsStrip } from "@/components/DashboardStatsStrip";
@@ -15,6 +16,7 @@ import type { Dashboard } from "@/api/types";
 import { touchButton } from "@/lib/ui";
 
 export function DashboardPage() {
+  const { t, i18n } = useTranslation();
   const { data: dashboard, isPending, isError, error } = useDashboard();
   const water = useWaterPlant();
   const snoozeAll = useSnoozeAllPlants();
@@ -26,8 +28,8 @@ export function DashboardPage() {
   if (isPending) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <PlantCardSkeletonGrid label="Loading dashboard..." />
+        <h1 className="text-2xl font-bold">{t("dashboard.title")}</h1>
+        <PlantCardSkeletonGrid label={t("dashboard.loading")} />
       </div>
     );
   }
@@ -36,7 +38,7 @@ export function DashboardPage() {
     return (
       <Card>
         <CardContent className="pt-6 text-destructive">
-          Could not load dashboard: {(error as Error)?.message ?? "Unknown error"}
+          {t("dashboard.loadError", { message: (error as Error)?.message ?? t("common.unknownError") })}
         </CardContent>
       </Card>
     );
@@ -47,7 +49,7 @@ export function DashboardPage() {
   if (totalPlants === 0) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <h1 className="text-2xl font-bold">{t("dashboard.title")}</h1>
         <NoPlantsEmptyState />
         <OnboardingStep />
       </div>
@@ -57,16 +59,16 @@ export function DashboardPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <h1 className="text-2xl font-bold">{t("dashboard.title")}</h1>
         <div className="flex items-center gap-2">
           <select
-            aria-label="Vacation snooze days"
+            aria-label={t("dashboard.snoozeDaysAria")}
             value={vacationDays}
             onChange={(event) => setVacationDays(event.target.value)}
             className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
           >
             {[3, 7, 14, 30, 60].map((days) => (
-              <option key={days} value={String(days)}>{days} days</option>
+              <option key={days} value={String(days)}>{t("common.days", { count: days })}</option>
             ))}
           </select>
           <Button
@@ -75,40 +77,40 @@ export function DashboardPage() {
             disabled={snoozeAll.isPending}
             onClick={() => snoozeAll.mutate(Number(vacationDays))}
           >
-            Snooze all
+            {t("dashboard.snoozeAll")}
           </Button>
           <Button asChild className={touchButton}>
-            <Link to="/plants/new">Add plant</Link>
+            <Link to="/plants/new">{t("dashboard.addPlant")}</Link>
           </Button>
         </div>
       </div>
 
       <DashboardStatsStrip dashboard={dashboard} />
 
-      <div className="flex gap-2" role="group" aria-label="Dashboard grouping">
+      <div className="flex gap-2" role="group" aria-label={t("dashboard.groupingAria")}>
         <Button
           size="sm"
           variant={group === "room" ? "outline" : "default"}
           onClick={() => setParams(new URLSearchParams(), { replace: true })}
         >
-          By due date
+          {t("dashboard.byDueDate")}
         </Button>
         <Button
           size="sm"
           variant={group === "room" ? "default" : "outline"}
           onClick={() => setParams(new URLSearchParams({ group: "room" }), { replace: true })}
         >
-          By room
+          {t("dashboard.byRoom")}
         </Button>
       </div>
 
-      {(group === "room" ? roomSections(dashboard) : dashboardSections).map((section) => {
+      {(group === "room" ? roomSections(dashboard, t("plant.noRoom"), i18n.language) : dashboardSections).map((section) => {
         const plants = section.select(dashboard);
         if (plants.length === 0) return null;
         return (
           <section key={section.key} className="space-y-3">
             <div className="flex items-center justify-between gap-2">
-              <h2 className="text-lg font-semibold">{section.title}</h2>
+              <h2 className="text-lg font-semibold">{section.titleKey ? t(section.titleKey) : section.title}</h2>
               {section.key !== "upcoming" ? (
                 <Button
                   size="sm"
@@ -116,7 +118,7 @@ export function DashboardPage() {
                   disabled={bulkWater.isPending}
                   onClick={() => bulkWater.mutate(plants.map((p) => p.id))}
                 >
-                  Water all
+                  {t("dashboard.waterAll")}
                 </Button>
               ) : null}
             </div>
@@ -138,22 +140,23 @@ export function DashboardPage() {
   );
 }
 
-function roomSections(dashboard: Dashboard): DashboardSection[] {
+function roomSections(dashboard: Dashboard, noRoomLabel: string, locale: string): DashboardSection[] {
   const all = [...dashboard.overdue, ...dashboard.dueToday, ...dashboard.upcoming];
-  const names = [...new Set(all.map((plant) => plant.roomName ?? "No room"))].sort((a, b) =>
-    a.localeCompare(b),
+  const names = [...new Set(all.map((plant) => plant.roomName ?? noRoomLabel))].sort((a, b) =>
+    a.localeCompare(b, locale),
   );
   return names.map((name) => ({
     key: `room:${name}`,
     title: name,
     select: (d: Dashboard) =>
-      [...d.overdue, ...d.dueToday, ...d.upcoming].filter((p) => (p.roomName ?? "No room") === name),
+      [...d.overdue, ...d.dueToday, ...d.upcoming].filter((p) => (p.roomName ?? noRoomLabel) === name),
   }));
 }
 
 export default DashboardPage;
 
 function OnboardingStep() {
+  const { t } = useTranslation();
   const { data: status } = useStatus();
 
   if (!status) {
@@ -163,12 +166,12 @@ function OnboardingStep() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Getting started</CardTitle>
+        <CardTitle>{t("onboarding.title")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2 text-sm">
         <p className="flex items-center gap-2">
           <CircleDashed className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-          Add your first plant above.
+          {t("onboarding.addFirst")}
         </p>
         <p className="flex items-center gap-2">
           {status.ntfy.reachable ? (
@@ -178,7 +181,7 @@ function OnboardingStep() {
           )}
           {status.ntfy.reachable ? (
             <span>
-              Subscribe to reminders: open{" "}
+              {t("onboarding.subscribePrefix")}{" "}
               <a
                 href={status.ntfy.subscribeUrl}
                 target="_blank"
@@ -187,12 +190,11 @@ function OnboardingStep() {
               >
                 {status.ntfy.topic}
               </a>{" "}
-              in the ntfy app and tap the bell.
+              {t("onboarding.subscribeSuffix")}
             </span>
           ) : (
             <span className="text-muted-foreground">
-              The notification server ({status.ntfy.baseUrl}) is not reachable — watering digests
-              will start once it is up.
+              {t("onboarding.serverUnreachable", { url: status.ntfy.baseUrl })}
             </span>
           )}
         </p>

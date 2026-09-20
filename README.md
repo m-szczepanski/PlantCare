@@ -10,6 +10,7 @@ A self-hosted, highly customizable web app for tracking owned plants, watering r
 - Care tips per species (light, humidity notes, plus markdown care notes covering topics like temperature and fertilizing)
 - Simple dashboard: "due today / overdue / upcoming" view
 - "Mark as watered" action with a per-plant watering history
+- Bilingual UI (English + Polish) with a language switch; localized species profiles, due messages and push notifications
 
 **Explicit non-goals for v1:** multi-user auth, mobile app, cloud sync. Keep it single-user, local-network friendly.
 

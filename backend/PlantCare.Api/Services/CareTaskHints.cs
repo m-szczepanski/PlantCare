@@ -9,7 +9,7 @@ namespace PlantCare.Api.Services;
 /// </summary>
 public static class CareTaskHints
 {
-    public static string? For(CareTask task, Plant plant, DateOnly today)
+    public static string? For(CareTask task, Plant plant, DateOnly today, IAppLocalizer localizer)
     {
         var winter = CareTaskService.IsWinter(today);
         var lastDone = task.LastDoneAt is { } done ? DateOnly.FromDateTime(done.Date) : (DateOnly?)null;
@@ -17,11 +17,11 @@ public static class CareTaskHints
         return task.Type switch
         {
             CareTaskType.Fertilizing when winter =>
-                "Winter rest: hold off feeding until spring.",
+                localizer.T("hint.fertilizingWinter"),
             CareTaskType.Fertilizing when lastDone is not null && today.DayNumber - lastDone.Value.DayNumber >= 120 =>
-                "Flushing the soil with plain water helps clear fertilizer salts.",
+                localizer.T("hint.flush"),
             CareTaskType.Watering when winter && EffectiveReduce(task, plant) =>
-                "Winter: watering interval is doubled.",
+                localizer.T("hint.wateringWinter"),
             _ => null,
         };
     }

@@ -18,7 +18,7 @@ public interface IWateringScheduleService
 }
 
 /// <summary>Single source of truth for watering due-date/status logic.</summary>
-public sealed class WateringScheduleService : IWateringScheduleService
+public sealed class WateringScheduleService(IAppLocalizer localizer) : IWateringScheduleService
 {
     public PlantDueInfo GetDueInfo(CareTask? wateringTask, Plant plant)
         => GetDueInfo(wateringTask, plant, DateOnly.FromDateTime(DateTime.UtcNow.Date));
@@ -32,7 +32,7 @@ public sealed class WateringScheduleService : IWateringScheduleService
 
         if (intervalDays is null or <= 0)
         {
-            return new PlantDueInfo(PlantDueStatus.NotScheduled, null, null, null, "No watering schedule");
+            return new PlantDueInfo(PlantDueStatus.NotScheduled, null, null, null, localizer.T("due.none"));
         }
 
         var reduceInWinter = wateringTask?.ReduceInWinter ?? plant.PlantProfile?.DefaultReduceInWinter ?? false;
@@ -52,15 +52,13 @@ public sealed class WateringScheduleService : IWateringScheduleService
 
         var message = status switch
         {
-            PlantDueStatus.Overdue => $"{Pluralize(-daysUntilDue, "day")} overdue",
-            PlantDueStatus.DueToday => "Due today",
-            _ => daysUntilDue == 1 ? "Due tomorrow" : $"{Pluralize(daysUntilDue, "day")} until due",
+            PlantDueStatus.Overdue => localizer.Tp("due.overdue", -daysUntilDue),
+            PlantDueStatus.DueToday => localizer.T("due.today"),
+            _ => daysUntilDue == 1 ? localizer.T("due.tomorrow") : localizer.Tp("due.until", daysUntilDue),
         };
 
         return new PlantDueInfo(status, effectiveInterval, daysUntilDue, nextDue, message);
     }
-
-    private static string Pluralize(int count, string unit) => $"{count} {unit}{(count == 1 ? "" : "s")}";
 
     /// <summary>Winter months for the (northern-hemisphere) seasonal reduction. Northern users only for v1.</summary>
     private static bool isWinter(DateOnly today) => today.Month is 12 or 1 or 2;

@@ -1,4 +1,7 @@
 import "@testing-library/jest-dom/vitest";
+import i18n from "@/i18n";
+
+void i18n.changeLanguage("en");
 
 function installMemoryStorage(target: Window & typeof globalThis) {
   const store = new Map<string, string>();

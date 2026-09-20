@@ -24,12 +24,13 @@ public interface IPlantProfileService
     Task<PlantProfileWriteResult> UpdateAsync(int id, PlantProfileRequestDto dto, CancellationToken cancellationToken = default);
 }
 
-public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
+public sealed class PlantProfileService(AppDbContext db, IAppLocalizer localizer) : IPlantProfileService
 {
     public async Task<IReadOnlyList<PlantProfileResponseDto>> ListAsync(CancellationToken cancellationToken = default)
     {
         var profiles = await db.PlantProfiles
             .Include(p => p.Plants)
+            .Include(p => p.Translations)
             .OrderBy(p => p.CommonName)
             .ToListAsync(cancellationToken);
 
@@ -72,16 +73,12 @@ public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
 
     public async Task<PlantProfileWriteResult> UpdateAsync(int id, PlantProfileRequestDto dto, CancellationToken cancellationToken = default)
     {
-        var profile = await db.PlantProfiles.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        var profile = await db.PlantProfiles
+            .Include(p => p.Translations)
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
         if (profile is null)
         {
             return new PlantProfileWriteResult(PlantProfileWriteStatus.NotFound);
-        }
-
-        var commonName = dto.CommonName.Trim();
-        if (await NameTakenAsync(commonName, id, cancellationToken))
-        {
-            return new PlantProfileWriteResult(PlantProfileWriteStatus.DuplicateName);
         }
 
         if (!DiagnosisChecklist.TryValidate(dto.DiagnosisChecklist, out _, out _))
@@ -89,51 +86,87 @@ public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
             return new PlantProfileWriteResult(PlantProfileWriteStatus.InvalidChecklist);
         }
 
-        profile.CommonName = commonName;
-        profile.ScientificName = dto.ScientificName?.Trim();
-        profile.DefaultWateringIntervalDays = dto.DefaultWateringIntervalDays;
-        profile.LightRequirement = dto.LightRequirement;
-        profile.HumidityNotes = dto.HumidityNotes.Trim();
-        profile.CareTips = dto.CareTips.Trim();
+        if (IsCanonicalLanguage)
+        {
+            var commonName = dto.CommonName.Trim();
+            if (await NameTakenAsync(commonName, id, cancellationToken))
+            {
+                return new PlantProfileWriteResult(PlantProfileWriteStatus.DuplicateName);
+            }
 
-        profile.LightRequirement = dto.LightRequirement;
+            profile.CommonName = commonName;
+            profile.ScientificName = dto.ScientificName?.Trim();
+            profile.DefaultWateringIntervalDays = dto.DefaultWateringIntervalDays;
+            profile.LightRequirement = dto.LightRequirement;
             profile.HumidityNotes = dto.HumidityNotes.Trim();
             profile.CareTips = dto.CareTips.Trim();
             profile.ToxicToPets = dto.ToxicToPets;
             profile.ToxicToChildren = dto.ToxicToChildren;
             profile.DiagnosisChecklist = dto.DiagnosisChecklist?.Trim();
-            profile.DefaultWateringIntervalDays = dto.DefaultWateringIntervalDays;
-            profile.ScientificName = dto.ScientificName?.Trim();
+        }
+        else
+        {
+            // Non-default language edits update (or lazily create) that language's
+            // translation row; structural fields stay owned by the canonical row.
+            var translation = profile.Translations.FirstOrDefault(t =>
+                string.Equals(t.Language, localizer.Language, StringComparison.OrdinalIgnoreCase));
+            if (translation is null)
+            {
+                translation = new PlantProfileTranslation
+                {
+                    PlantProfileId = profile.Id,
+                    Language = localizer.Language,
+                    CommonName = profile.CommonName,
+                    HumidityNotes = profile.HumidityNotes,
+                    CareTips = profile.CareTips,
+                    DiagnosisChecklist = profile.DiagnosisChecklist,
+                };
+                db.PlantProfileTranslations.Add(translation);
+            }
 
-            await db.SaveChangesAsync(cancellationToken);
+            translation.CommonName = dto.CommonName.Trim();
+            translation.HumidityNotes = dto.HumidityNotes.Trim();
+            translation.CareTips = dto.CareTips.Trim();
+            translation.DiagnosisChecklist = dto.DiagnosisChecklist?.Trim();
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
 
         return new PlantProfileWriteResult(PlantProfileWriteStatus.Success, await ReloadAsync(profile.Id, cancellationToken));
     }
+
+    private bool IsCanonicalLanguage =>
+        string.Equals(localizer.Language, Localization.Messages.DefaultLanguage, StringComparison.OrdinalIgnoreCase);
 
     private Task<bool> NameTakenAsync(string commonName, int? excludeId, CancellationToken cancellationToken)
         => excludeId is null
             ? db.PlantProfiles.AnyAsync(p => p.CommonName == commonName, cancellationToken)
             : db.PlantProfiles.AnyAsync(p => p.CommonName == commonName && p.Id != excludeId, cancellationToken);
 
-    private static PlantProfileResponseDto ToResponse(PlantProfile profile) => new()
+    private PlantProfileResponseDto ToResponse(PlantProfile profile)
     {
-        Id = profile.Id,
-        CommonName = profile.CommonName,
-        ScientificName = profile.ScientificName,
-        DefaultWateringIntervalDays = profile.DefaultWateringIntervalDays,
-        LightRequirement = profile.LightRequirement,
-        HumidityNotes = profile.HumidityNotes,
-        CareTips = profile.CareTips,
-        ToxicToPets = profile.ToxicToPets,
-        ToxicToChildren = profile.ToxicToChildren,
-        DiagnosisChecklist = profile.DiagnosisChecklist,
-        PlantCount = profile.Plants?.Count ?? 0,
-    };
+        var translation = ProfileTranslations.Pick(profile, localizer.Language);
+        return new PlantProfileResponseDto
+        {
+            Id = profile.Id,
+            CommonName = ProfileTranslations.LocalizedCommonName(profile, translation) ?? profile.CommonName,
+            ScientificName = profile.ScientificName,
+            DefaultWateringIntervalDays = profile.DefaultWateringIntervalDays,
+            LightRequirement = profile.LightRequirement,
+            HumidityNotes = ProfileTranslations.LocalizedHumidityNotes(profile, translation),
+            CareTips = ProfileTranslations.LocalizedCareTips(profile, translation),
+            ToxicToPets = profile.ToxicToPets,
+            ToxicToChildren = profile.ToxicToChildren,
+            DiagnosisChecklist = ProfileTranslations.LocalizedDiagnosisChecklist(profile, translation),
+            PlantCount = profile.Plants?.Count ?? 0,
+        };
+    }
 
     private async Task<PlantProfileResponseDto> ReloadAsync(int id, CancellationToken cancellationToken)
     {
         var profile = await db.PlantProfiles
             .Include(p => p.Plants)
+            .Include(p => p.Translations)
             .AsNoTracking()
             .FirstAsync(p => p.Id == id, cancellationToken);
 

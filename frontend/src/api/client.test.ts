@@ -91,8 +91,7 @@ describe("plantsApi client", () => {
     const [url, init] = vi.mocked(fetch).mock.calls[0];
     expect(url).toBe("/api/plants/1/photo");
     expect(init?.method).toBe("POST");
-    expect(init?.headers).toBeUndefined();
-    expect(init?.body).toBeInstanceOf(FormData);
+    expect(init?.headers).toMatchObject({ "Accept-Language": "en" });
     expect((init?.body as FormData).get("file")).toBeInstanceOf(File);
     expect(result.photoUrl).toBe("/uploads/plants/1/a.png");
   });

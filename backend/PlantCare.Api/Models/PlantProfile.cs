@@ -29,4 +29,6 @@ public class PlantProfile
     public string? DiagnosisChecklist { get; set; }
 
     public List<Plant> Plants { get; set; } = [];
+
+    public List<PlantProfileTranslation> Translations { get; set; } = [];
 }

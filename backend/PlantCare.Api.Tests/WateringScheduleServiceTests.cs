@@ -7,7 +7,7 @@ namespace PlantCare.Api.Tests;
 
 public class WateringScheduleServiceTests
 {
-    private readonly WateringScheduleService _service = new();
+    private readonly WateringScheduleService _service = new(new AppLocalizer("en"));
 
     private static readonly DateOnly Today = new(2026, 3, 15);
 

@@ -93,6 +93,16 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 - `src/components/AppShell.tsx` is the single layout wrapper (used by `App.tsx`): a persistent shadcn sidebar with the brand and the main nav (Dashboard / Calendar / Insights / Plants / Add plant — future entries like Rooms/Settings go here), an active-item state driven by the route, a sticky top bar on mobile (sidebar trigger + brand), and the theme toggle. `/wall` deliberately renders outside the shell.
 - The responsive "is mobile" state comes from `src/hooks/use-mobile.tsx` (shadcn's `useIsMobile`).
 
+### Internationalization (i18n)
+
+- `i18next` + `react-i18next` are initialized in `src/i18n/index.ts` with bundled `en`/`pl` catalogs (`src/i18n/locales/*.json`); `src/main.tsx` imports it once. Components use `useTranslation()`, non-React helpers (`src/lib/*`, mutation hooks) use `i18n.t` directly.
+- The language preference persists in `localStorage` under `ui-language` (same pattern as `ui-theme`) and defaults to the browser language (`pl` when it starts with `pl`). Changing it sets `<html lang>`, re-renders all text, and triggers a full query invalidation in `AppShell` so server-generated strings (due messages, localized profile content) refetch.
+- `src/components/LanguageToggle.tsx` is the dropdown control (English/Polski), sitting next to the `ModeToggle` in the app shell's top bar.
+- The API client (`src/api/headers.ts`) sends `Accept-Language` with the active UI language on every request (including multipart uploads), so the backend localizes `dueMessage`, hints and ProblemDetails accordingly.
+- Plurals use i18next's `_one/_few/_many/_other` suffixes resolved via `Intl.PluralRules` — Polish forms (1 dzień / 2–4 dni / 5+ dni) need all three; the `count` option drives the choice.
+- Date/number formatting and `localeCompare` sorting pass `i18n.language` to `toLocale*`/collation, so Polish month names and diacritic ordering follow the UI language.
+- Tests run in English (`src/test/setup.ts` pins `i18n.changeLanguage("en")`); `LanguageToggle.test.tsx` covers the switch itself.
+
 ### Theming
 
 - `src/components/ThemeProvider.tsx` provides `useTheme()` with three modes: `light`, `dark`, `system`. The preference persists in `localStorage` under `ui-theme` and defaults to `system`; in system mode the app follows `prefers-color-scheme` and reacts to live changes.

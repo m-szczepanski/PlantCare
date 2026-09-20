@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Sprout } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,13 +10,13 @@ import { cn } from "@/lib/utils";
 import { touchButton, touchField } from "@/lib/ui";
 import type { CareTask } from "@/api/types";
 
-const labels: Record<CareTask["type"], string> = {
-  Watering: "Watering",
-  Fertilizing: "Fertilizing",
-  Repotting: "Repotting",
-};
-
 export function CareTasksCard({ plantId }: { plantId: number }) {
+  const { t } = useTranslation();
+  const labels: Record<CareTask["type"], string> = {
+    Watering: t("careTask.types.Watering"),
+    Fertilizing: t("careTask.types.Fertilizing"),
+    Repotting: t("careTask.types.Repotting"),
+  };
   const { data: tasks = [] } = useCareTasks(plantId);
   const { add, remove, markDone } = useCareTaskMutations(plantId);
   const [interval, setInterval] = useState("30");
@@ -28,7 +29,7 @@ export function CareTasksCard({ plantId }: { plantId: number }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Care tasks</CardTitle>
+        <CardTitle>{t("careTask.title")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {tasks.map((task) => (
@@ -53,17 +54,17 @@ export function CareTasksCard({ plantId }: { plantId: number }) {
                 disabled={markDone.isPending}
                 onClick={() => markDone.mutate(task.type)}
               >
-                Mark done
+                {t("careTask.markDone")}
               </Button>
               {task.type !== "Watering" ? (
                 <Button
                   size="sm"
                   variant="ghost"
-                  aria-label={`Remove ${labels[task.type]} task`}
+                  aria-label={t("careTask.removeAria", { task: labels[task.type] })}
                   disabled={remove.isPending}
                   onClick={() => remove.mutate(task.id)}
                 >
-                  Remove
+                  {t("careTask.remove")}
                 </Button>
               ) : null}
             </div>
@@ -72,7 +73,7 @@ export function CareTasksCard({ plantId }: { plantId: number }) {
 
         {!hasRepotting ? (
           <div className="flex flex-wrap items-end gap-2 border-t pt-3">
-            <span className="pb-2 text-sm text-muted-foreground">Track repotting to stay on top of root binding.</span>
+            <span className="pb-2 text-sm text-muted-foreground">{t("careTask.repottingHint")}</span>
             <Button
               className={touchButton}
               size="sm"
@@ -82,7 +83,7 @@ export function CareTasksCard({ plantId }: { plantId: number }) {
                 add.mutate({ type: "Repotting", intervalDays: 365, reduceInWinter: false })
               }
             >
-              Add repotting (yearly)
+              {t("careTask.addRepotting")}
             </Button>
           </div>
         ) : null}
@@ -90,7 +91,7 @@ export function CareTasksCard({ plantId }: { plantId: number }) {
         {!hasFertilizing ? (
           <div className={hasRepotting ? "flex flex-wrap items-end gap-2 border-t pt-3" : "flex flex-wrap items-end gap-2"}>
             <div className="w-28 space-y-1">
-              <Label htmlFor="fertilizerInterval">Every (days)</Label>
+              <Label htmlFor="fertilizerInterval">{t("careTask.everyDays")}</Label>
               <Input
                 id="fertilizerInterval"
                 type="number"
@@ -107,7 +108,7 @@ export function CareTasksCard({ plantId }: { plantId: number }) {
                 onChange={(event) => setReduce(event.target.checked)}
                 className="h-4 w-4 rounded border-input accent-primary"
               />
-              Skip in winter
+              {t("careTask.skipWinter")}
             </label>
             <Button
               className={`${touchButton} mb-0.5`}
@@ -124,7 +125,7 @@ export function CareTasksCard({ plantId }: { plantId: number }) {
               }
             >
               <Sprout className="mr-1 h-4 w-4" aria-hidden="true" />
-              Add fertilizing
+              {t("careTask.addFertilizing")}
             </Button>
           </div>
         ) : null}

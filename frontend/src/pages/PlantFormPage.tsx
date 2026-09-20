@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import type { PlantInput } from "@/api/types";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PlantForm } from "@/components/PlantForm";
@@ -7,6 +8,7 @@ import { splitApiError } from "@/lib/validation";
 import { useCreatePlant, usePlant, useUpdatePlant } from "@/hooks/usePlants";
 
 export function PlantFormPage() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const isEdit = id !== undefined;
   const plantId = Number(id);
@@ -16,15 +18,15 @@ export function PlantFormPage() {
     <div className="mx-auto max-w-xl space-y-4">
       <Breadcrumbs
         items={[
-          { label: "Home", to: "/" },
-          { label: "Plants", to: "/plants" },
-          { label: isEdit ? "Edit plant" : "Add plant" },
+          { label: t("common.home"), to: "/" },
+          { label: t("plants.title"), to: "/plants" },
+          { label: isEdit ? t("form.editPlant") : t("form.addPlant") },
         ]}
       />
-      <h1 className="text-2xl font-bold">{isEdit ? "Edit plant" : "Add plant"}</h1>
+      <h1 className="text-2xl font-bold">{isEdit ? t("form.editPlant") : t("form.addPlant")}</h1>
       <Card>
         <CardHeader>
-          <CardTitle>{isEdit ? "Update details" : "New plant"}</CardTitle>
+          <CardTitle>{isEdit ? t("form.updateDetails") : t("form.newPlant")}</CardTitle>
         </CardHeader>
         <CardContent>
           {isEdit ? (
@@ -39,6 +41,7 @@ export function PlantFormPage() {
 }
 
 function CreatePlant({ onDone }: { onDone: () => void }) {
+  const { t } = useTranslation();
   const create = useCreatePlant();
   const split = splitApiError(create.error);
 
@@ -51,7 +54,7 @@ function CreatePlant({ onDone }: { onDone: () => void }) {
       submitting={create.isPending}
       error={split.banner}
       fieldErrors={split.fields}
-      submitLabel="Create plant"
+      submitLabel={t("form.createPlant")}
       onSubmit={handleSubmit}
       onCancel={onDone}
     />
@@ -59,16 +62,17 @@ function CreatePlant({ onDone }: { onDone: () => void }) {
 }
 
 function EditPlant({ plantId, onDone }: { plantId: number; onDone: () => void }) {
+  const { t } = useTranslation();
   const { data: plant, isPending, isError } = usePlant(plantId);
   const update = useUpdatePlant();
   const split = splitApiError(update.error);
 
   if (isPending) {
-    return <p className="text-muted-foreground">Loading plant...</p>;
+    return <p className="text-muted-foreground">{t("common.loadingPlant")}</p>;
   }
 
   if (isError || !plant) {
-    return <p className="text-destructive">Could not load plant.</p>;
+    return <p className="text-destructive">{t("form.loadFailed")}</p>;
   }
 
   function handleSubmit(input: PlantInput) {
@@ -81,7 +85,7 @@ function EditPlant({ plantId, onDone }: { plantId: number; onDone: () => void })
       submitting={update.isPending}
       error={split.banner}
       fieldErrors={split.fields}
-      submitLabel="Save changes"
+      submitLabel={t("profiles.saveChanges")}
       onSubmit={handleSubmit}
       onCancel={onDone}
     />

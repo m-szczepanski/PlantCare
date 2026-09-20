@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
 import { SearchX } from "lucide-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -26,6 +27,7 @@ import {
 import { touchButton, touchField } from "@/lib/ui";
 
 export function PlantsPage() {
+  const { t } = useTranslation();
   const { data: plants, isPending, isError, error } = usePlants();
   const water = useWaterPlant();
   const [params, setParams] = useSearchParams();
@@ -36,8 +38,8 @@ export function PlantsPage() {
   if (isPending) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-bold">Plants</h1>
-        <PlantCardSkeletonGrid label="Loading plants..." />
+        <h1 className="text-2xl font-bold">{t("plants.title")}</h1>
+        <PlantCardSkeletonGrid label={t("plants.loading")} />
       </div>
     );
   }
@@ -46,7 +48,7 @@ export function PlantsPage() {
     return (
       <Card>
         <CardContent className="pt-6 text-destructive">
-          Could not load plants: {(error as Error).message}
+          {t("plants.loadError", { message: (error as Error).message })}
         </CardContent>
       </Card>
     );
@@ -55,7 +57,7 @@ export function PlantsPage() {
   if (!plants || plants.length === 0) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-bold">Plants</h1>
+        <h1 className="text-2xl font-bold">{t("plants.title")}</h1>
         <NoPlantsEmptyState />
       </div>
     );
@@ -78,50 +80,50 @@ export function PlantsPage() {
 
   return (
     <div className="space-y-4">
-      <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Plants" }]} />
+      <Breadcrumbs items={[{ label: t("common.home"), to: "/" }, { label: t("plants.title") }]} />
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold">Plants</h1>
+        <h1 className="text-2xl font-bold">{t("plants.title")}</h1>
         <Button asChild className={touchButton}>
-          <Link to="/plants/new">Add plant</Link>
+          <Link to="/plants/new">{t("dashboard.addPlant")}</Link>
         </Button>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
         <Input
           id="plant-search"
-          aria-label="Search plants"
-          title="Focus with /"
-          placeholder="Search name, species, room..."
+          aria-label={t("plants.searchAria")}
+          title={t("plants.searchHint")}
+          placeholder={t("plants.searchPlaceholder")}
           value={search}
           onChange={(event) => updateParams({ q: event.target.value })}
           className={`w-full sm:w-64 ${touchField}`}
         />
         <Select value={due} onValueChange={(value) => updateParams({ due: value as DueFilter })}>
-          <SelectTrigger aria-label="Filter by due status" className={touchField}>
+          <SelectTrigger aria-label={t("plants.filterAria")} className={touchField}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {dueFilterOptions.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {option.label}
+                {t(option.labelKey)}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select value={sort} onValueChange={(value) => updateParams({ sort: value as SortKey })}>
-          <SelectTrigger aria-label="Sort plants" className={touchField}>
+          <SelectTrigger aria-label={t("plants.sortAria")} className={touchField}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {sortOptions.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {option.label}
+                {t(option.labelKey)}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <span className="text-sm text-muted-foreground">
-          {visible.length} of {plants.length}
+          {t("plants.countShown", { shown: visible.length, total: plants.length })}
         </span>
       </div>
 
@@ -130,11 +132,11 @@ export function PlantsPage() {
           <CardContent className="p-0">
             <EmptyState
               icon={SearchX}
-              title="No matching plants"
-              description="No plants match the current search and filters."
+              title={t("plants.noMatchTitle")}
+              description={t("plants.noMatchDescription")}
               action={
                 <Button variant="outline" onClick={clearFilters} className={touchButton}>
-                  Clear filters
+                  {t("plants.clearFilters")}
                 </Button>
               }
             />

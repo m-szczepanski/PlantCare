@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,6 +35,7 @@ export interface PlantFormProps {
 }
 
 export function PlantForm({ initial, submitting, error, fieldErrors = {}, submitLabel, onSubmit, onCancel }: PlantFormProps) {
+  const { t, i18n } = useTranslation();
   const { data: profiles = [] } = usePlantProfiles();
   const { data: rooms = [] } = useRooms();
   const createRoom = useCreateRoom();
@@ -63,7 +65,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
 
   const nextDuePreview = (() => {
     if (effectiveInterval === null || !Number.isInteger(effectiveInterval) || effectiveInterval < 1) {
-      return "No watering schedule — pick a profile or set an interval.";
+      return t("form.noSchedulePreview");
     }
     const base = lastWateredAt ? new Date(`${lastWateredAt}T00:00:00`) : new Date();
     const due = new Date(base.getTime() + effectiveInterval * 86_400_000);
@@ -71,7 +73,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
     const daysFromToday = Math.round(
       (dueMidnight.getTime() - new Date().setHours(0, 0, 0, 0)) / 86_400_000,
     );
-    return `Next watering due: ${due.toLocaleDateString()} (${daysFromToday === 0 ? "today" : `in ${daysFromToday} days`})`;
+    return t("form.nextDuePreview", { date: due.toLocaleDateString(i18n.language), when: daysFromToday === 0 ? t("form.today") : t("form.inDays", { count: daysFromToday }) });
   })();
 
   function handleSubmit(event: FormEvent) {
@@ -99,13 +101,13 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="nickName">Nick name</Label>
+        <Label htmlFor="nickName">{t("form.nickName")}</Label>
         <Input
           id="nickName"
           required
           value={nickName}
           onChange={(e) => setNickName(e.target.value)}
-          placeholder="Monstera Mike"
+          placeholder={t("form.nickNamePlaceholder")}
           aria-invalid={fieldErrors.nickName ? true : undefined}
           className={touchField}
         />
@@ -113,16 +115,16 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="room">Room</Label>
+        <Label htmlFor="room">{t("form.room")}</Label>
         <Select
           value={roomId == null ? "none" : String(roomId)}
           onValueChange={(value) => setRoomId(value === "none" ? null : Number(value))}
         >
           <SelectTrigger id="room" className={touchField}>
-            <SelectValue placeholder="No room" />
+            <SelectValue placeholder={t("form.noRoom")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="none">No room</SelectItem>
+            <SelectItem value="none">{t("form.noRoom")}</SelectItem>
             {rooms.map((room) => (
               <SelectItem key={room.id} value={String(room.id)}>
                 {room.name}
@@ -132,10 +134,10 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
         </Select>
         <div className="flex gap-2">
           <Input
-            aria-label="New room name"
+            aria-label={t("form.newRoomAria")}
             value={newRoomName}
             onChange={(e) => setNewRoomName(e.target.value)}
-            placeholder="Quickly add a room"
+            placeholder={t("form.quickAddRoom")}
             className={touchField}
           />
           <Button
@@ -149,28 +151,28 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
               )
             }
           >
-            {createRoom.isPending ? "Adding..." : "Add"}
+            {createRoom.isPending ? t("common.adding") : t("common.add")}
           </Button>
         </div>
         <FieldError message={fieldErrors.roomId} />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="profile">Species profile</Label>
+        <Label htmlFor="profile">{t("form.speciesProfile")}</Label>
         <ProfileCombobox id="profile" profiles={profiles} value={profileId} onChange={setProfileId} />
         <FieldError message={fieldErrors.plantProfileId} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="customInterval">Custom interval (days)</Label>
+          <Label htmlFor="customInterval">{t("form.customInterval")}</Label>
           <Input
             id="customInterval"
             type="number"
             min={1}
             value={customInterval}
             onChange={(e) => setCustomInterval(e.target.value)}
-            placeholder={selectedProfile ? `Profile default: ${selectedProfile.defaultWateringIntervalDays}` : "Overrides profile"}
+            placeholder={selectedProfile ? t("form.profileDefault", { days: selectedProfile.defaultWateringIntervalDays }) : t("form.overridesProfile")}
             aria-invalid={fieldErrors.customWateringIntervalDays ? true : undefined}
             className={touchField}
           />
@@ -178,7 +180,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="acquiredDate">Acquired date</Label>
+          <Label htmlFor="acquiredDate">{t("form.acquiredDate")}</Label>
           <Input
             id="acquiredDate"
             type="date"
@@ -194,7 +196,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="lastWateredAt">Last watered</Label>
+          <Label htmlFor="lastWateredAt">{t("form.lastWatered")}</Label>
           <Input
             id="lastWateredAt"
             type="date"
@@ -207,7 +209,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="photoUrl">Photo URL</Label>
+          <Label htmlFor="photoUrl">{t("form.photoUrl")}</Label>
           <Input
             id="photoUrl"
             value={photoUrl}
@@ -222,7 +224,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="potSizeCm">Pot size (cm)</Label>
+          <Label htmlFor="potSizeCm">{t("form.potSize")}</Label>
           <Input
             id="potSizeCm"
             type="number"
@@ -237,24 +239,24 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
           <FieldError message={fieldErrors.potSizeCm} />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="soilMix">Soil mix</Label>
+          <Label htmlFor="soilMix">{t("form.soilMix")}</Label>
           <Input
             id="soilMix"
             value={soilMix}
             onChange={(e) => setSoilMix(e.target.value)}
-            placeholder="Aroid chunky blend"
+            placeholder={t("form.soilMixPlaceholder")}
             className={touchField}
           />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="propagatedFrom">Propagated from</Label>
+        <Label htmlFor="propagatedFrom">{t("form.propagatedFrom")}</Label>
         <Input
           id="propagatedFrom"
           value={propagatedFrom}
           onChange={(e) => setPropagatedFrom(e.target.value)}
-          placeholder="e.g. Cutting from grandma's monstera"
+          placeholder={t("form.propagatedFromPlaceholder")}
           className={touchField}
         />
       </div>
@@ -266,7 +268,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
           onChange={(e) => setNotifyEnabled(e.target.checked)}
           className="h-4 w-4 shrink-0 rounded border-input accent-primary"
         />
-        Send watering reminders for this plant
+        {t("form.notifyReminders")}
       </label>
 
       <label className="flex items-center gap-2 text-sm">
@@ -276,7 +278,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
           onChange={(e) => setReduceInWinter(e.target.checked)}
           className="h-4 w-4 shrink-0 rounded border-input accent-primary"
         />
-        Reduce watering in winter (doubles the interval Dec–Feb)
+        {t("form.reduceWinter")}
       </label>
 
       <p
@@ -290,10 +292,10 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
 
       <div className="flex flex-wrap gap-2 pt-2">
         <Button type="submit" disabled={submitting} className={touchButton}>
-          {submitting ? "Saving..." : submitLabel}
+          {submitting ? t("common.saving") : submitLabel}
         </Button>
         <Button type="button" variant="ghost" onClick={onCancel} disabled={submitting} className={touchButton}>
-          Cancel
+          {t("common.cancel")}
         </Button>
       </div>
     </form>

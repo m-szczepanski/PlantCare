@@ -15,6 +15,7 @@ public class QuickActionController(
     QuickActionOptions options,
     QuickActionRateLimiter limiter,
     IHttpContextAccessor httpContext,
+    IAppLocalizer localizer,
     ILogger<QuickActionController> logger) : ControllerBase
 {
     [HttpGet]
@@ -30,23 +31,23 @@ public class QuickActionController(
         if (!limiter.TryAllow($"{id}:{remoteIp}"))
         {
             logger.LogWarning("Quick action for plant {PlantId} rate limited ({RemoteIp}).", id, remoteIp);
-            return StatusCode(StatusCodes.Status429TooManyRequests, "Too many quick-action attempts.");
+            return StatusCode(StatusCodes.Status429TooManyRequests, localizer.T("quick.rateLimited"));
         }
 
         if (!QuickActionRateLimiter.SecretMatches(key, options.Secret!))
         {
             logger.LogWarning("Quick action for plant {PlantId} rejected: bad secret ({RemoteIp}).", id, remoteIp);
-            return StatusCode(StatusCodes.Status403Forbidden, "Invalid quick-action key.");
+            return StatusCode(StatusCodes.Status403Forbidden, localizer.T("quick.invalidKey"));
         }
 
-        var plant = await plants.WaterAsync(id, "Watered via notification", cancellationToken: cancellationToken);
+        var plant = await plants.WaterAsync(id, localizer.T("quick.note"), cancellationToken: cancellationToken);
         if (plant is null)
         {
             logger.LogWarning("Quick action hit unknown plant {PlantId} ({RemoteIp}).", id, remoteIp);
-            return NotFound("Plant not found.");
+            return NotFound(localizer.T("quick.notFound"));
         }
 
         logger.LogInformation("Quick action watered plant {PlantId} ({RemoteIp}).", id, remoteIp);
-        return Ok($"{plant.NickName} watered just now.");
+        return Ok(localizer.Tf("quick.done", plant.NickName));
     }
 }

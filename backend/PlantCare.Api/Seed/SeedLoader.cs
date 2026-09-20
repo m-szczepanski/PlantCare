@@ -116,4 +116,90 @@ public static class SeedLoader
         [property: JsonPropertyName("toxicToPets")] bool ToxicToPets = false,
         [property: JsonPropertyName("toxicToChildren")] bool ToxicToChildren = false,
         [property: JsonPropertyName("diagnosisChecklist")] string? DiagnosisChecklist = null);
+
+    /// <summary>
+    /// Localized profile content shipped as plant-profiles.&lt;lang&gt;.json next to the
+    /// canonical seed file. Entries are keyed by the English common name; existing
+    /// translations are refreshed (seed is the source of truth for shipped languages),
+    /// entries for unknown profiles are skipped.
+    /// </summary>
+    public static async Task LoadProfileTranslationsAsync(
+        AppDbContext db,
+        string seedDirectory,
+        ILogger logger,
+        CancellationToken cancellationToken = default)
+    {
+        foreach (var file in Directory.EnumerateFiles(seedDirectory, "plant-profiles.*.json").Order(StringComparer.Ordinal))
+        {
+            var language = Path.GetFileName(file)["plant-profiles.".Length..^".json".Length];
+            if (language.Length != 2 || !Services.Localization.Messages.IsSupported(language))
+            {
+                continue;
+            }
+
+            try
+            {
+                await LoadTranslationFileAsync(db, file, language, logger, cancellationToken);
+            }
+            catch (JsonException ex)
+            {
+                logger.LogWarning(ex, "Skipping invalid translation seed file {File}.", file);
+            }
+        }
+    }
+
+    private static async Task LoadTranslationFileAsync(
+        AppDbContext db,
+        string path,
+        string language,
+        ILogger logger,
+        CancellationToken cancellationToken)
+    {
+        await using var stream = File.OpenRead(path);
+        var entries = await JsonSerializer.DeserializeAsync<List<SeedProfileTranslation>>(stream, JsonOptions, cancellationToken)
+            ?? [];
+
+        var profiles = await db.PlantProfiles
+            .Include(p => p.Translations)
+            .ToListAsync(cancellationToken);
+        var byName = profiles.ToDictionary(p => p.CommonName, StringComparer.OrdinalIgnoreCase);
+
+        var upserted = 0;
+        foreach (var entry in entries)
+        {
+            if (!byName.TryGetValue(entry.Profile, out var profile))
+            {
+                logger.LogDebug("Translation entry for unknown profile {Profile} in {File}; skipping.", entry.Profile, path);
+                continue;
+            }
+
+            var translation = profile.Translations.FirstOrDefault(t =>
+                string.Equals(t.Language, language, StringComparison.OrdinalIgnoreCase));
+            if (translation is null)
+            {
+                translation = new PlantProfileTranslation { PlantProfileId = profile.Id, Language = language };
+                db.PlantProfileTranslations.Add(translation);
+                profile.Translations.Add(translation);
+            }
+
+            translation.CommonName = entry.CommonName;
+            translation.HumidityNotes = entry.HumidityNotes;
+            translation.CareTips = entry.CareTips;
+            translation.DiagnosisChecklist = entry.DiagnosisChecklist;
+            upserted++;
+        }
+
+        if (upserted > 0)
+        {
+            await db.SaveChangesAsync(cancellationToken);
+            logger.LogInformation("Seeded {Count} {Language} profile translation(s) from {File}.", upserted, language, path);
+        }
+    }
+
+    private sealed record SeedProfileTranslation(
+        [property: JsonPropertyName("profile")] string Profile,
+        [property: JsonPropertyName("commonName")] string? CommonName,
+        [property: JsonPropertyName("humidityNotes")] string? HumidityNotes,
+        [property: JsonPropertyName("careTips")] string? CareTips,
+        [property: JsonPropertyName("diagnosisChecklist")] string? DiagnosisChecklist = null);
 }

@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { plantProfilesApi } from "@/api/client";
 import type { PlantProfileInput } from "@/api/types";
 import { toastError } from "@/lib/toast";
+import i18n from "@/i18n";
 
 export const profileKeys = { all: ["plant-profiles"] as const };
 
@@ -22,18 +23,18 @@ export function useProfileMutations() {
     mutationFn: (input: PlantProfileInput) => plantProfilesApi.create(input),
     onSuccess: (profile) => {
       invalidate();
-      toast.success("Profile created", { description: `${profile.commonName} added to the catalogue.` });
+      toast.success(i18n.t("toasts.profileCreated"), { description: i18n.t("toasts.profileCreatedDesc", { name: profile.commonName }) });
     },
-    onError: (error) => toastError("Could not create profile", error),
+    onError: (error) => toastError(i18n.t("toasts.profileCreateFailed"), error),
   });
 
   const update = useMutation({
     mutationFn: ({ id, input }: { id: number; input: PlantProfileInput }) => plantProfilesApi.update(id, input),
     onSuccess: (profile) => {
       invalidate();
-      toast.success("Profile updated", { description: `${profile.commonName} saved.` });
+      toast.success(i18n.t("toasts.profileUpdated"), { description: i18n.t("toasts.profileSavedDesc", { name: profile.commonName }) });
     },
-    onError: (error) => toastError("Could not update profile", error),
+    onError: (error) => toastError(i18n.t("toasts.profileUpdateFailed"), error),
   });
 
   return { create, update };

@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Update="Seed\plant-profiles.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Update="Seed\*.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
