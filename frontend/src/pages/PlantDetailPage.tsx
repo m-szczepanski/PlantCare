@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AlertTriangle, Droplets } from "lucide-react";
 import { CareTasksCard } from "@/components/CareTasksCard";
+import { DiagnosticsCard } from "@/components/DiagnosticsCard";
 import { CareTipsCard } from "@/components/CareTipsCard";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { DueStatusBadge } from "@/components/DueStatusBadge";
@@ -233,6 +234,12 @@ export function PlantDetailPage() {
       ) : null}
 
       {plant.careTips ? <CareTipsCard tips={plant.careTips} /> : null}
+      {plant.careTips?.diagnosisChecklist ? (
+        <DiagnosticsCard
+          checklist={plant.careTips.diagnosisChecklist}
+          commonName={plant.careTips.commonName}
+        />
+      ) : null}
 
       <Card>
         <CardHeader>

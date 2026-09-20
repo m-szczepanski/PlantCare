@@ -20,6 +20,7 @@ const monstera: PlantProfile = {
   careTips: "Feed monthly.",
   toxicToPets: false,
   toxicToChildren: false,
+  diagnosisChecklist: null,
   plantCount: 2,
 };
 

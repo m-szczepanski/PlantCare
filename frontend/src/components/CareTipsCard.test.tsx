@@ -15,6 +15,7 @@ const tips: PlantCareTips = {
     "",
     "> Rotate for even growth.",
   ].join("\n"),
+  diagnosisChecklist: null,
 };
 
 describe("CareTipsCard", () => {

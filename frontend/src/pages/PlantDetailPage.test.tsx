@@ -333,8 +333,9 @@ describe("PlantDetailPage", () => {
         lightRequirement: "Bright",
         humidityNotes: "Loves misting.",
         careTips: "Feed **monthly** in summer.",
-        toxicToPets: false,
-        toxicToChildren: false,
+        diagnosisChecklist: JSON.stringify([
+          { symptom: "Yellow leaves", causes: ["Overwatering", "Normal leaf loss"] },
+        ]),
       },
     });
 
@@ -344,6 +345,10 @@ describe("PlantDetailPage", () => {
     expect(screen.getByText("Bright, indirect light")).toBeInTheDocument();
     expect(screen.getByText("Loves misting.")).toBeInTheDocument();
     expect(screen.getByText("monthly").closest("strong")).not.toBeNull();
+    expect(screen.getByText("When something's off — Monstera")).toBeInTheDocument();
+    const symptom = screen.getByText("Yellow leaves");
+    expect(symptom.closest("details")).not.toBeNull();
+    expect(screen.getByText("Normal leaf loss")).toBeInTheDocument();
   });
 
   it("hides the care tips section for plants without a profile", async () => {

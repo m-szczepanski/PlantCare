@@ -10,6 +10,7 @@ public enum PlantProfileWriteStatus
     Success,
     NotFound,
     DuplicateName,
+    InvalidChecklist,
 }
 
 public sealed record PlantProfileWriteResult(PlantProfileWriteStatus Status, PlantProfileResponseDto? Profile = null);
@@ -45,6 +46,11 @@ public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
             return new PlantProfileWriteResult(PlantProfileWriteStatus.DuplicateName);
         }
 
+        if (!DiagnosisChecklist.TryValidate(dto.DiagnosisChecklist, out _, out _))
+        {
+            return new PlantProfileWriteResult(PlantProfileWriteStatus.InvalidChecklist);
+        }
+
         var profile = new PlantProfile
         {
             CommonName = commonName,
@@ -55,6 +61,7 @@ public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
             CareTips = dto.CareTips.Trim(),
             ToxicToPets = dto.ToxicToPets,
             ToxicToChildren = dto.ToxicToChildren,
+            DiagnosisChecklist = dto.DiagnosisChecklist?.Trim(),
         };
 
         db.PlantProfiles.Add(profile);
@@ -77,6 +84,11 @@ public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
             return new PlantProfileWriteResult(PlantProfileWriteStatus.DuplicateName);
         }
 
+        if (!DiagnosisChecklist.TryValidate(dto.DiagnosisChecklist, out _, out _))
+        {
+            return new PlantProfileWriteResult(PlantProfileWriteStatus.InvalidChecklist);
+        }
+
         profile.CommonName = commonName;
         profile.ScientificName = dto.ScientificName?.Trim();
         profile.DefaultWateringIntervalDays = dto.DefaultWateringIntervalDays;
@@ -89,6 +101,7 @@ public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
             profile.CareTips = dto.CareTips.Trim();
             profile.ToxicToPets = dto.ToxicToPets;
             profile.ToxicToChildren = dto.ToxicToChildren;
+            profile.DiagnosisChecklist = dto.DiagnosisChecklist?.Trim();
             profile.DefaultWateringIntervalDays = dto.DefaultWateringIntervalDays;
             profile.ScientificName = dto.ScientificName?.Trim();
 
@@ -113,6 +126,7 @@ public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
         CareTips = profile.CareTips,
         ToxicToPets = profile.ToxicToPets,
         ToxicToChildren = profile.ToxicToChildren,
+        DiagnosisChecklist = profile.DiagnosisChecklist,
         PlantCount = profile.Plants?.Count ?? 0,
     };
 

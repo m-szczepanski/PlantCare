@@ -464,6 +464,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
                     LightRequirement = profile.LightRequirement.ToString(),
                     HumidityNotes = profile.HumidityNotes,
                     CareTips = profile.CareTips,
+                    DiagnosisChecklist = profile.DiagnosisChecklist,
                 }
                 : null,
             CustomWateringIntervalDays = watering?.IntervalDays,

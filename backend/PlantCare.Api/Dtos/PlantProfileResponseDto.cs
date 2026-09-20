@@ -22,5 +22,7 @@ public class PlantProfileResponseDto
 
     public bool ToxicToChildren { get; set; }
 
+    public string? DiagnosisChecklist { get; set; }
+
     public required int PlantCount { get; set; }
 }

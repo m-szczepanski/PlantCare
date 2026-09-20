@@ -7,7 +7,8 @@
     "humidityNotes": "Prefers average to high humidity; mist occasionally or use a pebble tray.",
     "careTips": "Thrives in bright, indirect light. Water when the top 2-3 cm of soil are dry. Wipe leaves to keep them dust-free. Rotate periodically for even growth.",
     "toxicToPets": true,
-    "toxicToChildren": true
+    "toxicToChildren": true,
+    "diagnosisChecklist": "[{\"symptom\": \"Yellow leaves\", \"causes\": [\"Overwatering\", \"Normal loss of old leaves\", \"Root bound pot\"]}, {\"symptom\": \"Brown, crispy leaf edges\", \"causes\": [\"Air too dry\", \"Underwatering\", \"Salt build-up from tap water\"]}, {\"symptom\": \"Leggy stems, small new leaves\", \"causes\": [\"Light too low\"]}, {\"symptom\": \"Drooping with moist soil\", \"causes\": [\"Root rot from waterlogged mix\"]}]"
   },
   {
     "commonName": "Snake Plant",
@@ -17,7 +18,8 @@
     "humidityNotes": "Tolerates dry air well; no extra humidity needed.",
     "careTips": "Extremely forgiving. Tolerates low light and neglect. Let the soil dry fully between waterings; root rot is the main risk. Feed once in spring.",
     "toxicToPets": true,
-    "toxicToChildren": true
+    "toxicToChildren": true,
+    "diagnosisChecklist": "[{\"symptom\": \"Mushy, translucent base\", \"causes\": [\"Overwatering / root rot — stop watering, repot in dry mix\"]}, {\"symptom\": \"Wrinkling leaves\", \"causes\": [\"Severely underwatered\", \"Root bound\"]}, {\"symptom\": \"Leaves falling over\", \"causes\": [\"Too little light\", \"Overwatering\"]}]"
   },
   {
     "commonName": "Pothos",
@@ -37,7 +39,8 @@
     "humidityNotes": "Enjoy extra humidity; group with other plants or run a humidifier nearby.",
     "careTips": "Loves bright, filtered light and stable conditions. Keep away from drafts and radiators. Water when the top 2 cm of soil are dry; feed monthly in growing season.",
     "toxicToPets": true,
-    "toxicToChildren": true
+    "toxicToChildren": true,
+    "diagnosisChecklist": "[{\"symptom\": \"Dropping leaves after a move\", \"causes\": [\"Stress from changed light or drafts — usually recovers\"]}, {\"symptom\": \"Brown spots with yellow halo\", \"causes\": [\"Overwatering\", \"Poor drainage\"]}, {\"symptom\": \"Brown, dry leaf edges\", \"causes\": [\"Low humidity\", \"Underwatering\"]}]"
   },
   {
     "commonName": "Spider Plant",
@@ -87,7 +90,8 @@
     "humidityNotes": "Demanding: needs high humidity or leaf edges brown fast.",
     "careTips": "Keep evenly moist, never waterlogged. High humidity and filtered or rainwater only — leaf tips brown with tap water. Keep away from direct sun.",
     "toxicToPets": false,
-    "toxicToChildren": false
+    "toxicToChildren": false,
+    "diagnosisChecklist": "[{\"symptom\": \"Crispy brown leaf margins\", \"causes\": [\"Low humidity\", \"Minerals or chlorine in tap water\"]}, {\"symptom\": \"Leaves curling inward\", \"causes\": [\"Underwatering\", \"Heat stress\"]}, {\"symptom\": \"Faded leaf patterns\", \"causes\": [\"Light too strong\"]}]"
   },
   {
     "commonName": "Jade Plant",
@@ -97,7 +101,8 @@
     "humidityNotes": "Fine in dry indoor air.",
     "careTips": "A succulent: water deeply but rarely and let soil dry fully. Bright light keeps it compact. Repot every 2-3 years; toxic to pets.",
     "toxicToPets": true,
-    "toxicToChildren": true
+    "toxicToChildren": true,
+    "diagnosisChecklist": "[{\"symptom\": \"Shrivelled, soft leaves\", \"causes\": [\"Underwatering\", \"Root damage\"]}, {\"symptom\": \"Black, mushy stems\", \"causes\": [\"Root rot from excess water\"]}, {\"symptom\": \"Lost bottom leaves only\", \"causes\": [\"Normal aging of an established plant\"]}]"
   },
   {
     "commonName": "Bird of Paradise",

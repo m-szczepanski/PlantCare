@@ -22,5 +22,11 @@ public class PlantProfile
 
     public bool ToxicToChildren { get; set; }
 
+    /// <summary>
+    /// JSON array of {symptom, causes[]} entries rendered as a per-species
+    /// diagnostics checklist on the plant detail; validated on write.
+    /// </summary>
+    public string? DiagnosisChecklist { get; set; }
+
     public List<Plant> Plants { get; set; } = [];
 }

@@ -13,4 +13,6 @@ public class PlantCareTipsDto
     public required string HumidityNotes { get; set; }
 
     public required string CareTips { get; set; }
+
+    public string? DiagnosisChecklist { get; set; }
 }

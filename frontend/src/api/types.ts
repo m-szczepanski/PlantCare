@@ -47,13 +47,17 @@ export interface RoomInput {
   temperatureCelsius?: number | null;
 }
 
+export interface DiagnosisEntry {
+  symptom: string;
+  causes: string[];
+}
+
 export interface PlantCareTips {
   commonName: string;
   lightRequirement: LightRequirement;
   humidityNotes: string;
   careTips: string;
-  toxicToPets?: boolean;
-  toxicToChildren?: boolean;
+  diagnosisChecklist: string | null;
 }
 
 export interface Plant {
@@ -157,6 +161,7 @@ export interface PlantProfile extends PlantProfileOption {
   careTips: string;
   toxicToPets: boolean;
   toxicToChildren: boolean;
+  diagnosisChecklist: string | null;
   plantCount: number;
 }
 
@@ -169,6 +174,7 @@ export interface PlantProfileInput {
   careTips: string;
   toxicToPets?: boolean;
   toxicToChildren?: boolean;
+  diagnosisChecklist?: string | null;
 }
 
 export interface PlantNote {

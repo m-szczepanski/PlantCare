@@ -29,4 +29,6 @@ public class PlantProfileRequestDto
     public bool ToxicToPets { get; set; }
 
     public bool ToxicToChildren { get; set; }
+
+    public string? DiagnosisChecklist { get; set; }
 }

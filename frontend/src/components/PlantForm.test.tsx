@@ -22,6 +22,7 @@ const profiles: PlantProfile[] = [
     careTips: "Feed monthly.",
     toxicToPets: false,
     toxicToChildren: false,
+    diagnosisChecklist: null,
     plantCount: 0,
   },
   {
@@ -34,6 +35,7 @@ const profiles: PlantProfile[] = [
     careTips: "Tolerant.",
     toxicToPets: false,
     toxicToChildren: false,
+    diagnosisChecklist: null,
     plantCount: 0,
   },
 ];

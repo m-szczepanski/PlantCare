@@ -94,6 +94,7 @@ public static class SeedLoader
                 CareTips = seed.CareTips,
                 ToxicToPets = seed.ToxicToPets,
                 ToxicToChildren = seed.ToxicToChildren,
+                DiagnosisChecklist = seed.DiagnosisChecklist,
             });
             added++;
         }
@@ -113,5 +114,6 @@ public static class SeedLoader
         [property: JsonPropertyName("humidityNotes")] string HumidityNotes,
         [property: JsonPropertyName("careTips")] string CareTips,
         [property: JsonPropertyName("toxicToPets")] bool ToxicToPets = false,
-        [property: JsonPropertyName("toxicToChildren")] bool ToxicToChildren = false);
+        [property: JsonPropertyName("toxicToChildren")] bool ToxicToChildren = false,
+        [property: JsonPropertyName("diagnosisChecklist")] string? DiagnosisChecklist = null);
 }

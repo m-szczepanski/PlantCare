@@ -33,6 +33,7 @@ function emptyInput(): PlantProfileInput {
     careTips: "",
     toxicToPets: false,
     toxicToChildren: false,
+    diagnosisChecklist: "",
   };
 }
 
@@ -46,6 +47,7 @@ function toInput(profile: PlantProfile): PlantProfileInput {
     careTips: profile.careTips,
     toxicToPets: profile.toxicToPets,
     toxicToChildren: profile.toxicToChildren,
+    diagnosisChecklist: profile.diagnosisChecklist ?? "",
   };
 }
 
@@ -180,6 +182,18 @@ export function ProfilesPage() {
                   className={`w-full rounded-md border border-input bg-transparent p-3 text-base sm:text-sm ${touchField}`}
                 />
               </div>
+              <div className="space-y-1">
+                <Label htmlFor="pfChecklist">{"Diagnostics checklist (JSON array of { symptom, causes[] } entries)"}</Label>
+                <textarea
+                  id="pfChecklist"
+                  rows={4}
+                  value={draft.diagnosisChecklist ?? ""}
+                  onChange={(e) => setDraft({ ...draft, diagnosisChecklist: e.target.value })}
+                  placeholder='[{"symptom":"Yellow leaves","causes":["Overwatering"]}]'
+                  className={`w-full rounded-md border border-input bg-transparent p-3 font-mono text-xs ${touchField}`}
+                />
+              </div>
+
               <div className="flex flex-wrap gap-4">
                 <label className="flex items-center gap-2 text-sm">
                   <input
