@@ -14,6 +14,12 @@ public class PlantResponseDto
 
     public string? PhotoUrl { get; set; }
 
+    public int? PotSizeCm { get; set; }
+
+    public string? SoilMix { get; set; }
+
+    public string? PropagatedFrom { get; set; }
+
     public DateTime AcquiredDate { get; set; }
 
     public int? PlantProfileId { get; set; }

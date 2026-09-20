@@ -32,6 +32,9 @@ const plant: Plant = {
 
   roomName: "Living room",
   photoUrl: null,
+  potSizeCm: null,
+  soilMix: null,
+  propagatedFrom: null,
   acquiredDate: "2026-01-01T00:00:00",
   plantProfileId: null,
   profileCommonName: null,
@@ -130,6 +133,9 @@ describe("PlantDetailPage", () => {
     vi.mocked(plantsApi.get).mockResolvedValue({
       ...plant,
       photoUrl: "https://example.com/mike.jpg",
+      potSizeCm: null,
+      soilMix: null,
+      propagatedFrom: null,
     });
 
     renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });

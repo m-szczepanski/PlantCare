@@ -1,6 +1,6 @@
 export type PlantDueStatus = "NotScheduled" | "Overdue" | "DueToday" | "Upcoming";
 
-export type CareTaskType = "Watering" | "Fertilizing";
+export type CareTaskType = "Watering" | "Fertilizing" | "Repotting";
 
 export interface CareTask {
   id: number;
@@ -60,6 +60,9 @@ export interface Plant {
   roomId: number | null;
   roomName: string | null;
   photoUrl: string | null;
+  potSizeCm: number | null;
+  soilMix: string | null;
+  propagatedFrom: string | null;
   acquiredDate: string;
   plantProfileId: number | null;
   profileCommonName: string | null;
@@ -152,6 +155,9 @@ export interface PlantInput {
   nickName: string;
   roomId?: number | null;
   photoUrl?: string | null;
+  potSizeCm?: number | null;
+  soilMix?: string | null;
+  propagatedFrom?: string | null;
   acquiredDate: string;
   customWateringIntervalDays?: number | null;
   reduceInWinter?: boolean;

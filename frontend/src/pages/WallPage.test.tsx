@@ -18,6 +18,9 @@ function plant(over: Partial<Plant>): Plant {
 
     roomName: "Desk",
     photoUrl: null,
+    potSizeCm: null,
+    soilMix: null,
+    propagatedFrom: null,
     acquiredDate: "2026-01-01T00:00:00",
     plantProfileId: null,
     profileCommonName: null,

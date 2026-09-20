@@ -159,6 +159,9 @@ export function PlantDetailPage() {
           <Field label="Species profile" value={plant.profileCommonName ?? "None"} />
           <Field label="Acquired" value={formatDate(plant.acquiredDate)} />
           <Field label="Last watered" value={formatInstant(plant.lastWateredAt, false)} />
+          <Field label="Pot size" value={plant.potSizeCm ? `${plant.potSizeCm} cm` : "Unknown"} />
+          <Field label="Soil mix" value={plant.soilMix ?? "Not recorded"} />
+          <Field label="Propagated from" value={plant.propagatedFrom ?? "Not recorded"} />
           <Field label="Watering interval" value={plant.wateringIntervalDays ? `${plant.wateringIntervalDays} days` : "Not scheduled"} />
           <Field label="Next due" value={formatDate(plant.nextDueDate)} />
         </CardContent>

@@ -91,6 +91,9 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             NickName = dto.NickName.Trim(),
             RoomId = dto.RoomId,
             PhotoUrl = dto.PhotoUrl,
+            PotSizeCm = dto.PotSizeCm,
+            SoilMix = string.IsNullOrWhiteSpace(dto.SoilMix) ? null : dto.SoilMix.Trim(),
+            PropagatedFrom = string.IsNullOrWhiteSpace(dto.PropagatedFrom) ? null : dto.PropagatedFrom.Trim(),
             AcquiredDate = dto.AcquiredDate,
             PlantProfileId = dto.PlantProfileId,
         };
@@ -131,6 +134,9 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         plant.NickName = dto.NickName.Trim();
         plant.RoomId = dto.RoomId;
         plant.PhotoUrl = dto.PhotoUrl;
+        plant.PotSizeCm = dto.PotSizeCm;
+        plant.SoilMix = string.IsNullOrWhiteSpace(dto.SoilMix) ? null : dto.SoilMix.Trim();
+        plant.PropagatedFrom = string.IsNullOrWhiteSpace(dto.PropagatedFrom) ? null : dto.PropagatedFrom.Trim();
         plant.AcquiredDate = dto.AcquiredDate;
         plant.PlantProfileId = dto.PlantProfileId;
 
@@ -380,6 +386,9 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             RoomId = plant.RoomId,
             RoomName = plant.Room?.Name,
             PhotoUrl = plant.PhotoUrl,
+            PotSizeCm = plant.PotSizeCm,
+            SoilMix = plant.SoilMix,
+            PropagatedFrom = plant.PropagatedFrom,
             AcquiredDate = plant.AcquiredDate,
             PlantProfileId = plant.PlantProfileId,
             ProfileCommonName = plant.PlantProfile?.CommonName,

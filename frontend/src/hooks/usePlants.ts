@@ -158,7 +158,7 @@ export function useCareTaskMutations(id: number) {
   };
 
   const add = useMutation({
-    mutationFn: (input: { type: "Fertilizing"; intervalDays: number; reduceInWinter?: boolean }) =>
+    mutationFn: (input: { type: "Fertilizing" | "Repotting"; intervalDays: number; reduceInWinter?: boolean }) =>
       plantsApi.addCareTask(id, input),
     onSuccess: (task) => {
       invalidate();
@@ -177,7 +177,7 @@ export function useCareTaskMutations(id: number) {
   });
 
   const markDone = useMutation({
-    mutationFn: (type: "Watering" | "Fertilizing") => plantsApi.markCareTaskDone(id, type),
+    mutationFn: (type: "Watering" | "Fertilizing" | "Repotting") => plantsApi.markCareTaskDone(id, type),
     onSuccess: (task) => {
       invalidate();
       toast.success(`${task.type} marked done`);

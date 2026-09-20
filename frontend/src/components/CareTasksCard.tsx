@@ -12,6 +12,7 @@ import type { CareTask } from "@/api/types";
 const labels: Record<CareTask["type"], string> = {
   Watering: "Watering",
   Fertilizing: "Fertilizing",
+  Repotting: "Repotting",
 };
 
 export function CareTasksCard({ plantId }: { plantId: number }) {
@@ -21,6 +22,7 @@ export function CareTasksCard({ plantId }: { plantId: number }) {
   const [reduce, setReduce] = useState(true);
 
   const hasFertilizing = tasks.some((task) => task.type === "Fertilizing");
+  const hasRepotting = tasks.some((task) => task.type === "Repotting");
   const pendingInterval = Number(interval);
 
   return (
@@ -68,8 +70,25 @@ export function CareTasksCard({ plantId }: { plantId: number }) {
           </div>
         ))}
 
-        {!hasFertilizing ? (
+        {!hasRepotting ? (
           <div className="flex flex-wrap items-end gap-2 border-t pt-3">
+            <span className="pb-2 text-sm text-muted-foreground">Track repotting to stay on top of root binding.</span>
+            <Button
+              className={touchButton}
+              size="sm"
+              variant="secondary"
+              disabled={add.isPending}
+              onClick={() =>
+                add.mutate({ type: "Repotting", intervalDays: 365, reduceInWinter: false })
+              }
+            >
+              Add repotting (yearly)
+            </Button>
+          </div>
+        ) : null}
+
+        {!hasFertilizing ? (
+          <div className={hasRepotting ? "flex flex-wrap items-end gap-2 border-t pt-3" : "flex flex-wrap items-end gap-2"}>
             <div className="w-28 space-y-1">
               <Label htmlFor="fertilizerInterval">Every (days)</Label>
               <Input
