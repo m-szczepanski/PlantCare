@@ -29,6 +29,7 @@ const monstera: Plant = {
   profileCommonName: "Monstera",
   careTips: null,
   customWateringIntervalDays: null,
+  reduceInWinter: null,
   lastWateredAt: new Date(Date.now() - 3 * 86_400_000).toISOString(),
   dueStatus: "Overdue",
   wateringIntervalDays: 7,

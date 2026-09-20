@@ -33,6 +33,7 @@ const plant: Plant = {
   profileCommonName: null,
   careTips: null,
   customWateringIntervalDays: 7,
+  reduceInWinter: null,
   lastWateredAt: "2026-03-01T00:00:00",
   dueStatus: "Overdue",
   wateringIntervalDays: 7,

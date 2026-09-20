@@ -16,5 +16,7 @@ public class PlantProfile
 
     public required string CareTips { get; set; }
 
+    public bool DefaultReduceInWinter { get; set; }
+
     public List<Plant> Plants { get; set; } = [];
 }

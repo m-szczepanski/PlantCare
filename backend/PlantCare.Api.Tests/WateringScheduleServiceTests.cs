@@ -11,6 +11,8 @@ public class WateringScheduleServiceTests
 
     private static readonly DateOnly Today = new(2026, 3, 15);
 
+    private static readonly DateOnly WinterDay = new(2026, 1, 15);
+
     private static Plant Plant(int? intervalDays = null, DateTime? lastDoneAt = null, PlantProfile? profile = null)
     {
         var plant = new Plant
@@ -102,6 +104,59 @@ public class WateringScheduleServiceTests
         var due = _service.GetDueInfo(Watering(plant), plant, Today);
         Assert.Equal(PlantDueStatus.Upcoming, due.Status);
         Assert.Equal(7, due.DaysUntilDue);
+    }
+
+    [Fact]
+    public void Summer_KeepsIntervalAsIs()
+    {
+        var plant = Plant(intervalDays: 7, lastDoneAt: new DateTime(2026, 1, 10));
+        Watering(plant).ReduceInWinter = true;
+
+        var due = _service.GetDueInfo(Watering(plant), plant, new DateOnly(2026, 6, 15));
+
+        Assert.Equal(7, due.IntervalDays);
+        Assert.True(due.DaysUntilDue < 0);
+    }
+
+    [Fact]
+    public void Winter_DoublesIntervalWhenReductionEnabled()
+    {
+        var plant = Plant(intervalDays: 7, lastDoneAt: new DateTime(2026, 1, 10));
+        Watering(plant).ReduceInWinter = true;
+
+        var due = _service.GetDueInfo(Watering(plant), plant, WinterDay);
+
+        Assert.Equal(14, due.IntervalDays);
+        Assert.Equal(9, due.DaysUntilDue);
+    }
+
+    [Fact]
+    public void Winter_UsesProfileDefaultReductionWhenTaskDoesNotSetIt()
+    {
+        var profile = new PlantProfile
+        {
+            CommonName = "Snake Plant",
+            DefaultWateringIntervalDays = 10,
+            DefaultReduceInWinter = true,
+            HumidityNotes = "",
+            CareTips = "",
+        };
+        var plant = Plant(lastDoneAt: new DateTime(2026, 1, 10), profile: profile);
+
+        var due = _service.GetDueInfo(Watering(plant), plant, WinterDay);
+
+        Assert.Equal(20, due.IntervalDays);
+    }
+
+    [Fact]
+    public void Winter_NoReductionFlag_KeepsInterval()
+    {
+        var plant = Plant(intervalDays: 7, lastDoneAt: new DateTime(2026, 1, 10));
+
+        var due = _service.GetDueInfo(Watering(plant), plant, WinterDay);
+
+        Assert.Equal(7, due.IntervalDays);
+        Assert.Equal(2, due.DaysUntilDue);
     }
 
     [Fact]

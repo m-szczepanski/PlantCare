@@ -23,6 +23,7 @@ function plant(over: Partial<Plant>): Plant {
     profileCommonName: null,
     careTips: null,
     customWateringIntervalDays: null,
+    reduceInWinter: null,
     lastWateredAt: null,
     dueStatus: "Upcoming",
     wateringIntervalDays: 7,

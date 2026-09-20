@@ -18,6 +18,8 @@ public interface ICareTaskService
 /// </summary>
 public sealed class CareTaskService(AppDbContext db, IWateringScheduleService schedule) : ICareTaskService
 {
+    private static readonly HashSet<int> WINTER_MONTHS = [12, 1, 2];
+
     public async Task<IReadOnlyList<CareTaskResponseDto>?> ListForPlantAsync(int plantId, CancellationToken cancellationToken = default)
     {
         var plant = await GetPlantAsync(plantId, cancellationToken);
@@ -87,6 +89,8 @@ public sealed class CareTaskService(AppDbContext db, IWateringScheduleService sc
         Type = task.Type,
         IntervalDays = task.IntervalDays ?? due.IntervalDays,
         LastDoneAt = task.LastDoneAt,
+        ReduceInWinter = task.ReduceInWinter,
+        InWinterNow = WINTER_MONTHS.Contains(DateTime.UtcNow.Month),
         DueStatus = due.Status,
         DaysUntilDue = due.DaysUntilDue,
         NextDueDate = due.NextDueDate?.ToDateTime(TimeOnly.MinValue),

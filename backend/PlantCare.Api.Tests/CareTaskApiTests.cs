@@ -96,6 +96,25 @@ public class CareTaskApiTests : IDisposable
     }
 
     [Fact]
+    public async Task ReduceInWinter_RoundTripsThroughPlantEndpoints()
+    {
+        var plant = await CreatePlant();
+
+        var response = await _client.PutAsJsonAsync($"/api/plants/{plant.Id}", new
+        {
+            nickName = plant.NickName,
+            customWateringIntervalDays = 7,
+            reduceInWinter = true,
+        }, Options);
+        response.EnsureSuccessStatusCode();
+        var updated = await response.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
+        Assert.Equal(true, updated!.ReduceInWinter);
+
+        var tasks = await _client.GetFromJsonAsync<List<CareTaskResponseDto>>($"/api/plants/{plant.Id}/care-tasks", Options);
+        Assert.Equal(true, tasks!.Single().ReduceInWinter);
+    }
+
+    [Fact]
     public async Task CareTasks_UnknownPlant_Returns404()
     {
         var response = await _client.GetAsync("/api/plants/424242/care-tasks");

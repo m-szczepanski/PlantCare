@@ -24,6 +24,8 @@ public class PlantResponseDto
 
     public int? CustomWateringIntervalDays { get; set; }
 
+    public bool? ReduceInWinter { get; set; }
+
     public DateTime? LastWateredAt { get; set; }
 
     public PlantDueStatus DueStatus { get; set; }

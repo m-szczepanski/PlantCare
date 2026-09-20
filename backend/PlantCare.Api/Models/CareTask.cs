@@ -32,6 +32,12 @@ public class CareTask
 
     public DateTime? LastDoneAt { get; set; }
 
+    /// <summary>
+    /// Doubles the interval during winter months (Dec-Feb, northern hemisphere)
+    /// when true; null falls back to the plant profile's default, then false.
+    /// </summary>
+    public bool? ReduceInWinter { get; set; }
+
     public List<CareTaskLog> Logs { get; set; } = [];
 }
 

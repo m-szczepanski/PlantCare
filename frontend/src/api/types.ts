@@ -49,6 +49,7 @@ export interface Plant {
   profileCommonName: string | null;
   careTips: PlantCareTips | null;
   customWateringIntervalDays: number | null;
+  reduceInWinter: boolean | null;
   lastWateredAt: string | null;
   dueStatus: PlantDueStatus;
   wateringIntervalDays: number | null;
@@ -137,6 +138,7 @@ export interface PlantInput {
   photoUrl?: string | null;
   acquiredDate: string;
   customWateringIntervalDays?: number | null;
+  reduceInWinter?: boolean;
   plantProfileId?: number | null;
   lastWateredAt?: string | null;
 }

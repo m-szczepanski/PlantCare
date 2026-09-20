@@ -18,6 +18,8 @@ public class UpdatePlantRequestDto
     [Range(1, 3650)]
     public int? CustomWateringIntervalDays { get; set; }
 
+    public bool? ReduceInWinter { get; set; }
+
     public int? PlantProfileId { get; set; }
 
     public DateTime? LastWateredAt { get; set; }

@@ -48,6 +48,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
   );
   const [acquiredDate, setAcquiredDate] = useState<string>(toDateValue(initial?.acquiredDate) || toDateValue(new Date().toISOString()));
   const [lastWateredAt, setLastWateredAt] = useState<string>(toDateValue(initial?.lastWateredAt));
+  const [reduceInWinter, setReduceInWinter] = useState<boolean>(initial?.reduceInWinter ?? false);
 
   const selectedProfile = profiles.find((profile) => profile.id === profileId);
   const customDays = customInterval.trim() === "" ? null : Number(customInterval);
@@ -82,6 +83,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
       acquiredDate: fromDateString(acquiredDate) ?? new Date().toISOString(),
       plantProfileId: profileId,
       customWateringIntervalDays: intervalDays !== null && Number.isFinite(intervalDays) ? intervalDays : null,
+      reduceInWinter,
       lastWateredAt: fromDateString(lastWateredAt),
     });
   }
@@ -209,6 +211,16 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
           <FieldError message={fieldErrors.photoUrl} />
         </div>
       </div>
+
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={reduceInWinter}
+          onChange={(e) => setReduceInWinter(e.target.checked)}
+          className="h-4 w-4 shrink-0 rounded border-input accent-primary"
+        />
+        Reduce watering in winter (doubles the interval Dec–Feb)
+      </label>
 
       <p
         className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground"

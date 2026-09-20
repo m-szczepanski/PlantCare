@@ -99,6 +99,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             Type = CareTaskType.Watering,
             IntervalDays = dto.CustomWateringIntervalDays,
             LastDoneAt = dto.LastWateredAt,
+            ReduceInWinter = dto.ReduceInWinter ?? false,
         });
 
         db.Plants.Add(plant);
@@ -136,6 +137,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         var watering = WateringTask(plant) ?? NewWateringTask(plant);
         watering.IntervalDays = dto.CustomWateringIntervalDays;
         watering.LastDoneAt = dto.LastWateredAt;
+        watering.ReduceInWinter = dto.ReduceInWinter ?? watering.ReduceInWinter;
 
         await db.SaveChangesAsync(cancellationToken);
 
@@ -391,6 +393,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
                 }
                 : null,
             CustomWateringIntervalDays = watering?.IntervalDays,
+            ReduceInWinter = watering?.ReduceInWinter,
             LastWateredAt = watering?.LastDoneAt,
             DueStatus = due.Status,
             WateringIntervalDays = due.IntervalDays,

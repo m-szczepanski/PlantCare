@@ -12,6 +12,8 @@ public class CareTaskResponseDto
 
     public DateTime? LastDoneAt { get; set; }
 
+    public bool? ReduceInWinter { get; set; }
+
     public PlantDueStatus DueStatus { get; set; }
 
     public int? DaysUntilDue { get; set; }
@@ -19,4 +21,6 @@ public class CareTaskResponseDto
     public DateTime? NextDueDate { get; set; }
 
     public required string DueMessage { get; set; }
+
+    public required bool InWinterNow { get; set; }
 }
