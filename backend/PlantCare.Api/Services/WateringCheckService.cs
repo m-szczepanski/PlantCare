@@ -21,7 +21,7 @@ public interface IWateringCheckService
 public sealed class WateringCheckService(
     AppDbContext db,
     IPlantService plants,
-    INtfyPublisher publisher,
+    IEnumerable<INotificationChannel> channels,
     QuickActionOptions quickActions,
     ILogger<WateringCheckService> logger) : IWateringCheckService
 {
@@ -65,14 +65,24 @@ public sealed class WateringCheckService(
             ? quickActions.QuickWaterUrl(due[0].Id)
             : null;
 
-        try
+        var digest = new NotificationMessage(title, message, priority, clickUrl, buttonUrl);
+        var delivered = false;
+        foreach (var channel in channels)
         {
-            await publisher.PublishAsync(title, message, priority, clickUrl, "Water now", buttonUrl, cancellationToken);
+            try
+            {
+                await channel.SendAsync(digest, cancellationToken);
+                delivered = true;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                logger.LogError(ex, "Notification channel {Channel} failed to deliver the watering digest.", channel.Name);
+            }
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+
+        if (!delivered)
         {
-            logger.LogError(ex, "Failed to send the watering digest; the run ends without blocking the API.");
-            return new WateringCheckResult(0, 0, 1, due.Count);
+            return new WateringCheckResult(0, 0, Math.Max(1, channels.Count()), due.Count);
         }
 
         db.NotificationDigests.Add(new NotificationDigest

@@ -39,6 +39,14 @@ var quickActionBaseUrl = builder.Configuration["QUICK_ACTION_URL_BASE"];
 builder.Services.AddSingleton(new QuickActionOptions(quickActionSecret, quickActionBaseUrl));
 builder.Services.AddSingleton<QuickActionRateLimiter>();
 builder.Services.AddHttpClient<INtfyPublisher, NtfyPublisher>();
+builder.Services.AddSingleton<INotificationChannel, NtfyChannel>();
+var telegramToken = builder.Configuration["TELEGRAM_BOT_TOKEN"];
+var telegramChatId = builder.Configuration["TELEGRAM_CHAT_ID"];
+if (!string.IsNullOrWhiteSpace(telegramToken) && !string.IsNullOrWhiteSpace(telegramChatId))
+{
+    builder.Services.AddSingleton(new TelegramOptions(telegramToken, telegramChatId));
+    builder.Services.AddHttpClient<INotificationChannel, TelegramChannel>();
+}
 
 builder.Services.AddScheduler();
 builder.Services.AddScoped<IWateringCheckService, WateringCheckService>();
