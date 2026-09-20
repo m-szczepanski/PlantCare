@@ -19,6 +19,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<JournalEntry> JournalEntries => Set<JournalEntry>();
 
+    public DbSet<JobRunLog> JobRuns => Set<JobRunLog>();
+
     public DbSet<NotificationDigest> NotificationDigests => Set<NotificationDigest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -60,6 +62,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasIndex(t => new { t.PlantId, t.Type }).IsUnique();
+        });
+
+        modelBuilder.Entity<JobRunLog>(entity =>
+        {
+            entity.HasIndex(j => j.RanAt);
         });
 
         modelBuilder.Entity<JournalEntry>(entity =>

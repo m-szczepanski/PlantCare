@@ -184,6 +184,45 @@ export interface JournalEntry {
   text: string | null;
 }
 
+export interface JobRunStatus {
+  ranAt: string;
+  outcome: string;
+  sentDigests: number;
+  failed: number;
+}
+
+export interface DigestStatus {
+  sentAt: string;
+  plantCount: number;
+  overdueCount: number;
+  priority: number;
+}
+
+export interface NtfyStatus {
+  baseUrl: string;
+  topic: string;
+  subscribeUrl: string;
+  reachable: boolean;
+  latencyMs: number | null;
+  error: string | null;
+}
+
+export interface StatusInfo {
+  nowUtc: string;
+  timeZoneId: string;
+  wateringCheckCron: string;
+  lastJobRun: JobRunStatus | null;
+  lastDigest: DigestStatus | null;
+  ntfy: NtfyStatus;
+}
+
+export interface ImportResult {
+  roomsCreated: number;
+  profilesCreated: number;
+  plantsCreated: number;
+  plantsSkipped: number;
+}
+
 export interface PlantNote {
   id: number;
   createdAt: string;

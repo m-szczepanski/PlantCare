@@ -35,6 +35,7 @@ public sealed class WateringCheckService(
 
         if (due.Count == 0)
         {
+            await LogRunAsync(new WateringCheckResult(0, 0, 0, 0), "nothing-due", cancellationToken);
             return new WateringCheckResult(0, 0, 0, 0);
         }
 
@@ -42,6 +43,7 @@ public sealed class WateringCheckService(
         if (await db.NotificationDigests.AnyAsync(d => d.SentAt >= startOfTodayUtc, cancellationToken))
         {
             logger.LogInformation("Watering check skipped: digest already sent today.");
+            await LogRunAsync(new WateringCheckResult(0, 1, 0, due.Count), "already-sent-today", cancellationToken);
             return new WateringCheckResult(0, 1, 0, due.Count);
         }
 
@@ -83,8 +85,10 @@ public sealed class WateringCheckService(
         }
 
         if (!delivered)
-        {
-            return new WateringCheckResult(0, 0, Math.Max(1, channels.Count()), due.Count);
+{
+            var failure = new WateringCheckResult(0, 0, Math.Max(1, channels.Count()), due.Count);
+            await LogRunAsync(failure, "delivery-failed", cancellationToken);
+            return failure;
         }
 
         db.NotificationDigests.Add(new NotificationDigest
@@ -97,6 +101,20 @@ public sealed class WateringCheckService(
         await db.SaveChangesAsync(cancellationToken);
 
         logger.LogInformation("Watering digest sent for {PlantCount} plant(s) at priority {Priority}.", due.Count, priority);
+        await LogRunAsync(new WateringCheckResult(1, 0, 0, due.Count), "digest-sent", cancellationToken);
         return new WateringCheckResult(1, 0, 0, due.Count);
+    }
+
+    private async Task LogRunAsync(WateringCheckResult result, string outcome, CancellationToken cancellationToken)
+    {
+        db.JobRuns.Add(new JobRunLog
+        {
+            RanAt = DateTime.UtcNow,
+            SentDigests = result.SentDigests,
+            SkippedDuplicates = result.SkippedDuplicates,
+            Failed = result.Failed,
+            Outcome = outcome,
+        });
+        await db.SaveChangesAsync(cancellationToken);
     }
 }
