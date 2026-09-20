@@ -42,6 +42,8 @@ const plant: Plant = {
   acquiredDate: "2026-01-01T00:00:00",
   plantProfileId: null,
   profileCommonName: null,
+  profileToxicToPets: false,
+  profileToxicToChildren: false,
   careTips: null,
   customWateringIntervalDays: 7,
   reduceInWinter: null,
@@ -324,11 +326,15 @@ describe("PlantDetailPage", () => {
     vi.mocked(plantsApi.get).mockResolvedValue({
       ...plant,
       profileCommonName: "Monstera",
+      profileToxicToPets: false,
+      profileToxicToChildren: false,
       careTips: {
         commonName: "Monstera",
         lightRequirement: "Bright",
         humidityNotes: "Loves misting.",
         careTips: "Feed **monthly** in summer.",
+        toxicToPets: false,
+        toxicToChildren: false,
       },
     });
 

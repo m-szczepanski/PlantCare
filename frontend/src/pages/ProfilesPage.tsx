@@ -31,6 +31,8 @@ function emptyInput(): PlantProfileInput {
     lightRequirement: "Medium",
     humidityNotes: "",
     careTips: "",
+    toxicToPets: false,
+    toxicToChildren: false,
   };
 }
 
@@ -42,6 +44,8 @@ function toInput(profile: PlantProfile): PlantProfileInput {
     lightRequirement: profile.lightRequirement,
     humidityNotes: profile.humidityNotes,
     careTips: profile.careTips,
+    toxicToPets: profile.toxicToPets,
+    toxicToChildren: profile.toxicToChildren,
   };
 }
 
@@ -176,6 +180,27 @@ export function ProfilesPage() {
                   className={`w-full rounded-md border border-input bg-transparent p-3 text-base sm:text-sm ${touchField}`}
                 />
               </div>
+              <div className="flex flex-wrap gap-4">
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={draft.toxicToPets ?? false}
+                    onChange={(e) => setDraft({ ...draft, toxicToPets: e.target.checked })}
+                    className="h-4 w-4 rounded border-input accent-primary"
+                  />
+                  Toxic to pets
+                </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={draft.toxicToChildren ?? false}
+                    onChange={(e) => setDraft({ ...draft, toxicToChildren: e.target.checked })}
+                    className="h-4 w-4 rounded border-input accent-primary"
+                  />
+                  Toxic to children
+                </label>
+              </div>
+
               {error ? <p className="text-sm text-destructive">{error}</p> : null}
               <div className="flex gap-2">
                 <Button type="submit" disabled={busy}>
@@ -210,6 +235,16 @@ export function ProfilesPage() {
                   </div>
                   <span className="text-muted-foreground">{profile.defaultWateringIntervalDays}d water</span>
                   <span className="text-muted-foreground">{profile.lightRequirement}</span>
+                  {profile.toxicToPets ? (
+                    <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-xs font-medium text-destructive">
+                      Toxic to pets
+                    </span>
+                  ) : null}
+                  {profile.toxicToChildren ? (
+                    <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-xs font-medium text-destructive">
+                      Toxic to children
+                    </span>
+                  ) : null}
                   <span className="text-muted-foreground">
                     {profile.plantCount} {profile.plantCount === 1 ? "plant" : "plants"}
                   </span>

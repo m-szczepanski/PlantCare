@@ -20,6 +20,8 @@ const profiles: PlantProfile[] = [
     lightRequirement: "Bright",
     humidityNotes: "Loves misting.",
     careTips: "Feed monthly.",
+    toxicToPets: false,
+    toxicToChildren: false,
     plantCount: 0,
   },
   {
@@ -30,6 +32,8 @@ const profiles: PlantProfile[] = [
     lightRequirement: "Medium",
     humidityNotes: "Average.",
     careTips: "Tolerant.",
+    toxicToPets: false,
+    toxicToChildren: false,
     plantCount: 0,
   },
 ];

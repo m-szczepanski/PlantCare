@@ -30,6 +30,10 @@ public class PlantResponseDto
 
     public string? ProfileCommonName { get; set; }
 
+    public bool ProfileToxicToPets { get; set; }
+
+    public bool ProfileToxicToChildren { get; set; }
+
     public PlantCareTipsDto? CareTips { get; set; }
 
     public int? CustomWateringIntervalDays { get; set; }

@@ -22,6 +22,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -213,6 +214,23 @@ export function PlantDetailPage() {
           </div>
         </CardContent>
       </Card>
+
+      {plant.profileToxicToPets || plant.profileToxicToChildren ? (
+        <div className="flex flex-wrap gap-2" role="status">
+          {plant.profileToxicToPets ? (
+            <Badge variant="destructive" className="gap-1">
+              <AlertTriangle className="h-3 w-3" aria-hidden="true" />
+              Toxic to pets
+            </Badge>
+          ) : null}
+          {plant.profileToxicToChildren ? (
+            <Badge variant="destructive" className="gap-1">
+              <AlertTriangle className="h-3 w-3" aria-hidden="true" />
+              Toxic to children
+            </Badge>
+          ) : null}
+        </div>
+      ) : null}
 
       {plant.careTips ? <CareTipsCard tips={plant.careTips} /> : null}
 

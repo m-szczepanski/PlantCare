@@ -43,6 +43,8 @@ function plant(over: Partial<Plant>): Plant {
     acquiredDate: "2026-01-01T00:00:00",
     plantProfileId: null,
     profileCommonName: null,
+    profileToxicToPets: false,
+    profileToxicToChildren: false,
     careTips: null,
     customWateringIntervalDays: 7,
     reduceInWinter: null,

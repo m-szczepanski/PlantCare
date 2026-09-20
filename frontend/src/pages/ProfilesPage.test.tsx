@@ -18,6 +18,8 @@ const monstera: PlantProfile = {
   lightRequirement: "Bright",
   humidityNotes: "Loves misting.",
   careTips: "Feed monthly.",
+  toxicToPets: false,
+  toxicToChildren: false,
   plantCount: 2,
 };
 

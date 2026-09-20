@@ -53,6 +53,8 @@ public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
             LightRequirement = dto.LightRequirement,
             HumidityNotes = dto.HumidityNotes.Trim(),
             CareTips = dto.CareTips.Trim(),
+            ToxicToPets = dto.ToxicToPets,
+            ToxicToChildren = dto.ToxicToChildren,
         };
 
         db.PlantProfiles.Add(profile);
@@ -82,7 +84,15 @@ public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
         profile.HumidityNotes = dto.HumidityNotes.Trim();
         profile.CareTips = dto.CareTips.Trim();
 
-        await db.SaveChangesAsync(cancellationToken);
+        profile.LightRequirement = dto.LightRequirement;
+            profile.HumidityNotes = dto.HumidityNotes.Trim();
+            profile.CareTips = dto.CareTips.Trim();
+            profile.ToxicToPets = dto.ToxicToPets;
+            profile.ToxicToChildren = dto.ToxicToChildren;
+            profile.DefaultWateringIntervalDays = dto.DefaultWateringIntervalDays;
+            profile.ScientificName = dto.ScientificName?.Trim();
+
+            await db.SaveChangesAsync(cancellationToken);
 
         return new PlantProfileWriteResult(PlantProfileWriteStatus.Success, await ReloadAsync(profile.Id, cancellationToken));
     }
@@ -101,6 +111,8 @@ public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
         LightRequirement = profile.LightRequirement,
         HumidityNotes = profile.HumidityNotes,
         CareTips = profile.CareTips,
+        ToxicToPets = profile.ToxicToPets,
+        ToxicToChildren = profile.ToxicToChildren,
         PlantCount = profile.Plants?.Count ?? 0,
     };
 

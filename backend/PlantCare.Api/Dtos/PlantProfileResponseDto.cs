@@ -18,5 +18,9 @@ public class PlantProfileResponseDto
 
     public required string CareTips { get; set; }
 
+    public bool ToxicToPets { get; set; }
+
+    public bool ToxicToChildren { get; set; }
+
     public required int PlantCount { get; set; }
 }

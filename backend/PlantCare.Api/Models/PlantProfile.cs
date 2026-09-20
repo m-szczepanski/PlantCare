@@ -18,5 +18,9 @@ public class PlantProfile
 
     public bool DefaultReduceInWinter { get; set; }
 
+    public bool ToxicToPets { get; set; }
+
+    public bool ToxicToChildren { get; set; }
+
     public List<Plant> Plants { get; set; } = [];
 }

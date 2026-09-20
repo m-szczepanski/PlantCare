@@ -174,6 +174,36 @@ public class WateringCheckApiTests : IDisposable
     }
 
     [Fact]
+    public async Task Run_ToxicPlantDigest_AnnotatesToxicity()
+    {
+        var profile = await _client.PostAsJsonAsync("/api/plant-profiles", new
+        {
+            commonName = "Toxic Tina Fern",
+            defaultWateringIntervalDays = 5,
+            lightRequirement = "Medium",
+            humidityNotes = "x",
+            careTips = "y",
+            toxicToPets = true,
+            toxicToChildren = false,
+        }, Options);
+        profile.EnsureSuccessStatusCode();
+        var profileId = (await profile.Content.ReadFromJsonAsync<PlantProfileResponseDto>(Options))!.Id;
+
+        await _client.PostAsJsonAsync("/api/plants", new
+        {
+            nickName = "Tina",
+            customWateringIntervalDays = 5,
+            lastWateredAt = Today.AddDays(-12),
+            plantProfileId = profileId,
+        }, Options);
+
+        await RunCheckAsync();
+
+        var digest = Assert.Single(_publisher.Published);
+        Assert.Contains("[toxic to pets]", digest.Message);
+    }
+
+    [Fact]
     public async Task Run_SingleDuePlantWithQuickActions_EmitsWaterButton()
     {
         using var withSecret = _database.CreateFactory(configureBuilder: builder =>

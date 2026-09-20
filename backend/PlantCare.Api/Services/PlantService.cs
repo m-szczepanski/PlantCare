@@ -455,6 +455,8 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             AcquiredDate = plant.AcquiredDate,
             PlantProfileId = plant.PlantProfileId,
             ProfileCommonName = plant.PlantProfile?.CommonName,
+            ProfileToxicToPets = plant.PlantProfile?.ToxicToPets ?? false,
+            ProfileToxicToChildren = plant.PlantProfile?.ToxicToChildren ?? false,
             CareTips = features.CareTipsEnabled && plant.PlantProfile is { } profile
                 ? new PlantCareTipsDto
                 {

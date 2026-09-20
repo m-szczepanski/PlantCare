@@ -25,4 +25,8 @@ public class PlantProfileRequestDto
     [Required]
     [StringLength(10000, MinimumLength = 1)]
     public required string CareTips { get; set; }
+
+    public bool ToxicToPets { get; set; }
+
+    public bool ToxicToChildren { get; set; }
 }

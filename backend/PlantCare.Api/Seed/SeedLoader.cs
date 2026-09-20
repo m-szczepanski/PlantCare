@@ -92,6 +92,8 @@ public static class SeedLoader
                 LightRequirement = seed.LightRequirement,
                 HumidityNotes = seed.HumidityNotes,
                 CareTips = seed.CareTips,
+                ToxicToPets = seed.ToxicToPets,
+                ToxicToChildren = seed.ToxicToChildren,
             });
             added++;
         }
@@ -109,5 +111,7 @@ public static class SeedLoader
         [property: JsonPropertyName("defaultWateringIntervalDays")] int DefaultWateringIntervalDays,
         [property: JsonPropertyName("lightRequirement")] LightRequirement LightRequirement,
         [property: JsonPropertyName("humidityNotes")] string HumidityNotes,
-        [property: JsonPropertyName("careTips")] string CareTips);
+        [property: JsonPropertyName("careTips")] string CareTips,
+        [property: JsonPropertyName("toxicToPets")] bool ToxicToPets = false,
+        [property: JsonPropertyName("toxicToChildren")] bool ToxicToChildren = false);
 }

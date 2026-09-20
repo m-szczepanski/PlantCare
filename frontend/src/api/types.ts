@@ -52,6 +52,8 @@ export interface PlantCareTips {
   lightRequirement: LightRequirement;
   humidityNotes: string;
   careTips: string;
+  toxicToPets?: boolean;
+  toxicToChildren?: boolean;
 }
 
 export interface Plant {
@@ -68,6 +70,8 @@ export interface Plant {
   acquiredDate: string;
   plantProfileId: number | null;
   profileCommonName: string | null;
+  profileToxicToPets: boolean;
+  profileToxicToChildren: boolean;
   careTips: PlantCareTips | null;
   customWateringIntervalDays: number | null;
   reduceInWinter: boolean | null;
@@ -151,6 +155,8 @@ export interface PlantProfile extends PlantProfileOption {
   lightRequirement: LightRequirement;
   humidityNotes: string;
   careTips: string;
+  toxicToPets: boolean;
+  toxicToChildren: boolean;
   plantCount: number;
 }
 
@@ -161,6 +167,8 @@ export interface PlantProfileInput {
   lightRequirement: LightRequirement;
   humidityNotes: string;
   careTips: string;
+  toxicToPets?: boolean;
+  toxicToChildren?: boolean;
 }
 
 export interface PlantNote {
