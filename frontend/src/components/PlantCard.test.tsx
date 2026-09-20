@@ -9,7 +9,9 @@ function plant(over: Partial<Plant>): Plant {
   return {
     id: 1,
     nickName: "Monstera Mike",
-    location: "Living room",
+    roomId: null,
+
+    roomName: "Living room",
     photoUrl: null,
     acquiredDate: "2026-01-01T00:00:00",
     plantProfileId: null,
@@ -21,6 +23,7 @@ function plant(over: Partial<Plant>): Plant {
     wateringIntervalDays: 7,
     daysUntilDue: 4,
     nextDueDate: null,
+    roomLightMatch: null,
     dueMessage: "4 days until due",
     ...over,
   };

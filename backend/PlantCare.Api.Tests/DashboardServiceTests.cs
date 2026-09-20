@@ -41,7 +41,7 @@ public class DashboardServiceTests
         {
             Id = id,
             NickName = nickName ?? $"Plant {id}",
-            Location = "Desk",
+            RoomName = "Desk",
             DueStatus = status,
             DaysUntilDue = daysUntilDue,
             DueMessage = "n/a",

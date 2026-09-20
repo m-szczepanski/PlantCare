@@ -29,7 +29,9 @@ vi.mock("@/api/client", () => ({
 const plant: Plant = {
   id: 1,
   nickName: "Pothos",
-  location: "Shelf",
+  roomId: null,
+
+  roomName: "Shelf",
   photoUrl: null,
   acquiredDate: "2026-01-01T00:00:00",
   plantProfileId: null,
@@ -42,6 +44,7 @@ const plant: Plant = {
   daysUntilDue: 7,
   nextDueDate: "2026-03-22T00:00:00",
   dueMessage: "7 days until due",
+  roomLightMatch: null,
 };
 
 function wrapper({ children }: { children: ReactNode }) {
@@ -80,7 +83,7 @@ describe("usePlants hooks", () => {
     vi.mocked(plantsApi.create).mockResolvedValue(plant);
 
     const { result } = renderHook(() => useCreatePlant(), { wrapper });
-    result.current.mutate({ nickName: "Pothos", location: "Shelf", acquiredDate: "2026-01-01T00:00:00" });
+    result.current.mutate({ nickName: "Pothos", roomId: null, acquiredDate: "2026-01-01T00:00:00" });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(plantsApi.create).toHaveBeenCalledTimes(1);
@@ -90,7 +93,7 @@ describe("usePlants hooks", () => {
     vi.mocked(plantsApi.create).mockResolvedValue(plant);
 
     const { result } = renderHook(() => useCreatePlant(), { wrapper });
-    result.current.mutate({ nickName: "Pothos", location: "Shelf", acquiredDate: "2026-01-01T00:00:00" });
+    result.current.mutate({ nickName: "Pothos", roomId: null, acquiredDate: "2026-01-01T00:00:00" });
 
     await waitFor(() => expect(toast.success).toHaveBeenCalledWith("Plant added", {
       description: "Pothos is on the list.",

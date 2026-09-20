@@ -24,6 +24,7 @@ builder.Services.AddSingleton<IPlantPhotoStorage, PlantPhotoStorage>();
 builder.Services.AddScoped<IWateringScheduleService, WateringScheduleService>();
 builder.Services.AddScoped<IPlantService, PlantService>();
 builder.Services.AddScoped<IPlantProfileService, PlantProfileService>();
+builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<ICalendarService, CalendarService>();
 builder.Services.AddScoped<IInsightsService, InsightsService>();

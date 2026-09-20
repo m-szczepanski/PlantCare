@@ -20,7 +20,9 @@ vi.mock("@/api/client", () => ({
 const monstera: Plant = {
   id: 1,
   nickName: "Monstera Mike",
-  location: "Living room",
+  roomId: null,
+
+  roomName: "Living room",
   photoUrl: null,
   acquiredDate: "2026-01-01T00:00:00",
   plantProfileId: 2,
@@ -33,6 +35,7 @@ const monstera: Plant = {
   daysUntilDue: -3,
   nextDueDate: "2026-03-08T00:00:00",
   dueMessage: "3 days overdue",
+  roomLightMatch: null,
 };
 
 describe("PlantsPage", () => {
@@ -75,7 +78,8 @@ describe("PlantsPage", () => {
   it("filters, shows a no-results state, and clears via the toolbar", async () => {
     vi.mocked(plantsApi.list).mockResolvedValue([
       monstera,
-      { ...monstera, id: 2, nickName: "Golden Pothos", location: "Bathroom", profileCommonName: "Pothos" },
+      { ...monstera, id: 2, nickName: "Golden Pothos", roomId: null,
+ roomName: "Bathroom", profileCommonName: "Pothos" },
     ]);
 
     renderWithProviders(<PlantsPage />);
@@ -99,7 +103,8 @@ describe("PlantsPage", () => {
   it("restores filters from the URL for shareable deep links", async () => {
     vi.mocked(plantsApi.list).mockResolvedValue([
       monstera,
-      { ...monstera, id: 2, nickName: "Golden Pothos", location: "Bathroom", profileCommonName: "Pothos" },
+      { ...monstera, id: 2, nickName: "Golden Pothos", roomId: null,
+ roomName: "Bathroom", profileCommonName: "Pothos" },
     ]);
 
     renderWithProviders(<PlantsPage />, { route: "/plants?q=Poth" });

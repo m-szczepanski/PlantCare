@@ -14,7 +14,7 @@ public class WateringScheduleServiceTests
     [Fact]
     public void NoInterval_ReturnsNotScheduled()
     {
-        var plant = new Plant { NickName = "Rex", Location = "Desk", AcquiredDate = Today.ToDateTime(TimeOnly.MinValue) };
+        var plant = new Plant { NickName = "Rex", AcquiredDate = Today.ToDateTime(TimeOnly.MinValue) };
 
         var due = _service.GetDueInfo(plant, Today);
 
@@ -29,7 +29,6 @@ public class WateringScheduleServiceTests
         var plant = new Plant
         {
             NickName = "Rex",
-            Location = "Desk",
             AcquiredDate = new DateTime(2026, 1, 1),
             CustomWateringIntervalDays = 7,
             LastWateredAt = new DateTime(2026, 3, 8),
@@ -48,7 +47,6 @@ public class WateringScheduleServiceTests
         var plant = new Plant
         {
             NickName = "Rex",
-            Location = "Desk",
             CustomWateringIntervalDays = 7,
             LastWateredAt = new DateTime(2026, 3, 3),
         };
@@ -66,7 +64,6 @@ public class WateringScheduleServiceTests
         var plant = new Plant
         {
             NickName = "Rex",
-            Location = "Desk",
             CustomWateringIntervalDays = 7,
             LastWateredAt = new DateTime(2026, 3, 9),
         };
@@ -84,7 +81,6 @@ public class WateringScheduleServiceTests
         var plant = new Plant
         {
             NickName = "Rex",
-            Location = "Desk",
             AcquiredDate = new DateTime(2026, 3, 8),
             CustomWateringIntervalDays = 7,
             LastWateredAt = null,
@@ -102,7 +98,6 @@ public class WateringScheduleServiceTests
         var plant = new Plant
         {
             NickName = "Rex",
-            Location = "Desk",
             CustomWateringIntervalDays = 7,
             LastWateredAt = new DateTime(2026, 3, 3),
         };
@@ -122,7 +117,6 @@ public class WateringScheduleServiceTests
         var plant = new Plant
         {
             NickName = "Rex",
-            Location = "Desk",
             PlantProfile = new PlantProfile { CommonName = "Monstera", DefaultWateringIntervalDays = 7, HumidityNotes = "", CareTips = "" },
             CustomWateringIntervalDays = 14,
             LastWateredAt = new DateTime(2026, 3, 5),
@@ -140,7 +134,6 @@ public class WateringScheduleServiceTests
         var plant = new Plant
         {
             NickName = "Rex",
-            Location = "Desk",
             PlantProfile = new PlantProfile { CommonName = "Snake Plant", DefaultWateringIntervalDays = 14, HumidityNotes = "", CareTips = "" },
             CustomWateringIntervalDays = null,
             LastWateredAt = new DateTime(2026, 3, 11),

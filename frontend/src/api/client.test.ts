@@ -29,7 +29,7 @@ describe("plantsApi client", () => {
   it("create() POSTs JSON payload", async () => {
     vi.mocked(fetch).mockResolvedValue(jsonResponse(201, { id: 5, nickName: "Fig" }));
 
-    await plantsApi.create({ nickName: "Fig", location: "Kitchen", acquiredDate: "2026-01-01T00:00:00" });
+    await plantsApi.create({ nickName: "Fig", roomId: null, acquiredDate: "2026-01-01T00:00:00" });
 
     const [url, init] = vi.mocked(fetch).mock.calls[0];
     expect(url).toBe("/api/plants");
@@ -50,7 +50,7 @@ describe("plantsApi client", () => {
       jsonResponse(400, { title: "One or more validation errors occurred.", errors: { NickName: ["The NickName field is required."] } }),
     );
 
-    await expect(plantsApi.create({ nickName: "", location: "x", acquiredDate: "2026-01-01T00:00:00" })).rejects.toMatchObject({
+    await expect(plantsApi.create({ nickName: "", roomId: null, acquiredDate: "2026-01-01T00:00:00" })).rejects.toMatchObject({
       status: 400,
       detail: "The NickName field is required.",
       errors: { NickName: ["The NickName field is required."] },

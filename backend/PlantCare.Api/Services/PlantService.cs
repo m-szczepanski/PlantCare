@@ -10,6 +10,7 @@ public enum PlantWriteStatus
     Success,
     NotFound,
     InvalidProfile,
+    InvalidRoom,
 }
 
 public sealed record PlantWriteResult(PlantWriteStatus Status, PlantResponseDto? Plant = null);
@@ -50,6 +51,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
     {
         var plants = await db.Plants
             .Include(p => p.PlantProfile)
+            .Include(p => p.Room)
             .OrderBy(p => p.NickName)
             .ToListAsync(cancellationToken);
 
@@ -60,6 +62,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
     {
         var plant = await db.Plants
             .Include(p => p.PlantProfile)
+            .Include(p => p.Room)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
         return plant is null ? null : ToResponse(plant);
@@ -72,10 +75,15 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             return new PlantWriteResult(PlantWriteStatus.InvalidProfile);
         }
 
+        if (dto.RoomId is not null && !await RoomExistsAsync(dto.RoomId.Value, cancellationToken))
+        {
+            return new PlantWriteResult(PlantWriteStatus.InvalidRoom);
+        }
+
         var plant = new Plant
         {
             NickName = dto.NickName.Trim(),
-            Location = dto.Location.Trim(),
+            RoomId = dto.RoomId,
             PhotoUrl = dto.PhotoUrl,
             AcquiredDate = dto.AcquiredDate,
             CustomWateringIntervalDays = dto.CustomWateringIntervalDays,
@@ -102,8 +110,13 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             return new PlantWriteResult(PlantWriteStatus.InvalidProfile);
         }
 
+        if (dto.RoomId is not null && !await RoomExistsAsync(dto.RoomId.Value, cancellationToken))
+        {
+            return new PlantWriteResult(PlantWriteStatus.InvalidRoom);
+        }
+
         plant.NickName = dto.NickName.Trim();
-        plant.Location = dto.Location.Trim();
+        plant.RoomId = dto.RoomId;
         plant.PhotoUrl = dto.PhotoUrl;
         plant.AcquiredDate = dto.AcquiredDate;
         plant.CustomWateringIntervalDays = dto.CustomWateringIntervalDays;
@@ -137,6 +150,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
     {
         var plant = await db.Plants
             .Include(p => p.PlantProfile)
+            .Include(p => p.Room)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
         if (plant is null)
@@ -166,6 +180,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
     {
         var plant = await db.Plants
             .Include(p => p.PlantProfile)
+            .Include(p => p.Room)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
         if (plant is null)
@@ -247,11 +262,15 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
     private async Task<bool> ProfileExistsAsync(int profileId, CancellationToken cancellationToken)
         => await db.PlantProfiles.AnyAsync(p => p.Id == profileId, cancellationToken);
 
+    private async Task<bool> RoomExistsAsync(int roomId, CancellationToken cancellationToken)
+        => await db.Rooms.AnyAsync(r => r.Id == roomId, cancellationToken);
+
     private async Task<PlantResponseDto?> ReloadAsync(int id, CancellationToken cancellationToken)
     {
         var plant = await db.Plants
             .AsNoTracking()
             .Include(p => p.PlantProfile)
+            .Include(p => p.Room)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
         return plant is null ? null : ToResponse(plant);
@@ -265,7 +284,8 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         {
             Id = plant.Id,
             NickName = plant.NickName,
-            Location = plant.Location,
+            RoomId = plant.RoomId,
+            RoomName = plant.Room?.Name,
             PhotoUrl = plant.PhotoUrl,
             AcquiredDate = plant.AcquiredDate,
             PlantProfileId = plant.PlantProfileId,
@@ -286,6 +306,25 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             DaysUntilDue = due.DaysUntilDue,
             NextDueDate = due.NextDueDate?.ToDateTime(TimeOnly.MinValue),
             DueMessage = due.Message,
+            RoomLightMatch = ComputeRoomLightMatch(plant),
+        };
+    }
+
+    private static RoomLightMatch? ComputeRoomLightMatch(Plant plant)
+    {
+        if (plant.PlantProfile is null || plant.Room?.LightExposure is not { } exposure)
+        {
+            return null;
+        }
+
+        var diff = (int)exposure - (int)plant.PlantProfile.LightRequirement;
+        return diff switch
+        {
+            0 => RoomLightMatch.Good,
+            1 => RoomLightMatch.SlightlyTooBright,
+            -1 => RoomLightMatch.SlightlyTooDark,
+            >= 2 => RoomLightMatch.MuchTooBright,
+            <= -2 => RoomLightMatch.MuchTooDark,
         };
     }
 }

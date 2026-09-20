@@ -91,7 +91,7 @@ export function PlantsPage() {
           id="plant-search"
           aria-label="Search plants"
           title="Focus with /"
-          placeholder="Search name, species, location..."
+          placeholder="Search name, species, room..."
           value={search}
           onChange={(event) => updateParams({ q: event.target.value })}
           className={`w-full sm:w-64 ${touchField}`}

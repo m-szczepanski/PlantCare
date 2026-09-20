@@ -8,9 +8,7 @@ public class UpdatePlantRequestDto
     [StringLength(120, MinimumLength = 1)]
     public required string NickName { get; set; }
 
-    [Required]
-    [StringLength(120, MinimumLength = 1)]
-    public required string Location { get; set; }
+    public int? RoomId { get; set; }
 
     [StringLength(500)]
     public string? PhotoUrl { get; set; }

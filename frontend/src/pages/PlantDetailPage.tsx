@@ -6,6 +6,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { DueStatusBadge } from "@/components/DueStatusBadge";
 import { EmptyState } from "@/components/EmptyState";
 import { PlantDetailSkeleton } from "@/components/PlantDetailSkeleton";
+import { RoomLightBadge } from "@/components/RoomLightBadge";
 import { PlantPhoto } from "@/components/PlantPhoto";
 import { WateringHistoryChart } from "@/components/WateringHistoryChart";
 import { ApiError } from "@/api/client";
@@ -111,7 +112,13 @@ export function PlantDetailPage() {
           <CardTitle>Details</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
-          <Field label="Location" value={plant.location} />
+          <div>
+            <dt className="text-muted-foreground">Room</dt>
+            <dd className="flex flex-wrap items-center gap-2 font-medium">
+              {plant.roomName ?? "None"}
+              {plant.roomLightMatch ? <RoomLightBadge match={plant.roomLightMatch} /> : null}
+            </dd>
+          </div>
           <Field label="Species profile" value={plant.profileCommonName ?? "None"} />
           <Field label="Acquired" value={formatDate(plant.acquiredDate)} />
           <Field label="Last watered" value={formatInstant(plant.lastWateredAt, false)} />

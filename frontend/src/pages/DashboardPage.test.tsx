@@ -14,7 +14,9 @@ function plant(over: Partial<Plant>): Plant {
   return {
     id: 1,
     nickName: "Plant",
-    location: "Desk",
+    roomId: null,
+
+    roomName: "Desk",
     photoUrl: null,
     acquiredDate: "2026-01-01T00:00:00",
     plantProfileId: null,
@@ -26,6 +28,7 @@ function plant(over: Partial<Plant>): Plant {
     wateringIntervalDays: 7,
     daysUntilDue: 3,
     nextDueDate: "2026-03-22T00:00:00",
+    roomLightMatch: null,
     dueMessage: "3 days until due",
     ...over,
   };
@@ -90,6 +93,22 @@ describe("DashboardPage", () => {
     const status = screen.getByRole("status");
     expect(within(status).getByText("Loading dashboard...")).toBeInTheDocument();
     expect(screen.queryByText("Overdue")).not.toBeInTheDocument();
+  });
+
+  it("groups plants by room when the room toggle is active", async () => {
+    vi.mocked(dashboardApi.get).mockResolvedValue({
+      ...emptyDashboard,
+      upcoming: [
+        plant({ id: 1, nickName: "Kitchen Kate", roomName: "Kitchen" }),
+        plant({ id: 2, nickName: "Office Ollie", roomName: "Office" }),
+      ],
+    });
+
+    renderWithProviders(<DashboardPage />, { route: "/?group=room" });
+
+    expect(await screen.findByRole("heading", { level: 2, name: "Kitchen" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Office" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2, name: "Upcoming" })).not.toBeInTheDocument();
   });
 
   it("shows the empty state when there are no plants", async () => {

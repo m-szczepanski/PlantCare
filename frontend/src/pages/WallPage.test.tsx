@@ -14,7 +14,9 @@ function plant(over: Partial<Plant>): Plant {
   return {
     id: 1,
     nickName: "Thirsty Theo",
-    location: "Desk",
+    roomId: null,
+
+    roomName: "Desk",
     photoUrl: null,
     acquiredDate: "2026-01-01T00:00:00",
     plantProfileId: null,
@@ -27,6 +29,7 @@ function plant(over: Partial<Plant>): Plant {
     daysUntilDue: -2,
     nextDueDate: "2026-03-20T00:00:00",
     dueMessage: "2 days overdue",
+    roomLightMatch: null,
     ...over,
   };
 }

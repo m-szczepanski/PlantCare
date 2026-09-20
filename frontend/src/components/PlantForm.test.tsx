@@ -7,6 +7,7 @@ import { renderWithProviders } from "@/test/render";
 
 vi.mock("@/api/client", () => ({
   plantProfilesApi: { list: vi.fn() },
+  roomsApi: { list: vi.fn().mockResolvedValue([]), create: vi.fn(), update: vi.fn(), remove: vi.fn() },
   ApiError: class ApiError extends Error {},
 }));
 
@@ -31,13 +32,13 @@ describe("PlantForm", () => {
     async () => {
       renderForm();
 
-      fireEvent.click(await screen.findByRole("combobox"));
+      fireEvent.click(await screen.findByRole("combobox", { name: "Species profile" }));
       fireEvent.change(screen.getByPlaceholderText("Search profiles..."), { target: { value: "Poth" } });
 
       expect(screen.queryByText("Monstera (7d)")).not.toBeInTheDocument();
       fireEvent.click(await screen.findByRole("option", { name: "Pothos (10d)" }));
 
-      expect(screen.getByRole("combobox")).toHaveTextContent("Pothos (10d)");
+      expect(screen.getByRole("combobox", { name: "Species profile" })).toHaveTextContent("Pothos (10d)");
       expect(screen.getByRole("status")).toHaveTextContent("Next watering due");
       expect(screen.getByRole("status")).toHaveTextContent("in 10 days");
       expect(screen.getByPlaceholderText("Profile default: 10")).toBeInTheDocument();

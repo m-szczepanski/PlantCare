@@ -52,7 +52,7 @@ public sealed class WateringCheckService(
             {
                 await publisher.PublishAsync(
                     "Watering due",
-                    $"{plant.NickName} ({plant.Location}) — {plant.DueMessage}",
+                    $"{plant.NickName}{(plant.RoomName is null ? "" : $" ({plant.RoomName})")} — {plant.DueMessage}",
                     cancellationToken);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)

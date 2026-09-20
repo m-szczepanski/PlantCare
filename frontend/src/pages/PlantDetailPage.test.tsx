@@ -22,7 +22,9 @@ vi.mock("@/api/client", () => ({
 const plant: Plant = {
   id: 1,
   nickName: "Monstera Mike",
-  location: "Living room",
+  roomId: null,
+
+  roomName: "Living room",
   photoUrl: null,
   acquiredDate: "2026-01-01T00:00:00",
   plantProfileId: null,
@@ -35,6 +37,7 @@ const plant: Plant = {
   daysUntilDue: -3,
   nextDueDate: "2026-03-08T00:00:00",
   dueMessage: "3 days overdue",
+  roomLightMatch: null,
 };
 
 const logs: WateringLogEntry[] = [
@@ -105,6 +108,18 @@ describe("PlantDetailPage", () => {
 
     const img = await screen.findByRole("img", { name: "Monstera Mike" });
     expect(img).toHaveAttribute("src", "https://example.com/mike.jpg");
+  });
+
+  it("flags a wrong room with the light-match badge", async () => {
+    vi.mocked(plantsApi.get).mockResolvedValue({
+      ...plant,
+      roomName: "Hallway",
+      roomLightMatch: "MuchTooDark",
+    });
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    expect(await screen.findByText("Wrong room — too dark")).toBeInTheDocument();
   });
 
   it("uploads a picked photo and shows it on the plant", async () => {

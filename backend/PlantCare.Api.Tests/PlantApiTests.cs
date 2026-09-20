@@ -45,7 +45,6 @@ public class PlantApiTests : IDisposable
         var created = await PostCreate(new
         {
             nickName = "Monstera Mike",
-            location = "Living room",
             customWateringIntervalDays = 7,
             lastWateredAt = Today.AddDays(-10),
         });
@@ -71,7 +70,6 @@ public class PlantApiTests : IDisposable
         var created = await PostCreate(new
         {
             nickName = "Potted Fig",
-            location = "Hallway",
             plantProfileId = profileId,
             lastWateredAt = Today,
         });
@@ -86,7 +84,7 @@ public class PlantApiTests : IDisposable
     [Fact]
     public async Task Create_MissingRequiredFields_Returns400()
     {
-        var response = await PostCreate(new { location = "Kitchen" });
+        var response = await PostCreate(new { });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -97,7 +95,6 @@ public class PlantApiTests : IDisposable
         var response = await PostCreate(new
         {
             nickName = "Bad",
-            location = "Kitchen",
             customWateringIntervalDays = 0,
         });
 
@@ -110,8 +107,19 @@ public class PlantApiTests : IDisposable
         var response = await PostCreate(new
         {
             nickName = "Ghost",
-            location = "Kitchen",
             plantProfileId = 987654,
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Create_UnknownRoom_Returns400()
+    {
+        var response = await PostCreate(new
+        {
+            nickName = "Ghost",
+            roomId = 987654,
         });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -128,14 +136,18 @@ public class PlantApiTests : IDisposable
     [Fact]
     public async Task Update_ChangesFields_AndReturnsOk()
     {
-        var created = await PostCreate(new { nickName = "Before", location = "Desk" });
+        var room = await _client.PostAsJsonAsync("/api/rooms", new { name = "Windowsill" }, Options);
+        var roomBody = await room.Content.ReadFromJsonAsync<RoomResponseDto>(Options);
+        Assert.NotNull(roomBody);
+
+        var created = await PostCreate(new { nickName = "Before", roomId = roomBody.Id });
         var createdBody = await created.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
         Assert.NotNull(createdBody);
 
         var response = await _client.PutAsJsonAsync($"/api/plants/{createdBody.Id}", new
         {
             nickName = "After",
-            location = "Windowsill",
+            roomId = roomBody.Id,
             customWateringIntervalDays = 5,
             lastWateredAt = Today,
         });
@@ -144,7 +156,7 @@ public class PlantApiTests : IDisposable
         var updated = await response.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
         Assert.NotNull(updated);
         Assert.Equal("After", updated.NickName);
-        Assert.Equal("Windowsill", updated.Location);
+        Assert.Equal("Windowsill", updated.RoomName);
         Assert.Equal(5, updated.WateringIntervalDays);
 
         var fetched = await _client.GetFromJsonAsync<PlantResponseDto>($"/api/plants/{createdBody.Id}", Options);
@@ -157,7 +169,6 @@ public class PlantApiTests : IDisposable
         var response = await _client.PutAsJsonAsync("/api/plants/654321", new
         {
             nickName = "Nope",
-            location = "Nowhere",
         });
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -166,7 +177,7 @@ public class PlantApiTests : IDisposable
     [Fact]
     public async Task Delete_RemovesPlant()
     {
-        var created = await PostCreate(new { nickName = "Doomed", location = "Bin" });
+        var created = await PostCreate(new { nickName = "Doomed" });
         var body = await created.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
         Assert.NotNull(body);
 

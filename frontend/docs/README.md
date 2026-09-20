@@ -41,7 +41,7 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 
 - shadcn components are **composed, not modified in place** — extend via wrapper components (e.g. `src/components/DueStatusBadge.tsx`, `src/components/PlantForm.tsx`, `src/components/PlantCard.tsx`, `src/components/PlantPhoto.tsx`, `src/components/CareTipsCard.tsx`) when customization is needed.
 - `PlantPhoto` renders the profile `PhotoUrl` (lazy, `alt` = nickname) on cards and detail, swapping in a dashed placeholder illustration when there is no photo or the image fails to load (`onError` fallback). Uploaded photos live under `/uploads/...` (served by nginx from the shared `plant-photos` volume); the detail page's "Upload photo" button posts multipart to `POST /api/plants/{id}/photo` via `useUploadPlantPhoto`. The URL field in the plant form remains for externally hosted photos.
-- `PlantCard` layout: photo, name/location/species, `DueStatusBadge` (short status **text + icon** — accessible without relying on color) with a relative "Watered 3 days ago" line (`src/lib/dates.ts`), and `DueCount` — days-until-due as the primary number ("3 / days overdue" red, "Now / due today", "4 / days to go", "— / not scheduled").
+- `PlantCard` layout: photo, name/room/species, `DueStatusBadge` (short status **text + icon** — accessible without relying on color) with a relative "Watered 3 days ago" line (`src/lib/dates.ts`), and `DueCount` — days-until-due as the primary number ("3 / days overdue" red, "Now / due today", "4 / days to go", "— / not scheduled").
 - Profile care tips render via `react-markdown` (markdown text from `PlantProfile.CareTips`); no raw-HTML plugin is enabled, so profile text is XSS-safe. Output is styled with `@tailwindcss/typography` (`prose prose-sm prose-neutral dark:prose-invert max-w-none` on the care-notes block in `CareTipsCard`) — headings, lists, links and quotes all theme-aware. A TOC for very long tips is not built (seed tips are short; revisit with `feature/seed-expansion`).
 - All base tokens (colors including `popover`, `chart`, `sidebar`, light + dark) live in `src/index.css`; layout/radius/animation theming is centralized in `tailwind.config.ts`. Restyling should never require touching component logic.
 - Existing primitives: `button`, `input`, `label`, `card`, `badge`, `select`, `dropdown-menu`, `sidebar` (+ `sheet`, `separator`, `skeleton`, `tooltip` pulled in by it), `sonner`, `popover` + `command` + `dialog` (profile combobox), `alert-dialog`. Add more as features need them.
@@ -111,17 +111,18 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 
 | View | Contents |
 |------|----------|
-| Dashboard | Stats strip (overdue / due today / total, green "all caught up" state) + "due today / overdue / upcoming" summary |
+| Dashboard | Stats strip (overdue / due today / total, green "all caught up" state) + "due today / overdue / upcoming" summary, toggleable to a group-by-room view (`?group=room`) |
 | Calendar | Week/month grid of upcoming care, projected client-side from each plant's `nextDueDate` + interval (`src/lib/scheduleProjection.ts`); overdue plants land on today |
 | Insights | Read-only collection stats from `GET /api/insights`: totals, species diversity, most-neglected, 30-day adherence, on-time streaks, monthly watering bars |
-| Plant list | Owned plants with due status, search (name/species/location), due-status filter, and sort (name / location / soonest due / recently watered) |
+| Plant list | Owned plants with due status, search (name/species/room), due-status filter, and sort (name / room / soonest due / recently watered) |
+| Rooms | Room CRUD (`/rooms`): name, orientation, optional environment (light exposure / humidity / temperature °C), plant list per room with light-match badges |
 | Plant detail | Plant info, photo (or placeholder), care tips from its `PlantProfile`, "mark as watered" action, watering history with monthly bar chart |
 | Plant form | Create/edit plants; species profiles are managed via the API only (no profile form UI yet) |
 | Wall mode (`/wall`) | Read-only auto-refreshing (60s) full-screen route for a home tablet — no shell/nav chrome, big cards + stats strip. Not in the nav; bookmark the URL. Calendar feed for phones: `/calendar.ics` (nginx proxies to `GET /api/calendar.ics`) |
 
 ## API Surface Used
 
-All endpoints under `/api/*` — plants CRUD, `POST /api/plants/{id}/water`, `POST /api/plants/{id}/photo` (multipart upload), `GET /api/plants/{id}/watering-logs` (detail page history), plant-profiles list/create/update, and the dashboard summary. Shapes are defined by the backend's DTOs (see `backend/docs/README.md`). Uploaded photos are static files served by nginx under `/uploads/*`, outside the API surface.
+All endpoints under `/api/*` — plants CRUD, rooms CRUD (`GET/POST/PUT/DELETE /api/rooms`), `POST /api/plants/{id}/water`, `POST /api/plants/{id}/photo` (multipart upload), `GET /api/plants/{id}/watering-logs` (detail page history), plant-profiles list/create/update, and the dashboard summary. Shapes are defined by the backend's DTOs (see `backend/docs/README.md`). Uploaded photos are static files served by nginx under `/uploads/*`, outside the API surface.
 
 ## Conventions
 
