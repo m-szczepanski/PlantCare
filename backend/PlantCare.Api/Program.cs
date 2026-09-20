@@ -62,6 +62,10 @@ using (var scope = app.Services.CreateScope())
     var seedFile = Path.Combine(app.Environment.ContentRootPath, "Seed", "plant-profiles.json");
     var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(typeof(SeedLoader).FullName!);
     await SeedLoader.LoadPlantProfilesAsync(db, seedFile, logger);
+    await SeedLoader.LoadCustomProfilesAsync(
+        db,
+        builder.Configuration["SEED_CUSTOM_PATH"] ?? "/data/seed-custom",
+        logger);
 }
 
 app.MapControllers();

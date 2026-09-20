@@ -62,5 +62,53 @@
     "lightRequirement": "DirectSun",
     "humidityNotes": "Prefers dry air; avoid misting.",
     "careTips": "A sunny windowsill is ideal. Water deeply but infrequently - let the soil dry completely between waterings. Use a gritty, fast-draining mix."
+  },
+  {
+    "commonName": "Calathea Orbifolia",
+    "scientificName": "Goeppertia orbifolia",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Demanding: needs high humidity or leaf edges brown fast.",
+    "careTips": "Keep evenly moist, never waterlogged. High humidity and filtered or rainwater only — leaf tips brown with tap water. Keep away from direct sun."
+  },
+  {
+    "commonName": "Jade Plant",
+    "scientificName": "Crassula ovata",
+    "defaultWateringIntervalDays": 21,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Fine in dry indoor air.",
+    "careTips": "A succulent: water deeply but rarely and let soil dry fully. Bright light keeps it compact. Repot every 2-3 years; toxic to pets."
+  },
+  {
+    "commonName": "Bird of Paradise",
+    "scientificName": "Strelitzia nicolai",
+    "defaultWateringIntervalDays": 10,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Appreciates occasional misting in dry rooms.",
+    "careTips": "Wants the brightest window you have. Split mature rootballs to propagate. Leaves split naturally in low humidity — cosmetic only."
+  },
+  {
+    "commonName": "African Violet",
+    "scientificName": "Saintpaulia ionantha",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Likes steady household humidity; avoid cold drafts.",
+    "careTips": "Water from the bottom or around the crown — water on leaves spots them. Warm water only. Bright indirect light keeps blooms coming."
+  },
+  {
+    "commonName": "Christmas Cactus",
+    "scientificName": "Schlumbergera buckleyi",
+    "defaultWateringIntervalDays": 12,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Average room humidity is fine.",
+    "careTips": "Not a desert cactus: keep slightly moist in growth. Cool, dark nights in autumn trigger blooms. Cuttings root easily in water."
+  },
+  {
+    "commonName": "Alocasia Polly",
+    "scientificName": "Alocasia amazonica",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "High humidity; crisps up fast in dry air.",
+    "careTips": "Bright indirect light and well-draining chunky mix. Sensitive to cold: keep above 15 C. Dormant in winter — cut watering back hard. Toxic to pets and children."
   }
 ]
