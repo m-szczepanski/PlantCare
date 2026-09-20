@@ -31,5 +31,7 @@ public class UpdatePlantRequestDto
 
     public int? PlantProfileId { get; set; }
 
+    public bool NotifyEnabled { get; set; } = true;
+
     public DateTime? LastWateredAt { get; set; }
 }

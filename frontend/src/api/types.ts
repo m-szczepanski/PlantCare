@@ -63,6 +63,7 @@ export interface Plant {
   potSizeCm: number | null;
   soilMix: string | null;
   propagatedFrom: string | null;
+  notifyEnabled: boolean;
   acquiredDate: string;
   plantProfileId: number | null;
   profileCommonName: string | null;
@@ -158,6 +159,7 @@ export interface PlantInput {
   potSizeCm?: number | null;
   soilMix?: string | null;
   propagatedFrom?: string | null;
+  notifyEnabled?: boolean;
   acquiredDate: string;
   customWateringIntervalDays?: number | null;
   reduceInWinter?: boolean;

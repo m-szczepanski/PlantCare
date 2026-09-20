@@ -13,6 +13,7 @@ function plant(over: Partial<Plant>): Plant {
     potSizeCm: null,
     soilMix: null,
     propagatedFrom: null,
+    notifyEnabled: true,
     acquiredDate: "2026-01-01T00:00:00",
     plantProfileId: null,
     profileCommonName: null,

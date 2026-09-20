@@ -17,7 +17,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<PlantNote> PlantNotes => Set<PlantNote>();
 
-    public DbSet<NotificationLog> NotificationLogs => Set<NotificationLog>();
+    public DbSet<NotificationDigest> NotificationDigests => Set<NotificationDigest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -82,16 +82,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.HasIndex(l => new { l.CareTaskId, l.DoneAt });
         });
 
-        modelBuilder.Entity<NotificationLog>(entity =>
+        modelBuilder.Entity<NotificationDigest>(entity =>
         {
-            entity.Property(n => n.Type).HasConversion<string>();
-
-            entity.HasOne(n => n.Plant)
-                .WithMany(p => p.NotificationLogs)
-                .HasForeignKey(n => n.PlantId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasIndex(n => new { n.PlantId, n.Type, n.SentAt });
+            entity.HasIndex(d => d.SentAt);
         });
     }
 }

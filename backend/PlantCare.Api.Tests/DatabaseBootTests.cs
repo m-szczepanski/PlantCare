@@ -24,7 +24,8 @@ public class DatabaseBootTests : IDisposable
         Assert.Contains("CareTasks", tables);
         Assert.Contains("CareTaskLogs", tables);
         Assert.DoesNotContain("WateringLogs", tables);
-        Assert.Contains("NotificationLogs", tables);
+        Assert.Contains("NotificationDigests", tables);
+        Assert.DoesNotContain("NotificationLogs", tables);
 
         Assert.NotEmpty(await db.PlantProfiles.ToListAsync());
     }

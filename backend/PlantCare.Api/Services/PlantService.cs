@@ -96,6 +96,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             PropagatedFrom = string.IsNullOrWhiteSpace(dto.PropagatedFrom) ? null : dto.PropagatedFrom.Trim(),
             AcquiredDate = dto.AcquiredDate,
             PlantProfileId = dto.PlantProfileId,
+            NotifyEnabled = dto.NotifyEnabled,
         };
         plant.CareTasks.Add(new CareTask
         {
@@ -137,6 +138,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         plant.PotSizeCm = dto.PotSizeCm;
         plant.SoilMix = string.IsNullOrWhiteSpace(dto.SoilMix) ? null : dto.SoilMix.Trim();
         plant.PropagatedFrom = string.IsNullOrWhiteSpace(dto.PropagatedFrom) ? null : dto.PropagatedFrom.Trim();
+        plant.NotifyEnabled = dto.NotifyEnabled;
         plant.AcquiredDate = dto.AcquiredDate;
         plant.PlantProfileId = dto.PlantProfileId;
 
@@ -389,6 +391,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             PotSizeCm = plant.PotSizeCm,
             SoilMix = plant.SoilMix,
             PropagatedFrom = plant.PropagatedFrom,
+            NotifyEnabled = plant.NotifyEnabled,
             AcquiredDate = plant.AcquiredDate,
             PlantProfileId = plant.PlantProfileId,
             ProfileCommonName = plant.PlantProfile?.CommonName,

@@ -164,6 +164,7 @@ export function PlantDetailPage() {
           <Field label="Propagated from" value={plant.propagatedFrom ?? "Not recorded"} />
           <Field label="Watering interval" value={plant.wateringIntervalDays ? `${plant.wateringIntervalDays} days` : "Not scheduled"} />
           <Field label="Next due" value={formatDate(plant.nextDueDate)} />
+          <Field label="Reminders" value={plant.notifyEnabled ? "On" : "Muted"} />
         </CardContent>
       </Card>
 

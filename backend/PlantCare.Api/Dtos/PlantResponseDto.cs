@@ -20,6 +20,8 @@ public class PlantResponseDto
 
     public string? PropagatedFrom { get; set; }
 
+    public bool NotifyEnabled { get; set; }
+
     public DateTime AcquiredDate { get; set; }
 
     public int? PlantProfileId { get; set; }

@@ -35,6 +35,7 @@ const plant: Plant = {
   potSizeCm: null,
   soilMix: null,
   propagatedFrom: null,
+  notifyEnabled: true,
   acquiredDate: "2026-01-01T00:00:00",
   plantProfileId: null,
   profileCommonName: null,
@@ -136,6 +137,7 @@ describe("PlantDetailPage", () => {
       potSizeCm: null,
       soilMix: null,
       propagatedFrom: null,
+      notifyEnabled: true,
     });
 
     renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });

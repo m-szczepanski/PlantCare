@@ -42,6 +42,17 @@ public class NtfyPublisherTests
     }
 
     [Fact]
+    public async Task Publish_ExplicitPriority_SentAsHeader()
+    {
+        var handler = new RecordingHandler();
+
+        await Create(handler).PublishAsync("Overdue", "Thirsty", 5);
+
+        Assert.True(handler.Request!.Headers.TryGetValues("Priority", out var values));
+        Assert.Equal(["5"], values!);
+    }
+
+    [Fact]
     public async Task Publish_NonSuccessStatus_Throws()
     {
         var handler = new RecordingHandler { Status = HttpStatusCode.NotFound };
