@@ -1,8 +1,10 @@
 import { Stethoscope } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { DiagnosisEntry } from "@/api/types";
 
 export function DiagnosticsCard({ checklist, commonName }: { checklist: string; commonName: string }) {
+  const { t } = useTranslation();
   let entries: DiagnosisEntry[];
   try {
     const parsed: unknown = JSON.parse(checklist);
@@ -19,7 +21,7 @@ export function DiagnosticsCard({ checklist, commonName }: { checklist: string; 
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Stethoscope className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-          When something's off — {commonName}
+          {t("diagnostics.title", { name: commonName })}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +23,7 @@ interface ProfileComboboxProps {
 }
 
 export function ProfileCombobox({ profiles, value, onChange, id }: ProfileComboboxProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const selected = profiles.find((profile) => profile.id === value);
 
@@ -37,19 +39,19 @@ export function ProfileCombobox({ profiles, value, onChange, id }: ProfileCombob
         >
           {selected ? (
             <span>
-              {selected.commonName} ({selected.defaultWateringIntervalDays}d)
+              {t("profile.selectedWithInterval", { name: selected.commonName, days: selected.defaultWateringIntervalDays })}
             </span>
           ) : (
-            <span className="text-muted-foreground">No profile</span>
+            <span className="text-muted-foreground">{t("profile.none")}</span>
           )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search profiles..." />
+          <CommandInput placeholder={t("profile.searchPlaceholder")} />
           <CommandList>
-            <CommandEmpty>No profile found.</CommandEmpty>
+            <CommandEmpty>{t("profile.noFound")}</CommandEmpty>
             <CommandGroup>
               <CommandItem
                 value="none"
@@ -59,7 +61,7 @@ export function ProfileCombobox({ profiles, value, onChange, id }: ProfileCombob
                 }}
               >
                 <Check className={cn("h-4 w-4", value === null ? "opacity-100" : "opacity-0")} />
-                No profile
+                {t("profile.none")}
               </CommandItem>
               {profiles.map((profile) => (
                 <CommandItem
@@ -73,7 +75,7 @@ export function ProfileCombobox({ profiles, value, onChange, id }: ProfileCombob
                   <Check
                     className={cn("h-4 w-4", value === profile.id ? "opacity-100" : "opacity-0")}
                   />
-                  {profile.commonName} ({profile.defaultWateringIntervalDays}d)
+                  {t("profile.selectedWithInterval", { name: profile.commonName, days: profile.defaultWateringIntervalDays })}
                 </CommandItem>
               ))}
             </CommandGroup>

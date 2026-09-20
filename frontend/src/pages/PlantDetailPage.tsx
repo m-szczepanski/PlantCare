@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AlertTriangle, Droplets } from "lucide-react";
 import { CareTasksCard } from "@/components/CareTasksCard";
@@ -51,12 +52,13 @@ import type { WaterDetails, WateringMethod } from "@/api/types";
 import { touchButton, touchField } from "@/lib/ui";
 import { formatInstant } from "@/lib/dates";
 
-function formatDate(value: string | null): string {
+function formatDate(value: string | null, locale: string): string {
   if (!value) return "-";
-  return new Date(value).toLocaleDateString();
+  return new Date(value).toLocaleDateString(locale);
 }
 
 export function PlantDetailPage() {
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const plantId = Number(id);
   const navigate = useNavigate();
@@ -87,11 +89,11 @@ export function PlantDetailPage() {
         <div className="mx-auto max-w-xl">
           <EmptyState
             icon={AlertTriangle}
-            title="Plant not found"
-            description="It may have been deleted, or the link is out of date."
+            title={t("detail.notFoundTitle")}
+            description={t("detail.notFoundDescription")}
             action={
               <Button asChild variant="outline">
-                <Link to="/plants">Back to plants</Link>
+                <Link to="/plants">{t("detail.backToPlants")}</Link>
               </Button>
             }
           />
@@ -101,7 +103,7 @@ export function PlantDetailPage() {
     return (
       <Card>
         <CardContent className="pt-6 text-destructive">
-          Could not load plant: {(error as Error)?.message ?? "Unknown error"}
+          {t("detail.loadError", { message: (error as Error)?.message ?? t("common.unknownError") })}
         </CardContent>
       </Card>
     );
@@ -132,7 +134,7 @@ export function PlantDetailPage() {
   return (
     <div className="space-y-4">
       <Breadcrumbs
-        items={[{ label: "Home", to: "/" }, { label: "Plants", to: "/plants" }, { label: plant.nickName }]}
+        items={[{ label: t("common.home"), to: "/" }, { label: t("plants.title"), to: "/plants" }, { label: plant.nickName }]}
       />
       <div className="flex items-center justify-between gap-2">
         <h1 className="text-2xl font-bold break-words">{plant.nickName}</h1>
@@ -147,32 +149,32 @@ export function PlantDetailPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Details</CardTitle>
+          <CardTitle>{t("detail.title")}</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
           <div>
-            <dt className="text-muted-foreground">Room</dt>
+            <dt className="text-muted-foreground">{t("form.room")}</dt>
             <dd className="flex flex-wrap items-center gap-2 font-medium">
-              {plant.roomName ?? "None"}
+              {plant.roomName ?? t("detail.none")}
               {plant.roomLightMatch ? <RoomLightBadge match={plant.roomLightMatch} /> : null}
             </dd>
           </div>
-          <Field label="Species profile" value={plant.profileCommonName ?? "None"} />
-          <Field label="Acquired" value={formatDate(plant.acquiredDate)} />
-          <Field label="Last watered" value={formatInstant(plant.lastWateredAt, false)} />
-          <Field label="Pot size" value={plant.potSizeCm ? `${plant.potSizeCm} cm` : "Unknown"} />
-          <Field label="Soil mix" value={plant.soilMix ?? "Not recorded"} />
-          <Field label="Propagated from" value={plant.propagatedFrom ?? "Not recorded"} />
-          <Field label="Watering interval" value={plant.wateringIntervalDays ? `${plant.wateringIntervalDays} days` : "Not scheduled"} />
-          <Field label="Next due" value={formatDate(plant.nextDueDate)} />
-          <Field label="Reminders" value={plant.notifyEnabled ? "On" : "Muted"} />
+          <Field label={t("form.speciesProfile")} value={plant.profileCommonName ?? t("detail.none")} />
+          <Field label={t("detail.acquired")} value={formatDate(plant.acquiredDate, i18n.language)} />
+          <Field label={t("form.lastWatered")} value={formatInstant(plant.lastWateredAt, false)} />
+          <Field label={t("detail.potSize")} value={plant.potSizeCm ? t("detail.potSizeValue", { cm: plant.potSizeCm }) : t("room.unknown")} />
+          <Field label={t("form.soilMix")} value={plant.soilMix ?? t("detail.notRecorded")} />
+          <Field label={t("form.propagatedFrom")} value={plant.propagatedFrom ?? t("detail.notRecorded")} />
+          <Field label={t("detail.wateringInterval")} value={plant.wateringIntervalDays ? t("common.days", { count: plant.wateringIntervalDays }) : t("due.notScheduled")} />
+          <Field label={t("detail.nextDue")} value={formatDate(plant.nextDueDate, i18n.language)} />
+          <Field label={t("detail.reminders")} value={plant.notifyEnabled ? t("detail.on") : t("detail.muted")} />
           <div>
-            <dt className="text-muted-foreground">Snooze</dt>
+            <dt className="text-muted-foreground">{t("detail.snooze")}</dt>
             <dd className="flex flex-wrap items-center gap-2">
               {plant.snoozedUntil && new Date(plant.snoozedUntil) > new Date() ? (
                 <>
                   <span className="text-muted-foreground">
-                    on hold until {new Date(plant.snoozedUntil).toLocaleDateString()}
+                    {t("detail.onHoldUntil", { date: new Date(plant.snoozedUntil).toLocaleDateString(i18n.language) })}
                   </span>
                   <Button
                     size="sm"
@@ -180,19 +182,19 @@ export function PlantDetailPage() {
                     disabled={unsnooze.isPending}
                     onClick={() => unsnooze.mutate()}
                   >
-                    Resume now
+                    {t("detail.resumeNow")}
                   </Button>
                 </>
               ) : (
                 <>
                   <select
-                    aria-label="Snooze days"
+                    aria-label={t("detail.snoozeDaysAria")}
                     value={snoozeDays}
                     onChange={(event) => setSnoozeDays(event.target.value)}
                     className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
                   >
                     {[3, 7, 14, 30].map((days) => (
-                      <option key={days} value={String(days)}>{days} days</option>
+                      <option key={days} value={String(days)}>{t("common.days", { count: days })}</option>
                     ))}
                   </select>
                   <Button
@@ -201,7 +203,7 @@ export function PlantDetailPage() {
                     disabled={snooze.isPending}
                     onClick={() => snooze.mutate(Number(snoozeDays))}
                   >
-                    Snooze reminders
+                    {t("detail.snoozeReminders")}
                   </Button>
                 </>
               )}
@@ -215,13 +217,13 @@ export function PlantDetailPage() {
           {plant.profileToxicToPets ? (
             <Badge variant="destructive" className="gap-1">
               <AlertTriangle className="h-3 w-3" aria-hidden="true" />
-              Toxic to pets
+              {t("plant.toxicToPets")}
             </Badge>
           ) : null}
           {plant.profileToxicToChildren ? (
             <Badge variant="destructive" className="gap-1">
               <AlertTriangle className="h-3 w-3" aria-hidden="true" />
-              Toxic to children
+              {t("plant.toxicToChildren")}
             </Badge>
           ) : null}
         </div>
@@ -237,7 +239,7 @@ export function PlantDetailPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Watering history</CardTitle>
+          <CardTitle>{t("detail.wateringHistory")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {wateringLogs && wateringLogs.length > 0 ? (
@@ -250,7 +252,7 @@ export function PlantDetailPage() {
                     {log.amountMilliliters ? (
                       <span className="text-muted-foreground">{log.amountMilliliters} ml</span>
                     ) : null}
-                    {log.method ? <span className="text-muted-foreground">{log.method}</span> : null}
+                    {log.method ? <span className="text-muted-foreground">{t(`water.method.${log.method}`)}</span> : null}
                     {log.note ? <span className="text-muted-foreground">{log.note}</span> : null}
                   </li>
                 ))}
@@ -259,8 +261,8 @@ export function PlantDetailPage() {
           ) : (
             <EmptyState
               icon={Droplets}
-              title="No waterings logged yet"
-              description="Water this plant and the log will show up here."
+              title={t("detail.noWateringsTitle")}
+              description={t("detail.noWateringsDescription")}
             />
           )}
         </CardContent>
@@ -268,21 +270,21 @@ export function PlantDetailPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Log a watering</CardTitle>
+          <CardTitle>{t("detail.logWatering")}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap items-end gap-2">
           <div className="min-w-40 flex-1 space-y-1">
-            <Label htmlFor="waterNote">Note (optional)</Label>
+            <Label htmlFor="waterNote">{t("detail.noteOptional")}</Label>
             <Input
               id="waterNote"
               value={note}
               onChange={(event) => setNote(event.target.value)}
-              placeholder="e.g. Soaked thoroughly"
+              placeholder={t("detail.notePlaceholder")}
               className={touchField}
             />
           </div>
           <div className="w-28 space-y-1">
-            <Label htmlFor="waterAmount">ml (optional)</Label>
+            <Label htmlFor="waterAmount">{t("detail.amountOptional")}</Label>
             <Input
               id="waterAmount"
               type="number"
@@ -294,16 +296,16 @@ export function PlantDetailPage() {
             />
           </div>
           <div className="w-36 space-y-1">
-            <Label htmlFor="waterMethod">Method</Label>
+            <Label htmlFor="waterMethod">{t("detail.method")}</Label>
             <Select value={method} onValueChange={(value) => setMethod(value as WateringMethod | "none")}>
               <SelectTrigger id="waterMethod" className={touchField}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">Any water</SelectItem>
-                <SelectItem value="Tap">Tap</SelectItem>
-                <SelectItem value="Filtered">Filtered</SelectItem>
-                <SelectItem value="Rainwater">Rainwater</SelectItem>
+                <SelectItem value="none">{t("water.method.none")}</SelectItem>
+                <SelectItem value="Tap">{t("water.method.Tap")}</SelectItem>
+                <SelectItem value="Filtered">{t("water.method.Filtered")}</SelectItem>
+                <SelectItem value="Rainwater">{t("water.method.Rainwater")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -316,15 +318,15 @@ export function PlantDetailPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Notes</CardTitle>
+          <CardTitle>{t("detail.notes")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex flex-wrap gap-2">
             <Input
-              aria-label="New note"
+              aria-label={t("detail.newNoteAria")}
               value={noteText}
               onChange={(event) => setNoteText(event.target.value)}
-              placeholder="Health check, repotting thoughts..."
+              placeholder={t("detail.noteListPlaceholder")}
               className={`min-w-48 flex-1 ${touchField}`}
             />
             <Button
@@ -334,11 +336,11 @@ export function PlantDetailPage() {
               }
               className={touchButton}
             >
-              {addNote.isPending ? "Adding..." : "Add note"}
+              {addNote.isPending ? t("common.adding") : t("detail.addNote")}
             </Button>
           </div>
           {!notes || notes.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No notes yet.</p>
+            <p className="text-sm text-muted-foreground">{t("detail.noNotes")}</p>
           ) : (
             <ul className="space-y-2 text-sm">
               {notes.map((note) => (
@@ -369,37 +371,37 @@ export function PlantDetailPage() {
           }}
         />
         <Button onClick={waterNow} disabled={waterPlant.isPending} className={touchButton}>
-          {waterPlant.isPending ? "Watering..." : "Mark as watered"}
+          {waterPlant.isPending ? t("plant.watering") : t("detail.markWatered")}
         </Button>
         <Button variant="secondary" onClick={() => photoInputRef.current?.click()} disabled={uploadPhoto.isPending} className={touchButton}>
-          {uploadPhoto.isPending ? "Uploading..." : plant.photoUrl ? "Change photo" : "Upload photo"}
+          {uploadPhoto.isPending ? t("detail.uploading") : plant.photoUrl ? t("detail.changePhoto") : t("detail.uploadPhoto")}
         </Button>
         <Button asChild className={touchButton}>
-          <Link to={`/plants/${plant.id}/edit`}>Edit</Link>
+          <Link to={`/plants/${plant.id}/edit`}>{t("common.edit")}</Link>
         </Button>
         <Button variant="outline" asChild className={touchButton}>
-          <Link to="/plants">Back to list</Link>
+          <Link to="/plants">{t("detail.backToList")}</Link>
         </Button>
         <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <AlertDialogTrigger asChild>
             <Button variant="destructive" disabled={deletePlant.isPending} className={touchButton}>
-              {deletePlant.isPending ? "Deleting..." : "Delete"}
+              {deletePlant.isPending ? t("detail.deleting") : t("common.delete")}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete {plant.nickName}?</AlertDialogTitle>
+              <AlertDialogTitle>{t("detail.deleteTitle", { name: plant.nickName })}</AlertDialogTitle>
               <AlertDialogDescription>
-                This removes the plant and its watering history. This cannot be undone.
+                {t("detail.deleteDescription")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
               <AlertDialogAction
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 onClick={handleDelete}
               >
-                Delete
+                {t("common.delete")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

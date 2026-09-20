@@ -1,4 +1,5 @@
 import { CheckCircle2, Droplets, Sprout } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { Dashboard } from "@/api/types";
@@ -41,6 +42,7 @@ function Stat({
 }
 
 export function DashboardStatsStrip({ dashboard }: { dashboard: Dashboard }) {
+  const { t } = useTranslation();
   const overdue = dashboard.overdue.length;
   const dueToday = dashboard.dueToday.length;
   const total = overdue + dueToday + dashboard.upcoming.length;
@@ -53,21 +55,19 @@ export function DashboardStatsStrip({ dashboard }: { dashboard: Dashboard }) {
           <Stat
             icon={Droplets}
             value={overdue}
-            label="Overdue"
+            label={t("stats.overdue")}
             emphasis={overdue > 0 ? "danger" : "ok"}
           />
-          <Stat icon={CheckCircle2} value={dueToday} label="Due today" emphasis={dueToday > 0 ? undefined : "ok"} />
-          <Stat icon={Sprout} value={total} label="Plants" />
+          <Stat icon={CheckCircle2} value={dueToday} label={t("stats.dueToday")} emphasis={dueToday > 0 ? undefined : "ok"} />
+          <Stat icon={Sprout} value={total} label={t("stats.plants")} />
         </div>
         {allCaughtUp ? (
           <div className="border-t bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
-            All caught up — nothing needs water today.
+            {t("stats.allCaughtUp")}
           </div>
         ) : (
           <div className="border-t px-4 py-2 text-sm text-muted-foreground">
-            {overdue > 0
-              ? `${overdue} overdue and ${dueToday} due today.`
-              : `${dueToday} due today.`}
+            {overdue > 0 ? t("stats.summaryWithOverdue", { overdue, dueToday }) : t("stats.summaryDueToday", { dueToday })}
           </div>
         )}
       </CardContent>

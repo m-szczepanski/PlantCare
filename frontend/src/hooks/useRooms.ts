@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { roomsApi } from "@/api/client";
 import type { RoomInput } from "@/api/types";
 import { toastError } from "@/lib/toast";
+import i18n from "@/i18n";
 
 export const roomKeys = {
   all: ["rooms"] as const,
@@ -21,9 +22,9 @@ export function useCreateRoom() {
     mutationFn: (input: RoomInput) => roomsApi.create(input),
     onSuccess: (room) => {
       queryClient.invalidateQueries({ queryKey: roomKeys.all });
-      toast.success("Room created", { description: `${room.name} added.` });
+      toast.success(i18n.t("toasts.roomCreated"), { description: i18n.t("toasts.roomAddedDesc", { name: room.name }) });
     },
-    onError: (error) => toastError("Could not create room", error),
+    onError: (error) => toastError(i18n.t("toasts.roomCreateFailed"), error),
   });
 }
 
@@ -34,9 +35,9 @@ export function useUpdateRoom() {
     onSuccess: (room) => {
       queryClient.invalidateQueries({ queryKey: roomKeys.all });
       queryClient.invalidateQueries({ queryKey: ["plants"] });
-      toast.success("Room updated", { description: `${room.name} saved.` });
+      toast.success(i18n.t("toasts.roomUpdated"), { description: i18n.t("toasts.roomSavedDesc", { name: room.name }) });
     },
-    onError: (error) => toastError("Could not update room", error),
+    onError: (error) => toastError(i18n.t("toasts.roomUpdateFailed"), error),
   });
 }
 
@@ -47,8 +48,8 @@ export function useDeleteRoom() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: roomKeys.all });
       queryClient.invalidateQueries({ queryKey: ["plants"] });
-      toast.success("Room deleted", { description: "Its plants are now room-less." });
+      toast.success(i18n.t("toasts.roomDeleted"), { description: i18n.t("toasts.roomDeletedDesc") });
     },
-    onError: (error) => toastError("Could not delete room", error),
+    onError: (error) => toastError(i18n.t("toasts.roomDeleteFailed"), error),
   });
 }

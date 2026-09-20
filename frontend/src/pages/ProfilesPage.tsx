@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,11 +17,11 @@ import { usePlantProfiles, useProfileMutations } from "@/hooks/usePlantProfiles"
 import { touchButton, touchField } from "@/lib/ui";
 import type { LightRequirement, PlantProfile, PlantProfileInput } from "@/api/types";
 
-const LIGHT_OPTIONS: { value: LightRequirement; label: string }[] = [
-  { value: "Low", label: "Low" },
-  { value: "Medium", label: "Medium" },
-  { value: "Bright", label: "Bright" },
-  { value: "DirectSun", label: "Direct sun" },
+const LIGHT_OPTIONS: { value: LightRequirement; labelKey: string }[] = [
+  { value: "Low", labelKey: "light.level.Low" },
+  { value: "Medium", labelKey: "light.level.Medium" },
+  { value: "Bright", labelKey: "light.level.Bright" },
+  { value: "DirectSun", labelKey: "light.level.DirectSun" },
 ];
 
 function emptyInput(): PlantProfileInput {
@@ -52,6 +53,7 @@ function toInput(profile: PlantProfile): PlantProfileInput {
 }
 
 export function ProfilesPage() {
+  const { t } = useTranslation();
   const { data: profiles, isPending } = usePlantProfiles();
   const { create, update } = useProfileMutations();
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -77,7 +79,7 @@ export function ProfilesPage() {
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (draft.commonName.trim() === "") {
-      setError("Common name is required.");
+      setError(t("profiles.nameRequired"));
       return;
     }
     if (editingId === null || editingId === -1) {
@@ -91,12 +93,12 @@ export function ProfilesPage() {
 
   return (
     <div className="space-y-4">
-      <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Profiles" }]} />
+      <Breadcrumbs items={[{ label: t("common.home"), to: "/" }, { label: t("profiles.title") }]} />
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold">Species profiles</h1>
+        <h1 className="text-2xl font-bold">{t("profiles.title")}</h1>
         {!isEdit && editingId !== -1 ? (
           <Button onClick={startCreate} className={touchButton}>
-            New profile
+            {t("profiles.new")}
           </Button>
         ) : null}
       </div>
@@ -104,13 +106,13 @@ export function ProfilesPage() {
       {editingId !== null ? (
         <Card>
           <CardHeader>
-            <CardTitle>{isEdit ? `Edit profile #${editingId}` : "New profile"}</CardTitle>
+            <CardTitle>{isEdit ? t("profiles.editTitle", { id: editingId }) : t("profiles.new")}</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1">
-                  <Label htmlFor="pfCommon">Common name</Label>
+                  <Label htmlFor="pfCommon">{t("profiles.commonName")}</Label>
                   <Input
                     id="pfCommon"
                     required
@@ -120,7 +122,7 @@ export function ProfilesPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="pfScientific">Scientific name</Label>
+                  <Label htmlFor="pfScientific">{t("profiles.scientificName")}</Label>
                   <Input
                     id="pfScientific"
                     value={draft.scientificName ?? ""}
@@ -129,7 +131,7 @@ export function ProfilesPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="pfInterval">Default watering interval (days)</Label>
+                  <Label htmlFor="pfInterval">{t("profiles.interval")}</Label>
                   <Input
                     id="pfInterval"
                     type="number"
@@ -143,7 +145,7 @@ export function ProfilesPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="pfLight">Light requirement</Label>
+                  <Label htmlFor="pfLight">{t("profiles.lightRequirement")}</Label>
                   <Select
                     value={draft.lightRequirement}
                     onValueChange={(value) =>
@@ -156,7 +158,7 @@ export function ProfilesPage() {
                     <SelectContent>
                       {LIGHT_OPTIONS.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
-                          {option.label}
+                          {t(option.labelKey)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -164,7 +166,7 @@ export function ProfilesPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <Label htmlFor="pfHumidity">Humidity notes</Label>
+                <Label htmlFor="pfHumidity">{t("profiles.humidityNotes")}</Label>
                 <Input
                   id="pfHumidity"
                   value={draft.humidityNotes}
@@ -173,7 +175,7 @@ export function ProfilesPage() {
                 />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="pfTips">Care tips (markdown)</Label>
+                <Label htmlFor="pfTips">{t("profiles.careTips")}</Label>
                 <textarea
                   id="pfTips"
                   rows={6}
@@ -183,13 +185,13 @@ export function ProfilesPage() {
                 />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="pfChecklist">{"Diagnostics checklist (JSON array of { symptom, causes[] } entries)"}</Label>
+                <Label htmlFor="pfChecklist">{t("profiles.checklist")}</Label>
                 <textarea
                   id="pfChecklist"
                   rows={4}
                   value={draft.diagnosisChecklist ?? ""}
                   onChange={(e) => setDraft({ ...draft, diagnosisChecklist: e.target.value })}
-                  placeholder='[{"symptom":"Yellow leaves","causes":["Overwatering"]}]'
+                  placeholder={t("profiles.checklistPlaceholder")}
                   className={`w-full rounded-md border border-input bg-transparent p-3 font-mono text-xs ${touchField}`}
                 />
               </div>
@@ -202,7 +204,7 @@ export function ProfilesPage() {
                     onChange={(e) => setDraft({ ...draft, toxicToPets: e.target.checked })}
                     className="h-4 w-4 rounded border-input accent-primary"
                   />
-                  Toxic to pets
+                  {t("profiles.toxicToPets")}
                 </label>
                 <label className="flex items-center gap-2 text-sm">
                   <input
@@ -211,17 +213,17 @@ export function ProfilesPage() {
                     onChange={(e) => setDraft({ ...draft, toxicToChildren: e.target.checked })}
                     className="h-4 w-4 rounded border-input accent-primary"
                   />
-                  Toxic to children
+                  {t("profiles.toxicToChildren")}
                 </label>
               </div>
 
               {error ? <p className="text-sm text-destructive">{error}</p> : null}
               <div className="flex gap-2">
                 <Button type="submit" disabled={busy}>
-                  {busy ? "Saving..." : isEdit ? "Save changes" : "Create profile"}
+                  {busy ? t("common.saving") : isEdit ? t("profiles.saveChanges") : t("profiles.create")}
                 </Button>
                 <Button type="button" variant="ghost" disabled={busy} onClick={() => setEditingId(null)}>
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
               </div>
             </form>
@@ -247,20 +249,20 @@ export function ProfilesPage() {
                       <span className="ml-2 italic text-muted-foreground">{profile.scientificName}</span>
                     ) : null}
                   </div>
-                  <span className="text-muted-foreground">{profile.defaultWateringIntervalDays}d water</span>
-                  <span className="text-muted-foreground">{profile.lightRequirement}</span>
+                  <span className="text-muted-foreground">{t("profiles.waterInterval", { days: profile.defaultWateringIntervalDays })}</span>
+                  <span className="text-muted-foreground">{t(`light.level.${profile.lightRequirement}`)}</span>
                   {profile.toxicToPets ? (
                     <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-xs font-medium text-destructive">
-                      Toxic to pets
+                      {t("profiles.toxicToPets")}
                     </span>
                   ) : null}
                   {profile.toxicToChildren ? (
                     <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-xs font-medium text-destructive">
-                      Toxic to children
+                      {t("profiles.toxicToChildren")}
                     </span>
                   ) : null}
                   <span className="text-muted-foreground">
-                    {profile.plantCount} {profile.plantCount === 1 ? "plant" : "plants"}
+                    {t("room.plantCount", { count: profile.plantCount })}
                   </span>
                   <Button
                     size="sm"
@@ -268,7 +270,7 @@ export function ProfilesPage() {
                     className="ml-auto"
                     onClick={() => startEdit(profile)}
                   >
-                    Edit
+                    {t("common.edit")}
                   </Button>
                 </CardContent>
               </Card>

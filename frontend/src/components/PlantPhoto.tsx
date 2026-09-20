@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Sprout } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +10,7 @@ interface PlantPhotoProps {
 }
 
 export function PlantPhoto({ photoUrl, nickName, className }: PlantPhotoProps) {
+  const { t } = useTranslation();
   const [failed, setFailed] = useState(false);
 
   if (photoUrl && !failed) {
@@ -26,7 +28,7 @@ export function PlantPhoto({ photoUrl, nickName, className }: PlantPhotoProps) {
   return (
     <div
       role="img"
-      aria-label={`No photo of ${nickName}`}
+      aria-label={t("plant.noPhoto", { name: nickName })}
       className={cn(
         "flex items-center justify-center rounded-lg border border-dashed border-sidebar-border bg-muted",
         className,

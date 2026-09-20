@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { plantsApi } from "@/api/client";
+import i18n from "@/i18n";
 import type { Plant, PlantInput, WaterDetails } from "@/api/types";
 import { toastError } from "@/lib/toast";
 
@@ -24,7 +25,7 @@ function optimisticWatered(plant: Plant): Plant {
     dueStatus: interval ? "Upcoming" : "NotScheduled",
     daysUntilDue: interval,
     nextDueDate: nextDueDate ? nextDueDate.toISOString() : null,
-    dueMessage: interval ? `${interval} days until due` : "Not scheduled",
+    dueMessage: interval ? i18n.t("due.until", { count: interval }) : i18n.t("due.notScheduledLabel"),
   };
 }
 
@@ -49,9 +50,9 @@ export function useCreatePlant() {
     mutationFn: (input: PlantInput) => plantsApi.create(input),
     onSuccess: (plant) => {
       queryClient.invalidateQueries({ queryKey: plantKeys.all });
-      toast.success("Plant added", { description: `${plant.nickName} is on the list.` });
+      toast.success(i18n.t("toasts.plantAdded"), { description: i18n.t("toasts.plantAddedDesc", { name: plant.nickName }) });
     },
-    onError: (error) => toastError("Could not add plant", error),
+    onError: (error) => toastError(i18n.t("toasts.plantAddFailed"), error),
   });
 }
 
@@ -62,9 +63,9 @@ export function useUpdatePlant() {
     onSuccess: (plant) => {
       queryClient.invalidateQueries({ queryKey: plantKeys.all });
       queryClient.setQueryData(plantKeys.detail(plant.id), plant);
-      toast.success("Plant updated", { description: `${plant.nickName} saved.` });
+      toast.success(i18n.t("toasts.plantUpdated"), { description: i18n.t("toasts.plantSaved", { name: plant.nickName }) });
     },
-    onError: (error) => toastError("Could not update plant", error),
+    onError: (error) => toastError(i18n.t("toasts.plantUpdateFailed"), error),
   });
 }
 
@@ -74,9 +75,9 @@ export function useDeletePlant() {
     mutationFn: (id: number) => plantsApi.remove(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: plantKeys.all });
-      toast.success("Plant deleted");
+      toast.success(i18n.t("toasts.plantDeleted"));
     },
-    onError: (error) => toastError("Could not delete plant", error),
+    onError: (error) => toastError(i18n.t("toasts.plantDeleteFailed"), error),
   });
 }
 
@@ -109,14 +110,14 @@ export function useWaterPlant() {
       if (context?.previousDetail) {
         queryClient.setQueryData(plantKeys.detail(id), context.previousDetail);
       }
-      toastError("Could not log watering", error);
+      toastError(i18n.t("toasts.waterFailed"), error);
     },
     onSuccess: (plant) => {
       queryClient.invalidateQueries({ queryKey: plantKeys.all });
       queryClient.setQueryData(plantKeys.detail(plant.id), plant);
-      toast.success("Watered", {
-        description: `${plant.nickName} logged.`,
-        action: { label: "Undo", onClick: () => void undoWatering(plant.id, queryClient) },
+      toast.success(i18n.t("toasts.watered"), {
+        description: i18n.t("toasts.wateredDesc", { name: plant.nickName }),
+        action: { label: i18n.t("common.undo"), onClick: () => void undoWatering(plant.id, queryClient) },
       });
     },
   });
@@ -129,11 +130,11 @@ export function useBulkWater() {
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: plantKeys.all });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
-      toast.success("Watered", {
-        description: `${result.watered} of ${result.requested} plants logged.`,
+      toast.success(i18n.t("toasts.watered"), {
+        description: i18n.t("toasts.bulkWateredDesc", { watered: result.watered, requested: result.requested }),
       });
     },
-    onError: (error) => toastError("Could not water the selection", error),
+    onError: (error) => toastError(i18n.t("toasts.bulkWaterFailed"), error),
   });
 }
 
@@ -142,9 +143,9 @@ async function undoWatering(id: number, queryClient: QueryClient) {
     const plant = await plantsApi.undoWater(id);
     queryClient.setQueryData(plantKeys.detail(plant.id), plant);
     queryClient.invalidateQueries({ queryKey: plantKeys.all });
-    toast.success("Watering undone", { description: `${plant.nickName} restored.` });
+    toast.success(i18n.t("toasts.waterUndone"), { description: i18n.t("toasts.waterUndoneDesc", { name: plant.nickName }) });
   } catch (error) {
-    toastError("Could not undo watering", error);
+    toastError(i18n.t("toasts.waterUndoFailed"), error);
   }
 }
 
@@ -178,27 +179,27 @@ export function useCareTaskMutations(id: number) {
       plantsApi.addCareTask(id, input),
     onSuccess: (task) => {
       invalidate();
-      toast.success(`${task.type} schedule added`);
+      toast.success(i18n.t("toasts.careTaskAdded", { type: i18n.t(`careTask.types.${task.type}`) }));
     },
-    onError: (error) => toastError("Could not add care task", error),
+    onError: (error) => toastError(i18n.t("toasts.careTaskAddFailed"), error),
   });
 
   const remove = useMutation({
     mutationFn: (taskId: number) => plantsApi.deleteCareTask(id, taskId),
     onSuccess: () => {
       invalidate();
-      toast.success("Care task removed");
+      toast.success(i18n.t("toasts.careTaskRemoved"));
     },
-    onError: (error) => toastError("Could not remove care task", error),
+    onError: (error) => toastError(i18n.t("toasts.careTaskRemoveFailed"), error),
   });
 
   const markDone = useMutation({
     mutationFn: (type: "Watering" | "Fertilizing" | "Repotting") => plantsApi.markCareTaskDone(id, type),
     onSuccess: (task) => {
       invalidate();
-      toast.success(`${task.type} marked done`);
+      toast.success(i18n.t("toasts.careTaskDone", { type: i18n.t(`careTask.types.${task.type}`) }));
     },
-    onError: (error) => toastError("Could not mark task done", error),
+    onError: (error) => toastError(i18n.t("toasts.careTaskDoneFailed"), error),
   });
 
   return { add, remove, markDone };
@@ -217,9 +218,9 @@ export function useSnoozePlant(id: number) {
     onSuccess: (plant) => {
       queryClient.setQueryData(plantKeys.detail(plant.id), plant);
       invalidatePlantCaches(queryClient, plant.id);
-      toast.success("Reminders snoozed", { description: `${plant.nickName} is on vacation.` });
+      toast.success(i18n.t("toasts.snoozed"), { description: i18n.t("toasts.snoozedDesc", { name: plant.nickName }) });
     },
-    onError: (error) => toastError("Could not snooze reminders", error),
+    onError: (error) => toastError(i18n.t("toasts.snoozeFailed"), error),
   });
 }
 
@@ -230,9 +231,9 @@ export function useUnsnoozePlant(id: number) {
     onSuccess: (plant) => {
       queryClient.setQueryData(plantKeys.detail(plant.id), plant);
       invalidatePlantCaches(queryClient, plant.id);
-      toast.success("Reminders resumed", { description: `${plant.nickName} is back on schedule.` });
+      toast.success(i18n.t("toasts.resumed"), { description: i18n.t("toasts.resumedDesc", { name: plant.nickName }) });
     },
-    onError: (error) => toastError("Could not resume reminders", error),
+    onError: (error) => toastError(i18n.t("toasts.resumeFailed"), error),
   });
 }
 
@@ -243,9 +244,9 @@ export function useSnoozeAllPlants() {
     onSuccess: (result) => {
       invalidatePlantCaches(queryClient, -1);
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
-      toast.success("All plants snoozed", { description: `${result.snoozedPlants} plants paused.` });
+      toast.success(i18n.t("toasts.snoozedAll"), { description: i18n.t("toasts.snoozedAllDesc", { count: result.snoozedPlants }) });
     },
-    onError: (error) => toastError("Could not snooze plants", error),
+    onError: (error) => toastError(i18n.t("toasts.snoozeAllFailed"), error),
   });
 }
 
@@ -266,18 +267,18 @@ export function useJournalMutations(id: number) {
       plantsApi.addJournalEntry(id, input),
     onSuccess: () => {
       invalidate();
-      toast.success("Journal entry added");
+      toast.success(i18n.t("toasts.journalAdded"));
     },
-    onError: (error) => toastError("Could not add journal entry", error),
+    onError: (error) => toastError(i18n.t("toasts.journalAddFailed"), error),
   });
 
   const remove = useMutation({
     mutationFn: (entryId: number) => plantsApi.deleteJournalEntry(id, entryId),
     onSuccess: () => {
       invalidate();
-      toast.success("Journal entry deleted");
+      toast.success(i18n.t("toasts.journalDeleted"));
     },
-    onError: (error) => toastError("Could not delete journal entry", error),
+    onError: (error) => toastError(i18n.t("toasts.journalDeleteFailed"), error),
   });
 
   return { add, remove };
@@ -297,9 +298,9 @@ export function useAddPlantNote(id: number) {
     mutationFn: (text: string) => plantsApi.addNote(id, text),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: plantKeys.notes(id) });
-      toast.success("Note added");
+      toast.success(i18n.t("toasts.noteAdded"));
     },
-    onError: (error) => toastError("Could not add note", error),
+    onError: (error) => toastError(i18n.t("toasts.noteAddFailed"), error),
   });
 }
 
@@ -310,8 +311,8 @@ export function useUploadPlantPhoto(id: number) {
     onSuccess: (plant) => {
       queryClient.invalidateQueries({ queryKey: plantKeys.all });
       queryClient.setQueryData(plantKeys.detail(plant.id), plant);
-      toast.success("Photo uploaded", { description: `${plant.nickName} updated.` });
+      toast.success(i18n.t("toasts.photoUploaded"), { description: i18n.t("toasts.photoUploadedDesc", { name: plant.nickName }) });
     },
-    onError: (error) => toastError("Could not upload photo", error),
+    onError: (error) => toastError(i18n.t("toasts.photoUploadFailed"), error),
   });
 }

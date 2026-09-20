@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { AlertTriangle, Droplets } from "lucide-react";
 import { DueCount, DueStatusBadge } from "@/components/DueStatusBadge";
 import { PlantPhoto } from "@/components/PlantPhoto";
@@ -15,6 +16,7 @@ interface PlantCardProps {
 }
 
 export function PlantCard({ plant, onWater, isWatering }: PlantCardProps) {
+  const { t } = useTranslation();
   return (
     <Card
       data-plant-card={plant.id}
@@ -31,21 +33,19 @@ export function PlantCard({ plant, onWater, isWatering }: PlantCardProps) {
           <Link to={`/plants/${plant.id}`} className="text-lg font-semibold break-words hover:underline">
             {plant.nickName}
           </Link>
-          <p className="mt-1 text-sm text-muted-foreground">{plant.roomName ?? "No room"}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{plant.roomName ?? t("plant.noRoom")}</p>
           {plant.profileCommonName ? (
             <p className="flex items-center gap-1 text-sm text-muted-foreground">
               {plant.profileCommonName}
               {plant.profileToxicToPets || plant.profileToxicToChildren ? (
                 <span
                   role="img"
-                  aria-label={
-                    [
-                      plant.profileToxicToPets ? "toxic to pets" : null,
-                      plant.profileToxicToChildren ? "toxic to children" : null,
-                    ]
-                      .filter(Boolean)
-                      .join(" and ")
-                  }
+                  aria-label={[
+                    plant.profileToxicToPets && t("plant.toxicToPets"),
+                    plant.profileToxicToChildren && t("plant.toxicToChildren"),
+                  ]
+                    .filter(Boolean)
+                    .join(` ${t("common.and")} `)}
                 >
                   <AlertTriangle className="h-3.5 w-3.5 text-destructive" aria-hidden="true" />
                 </span>
@@ -60,13 +60,13 @@ export function PlantCard({ plant, onWater, isWatering }: PlantCardProps) {
                 size="sm"
                 variant="outline"
                 data-water-button
-                title="Water this plant (w)"
+                title={t("plant.waterShortcut")}
                 className={`${touchButton} ml-auto`}
                 disabled={isWatering}
                 onClick={() => onWater(plant)}
               >
                 <Droplets className="h-4 w-4" aria-hidden="true" />
-                {isWatering ? "Watering..." : "Water"}
+                {isWatering ? t("plant.watering") : t("plant.water")}
               </Button>
             ) : null}
           </div>

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +15,7 @@ function today(): string {
 }
 
 export function JournalCard({ plantId, nickName }: { plantId: number; nickName: string }) {
+  const { t } = useTranslation();
   const { data: entries = [] } = useJournalEntries(plantId);
   const { add, remove } = useJournalMutations(plantId);
   const [date, setDate] = useState(today);
@@ -52,27 +54,27 @@ export function JournalCard({ plantId, nickName }: { plantId: number; nickName: 
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <BookOpen className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-          Care journal
+          {t("journal.title")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap items-end gap-2">
           <div className="space-y-1">
-            <Label htmlFor="journalDate">Date</Label>
+            <Label htmlFor="journalDate">{t("journal.date")}</Label>
             <Input id="journalDate" type="date" value={date} onChange={(e) => setDate(e.target.value)} className={touchField} />
           </div>
           <div className="min-w-40 flex-1 space-y-1">
-            <Label htmlFor="journalText">Note</Label>
+            <Label htmlFor="journalText">{t("journal.note")}</Label>
             <Input
               id="journalText"
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="New leaf unfurling..."
+              placeholder={t("journal.notePlaceholder")}
               className={touchField}
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="journalFile">Photo</Label>
+            <Label htmlFor="journalFile">{t("journal.photo")}</Label>
             <Input
               id="journalFile"
               type="file"
@@ -86,13 +88,13 @@ export function JournalCard({ plantId, nickName }: { plantId: number; nickName: 
             disabled={add.isPending || (text.trim() === "" && !file)}
             onClick={submit}
           >
-            {add.isPending ? "Adding..." : "Add entry"}
+            {add.isPending ? t("journal.adding") : t("journal.add")}
           </Button>
         </div>
 
         {canCompare && from && to ? (
           <div>
-            <p className="mb-2 text-sm font-medium">Before / after</p>
+            <p className="mb-2 text-sm font-medium">{t("journal.beforeAfter")}</p>
             <div className="grid grid-cols-2 gap-4">
               {[from, to].map((entry, index) => (
                 <figure key={entry.id} className="space-y-1">
@@ -102,7 +104,7 @@ export function JournalCard({ plantId, nickName }: { plantId: number; nickName: 
                     className="aspect-square w-full"
                   />
                   <figcaption className="text-xs text-muted-foreground">
-                    {index === 0 ? "Before" : "After"} ·{" "}
+                    {index === 0 ? t("journal.before") : t("journal.after")} ·{" "}
                     {formatInstant(entry.entryDate, false)}
                     {entry.text ? ` — ${entry.text}` : ""}
                   </figcaption>
@@ -114,7 +116,7 @@ export function JournalCard({ plantId, nickName }: { plantId: number; nickName: 
 
         {entries.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No journal entries yet — log a photo or a note as your plant grows.
+            {t("journal.empty")}
           </p>
         ) : (
           <ul className="space-y-2 text-sm">
@@ -135,7 +137,7 @@ export function JournalCard({ plantId, nickName }: { plantId: number; nickName: 
                   disabled={remove.isPending}
                   onClick={() => remove.mutate(entry.id)}
                 >
-                  Delete
+                  {t("common.delete")}
                 </Button>
               </li>
             ))}
@@ -144,9 +146,9 @@ export function JournalCard({ plantId, nickName }: { plantId: number; nickName: 
 
         {entries.length >= 2 ? (
           <div className="flex flex-wrap items-center gap-2 text-sm">
-            <span className="text-muted-foreground">Compare:</span>
+            <span className="text-muted-foreground">{t("journal.compare")}</span>
             <select
-              aria-label="Before entry"
+              aria-label={t("journal.beforeEntry")}
               value={String(from?.id ?? "")}
               onChange={(e) => setFromId(Number(e.target.value))}
               className="h-9 rounded-md border border-input bg-transparent px-2"
@@ -157,9 +159,9 @@ export function JournalCard({ plantId, nickName }: { plantId: number; nickName: 
                 </option>
               ))}
             </select>
-            <span>vs</span>
+            <span>{t("journal.vs")}</span>
             <select
-              aria-label="After entry"
+              aria-label={t("journal.afterEntry")}
               value={String(to?.id ?? "")}
               onChange={(e) => setToId(Number(e.target.value))}
               className="h-9 rounded-md border border-input bg-transparent px-2"

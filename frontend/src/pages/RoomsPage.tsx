@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Armchair, Droplets, Sun, Thermometer } from "lucide-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import {
@@ -35,19 +36,16 @@ import { RoomLightBadge } from "@/components/RoomLightBadge";
 import type { HumidityLevel, LightRequirement, Plant, Room, RoomOrientation } from "@/api/types";
 import { touchButton, touchField } from "@/lib/ui";
 
-const ORIENTATIONS: { value: RoomOrientation | "none"; label: string }[] = [
-  { value: "none", label: "No orientation" },
-  { value: "North", label: "North" },
-  { value: "East", label: "East" },
-  { value: "South", label: "South" },
-  { value: "West", label: "West" },
+const ORIENTATIONS: { value: RoomOrientation | "none"; labelKey: string }[] = [
+  { value: "none", labelKey: "room.noOrientation" },
+  { value: "North", labelKey: "room.orientation.North" },
+  { value: "East", labelKey: "room.orientation.East" },
+  { value: "South", labelKey: "room.orientation.South" },
+  { value: "West", labelKey: "room.orientation.West" },
 ];
 
-function orientationLabel(orientation: RoomOrientation | null): string {
-  return orientation ? `${orientation}-facing` : "No orientation set";
-}
-
 export function RoomsPage() {
+  const { t } = useTranslation();
   const { data: rooms, isPending } = useRooms();
   const { data: plants = [] } = usePlants();
   const [name, setName] = useState("");
@@ -61,19 +59,19 @@ export function RoomsPage() {
 
   return (
     <div className="space-y-4">
-      <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Rooms" }]} />
-      <h1 className="text-2xl font-bold">Rooms</h1>
+      <Breadcrumbs items={[{ label: t("common.home"), to: "/" }, { label: t("rooms.title") }]} />
+      <h1 className="text-2xl font-bold">{t("rooms.title")}</h1>
 
       <div className="flex flex-wrap gap-2">
         <Input
-          aria-label="New room name"
+          aria-label={t("form.newRoomAria")}
           value={name}
           onChange={(event) => setName(event.target.value)}
-          placeholder="e.g. Bedroom"
+          placeholder={t("rooms.namePlaceholder")}
           className={`w-full sm:w-64 ${touchField}`}
         />
         <Button onClick={handleCreate} disabled={name.trim() === "" || create.isPending} className={touchButton}>
-          {create.isPending ? "Adding..." : "Add room"}
+          {create.isPending ? t("common.adding") : t("rooms.add")}
         </Button>
       </div>
 
@@ -89,9 +87,9 @@ export function RoomsPage() {
             <div className="rounded-full bg-muted p-3" aria-hidden="true">
               <Armchair className="h-6 w-6 text-muted-foreground" />
             </div>
-            <h3 className="mt-3 text-lg font-semibold">No rooms yet</h3>
+            <h3 className="mt-3 text-lg font-semibold">{t("rooms.emptyTitle")}</h3>
             <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-              Group your plants by room to see what lives where.
+              {t("rooms.emptyDescription")}
             </p>
           </CardContent>
         </Card>
@@ -114,6 +112,7 @@ const LIGHT_EXPOSURES: LightRequirement[] = ["Low", "Medium", "Bright", "DirectS
 const HUMIDITIES: HumidityLevel[] = ["Low", "Medium", "High"];
 
 function RoomCard({ room, plants }: { room: Room; plants: Plant[] }) {
+  const { t } = useTranslation();
   const update = useUpdateRoom();
   const remove = useDeleteRoom();
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -139,19 +138,18 @@ function RoomCard({ room, plants }: { room: Room; plants: Plant[] }) {
       </CardHeader>
       <CardContent className="space-y-3 text-sm">
         <p className="text-muted-foreground">
-          {orientationLabel(room.orientation)} · {room.plantCount}{" "}
-          {room.plantCount === 1 ? "plant" : "plants"}
+          {room.orientation ? t("room.facing", { orientation: t(`room.orientationShort.${room.orientation}`) }) : t("room.noOrientationSet")} · {t("room.plantCount", { count: room.plantCount })}
         </p>
         {room.lightExposure || room.humidity || room.temperatureCelsius !== null ? (
           <p className="flex flex-wrap gap-3 text-xs text-muted-foreground">
             {room.lightExposure ? (
               <span className="flex items-center gap-1">
-                <Sun className="h-3 w-3" aria-hidden="true" /> {room.lightExposure}
+                <Sun className="h-3 w-3" aria-hidden="true" /> {t(`roomLight.level.${room.lightExposure}`)}
               </span>
             ) : null}
             {room.humidity ? (
               <span className="flex items-center gap-1">
-                <Droplets className="h-3 w-3" aria-hidden="true" /> {room.humidity} humidity
+                <Droplets className="h-3 w-3" aria-hidden="true" /> {t("room.humidityValue", { level: t(`room.humidity.${room.humidity}`) })}
               </span>
             ) : null}
             {room.temperatureCelsius !== null ? (
@@ -172,7 +170,7 @@ function RoomCard({ room, plants }: { room: Room; plants: Plant[] }) {
           </ul>
         ) : null}
         <div className="space-y-1">
-          <Label htmlFor={`room-name-${room.id}`}>Name</Label>
+          <Label htmlFor={`room-name-${room.id}`}>{t("room.name")}</Label>
           <Input
             id={`room-name-${room.id}`}
             value={name}
@@ -182,32 +180,32 @@ function RoomCard({ room, plants }: { room: Room; plants: Plant[] }) {
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
-            <Label htmlFor={`room-light-${room.id}`}>Light exposure</Label>
+            <Label htmlFor={`room-light-${room.id}`}>{t("room.lightExposure")}</Label>
             <Select value={light} onValueChange={(value) => setLight(value as LightRequirement | "none")}>
               <SelectTrigger id={`room-light-${room.id}`} className={touchField}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">Unknown</SelectItem>
+                <SelectItem value="none">{t("room.unknown")}</SelectItem>
                 {LIGHT_EXPOSURES.map((option) => (
                   <SelectItem key={option} value={option}>
-                    {option}
+                    {t(`roomLight.level.${option}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-1">
-            <Label htmlFor={`room-humidity-${room.id}`}>Humidity</Label>
+            <Label htmlFor={`room-humidity-${room.id}`}>{t("room.humidityLabel")}</Label>
             <Select value={humidity} onValueChange={(value) => setHumidity(value as HumidityLevel | "none")}>
               <SelectTrigger id={`room-humidity-${room.id}`} className={touchField}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">Unknown</SelectItem>
+                <SelectItem value="none">{t("room.unknown")}</SelectItem>
                 {HUMIDITIES.map((option) => (
                   <SelectItem key={option} value={option}>
-                    {option}
+                    {t(`room.humidity.${option}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -215,7 +213,7 @@ function RoomCard({ room, plants }: { room: Room; plants: Plant[] }) {
           </div>
         </div>
         <div className="space-y-1">
-          <Label htmlFor={`room-temperature-${room.id}`}>Average temperature (°C)</Label>
+          <Label htmlFor={`room-temperature-${room.id}`}>{t("room.temperature")}</Label>
           <Input
             id={`room-temperature-${room.id}`}
             type="number"
@@ -227,7 +225,7 @@ function RoomCard({ room, plants }: { room: Room; plants: Plant[] }) {
           />
         </div>
         <div className="space-y-1">
-          <Label htmlFor={`room-orientation-${room.id}`}>Orientation</Label>
+          <Label htmlFor={`room-orientation-${room.id}`}>{t("room.orientationLabel")}</Label>
           <Select
             value={orientation}
             onValueChange={(value) => setOrientation(value as RoomOrientation | "none")}
@@ -238,7 +236,7 @@ function RoomCard({ room, plants }: { room: Room; plants: Plant[] }) {
             <SelectContent>
               {ORIENTATIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
-                  {option.label}
+                  {t(option.labelKey)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -261,24 +259,23 @@ function RoomCard({ room, plants }: { room: Room; plants: Plant[] }) {
               })
             }
           >
-            Save
+            {t("common.save")}
           </Button>
           <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
             <AlertDialogTrigger asChild>
               <Button size="sm" variant="outline" disabled={remove.isPending}>
-                Delete
+                {t("common.delete")}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete {room.name}?</AlertDialogTitle>
+                <AlertDialogTitle>{t("rooms.deleteTitle", { name: room.name })}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  The room is removed; its {room.plantCount}{" "}
-                  {room.plantCount === 1 ? "plant has" : "plants have"} no room until you pick a new one.
+                  {t("rooms.deleteDescription", { count: room.plantCount })}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                 <AlertDialogAction
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   onClick={() => {
@@ -286,7 +283,7 @@ function RoomCard({ room, plants }: { room: Room; plants: Plant[] }) {
                     remove.mutate(room.id);
                   }}
                 >
-                  Delete
+                  {t("common.delete")}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

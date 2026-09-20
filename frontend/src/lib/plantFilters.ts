@@ -1,3 +1,4 @@
+import i18n from "@/i18n";
 import { parseInstant } from "@/lib/dates";
 import type { Plant, PlantDueStatus } from "@/api/types";
 
@@ -11,19 +12,19 @@ export interface PlantQuery {
   sort: SortKey;
 }
 
-const DUE_FILTERS: { value: DueFilter; label: string }[] = [
-  { value: "all", label: "All statuses" },
-  { value: "Overdue", label: "Overdue" },
-  { value: "DueToday", label: "Due today" },
-  { value: "Upcoming", label: "Upcoming" },
-  { value: "NotScheduled", label: "Not scheduled" },
+const DUE_FILTERS: { value: DueFilter; labelKey: string }[] = [
+  { value: "all", labelKey: "filters.allStatuses" },
+  { value: "Overdue", labelKey: "due.overdue" },
+  { value: "DueToday", labelKey: "due.dueToday" },
+  { value: "Upcoming", labelKey: "due.upcoming" },
+  { value: "NotScheduled", labelKey: "due.notScheduled" },
 ];
 
-const SORT_OPTIONS: { value: SortKey; label: string }[] = [
-  { value: "name", label: "Name A–Z" },
-  { value: "room", label: "Room" },
-  { value: "soonestDue", label: "Soonest due" },
-  { value: "recentlyWatered", label: "Recently watered" },
+const SORT_OPTIONS: { value: SortKey; labelKey: string }[] = [
+  { value: "name", labelKey: "filters.sortName" },
+  { value: "room", labelKey: "filters.sortRoom" },
+  { value: "soonestDue", labelKey: "filters.sortSoonestDue" },
+  { value: "recentlyWatered", labelKey: "filters.sortRecentlyWatered" },
 ];
 
 export const dueFilterOptions = DUE_FILTERS;
@@ -54,12 +55,13 @@ export function filterPlants(plants: Plant[], query: PlantQuery): Plant[] {
   );
 
   const sorted = [...matched];
+  const locale = i18n.language;
   switch (query.sort) {
     case "name":
-      sorted.sort((a, b) => a.nickName.localeCompare(b.nickName));
+      sorted.sort((a, b) => a.nickName.localeCompare(b.nickName, locale));
       break;
     case "room":
-      sorted.sort((a, b) => (a.roomName ?? "\uffff").localeCompare(b.roomName ?? "\uffff") || a.nickName.localeCompare(b.nickName));
+      sorted.sort((a, b) => (a.roomName ?? "\uffff").localeCompare(b.roomName ?? "\uffff", locale) || a.nickName.localeCompare(b.nickName, locale));
       break;
     case "soonestDue":
       sorted.sort((a, b) => dueValue(a) - dueValue(b));

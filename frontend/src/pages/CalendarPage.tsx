@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,13 @@ import { usePlants } from "@/hooks/usePlants";
 import { dateKey, projectOccurrences } from "@/lib/scheduleProjection";
 import { cn } from "@/lib/utils";
 
-const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const WEEKDAY_BASE = new Date(2024, 0, 1);
+
+function weekdayLabels(locale: string): string[] {
+  return Array.from({ length: 7 }, (_, index) =>
+    new Date(WEEKDAY_BASE.getFullYear(), WEEKDAY_BASE.getMonth(), WEEKDAY_BASE.getDate() + index * 7).toLocaleDateString(locale, { weekday: "short" }),
+  );
+}
 
 type View = "week" | "month";
 
@@ -29,16 +36,17 @@ function DayCell({
   names: string[];
   muted?: boolean;
 }) {
+  const { t, i18n } = useTranslation();
   const today = date && startOfDay(new Date()).getTime() === date.getTime();
 
   return (
     <div
       aria-label={
         date
-          ? `${date.toLocaleDateString(undefined, { month: "short", day: "numeric" })}: ${
-              names.length > 0 ? names.join(", ") : "no waterings"
+          ? `${date.toLocaleDateString(i18n.language, { month: "short", day: "numeric" })}: ${
+              names.length > 0 ? names.join(", ") : t("calendar.noWaterings")
             }`
-          : "empty day"
+          : t("calendar.emptyDay")
       }
       className={cn(
         "min-h-24 rounded-lg border p-2 text-sm",
@@ -57,7 +65,7 @@ function DayCell({
               </li>
             ))}
             {names.length > 3 ? (
-              <li className="text-xs text-muted-foreground">+{names.length - 3} more</li>
+              <li className="text-xs text-muted-foreground">{t("calendar.more", { count: names.length - 3 })}</li>
             ) : null}
           </ul>
         </>
@@ -67,6 +75,7 @@ function DayCell({
 }
 
 export function CalendarPage() {
+  const { t, i18n } = useTranslation();
   const { data: plants, isPending, isError, error } = usePlants();
   const [view, setView] = useState<View>("week");
   const [anchor, setAnchor] = useState<Date>(() => startOfDay(new Date()));
@@ -93,16 +102,16 @@ export function CalendarPage() {
     return {
       from,
       to,
-      monthLabel: anchor.toLocaleDateString(undefined, { month: "long", year: "numeric" }),
+      monthLabel: anchor.toLocaleDateString(i18n.language, { month: "long", year: "numeric" }),
       cells,
     };
-  }, [view, anchor]);
+  }, [view, anchor, i18n.language]);
 
   if (isPending) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-bold">Calendar</h1>
-        <PlantCardSkeletonGrid count={3} label="Loading calendar..." />
+        <h1 className="text-2xl font-bold">{t("calendar.title")}</h1>
+        <PlantCardSkeletonGrid count={3} label={t("calendar.loading")} />
       </div>
     );
   }
@@ -111,7 +120,7 @@ export function CalendarPage() {
     return (
       <Card>
         <CardContent className="pt-6 text-destructive">
-          Could not load calendar: {(error as Error)?.message ?? "Unknown error"}
+          {t("calendar.loadError", { message: (error as Error)?.message ?? t("common.unknownError") })}
         </CardContent>
       </Card>
     );
@@ -122,16 +131,16 @@ export function CalendarPage() {
 
   return (
     <div className="space-y-4">
-      <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Calendar" }]} />
+      <Breadcrumbs items={[{ label: t("common.home"), to: "/" }, { label: t("calendar.title") }]} />
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold">Calendar</h1>
+        <h1 className="text-2xl font-bold">{t("calendar.title")}</h1>
         <div className="flex items-center gap-2">
           {view === "month" ? (
             <>
               <Button
                 variant="outline"
                 size="icon"
-                aria-label="Previous month"
+                aria-label={t("calendar.previousMonth")}
                 onClick={() => setAnchor(new Date(anchor.getFullYear(), anchor.getMonth() - 1, 1))}
               >
                 <ChevronLeft />
@@ -140,7 +149,7 @@ export function CalendarPage() {
               <Button
                 variant="outline"
                 size="icon"
-                aria-label="Next month"
+                aria-label={t("calendar.nextMonth")}
                 onClick={() => setAnchor(new Date(anchor.getFullYear(), anchor.getMonth() + 1, 1))}
               >
                 <ChevronRight />
@@ -155,7 +164,7 @@ export function CalendarPage() {
               setAnchor(startOfDay(new Date()));
             }}
           >
-            Week
+            {t("calendar.week")}
           </Button>
           <Button
             variant={view === "month" ? "default" : "outline"}
@@ -165,7 +174,7 @@ export function CalendarPage() {
               setAnchor(startOfDay(new Date()));
             }}
           >
-            Month
+            {t("calendar.month")}
           </Button>
         </div>
       </div>
@@ -173,8 +182,8 @@ export function CalendarPage() {
       <Card>
         <CardContent className="p-4">
           <div className="mb-2 grid grid-cols-7 gap-2 text-center text-xs font-medium text-muted-foreground">
-            {WEEKDAYS.map((day) => (
-              <div key={day}>{day}</div>
+            {weekdayLabels(i18n.language).map((day, index) => (
+              <div key={index}>{day}</div>
             ))}
           </div>
           <div className="grid grid-cols-7 gap-2">
