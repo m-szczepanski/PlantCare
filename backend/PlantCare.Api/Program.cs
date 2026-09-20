@@ -11,6 +11,7 @@ var connectionString = builder.Configuration.GetConnectionString("Default") ?? "
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddOpenApi();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -70,6 +71,7 @@ using (var scope = app.Services.CreateScope())
         logger);
 }
 
+app.MapOpenApi();
 app.MapControllers();
 
 var schedulerLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Coravel.Scheduler");
