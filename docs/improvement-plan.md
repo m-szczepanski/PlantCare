@@ -132,6 +132,11 @@ Every chunk follows the AGENTS.md workflow: acceptance criteria defined before c
   - `feature/repot-lifecycle` — `PotSizeCm`/`SoilMix`/`PropagatedFrom` on the plant (form + detail), yearly Repotting task; last/next repot from task data.
   - `feature/water-details` — optional `amountMilliliters` + `method` (Tap/Filtered/Rainwater) on watering logs, "log a watering" form on detail.
   - `feature/plant-notes` — `PlantNote` entity + `GET/POST /api/plants/{id}/notes` + notes section on detail.
+- **Epic 7 ships as one PR: `epic/notifications`** — all four chunks done.
+  - `feature/digest-notifications` — per-plant ntfy spam replaced by one daily digest (`N plants need water`, bulleted), priority 5 escalation when overdue; per-plant `NotifyEnabled` mute (form checkbox); `NotificationDigest` table (replaces per-plant `NotificationLog`, data migration drops it).
+  - `feature/vacation-snooze` — `SnoozedUntil` per plant + `POST /api/plants/{id}/snooze`, `DELETE …/snooze`, `POST …/snooze-all`; digest collection skips active snoozes; detail snooze picker (3/7/14/30d, resume) + dashboard "Snooze all".
+  - `feature/ntfy-quick-actions` — secret-guarded `GET/POST /api/plants/{id}/quick-water?key=` (constant-time compare, sliding-window rate limit 10/plant+IP/10min, logged), single-due-plant digest carries an ntfy action button built from `QUICK_ACTION_URL_BASE`.
+  - `feature/extra-channels` — `INotificationChannel` abstraction (ntfy always; optional Telegram via Bot API when `TELEGRAM_BOT_TOKEN`+`TELEGRAM_CHAT_ID` set, markdown digest + water link). Deviation: email unimplemented — SMTP provider/config needs its own decision.
 
 ## Suggested sequencing
 
