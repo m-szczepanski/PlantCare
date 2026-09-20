@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlantCare.Api.Data;
 
@@ -10,9 +11,11 @@ using PlantCare.Api.Data;
 namespace PlantCare.Api.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260920075546_AddSeasonalIntervals")]
+    partial class AddSeasonalIntervals
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.12");
@@ -117,17 +120,8 @@ namespace PlantCare.Api.Data.Migrations
                     b.Property<int?>("PlantProfileId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("PotSizeCm")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("PropagatedFrom")
-                        .HasColumnType("TEXT");
-
                     b.Property<int?>("RoomId")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("SoilMix")
-                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 

@@ -28,10 +28,16 @@ POST   /api/plants
 GET    /api/plants/{id}
 PUT    /api/plants/{id}
 DELETE /api/plants/{id}
-POST   /api/plants/{id}/water      logs a watering event, updates LastWateredAt
+POST   /api/plants/{id}/water      logs a watering event (note + optional `amountMilliliters`, `method`: Tap/Filtered/Rainwater) — marks the Watering care task
 POST   /api/plants/{id}/photo      multipart upload (field `file`) — stores the photo, sets PhotoUrl to its /uploads/ path
 DELETE /api/plants/{id}/water      undo: removes the newest watering log, rewinds LastWateredAt to the previous one (no-op without logs)
 GET    /api/plants/{id}/watering-logs   watering history for a plant (newest first)
+GET    /api/plants/{id}/care-tasks      typed care tasks with due info + seasonal/flush hints
+POST   /api/plants/{id}/care-tasks      add a schedule {type, intervalDays, reduceInWinter}
+DELETE /api/plants/{id}/care-tasks/{taskId}
+POST   /api/plants/{id}/care-tasks/{type}/done   generic "mark as done"
+GET    /api/plants/{id}/notes           health notes (newest first)
+POST   /api/plants/{id}/notes           add a note {text}
 
 GET    /api/rooms                  list rooms (+ orientation, environment params, plant counts)
 POST   /api/rooms                  create room (unique name, 409 on duplicate)
@@ -53,8 +59,9 @@ GET    /api/insights               read-only collection stats: totals, species d
 
 - **`PlantProfile`** — species-level defaults (common/scientific name, `DefaultWateringIntervalDays`, `LightRequirement` enum Low/Medium/Bright/DirectSun, humidity notes, care tips text/markdown). Seeded from JSON in `Seed/`.
 - **`Room`** — a physical room: `Name` (unique), optional `Orientation` (North/East/South/West) and environment params (`LightExposure` reusing the `LightRequirement` scale, `Humidity` Low/Medium/High, `TemperatureCelsius`). Replaced the old free-text `Plant.Location` (migration copies distinct values into rooms and rewires the FK).
-- **`Plant`** — the user's owned instance. Optional FK to `PlantProfile`; `CustomWateringIntervalDays` (nullable) overrides the profile default; tracks `RoomId` (FK, SetNull), `PhotoUrl`, `AcquiredDate`, `LastWateredAt`. `PlantService` also exposes `RoomLightMatch` on the response: profile `LightRequirement` vs the room's `LightExposure` (`Good` / `SlightlyToo*` / `MuchToo*` — the "wrong room" flag at ≥2 levels), null when either side is unknown.
-- **`WateringLog`** — history of watering events per plant (`WateredAt`, optional note).
+- **`CareTask`** — one recurring activity per plant+type (`Watering`, `Fertilizing`, `Repotting`): `IntervalDays` (null = profile default for watering), `LastDoneAt`, `ReduceInWinter` (null = profile's `DefaultReduceInWinter`). `CareTaskLog` rows record completions (note + watering-only `AmountMilliliters`/`Method`). This replaced the old `WateringLog` table and the `CustomWateringIntervalDays`/`LastWateredAt` columns (data migrated in `AddCareTasks`); the `/water` and `/watering-logs` endpoints kept their contracts via the task layer.
+- **`PlantNote`** — dated free-text health note per plant (list + create endpoints; cascade-deleted with the plant).
+- **`Plant`** — the user's owned instance. Optional FK to `PlantProfile`; `CustomWateringIntervalDays` (nullable) overrides the profile default; tracks `RoomId` (FK, SetNull), `PhotoUrl`, `AcquiredDate`, plus repot-lifecycle fields (`PotSizeCm`, `SoilMix`, `PropagatedFrom`). `PlantService` also exposes `RoomLightMatch` on the response: profile `LightRequirement` vs the room's `LightExposure` (`Good` / `SlightlyToo*` / `MuchToo*` — the "wrong room" flag at ≥2 levels), null when either side is unknown.
 - **`NotificationLog`** — audit/dedup for sent notifications (`SentAt`, `Type`), preventing duplicate sends on the same day.
 
 ### Persistence Approach

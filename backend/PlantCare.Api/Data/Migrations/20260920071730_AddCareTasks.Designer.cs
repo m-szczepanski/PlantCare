@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlantCare.Api.Data;
 
@@ -10,9 +11,11 @@ using PlantCare.Api.Data;
 namespace PlantCare.Api.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260920071730_AddCareTasks")]
+    partial class AddCareTasks
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.12");
@@ -30,9 +33,6 @@ namespace PlantCare.Api.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<int>("PlantId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool?>("ReduceInWinter")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Type")
@@ -53,16 +53,10 @@ namespace PlantCare.Api.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("AmountMilliliters")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("CareTaskId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("DoneAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Method")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Note")
@@ -117,17 +111,8 @@ namespace PlantCare.Api.Data.Migrations
                     b.Property<int?>("PlantProfileId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("PotSizeCm")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("PropagatedFrom")
-                        .HasColumnType("TEXT");
-
                     b.Property<int?>("RoomId")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("SoilMix")
-                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -136,29 +121,6 @@ namespace PlantCare.Api.Data.Migrations
                     b.HasIndex("RoomId");
 
                     b.ToTable("Plants");
-                });
-
-            modelBuilder.Entity("PlantCare.Api.Models.PlantNote", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("PlantId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlantId", "CreatedAt");
-
-                    b.ToTable("PlantNotes");
                 });
 
             modelBuilder.Entity("PlantCare.Api.Models.PlantProfile", b =>
@@ -174,9 +136,6 @@ namespace PlantCare.Api.Data.Migrations
                     b.Property<string>("CommonName")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<bool>("DefaultReduceInWinter")
-                        .HasColumnType("INTEGER");
 
                     b.Property<int>("DefaultWateringIntervalDays")
                         .HasColumnType("INTEGER");
@@ -278,17 +237,6 @@ namespace PlantCare.Api.Data.Migrations
                     b.Navigation("PlantProfile");
 
                     b.Navigation("Room");
-                });
-
-            modelBuilder.Entity("PlantCare.Api.Models.PlantNote", b =>
-                {
-                    b.HasOne("PlantCare.Api.Models.Plant", "Plant")
-                        .WithMany()
-                        .HasForeignKey("PlantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Plant");
                 });
 
             modelBuilder.Entity("PlantCare.Api.Models.CareTask", b =>

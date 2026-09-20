@@ -14,6 +14,12 @@ public class PlantResponseDto
 
     public string? PhotoUrl { get; set; }
 
+    public int? PotSizeCm { get; set; }
+
+    public string? SoilMix { get; set; }
+
+    public string? PropagatedFrom { get; set; }
+
     public DateTime AcquiredDate { get; set; }
 
     public int? PlantProfileId { get; set; }
@@ -23,6 +29,8 @@ public class PlantResponseDto
     public PlantCareTipsDto? CareTips { get; set; }
 
     public int? CustomWateringIntervalDays { get; set; }
+
+    public bool? ReduceInWinter { get; set; }
 
     public DateTime? LastWateredAt { get; set; }
 

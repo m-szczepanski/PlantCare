@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlantCare.Api.Data;
 
@@ -10,9 +11,11 @@ using PlantCare.Api.Data;
 namespace PlantCare.Api.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260920075011_AddPlantNotes")]
+    partial class AddPlantNotes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.12");
@@ -30,9 +33,6 @@ namespace PlantCare.Api.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<int>("PlantId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool?>("ReduceInWinter")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Type")
@@ -117,17 +117,8 @@ namespace PlantCare.Api.Data.Migrations
                     b.Property<int?>("PlantProfileId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("PotSizeCm")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("PropagatedFrom")
-                        .HasColumnType("TEXT");
-
                     b.Property<int?>("RoomId")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("SoilMix")
-                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -174,9 +165,6 @@ namespace PlantCare.Api.Data.Migrations
                     b.Property<string>("CommonName")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<bool>("DefaultReduceInWinter")
-                        .HasColumnType("INTEGER");
 
                     b.Property<int>("DefaultWateringIntervalDays")
                         .HasColumnType("INTEGER");

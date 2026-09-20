@@ -48,8 +48,11 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 
 ### Forms
 
+- `PlantForm` also edits the repot-lifecycle fields (pot cm, soil mix, propagated-from) and a "Reduce watering in winter" checkbox (`reduceInWinter`, doubles the interval Dec–Feb; profiles can default it).
 - `PlantForm` UX: the species profile picker is a searchable combobox (`ProfileCombobox` = Popover + Command); a `role="status"` line previews the effective next watering date (custom interval wins, otherwise profile default, otherwise "no schedule"); `acquiredDate` defaults to today for new plants; the custom-interval placeholder shows the selected profile's default.
 - API 400 responses with `ProblemDetails.errors` map to per-field messages via `splitApiError` (`src/lib/validation.ts`) — PascalCase keys become camelCase field names, inputs get `aria-invalid`; only non-field errors (e.g. unknown profile) render as the banner above the buttons.
+- `CareTasksCard` (detail page) is the generic typed-task UI: each task row shows the due message (destructive when overdue) and the server's seasonal hint ("Winter rest…", flush reminder, "Winter: watering interval is doubled"), with "Mark done" per type, an "Add fertilizing" interval/skip-winter form and "Add repotting (yearly)". Mutations live in `useCareTaskMutations(plantId)` (`src/hooks/usePlants.ts`).
+- Watering details: `plantsApi.water(id, details?)` sends `{note?, amountMilliliters?, method?}`; history rows render amount + method when set. `useWaterPlant`'s variables carry the same shape.
 - `WateringHistoryChart` renders the last 6 months of watering counts as simple div-bars (uses the `chart-1` token, no chart library) above the history list; counts are grouped by local month from the naive-UTC log timestamps, an sr-only table exposes the data, and it hides itself when the window is empty.
 - jsdom needs `ResizeObserver`/`scrollIntoView` stubs (in `src/test/setup.ts`) for Popover/Command/dialog rendering in tests.
 
@@ -116,7 +119,7 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 | Insights | Read-only collection stats from `GET /api/insights`: totals, species diversity, most-neglected, 30-day adherence, on-time streaks, monthly watering bars |
 | Plant list | Owned plants with due status, search (name/species/room), due-status filter, and sort (name / room / soonest due / recently watered) |
 | Rooms | Room CRUD (`/rooms`): name, orientation, optional environment (light exposure / humidity / temperature °C), plant list per room with light-match badges |
-| Plant detail | Plant info, photo (or placeholder), care tips from its `PlantProfile`, "mark as watered" action, watering history with monthly bar chart |
+| Plant detail | Plant info (incl. pot size / soil mix / propagated-from / acquired), photo (or placeholder), care tips, "log a watering" form (note + optional amount/method), care-tasks card (watering/fertilizing/repotting with per-type "mark done", hints, add/remove), notes section (list + add), watering history with monthly bar chart |
 | Plant form | Create/edit plants; species profiles are managed via the API only (no profile form UI yet) |
 | Wall mode (`/wall`) | Read-only auto-refreshing (60s) full-screen route for a home tablet — no shell/nav chrome, big cards + stats strip. Not in the nav; bookmark the URL. Calendar feed for phones: `/calendar.ics` (nginx proxies to `GET /api/calendar.ics`) |
 

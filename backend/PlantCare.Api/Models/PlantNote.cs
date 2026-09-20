@@ -1,6 +1,6 @@
 namespace PlantCare.Api.Models;
 
-public class WateringLog
+public class PlantNote
 {
     public int Id { get; set; }
 
@@ -8,7 +8,7 @@ public class WateringLog
 
     public Plant Plant { get; set; } = null!;
 
-    public DateTime WateredAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
-    public string? Note { get; set; }
+    public required string Text { get; set; }
 }

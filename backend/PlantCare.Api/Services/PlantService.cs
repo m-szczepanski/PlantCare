@@ -36,13 +36,17 @@ public interface IPlantService
 
     Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default);
 
-    Task<PlantResponseDto?> WaterAsync(int id, string? note, CancellationToken cancellationToken = default);
+    Task<PlantResponseDto?> WaterAsync(int id, string? note, int? amountMilliliters = null, WateringMethod? method = null, CancellationToken cancellationToken = default);
 
     Task<PlantResponseDto?> UndoWaterAsync(int id, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<WateringLogResponseDto>?> GetWateringHistoryAsync(int id, CancellationToken cancellationToken = default);
 
     Task<PlantPhotoResult> UploadPhotoAsync(int id, Stream content, string? contentType, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<PlantNoteResponseDto>?> GetNotesAsync(int id, CancellationToken cancellationToken = default);
+
+    Task<PlantNoteResponseDto?> AddNoteAsync(int id, string text, CancellationToken cancellationToken = default);
 }
 
 public sealed class PlantService(AppDbContext db, IWateringScheduleService schedule, FeatureFlags features, IPlantPhotoStorage photos) : IPlantService
@@ -52,6 +56,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         var plants = await db.Plants
             .Include(p => p.PlantProfile)
             .Include(p => p.Room)
+            .Include(p => p.CareTasks)
             .OrderBy(p => p.NickName)
             .ToListAsync(cancellationToken);
 
@@ -63,6 +68,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         var plant = await db.Plants
             .Include(p => p.PlantProfile)
             .Include(p => p.Room)
+            .Include(p => p.CareTasks)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
         return plant is null ? null : ToResponse(plant);
@@ -85,11 +91,19 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             NickName = dto.NickName.Trim(),
             RoomId = dto.RoomId,
             PhotoUrl = dto.PhotoUrl,
+            PotSizeCm = dto.PotSizeCm,
+            SoilMix = string.IsNullOrWhiteSpace(dto.SoilMix) ? null : dto.SoilMix.Trim(),
+            PropagatedFrom = string.IsNullOrWhiteSpace(dto.PropagatedFrom) ? null : dto.PropagatedFrom.Trim(),
             AcquiredDate = dto.AcquiredDate,
-            CustomWateringIntervalDays = dto.CustomWateringIntervalDays,
             PlantProfileId = dto.PlantProfileId,
-            LastWateredAt = dto.LastWateredAt,
         };
+        plant.CareTasks.Add(new CareTask
+        {
+            Type = CareTaskType.Watering,
+            IntervalDays = dto.CustomWateringIntervalDays,
+            LastDoneAt = dto.LastWateredAt,
+            ReduceInWinter = dto.ReduceInWinter ?? false,
+        });
 
         db.Plants.Add(plant);
         await db.SaveChangesAsync(cancellationToken);
@@ -99,7 +113,9 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
 
     public async Task<PlantWriteResult> UpdateAsync(int id, UpdatePlantRequestDto dto, CancellationToken cancellationToken = default)
     {
-        var plant = await db.Plants.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        var plant = await db.Plants
+            .Include(p => p.CareTasks)
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
         if (plant is null)
         {
             return new PlantWriteResult(PlantWriteStatus.NotFound);
@@ -118,10 +134,16 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         plant.NickName = dto.NickName.Trim();
         plant.RoomId = dto.RoomId;
         plant.PhotoUrl = dto.PhotoUrl;
+        plant.PotSizeCm = dto.PotSizeCm;
+        plant.SoilMix = string.IsNullOrWhiteSpace(dto.SoilMix) ? null : dto.SoilMix.Trim();
+        plant.PropagatedFrom = string.IsNullOrWhiteSpace(dto.PropagatedFrom) ? null : dto.PropagatedFrom.Trim();
         plant.AcquiredDate = dto.AcquiredDate;
-        plant.CustomWateringIntervalDays = dto.CustomWateringIntervalDays;
         plant.PlantProfileId = dto.PlantProfileId;
-        plant.LastWateredAt = dto.LastWateredAt;
+
+        var watering = WateringTask(plant) ?? NewWateringTask(plant);
+        watering.IntervalDays = dto.CustomWateringIntervalDays;
+        watering.LastDoneAt = dto.LastWateredAt;
+        watering.ReduceInWinter = dto.ReduceInWinter ?? watering.ReduceInWinter;
 
         await db.SaveChangesAsync(cancellationToken);
 
@@ -146,11 +168,12 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
     /// Logs a watering event and updates <see cref="Plant.LastWateredAt"/> atomically:
     /// both changes go out in the single implicit transaction of one SaveChanges call.
     /// </summary>
-    public async Task<PlantResponseDto?> WaterAsync(int id, string? note, CancellationToken cancellationToken = default)
+    public async Task<PlantResponseDto?> WaterAsync(int id, string? note, int? amountMilliliters = null, WateringMethod? method = null, CancellationToken cancellationToken = default)
     {
         var plant = await db.Plants
             .Include(p => p.PlantProfile)
             .Include(p => p.Room)
+            .Include(p => p.CareTasks)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
         if (plant is null)
@@ -159,17 +182,19 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         }
 
         var wateredAt = DateTime.UtcNow;
-        plant.LastWateredAt = wateredAt;
-        db.WateringLogs.Add(new WateringLog
+        var watering = WateringTask(plant) ?? NewWateringTask(plant);
+        watering.LastDoneAt = wateredAt;
+        watering.Logs.Add(new CareTaskLog
         {
-            PlantId = plant.Id,
-            WateredAt = wateredAt,
+            DoneAt = wateredAt,
             Note = string.IsNullOrWhiteSpace(note) ? null : note.Trim(),
+            AmountMilliliters = amountMilliliters,
+            Method = method,
         });
 
         await db.SaveChangesAsync(cancellationToken);
 
-        return ToResponse(plant);
+        return await ReloadAsync(plant.Id, cancellationToken);
     }
 
     /// <summary>
@@ -181,6 +206,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         var plant = await db.Plants
             .Include(p => p.PlantProfile)
             .Include(p => p.Room)
+            .Include(p => p.CareTasks)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
         if (plant is null)
@@ -188,24 +214,28 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             return null;
         }
 
-        var latest = await db.WateringLogs
-            .Where(w => w.PlantId == id)
-            .OrderByDescending(w => w.WateredAt)
-            .ThenByDescending(w => w.Id)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (latest is not null)
+        var watering = WateringTask(plant);
+        if (watering is not null)
         {
-            db.WateringLogs.Remove(latest);
-
-            var previous = await db.WateringLogs
-                .Where(w => w.PlantId == id && w.Id != latest.Id)
-                .OrderByDescending(w => w.WateredAt)
+            var latest = await db.CareTaskLogs
+                .Where(w => w.CareTaskId == watering.Id)
+                .OrderByDescending(w => w.DoneAt)
                 .ThenByDescending(w => w.Id)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            plant.LastWateredAt = previous?.WateredAt;
-            await db.SaveChangesAsync(cancellationToken);
+            if (latest is not null)
+            {
+                db.CareTaskLogs.Remove(latest);
+
+                var previous = await db.CareTaskLogs
+                    .Where(w => w.CareTaskId == watering.Id && w.Id != latest.Id)
+                    .OrderByDescending(w => w.DoneAt)
+                    .ThenByDescending(w => w.Id)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                watering.LastDoneAt = previous?.DoneAt;
+                await db.SaveChangesAsync(cancellationToken);
+            }
         }
 
         return ToResponse(plant);
@@ -218,16 +248,27 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             return null;
         }
 
-        return await db.WateringLogs
+        var watering = await db.CareTasks
             .AsNoTracking()
-            .Where(w => w.PlantId == id)
-            .OrderByDescending(w => w.WateredAt)
+            .FirstOrDefaultAsync(t => t.PlantId == id && t.Type == CareTaskType.Watering, cancellationToken);
+
+        if (watering is null)
+        {
+            return [];
+        }
+
+        return await db.CareTaskLogs
+            .AsNoTracking()
+            .Where(w => w.CareTaskId == watering.Id)
+            .OrderByDescending(w => w.DoneAt)
             .ThenByDescending(w => w.Id)
             .Select(w => new WateringLogResponseDto
             {
                 Id = w.Id,
-                WateredAt = w.WateredAt,
+                WateredAt = w.DoneAt,
                 Note = w.Note,
+                AmountMilliliters = w.AmountMilliliters,
+                Method = w.Method,
             })
             .ToListAsync(cancellationToken);
     }
@@ -259,11 +300,67 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         return new PlantPhotoResult(PlantPhotoStatus.Success, await ReloadAsync(plant.Id, cancellationToken));
     }
 
+    public async Task<IReadOnlyList<PlantNoteResponseDto>?> GetNotesAsync(int id, CancellationToken cancellationToken = default)
+    {
+        if (!await db.Plants.AnyAsync(p => p.Id == id, cancellationToken))
+        {
+            return null;
+        }
+
+        return await db.PlantNotes
+            .AsNoTracking()
+            .Where(n => n.PlantId == id)
+            .OrderByDescending(n => n.CreatedAt)
+            .ThenByDescending(n => n.Id)
+            .Select(n => new PlantNoteResponseDto
+            {
+                Id = n.Id,
+                CreatedAt = n.CreatedAt,
+                Text = n.Text,
+            })
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<PlantNoteResponseDto?> AddNoteAsync(int id, string text, CancellationToken cancellationToken = default)
+    {
+        var plant = await db.Plants.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        if (plant is null)
+        {
+            return null;
+        }
+
+        var note = new PlantNote
+        {
+            PlantId = plant.Id,
+            CreatedAt = DateTime.UtcNow,
+            Text = text.Trim(),
+        };
+        db.PlantNotes.Add(note);
+        await db.SaveChangesAsync(cancellationToken);
+
+        return new PlantNoteResponseDto
+        {
+            Id = note.Id,
+            CreatedAt = note.CreatedAt,
+            Text = note.Text,
+        };
+    }
+
     private async Task<bool> ProfileExistsAsync(int profileId, CancellationToken cancellationToken)
         => await db.PlantProfiles.AnyAsync(p => p.Id == profileId, cancellationToken);
 
     private async Task<bool> RoomExistsAsync(int roomId, CancellationToken cancellationToken)
         => await db.Rooms.AnyAsync(r => r.Id == roomId, cancellationToken);
+
+    private static CareTask? WateringTask(Plant plant)
+        => plant.CareTasks.FirstOrDefault(t => t.Type == CareTaskType.Watering);
+
+    private static CareTask NewWateringTask(Plant plant)
+    {
+        var task = new CareTask { Type = CareTaskType.Watering };
+        plant.CareTasks.Add(task);
+        return task;
+    }
 
     private async Task<PlantResponseDto?> ReloadAsync(int id, CancellationToken cancellationToken)
     {
@@ -271,6 +368,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             .AsNoTracking()
             .Include(p => p.PlantProfile)
             .Include(p => p.Room)
+            .Include(p => p.CareTasks)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
         return plant is null ? null : ToResponse(plant);
@@ -278,7 +376,8 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
 
     private PlantResponseDto ToResponse(Plant plant)
     {
-        var due = schedule.GetDueInfo(plant);
+        var watering = WateringTask(plant);
+        var due = schedule.GetDueInfo(watering, plant);
 
         return new PlantResponseDto
         {
@@ -287,6 +386,9 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             RoomId = plant.RoomId,
             RoomName = plant.Room?.Name,
             PhotoUrl = plant.PhotoUrl,
+            PotSizeCm = plant.PotSizeCm,
+            SoilMix = plant.SoilMix,
+            PropagatedFrom = plant.PropagatedFrom,
             AcquiredDate = plant.AcquiredDate,
             PlantProfileId = plant.PlantProfileId,
             ProfileCommonName = plant.PlantProfile?.CommonName,
@@ -299,8 +401,9 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
                     CareTips = profile.CareTips,
                 }
                 : null,
-            CustomWateringIntervalDays = plant.CustomWateringIntervalDays,
-            LastWateredAt = plant.LastWateredAt,
+            CustomWateringIntervalDays = watering?.IntervalDays,
+            ReduceInWinter = watering?.ReduceInWinter,
+            LastWateredAt = watering?.LastDoneAt,
             DueStatus = due.Status,
             WateringIntervalDays = due.IntervalDays,
             DaysUntilDue = due.DaysUntilDue,

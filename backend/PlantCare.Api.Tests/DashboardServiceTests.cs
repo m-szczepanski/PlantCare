@@ -23,10 +23,16 @@ public class DashboardServiceTests
         public Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
-        public Task<PlantResponseDto?> WaterAsync(int id, string? note, CancellationToken cancellationToken = default)
+        public Task<PlantResponseDto?> WaterAsync(int id, string? note, int? amountMilliliters = null, PlantCare.Api.Models.WateringMethod? method = null, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
         public Task<PlantResponseDto?> UndoWaterAsync(int id, CancellationToken cancellationToken = default)
+            => throw new NotSupportedException();
+
+        public Task<IReadOnlyList<PlantCare.Api.Dtos.PlantNoteResponseDto>?> GetNotesAsync(int id, CancellationToken cancellationToken = default)
+            => throw new NotSupportedException();
+
+        public Task<PlantCare.Api.Dtos.PlantNoteResponseDto?> AddNoteAsync(int id, string text, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
         public Task<IReadOnlyList<WateringLogResponseDto>?> GetWateringHistoryAsync(int id, CancellationToken cancellationToken = default)

@@ -13,10 +13,21 @@ public class CreatePlantRequestDto
     [StringLength(500)]
     public string? PhotoUrl { get; set; }
 
+    [Range(1, 200)]
+    public int? PotSizeCm { get; set; }
+
+    [StringLength(200)]
+    public string? SoilMix { get; set; }
+
+    [StringLength(200)]
+    public string? PropagatedFrom { get; set; }
+
     public DateTime AcquiredDate { get; set; } = DateTime.UtcNow;
 
     [Range(1, 3650)]
     public int? CustomWateringIntervalDays { get; set; }
+
+    public bool? ReduceInWinter { get; set; }
 
     public int? PlantProfileId { get; set; }
 

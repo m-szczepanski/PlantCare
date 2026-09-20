@@ -42,12 +42,16 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
   const [roomId, setRoomId] = useState<number | null>(initial?.roomId ?? null);
   const [newRoomName, setNewRoomName] = useState("");
   const [photoUrl, setPhotoUrl] = useState(initial?.photoUrl ?? "");
+  const [potSizeCm, setPotSizeCm] = useState(initial?.potSizeCm?.toString() ?? "");
+  const [soilMix, setSoilMix] = useState(initial?.soilMix ?? "");
+  const [propagatedFrom, setPropagatedFrom] = useState(initial?.propagatedFrom ?? "");
   const [profileId, setProfileId] = useState<number | null>(initial?.plantProfileId ?? null);
   const [customInterval, setCustomInterval] = useState<string>(
     initial?.customWateringIntervalDays?.toString() ?? "",
   );
   const [acquiredDate, setAcquiredDate] = useState<string>(toDateValue(initial?.acquiredDate) || toDateValue(new Date().toISOString()));
   const [lastWateredAt, setLastWateredAt] = useState<string>(toDateValue(initial?.lastWateredAt));
+  const [reduceInWinter, setReduceInWinter] = useState<boolean>(initial?.reduceInWinter ?? false);
 
   const selectedProfile = profiles.find((profile) => profile.id === profileId);
   const customDays = customInterval.trim() === "" ? null : Number(customInterval);
@@ -79,9 +83,13 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
       nickName: nickName.trim(),
       roomId,
       photoUrl: photoUrl.trim() || null,
+      potSizeCm: potSizeCm.trim() === "" ? null : Number(potSizeCm),
+      soilMix: soilMix.trim() || null,
+      propagatedFrom: propagatedFrom.trim() || null,
       acquiredDate: fromDateString(acquiredDate) ?? new Date().toISOString(),
       plantProfileId: profileId,
       customWateringIntervalDays: intervalDays !== null && Number.isFinite(intervalDays) ? intervalDays : null,
+      reduceInWinter,
       lastWateredAt: fromDateString(lastWateredAt),
     });
   }
@@ -209,6 +217,55 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
           <FieldError message={fieldErrors.photoUrl} />
         </div>
       </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor="potSizeCm">Pot size (cm)</Label>
+          <Input
+            id="potSizeCm"
+            type="number"
+            min={1}
+            max={200}
+            value={potSizeCm}
+            onChange={(e) => setPotSizeCm(e.target.value)}
+            placeholder="14"
+            aria-invalid={fieldErrors.potSizeCm ? true : undefined}
+            className={touchField}
+          />
+          <FieldError message={fieldErrors.potSizeCm} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="soilMix">Soil mix</Label>
+          <Input
+            id="soilMix"
+            value={soilMix}
+            onChange={(e) => setSoilMix(e.target.value)}
+            placeholder="Aroid chunky blend"
+            className={touchField}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="propagatedFrom">Propagated from</Label>
+        <Input
+          id="propagatedFrom"
+          value={propagatedFrom}
+          onChange={(e) => setPropagatedFrom(e.target.value)}
+          placeholder="e.g. Cutting from grandma's monstera"
+          className={touchField}
+        />
+      </div>
+
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={reduceInWinter}
+          onChange={(e) => setReduceInWinter(e.target.checked)}
+          className="h-4 w-4 shrink-0 rounded border-input accent-primary"
+        />
+        Reduce watering in winter (doubles the interval Dec–Feb)
+      </label>
 
       <p
         className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground"

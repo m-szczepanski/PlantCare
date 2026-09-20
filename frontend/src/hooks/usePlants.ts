@@ -1,13 +1,15 @@
 import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { plantsApi } from "@/api/client";
-import type { Plant, PlantInput } from "@/api/types";
+import type { Plant, PlantInput, WaterDetails } from "@/api/types";
 import { toastError } from "@/lib/toast";
 
 export const plantKeys = {
   all: ["plants"] as const,
   detail: (id: number) => ["plants", id] as const,
   wateringLogs: (id: number) => ["plants", id, "watering-logs"] as const,
+  notes: (id: number) => ["plants", id, "notes"] as const,
+  careTasks: (id: number) => ["plants", id, "care-tasks"] as const,
 };
 
 function optimisticWatered(plant: Plant): Plant {
@@ -80,7 +82,8 @@ export function useDeletePlant() {
 export function useWaterPlant() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, note }: { id: number; note?: string }) => plantsApi.water(id, note),
+    mutationFn: ({ id, ...details }: { id: number } & WaterDetails) =>
+      plantsApi.water(id, Object.keys(details).length > 0 ? details : undefined),
     onMutate: async ({ id }) => {
       const previousList = queryClient.getQueryData<Plant[]>(plantKeys.all);
       const previousDetail = queryClient.getQueryData<Plant>(plantKeys.detail(id));
@@ -134,6 +137,74 @@ export function useWateringLogs(id: number) {
     queryKey: plantKeys.wateringLogs(id),
     queryFn: () => plantsApi.wateringLogs(id),
     enabled: Number.isInteger(id),
+  });
+}
+
+export function useCareTasks(id: number) {
+  return useQuery({
+    queryKey: plantKeys.careTasks(id),
+    queryFn: () => plantsApi.careTasks(id),
+    enabled: Number.isInteger(id),
+  });
+}
+
+export function useCareTaskMutations(id: number) {
+  const queryClient = useQueryClient();
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: plantKeys.careTasks(id) });
+    queryClient.invalidateQueries({ queryKey: plantKeys.all });
+    queryClient.invalidateQueries({ queryKey: plantKeys.detail(id) });
+    queryClient.invalidateQueries({ queryKey: plantKeys.wateringLogs(id) });
+  };
+
+  const add = useMutation({
+    mutationFn: (input: { type: "Fertilizing" | "Repotting"; intervalDays: number; reduceInWinter?: boolean }) =>
+      plantsApi.addCareTask(id, input),
+    onSuccess: (task) => {
+      invalidate();
+      toast.success(`${task.type} schedule added`);
+    },
+    onError: (error) => toastError("Could not add care task", error),
+  });
+
+  const remove = useMutation({
+    mutationFn: (taskId: number) => plantsApi.deleteCareTask(id, taskId),
+    onSuccess: () => {
+      invalidate();
+      toast.success("Care task removed");
+    },
+    onError: (error) => toastError("Could not remove care task", error),
+  });
+
+  const markDone = useMutation({
+    mutationFn: (type: "Watering" | "Fertilizing" | "Repotting") => plantsApi.markCareTaskDone(id, type),
+    onSuccess: (task) => {
+      invalidate();
+      toast.success(`${task.type} marked done`);
+    },
+    onError: (error) => toastError("Could not mark task done", error),
+  });
+
+  return { add, remove, markDone };
+}
+
+export function usePlantNotes(id: number) {
+  return useQuery({
+    queryKey: plantKeys.notes(id),
+    queryFn: () => plantsApi.notes(id),
+    enabled: Number.isInteger(id),
+  });
+}
+
+export function useAddPlantNote(id: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (text: string) => plantsApi.addNote(id, text),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: plantKeys.notes(id) });
+      toast.success("Note added");
+    },
+    onError: (error) => toastError("Could not add note", error),
   });
 }
 

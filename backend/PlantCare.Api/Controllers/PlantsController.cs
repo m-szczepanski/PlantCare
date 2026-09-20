@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PlantCare.Api.Dtos;
+using PlantCare.Api.Models;
 using PlantCare.Api.Services;
 
 namespace PlantCare.Api.Controllers;
@@ -7,7 +8,7 @@ namespace PlantCare.Api.Controllers;
 [ApiController]
 [Route("api/plants")]
 [Produces("application/json")]
-public class PlantsController(IPlantService plants) : ControllerBase
+public class PlantsController(IPlantService plants, ICareTaskService careTasks) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<PlantResponseDto>>> List(CancellationToken cancellationToken)
@@ -52,7 +53,7 @@ public class PlantsController(IPlantService plants) : ControllerBase
     [HttpPost("{id:int}/water")]
     public async Task<ActionResult<PlantResponseDto>> Water(int id, WaterPlantRequestDto? dto, CancellationToken cancellationToken)
     {
-        var plant = await plants.WaterAsync(id, dto?.Note, cancellationToken);
+        var plant = await plants.WaterAsync(id, dto?.Note, dto?.AmountMilliliters, dto?.Method, cancellationToken);
         return plant is null ? NotFound() : Ok(plant);
     }
 
@@ -81,6 +82,55 @@ public class PlantsController(IPlantService plants) : ControllerBase
             PlantPhotoStatus.InvalidFile => BadRequest(new ProblemDetails { Title = "Unsupported photo.", Detail = result.Error }),
             _ => Ok(result.Plant),
         };
+    }
+
+    [HttpGet("{id:int}/care-tasks")]
+    public async Task<ActionResult<IReadOnlyList<CareTaskResponseDto>>> CareTasks(int id, CancellationToken cancellationToken)
+    {
+        var tasks = await careTasks.ListForPlantAsync(id, cancellationToken);
+        return tasks is null ? NotFound() : Ok(tasks);
+    }
+
+    [HttpPost("{id:int}/care-tasks")]
+    public async Task<ActionResult<CareTaskResponseDto>> CreateCareTask(int id, CreateCareTaskRequestDto dto, CancellationToken cancellationToken)
+    {
+        var result = await careTasks.CreateAsync(id, dto.Type, dto.IntervalDays, dto.ReduceInWinter, cancellationToken);
+        return result.Status switch
+        {
+            CareTaskWriteStatus.NotFound => NotFound(),
+            CareTaskWriteStatus.AlreadyExists => Conflict(new ProblemDetails { Title = "This plant already has that care task." }),
+            _ => Created($"/api/plants/{id}/care-tasks", result.Task),
+        };
+    }
+
+    [HttpDelete("{id:int}/care-tasks/{taskId:int}")]
+    public async Task<IActionResult> DeleteCareTask(int id, int taskId, CancellationToken cancellationToken)
+        => await careTasks.DeleteAsync(id, taskId, cancellationToken) ? NoContent() : NotFound();
+
+    [HttpPost("{id:int}/care-tasks/{type}/done")]
+    public async Task<ActionResult<CareTaskResponseDto>> MarkCareTaskDone(int id, string type, WaterPlantRequestDto? dto, CancellationToken cancellationToken)
+    {
+        if (!Enum.TryParse<CareTaskType>(type, ignoreCase: true, out var taskType))
+        {
+            return BadRequest(new ProblemDetails { Title = "Unknown care task type.", Detail = $"'{type}' is not a known care task type." });
+        }
+
+        var result = await careTasks.MarkDoneAsync(id, taskType, dto?.Note, dto?.AmountMilliliters, dto?.Method, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    [HttpGet("{id:int}/notes")]
+    public async Task<ActionResult<IReadOnlyList<PlantNoteResponseDto>>> Notes(int id, CancellationToken cancellationToken)
+    {
+        var notes = await plants.GetNotesAsync(id, cancellationToken);
+        return notes is null ? NotFound() : Ok(notes);
+    }
+
+    [HttpPost("{id:int}/notes")]
+    public async Task<ActionResult<PlantNoteResponseDto>> AddNote(int id, PlantNoteRequestDto dto, CancellationToken cancellationToken)
+    {
+        var note = await plants.AddNoteAsync(id, dto.Text, cancellationToken);
+        return note is null ? NotFound() : Created($"/api/plants/{id}/notes/{note.Id}", note);
     }
 
     [HttpGet("{id:int}/watering-logs")]
