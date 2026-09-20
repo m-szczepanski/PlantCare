@@ -5,6 +5,7 @@ import { DashboardPage } from "@/pages/DashboardPage";
 import { InsightsPage } from "@/pages/InsightsPage";
 import { PlantDetailPage } from "@/pages/PlantDetailPage";
 import { PlantFormPage } from "@/pages/PlantFormPage";
+import { ProfilesPage } from "@/pages/ProfilesPage";
 import { RoomsPage } from "@/pages/RoomsPage";
 import { PlantsPage } from "@/pages/PlantsPage";
 import { WallPage } from "@/pages/WallPage";
@@ -26,6 +27,7 @@ export function App() {
         <Route path="/calendar" element={<CalendarPage />} />
         <Route path="/insights" element={<InsightsPage />} />
         <Route path="/rooms" element={<RoomsPage />} />
+        <Route path="/profiles" element={<ProfilesPage />} />
         <Route path="/plants" element={<PlantsPage />} />
         <Route path="/plants/new" element={<PlantFormPage />} />
         <Route path="/plants/:id" element={<PlantDetailPage />} />

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, screen } from "@testing-library/react";
 import { plantProfilesApi } from "@/api/client";
-import type { PlantProfileOption } from "@/api/types";
+import type { PlantProfile } from "@/api/types";
 import { PlantForm } from "@/components/PlantForm";
 import { renderWithProviders } from "@/test/render";
 
@@ -11,9 +11,33 @@ vi.mock("@/api/client", () => ({
   ApiError: class ApiError extends Error {},
 }));
 
-const profiles: PlantProfileOption[] = [
-  { id: 1, commonName: "Monstera", scientificName: null, defaultWateringIntervalDays: 7 },
-  { id: 2, commonName: "Pothos", scientificName: null, defaultWateringIntervalDays: 10 },
+const profiles: PlantProfile[] = [
+  {
+    id: 1,
+    commonName: "Monstera",
+    scientificName: null,
+    defaultWateringIntervalDays: 7,
+    lightRequirement: "Bright",
+    humidityNotes: "Loves misting.",
+    careTips: "Feed monthly.",
+    toxicToPets: false,
+    toxicToChildren: false,
+    diagnosisChecklist: null,
+    plantCount: 0,
+  },
+  {
+    id: 2,
+    commonName: "Pothos",
+    scientificName: null,
+    defaultWateringIntervalDays: 10,
+    lightRequirement: "Medium",
+    humidityNotes: "Average.",
+    careTips: "Tolerant.",
+    toxicToPets: false,
+    toxicToChildren: false,
+    diagnosisChecklist: null,
+    plantCount: 0,
+  },
 ];
 
 function renderForm() {

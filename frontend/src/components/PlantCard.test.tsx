@@ -21,6 +21,8 @@ function plant(over: Partial<Plant>): Plant {
     acquiredDate: "2026-01-01T00:00:00",
     plantProfileId: null,
     profileCommonName: null,
+    profileToxicToPets: false,
+    profileToxicToChildren: false,
     careTips: null,
     customWateringIntervalDays: 7,
     reduceInWinter: null,
@@ -104,6 +106,20 @@ describe("PlantCard", () => {
     renderCard(<PlantCard plant={plant({})} />);
 
     expect(screen.getByText("Not watered yet")).toBeInTheDocument();
+  });
+
+  it("marks toxic species with an accessible warning", () => {
+    renderCard(
+      <PlantCard
+        plant={plant({
+          profileCommonName: "Pothos",
+          profileToxicToPets: true,
+          profileToxicToChildren: true,
+        })}
+      />,
+    );
+
+    expect(screen.getByRole("img", { name: "toxic to pets and toxic to children" })).toBeInTheDocument();
   });
 
   it("shows an inline water button wired to the callback", () => {

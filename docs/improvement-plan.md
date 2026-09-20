@@ -137,6 +137,13 @@ Every chunk follows the AGENTS.md workflow: acceptance criteria defined before c
   - `feature/vacation-snooze` — `SnoozedUntil` per plant + `POST /api/plants/{id}/snooze`, `DELETE …/snooze`, `POST …/snooze-all`; digest collection skips active snoozes; detail snooze picker (3/7/14/30d, resume) + dashboard "Snooze all".
   - `feature/ntfy-quick-actions` — secret-guarded `GET/POST /api/plants/{id}/quick-water?key=` (constant-time compare, sliding-window rate limit 10/plant+IP/10min, logged), single-due-plant digest carries an ntfy action button built from `QUICK_ACTION_URL_BASE`.
   - `feature/extra-channels` — `INotificationChannel` abstraction (ntfy always; optional Telegram via Bot API when `TELEGRAM_BOT_TOKEN`+`TELEGRAM_CHAT_ID` set, markdown digest + water link). Deviation: email unimplemented — SMTP provider/config needs its own decision.
+- **Epic 8 ships as one PR: `epic/species-knowledge`** — five of six chunks done.
+  - `feature/profile-management-ui` — `/profiles` page over the existing CRUD endpoints; profile responses now carry light/humidity/careTips/toxicity/checklist + `plantCount`.
+  - `feature/seed-expansion` — bundled seed 8→14 species with curated tips; `SeedLoader.LoadCustomProfilesAsync` scans `SEED_CUSTOM_PATH` (default `/data/seed-custom` on the plant-data volume) at startup — drop-in JSON, dedup by name, malformed files logged and skipped.
+  - `feature/species-catalog-search` — **deferred: provider decision required** (external catalog data quality, rate limits, offline behaviour). Not built.
+  - `feature/toxicity-flags` — `ToxicToPets`/`ToxicToChildren` on profiles (migration + seed annotations), warning icon on cards (accessible label), destructive badges on detail, `[toxic to pets]` tags in the watering digest.
+  - `feature/diagnostics-checklist` — per-profile `DiagnosisChecklist` JSON (server-validated, `InvalidChecklist` → 400), seeded for 5 species, rendered as collapsible symptom→cause cards on detail, editable in the profiles form.
+  - `feature/care-journal` — `JournalEntry` entity + multipart `POST /api/plants/{id}/journal` (date/note/photo via the storage volume under `plants/{id}/journal/`), list + delete endpoints, `JournalCard` on detail with entry list and before/after comparison.
 
 ## Suggested sequencing
 

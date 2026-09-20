@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Droplets } from "lucide-react";
+import { AlertTriangle, Droplets } from "lucide-react";
 import { DueCount, DueStatusBadge } from "@/components/DueStatusBadge";
 import { PlantPhoto } from "@/components/PlantPhoto";
 import { Button } from "@/components/ui/button";
@@ -33,7 +33,24 @@ export function PlantCard({ plant, onWater, isWatering }: PlantCardProps) {
           </Link>
           <p className="mt-1 text-sm text-muted-foreground">{plant.roomName ?? "No room"}</p>
           {plant.profileCommonName ? (
-            <p className="text-sm text-muted-foreground">{plant.profileCommonName}</p>
+            <p className="flex items-center gap-1 text-sm text-muted-foreground">
+              {plant.profileCommonName}
+              {plant.profileToxicToPets || plant.profileToxicToChildren ? (
+                <span
+                  role="img"
+                  aria-label={
+                    [
+                      plant.profileToxicToPets ? "toxic to pets" : null,
+                      plant.profileToxicToChildren ? "toxic to children" : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" and ")
+                  }
+                >
+                  <AlertTriangle className="h-3.5 w-3.5 text-destructive" aria-hidden="true" />
+                </span>
+              ) : null}
+            </p>
           ) : null}
           <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1">
             <DueStatusBadge plant={plant} />

@@ -38,6 +38,9 @@ DELETE /api/plants/{id}/care-tasks/{taskId}
 POST   /api/plants/{id}/care-tasks/{type}/done   generic "mark as done"
 GET    /api/plants/{id}/notes           health notes (newest first)
 POST   /api/plants/{id}/notes           add a note {text}
+GET    /api/plants/{id}/journal         care journal entries (newest first)
+POST   /api/plants/{id}/journal         multipart {entryDate?, text?, file?} — photo stored under /uploads plants/{id}/journal/
+DELETE /api/plants/{id}/journal/{entryId}
 
 GET    /api/rooms                  list rooms (+ orientation, environment params, plant counts)
 POST   /api/rooms                  create room (unique name, 409 on duplicate)
@@ -53,7 +56,7 @@ GET    /api/calendar.ics           iCalendar (RFC 5545) feed: one recurring all-
 GET    /api/insights               read-only collection stats: totals, species diversity, most-neglected, 30-day adherence, on-time streaks, 12-month watering counts
 ```
 
-`CalendarService` and `InsightsService` both reuse `IPlantService`'s schedule computation (single source of truth). ICS output uses CRLF line endings with 74-char folding and text escaping; adherence counts logs in the last 30 days against `window / interval` expectations; a streak is consecutive recent waterings whose gaps stay within `interval + 2` days.
+Profile data: `DiagnosisChecklist` is a validated JSON array (`[{symptom, causes[]}]`, `DiagnosisChecklist.TryValidate`) served inside `PlantProfile` responses and the embedded care tips; `ToxicToPets`/`ToxicToChildren` flags surface on cards, the detail page and the watering digest. `SeedLoader` also scans `SEED_CUSTOM_PATH` (default `/data/seed-custom`, on the plant-data volume) at startup for drop-in `*.json` user species — existing names skipped, malformed files logged and ignored. (single source of truth). ICS output uses CRLF line endings with 74-char folding and text escaping; adherence counts logs in the last 30 days against `window / interval` expectations; a streak is consecutive recent waterings whose gaps stay within `interval + 2` days.
 
 ## Data Model
 
@@ -61,6 +64,7 @@ GET    /api/insights               read-only collection stats: totals, species d
 - **`Room`** — a physical room: `Name` (unique), optional `Orientation` (North/East/South/West) and environment params (`LightExposure` reusing the `LightRequirement` scale, `Humidity` Low/Medium/High, `TemperatureCelsius`). Replaced the old free-text `Plant.Location` (migration copies distinct values into rooms and rewires the FK).
 - **`CareTask`** — one recurring activity per plant+type (`Watering`, `Fertilizing`, `Repotting`): `IntervalDays` (null = profile default for watering), `LastDoneAt`, `ReduceInWinter` (null = profile's `DefaultReduceInWinter`). `CareTaskLog` rows record completions (note + watering-only `AmountMilliliters`/`Method`). This replaced the old `WateringLog` table and the `CustomWateringIntervalDays`/`LastWateredAt` columns (data migrated in `AddCareTasks`); the `/water` and `/watering-logs` endpoints kept their contracts via the task layer.
 - **`PlantNote`** — dated free-text health note per plant (list + create endpoints; cascade-deleted with the plant).
+- **`JournalEntry`** — growth-journal entry per plant: date + optional photo (managed upload) + optional note; feeds the detail-page before/after comparison. Photo files are cleaned up on entry delete and cascade with the plant.
 - **`Plant`** — the user's owned instance. Optional FK to `PlantProfile`; `CustomWateringIntervalDays` (nullable) overrides the profile default; tracks `RoomId` (FK, SetNull), `PhotoUrl`, `AcquiredDate`, plus repot-lifecycle fields (`PotSizeCm`, `SoilMix`, `PropagatedFrom`). `PlantService` also exposes `RoomLightMatch` on the response: profile `LightRequirement` vs the room's `LightExposure` (`Good` / `SlightlyToo*` / `MuchToo*` — the "wrong room" flag at ≥2 levels), null when either side is unknown.
 - **`NotificationLog`** — audit/dedup for sent notifications (`SentAt`, `Type`), preventing duplicate sends on the same day.
 

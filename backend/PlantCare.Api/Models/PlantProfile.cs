@@ -18,5 +18,15 @@ public class PlantProfile
 
     public bool DefaultReduceInWinter { get; set; }
 
+    public bool ToxicToPets { get; set; }
+
+    public bool ToxicToChildren { get; set; }
+
+    /// <summary>
+    /// JSON array of {symptom, causes[]} entries rendered as a per-species
+    /// diagnostics checklist on the plant detail; validated on write.
+    /// </summary>
+    public string? DiagnosisChecklist { get; set; }
+
     public List<Plant> Plants { get; set; } = [];
 }

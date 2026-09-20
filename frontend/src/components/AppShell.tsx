@@ -1,5 +1,5 @@
 import type { ComponentType, ReactNode } from "react";
-import { Armchair, BarChart3, CalendarDays, Leaf, LayoutDashboard, Plus, Sprout } from "lucide-react";
+import { Armchair, BarChart3, BookOpen, CalendarDays, Leaf, LayoutDashboard, Plus, Sprout } from "lucide-react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
 import { ModeToggle } from "@/components/ModeToggle";
@@ -30,6 +30,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/calendar", label: "Calendar", icon: CalendarDays, end: true },
   { to: "/insights", label: "Insights", icon: BarChart3, end: true },
   { to: "/rooms", label: "Rooms", icon: Armchair, end: true },
+  { to: "/profiles", label: "Profiles", icon: BookOpen, end: true },
   { to: "/plants", label: "Plants", icon: Sprout, end: false },
   { to: "/plants/new", label: "Add plant", icon: Plus, end: true },
 ];

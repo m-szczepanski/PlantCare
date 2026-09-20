@@ -42,6 +42,8 @@ const plant: Plant = {
   acquiredDate: "2026-01-01T00:00:00",
   plantProfileId: null,
   profileCommonName: null,
+  profileToxicToPets: false,
+  profileToxicToChildren: false,
   careTips: null,
   customWateringIntervalDays: 7,
   reduceInWinter: null,
@@ -172,7 +174,7 @@ describe("PlantDetailPage", () => {
     const { container } = renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
 
     await screen.findByRole("heading", { name: "Monstera Mike" });
-    const fileInput = container.querySelector<HTMLInputElement>('input[type="file"]');
+    const fileInput = container.querySelector<HTMLInputElement>('input[type="file"].hidden');
     expect(fileInput).not.toBeNull();
 
     fireEvent.change(fileInput!, {
@@ -180,8 +182,9 @@ describe("PlantDetailPage", () => {
     });
 
     await waitFor(() => expect(plantsApi.uploadPhoto).toHaveBeenCalledWith(1, expect.any(File)));
-    const img = await screen.findByRole("img", { name: "Monstera Mike" });
-    expect(img).toHaveAttribute("src", "/uploads/plants/1/new.png");
+    await waitFor(() =>
+      expect(container.querySelector('img[src="/uploads/plants/1/new.png"]')).not.toBeNull(),
+    );
   });
 
   it("gives the phone action buttons touch-friendly targets", async () => {
@@ -324,11 +327,16 @@ describe("PlantDetailPage", () => {
     vi.mocked(plantsApi.get).mockResolvedValue({
       ...plant,
       profileCommonName: "Monstera",
+      profileToxicToPets: false,
+      profileToxicToChildren: false,
       careTips: {
         commonName: "Monstera",
         lightRequirement: "Bright",
         humidityNotes: "Loves misting.",
         careTips: "Feed **monthly** in summer.",
+        diagnosisChecklist: JSON.stringify([
+          { symptom: "Yellow leaves", causes: ["Overwatering", "Normal leaf loss"] },
+        ]),
       },
     });
 
@@ -338,6 +346,10 @@ describe("PlantDetailPage", () => {
     expect(screen.getByText("Bright, indirect light")).toBeInTheDocument();
     expect(screen.getByText("Loves misting.")).toBeInTheDocument();
     expect(screen.getByText("monthly").closest("strong")).not.toBeNull();
+    expect(screen.getByText("When something's off — Monstera")).toBeInTheDocument();
+    const symptom = screen.getByText("Yellow leaves");
+    expect(symptom.closest("details")).not.toBeNull();
+    expect(screen.getByText("Normal leaf loss")).toBeInTheDocument();
   });
 
   it("hides the care tips section for plants without a profile", async () => {

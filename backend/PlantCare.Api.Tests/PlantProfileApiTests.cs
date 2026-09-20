@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.Testing;
 using PlantCare.Api.Dtos;
 using Xunit;
@@ -8,7 +9,10 @@ namespace PlantCare.Api.Tests;
 
 public class PlantProfileApiTests : IDisposable
 {
-    private static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web)
+    {
+        Converters = { new JsonStringEnumConverter() },
+    };
 
     private readonly TempDatabase _database = new();
     private readonly WebApplicationFactory<Program> _factory;

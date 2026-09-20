@@ -56,7 +56,9 @@ public sealed class WateringCheckService(
         }
 
         var message = string.Join("\n", due.Select(p =>
-            $"• {p.NickName}{(p.RoomName is null ? "" : $" ({p.RoomName})")} — {p.DueMessage}"));
+            $"• {p.NickName}{(p.RoomName is null ? "" : $" ({p.RoomName})")} — {p.DueMessage}"
+            + (p.ProfileToxicToPets ? " [toxic to pets]" : "")
+            + (p.ProfileToxicToChildren ? " [toxic to children]" : "")));
 
         string? clickUrl = string.IsNullOrWhiteSpace(quickActions.PublicBaseUrl)
             ? null

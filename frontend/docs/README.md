@@ -120,7 +120,8 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 | Insights | Read-only collection stats from `GET /api/insights`: totals, species diversity, most-neglected, 30-day adherence, on-time streaks, monthly watering bars |
 | Plant list | Owned plants with due status, search (name/species/room), due-status filter, and sort (name / room / soonest due / recently watered) |
 | Rooms | Room CRUD (`/rooms`): name, orientation, optional environment (light exposure / humidity / temperature °C), plant list per room with light-match badges |
-| Plant detail | Plant info (incl. pot size / soil mix / propagated-from / acquired), photo (or placeholder), care tips, "log a watering" form (note + optional amount/method), care-tasks card (watering/fertilizing/repotting with per-type "mark done", hints, add/remove), notes section (list + add), watering history with monthly bar chart |
+| Plant detail | Plant info (incl. pot size / soil mix / propagated-from / acquired), photo (or placeholder), toxicity badges, care tips, diagnostics checklist card (collapsible symptom → causes), "log a watering" form (note + optional amount/method), care-tasks card (watering/fertilizing/repotting with per-type "mark done", hints, add/remove), care journal (dated photo+note entries + before/after comparison), notes section, watering history with monthly bar chart |
+| Profiles | Species profile management (`/profiles`): list with plant counts/toxicity badges, create/edit form incl. care tips markdown, toxicity checkboxes and the diagnostics checklist JSON |
 | Plant form | Create/edit plants; species profiles are managed via the API only (no profile form UI yet) |
 | Wall mode (`/wall`) | Read-only auto-refreshing (60s) full-screen route for a home tablet — no shell/nav chrome, big cards + stats strip. Not in the nav; bookmark the URL. Calendar feed for phones: `/calendar.ics` (nginx proxies to `GET /api/calendar.ics`) |
 

@@ -5,7 +5,10 @@
     "defaultWateringIntervalDays": 7,
     "lightRequirement": "Bright",
     "humidityNotes": "Prefers average to high humidity; mist occasionally or use a pebble tray.",
-    "careTips": "Thrives in bright, indirect light. Water when the top 2-3 cm of soil are dry. Wipe leaves to keep them dust-free. Rotate periodically for even growth."
+    "careTips": "Thrives in bright, indirect light. Water when the top 2-3 cm of soil are dry. Wipe leaves to keep them dust-free. Rotate periodically for even growth.",
+    "toxicToPets": true,
+    "toxicToChildren": true,
+    "diagnosisChecklist": "[{\"symptom\": \"Yellow leaves\", \"causes\": [\"Overwatering\", \"Normal loss of old leaves\", \"Root bound pot\"]}, {\"symptom\": \"Brown, crispy leaf edges\", \"causes\": [\"Air too dry\", \"Underwatering\", \"Salt build-up from tap water\"]}, {\"symptom\": \"Leggy stems, small new leaves\", \"causes\": [\"Light too low\"]}, {\"symptom\": \"Drooping with moist soil\", \"causes\": [\"Root rot from waterlogged mix\"]}]"
   },
   {
     "commonName": "Snake Plant",
@@ -13,7 +16,10 @@
     "defaultWateringIntervalDays": 14,
     "lightRequirement": "Low",
     "humidityNotes": "Tolerates dry air well; no extra humidity needed.",
-    "careTips": "Extremely forgiving. Tolerates low light and neglect. Let the soil dry fully between waterings; root rot is the main risk. Feed once in spring."
+    "careTips": "Extremely forgiving. Tolerates low light and neglect. Let the soil dry fully between waterings; root rot is the main risk. Feed once in spring.",
+    "toxicToPets": true,
+    "toxicToChildren": true,
+    "diagnosisChecklist": "[{\"symptom\": \"Mushy, translucent base\", \"causes\": [\"Overwatering / root rot — stop watering, repot in dry mix\"]}, {\"symptom\": \"Wrinkling leaves\", \"causes\": [\"Severely underwatered\", \"Root bound\"]}, {\"symptom\": \"Leaves falling over\", \"causes\": [\"Too little light\", \"Overwatering\"]}]"
   },
   {
     "commonName": "Pothos",
@@ -21,7 +27,9 @@
     "defaultWateringIntervalDays": 7,
     "lightRequirement": "Medium",
     "humidityNotes": "Average household humidity is fine.",
-    "careTips": "Grows in almost any light condition. Water when the top soil is dry. Trims easily and roots in water for propagation."
+    "careTips": "Grows in almost any light condition. Water when the top soil is dry. Trims easily and roots in water for propagation.",
+    "toxicToPets": true,
+    "toxicToChildren": true
   },
   {
     "commonName": "Fiddle Leaf Fig",
@@ -29,7 +37,10 @@
     "defaultWateringIntervalDays": 7,
     "lightRequirement": "Bright",
     "humidityNotes": "Enjoy extra humidity; group with other plants or run a humidifier nearby.",
-    "careTips": "Loves bright, filtered light and stable conditions. Keep away from drafts and radiators. Water when the top 2 cm of soil are dry; feed monthly in growing season."
+    "careTips": "Loves bright, filtered light and stable conditions. Keep away from drafts and radiators. Water when the top 2 cm of soil are dry; feed monthly in growing season.",
+    "toxicToPets": true,
+    "toxicToChildren": true,
+    "diagnosisChecklist": "[{\"symptom\": \"Dropping leaves after a move\", \"causes\": [\"Stress from changed light or drafts — usually recovers\"]}, {\"symptom\": \"Brown spots with yellow halo\", \"causes\": [\"Overwatering\", \"Poor drainage\"]}, {\"symptom\": \"Brown, dry leaf edges\", \"causes\": [\"Low humidity\", \"Underwatering\"]}]"
   },
   {
     "commonName": "Spider Plant",
@@ -37,7 +48,9 @@
     "defaultWateringIntervalDays": 5,
     "lightRequirement": "Medium",
     "humidityNotes": "Appreciates some humidity; brown tips often mean the air is too dry.",
-    "careTips": "Easy-going and pet-safe. Bright, indirect light suits it best. Water when the top soil dries; flush the pot occasionally to clear fertilizer salts."
+    "careTips": "Easy-going and pet-safe. Bright, indirect light suits it best. Water when the top soil dries; flush the pot occasionally to clear fertilizer salts.",
+    "toxicToPets": false,
+    "toxicToChildren": false
   },
   {
     "commonName": "ZZ Plant",
@@ -45,7 +58,9 @@
     "defaultWateringIntervalDays": 14,
     "lightRequirement": "Low",
     "humidityNotes": "Happy in dry air; stores water in its rhizomes.",
-    "careTips": "Near-unkillable. Tolerates low light and long dry spells. Water sparingly - let the soil dry out fully between drinks."
+    "careTips": "Near-unkillable. Tolerates low light and long dry spells. Water sparingly - let the soil dry out fully between drinks.",
+    "toxicToPets": true,
+    "toxicToChildren": true
   },
   {
     "commonName": "Peace Lily",
@@ -53,7 +68,9 @@
     "defaultWateringIntervalDays": 5,
     "lightRequirement": "Low",
     "humidityNotes": "Loves humidity; mist regularly in winter.",
-    "careTips": "Droopy leaves are a clear signal it is thirsty. Prefers shade to bright sun. Keep the soil lightly moist but never waterlogged."
+    "careTips": "Droopy leaves are a clear signal it is thirsty. Prefers shade to bright sun. Keep the soil lightly moist but never waterlogged.",
+    "toxicToPets": true,
+    "toxicToChildren": true
   },
   {
     "commonName": "Aloe Vera",
@@ -61,6 +78,70 @@
     "defaultWateringIntervalDays": 14,
     "lightRequirement": "DirectSun",
     "humidityNotes": "Prefers dry air; avoid misting.",
-    "careTips": "A sunny windowsill is ideal. Water deeply but infrequently - let the soil dry completely between waterings. Use a gritty, fast-draining mix."
+    "careTips": "A sunny windowsill is ideal. Water deeply but infrequently - let the soil dry completely between waterings. Use a gritty, fast-draining mix.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Calathea Orbifolia",
+    "scientificName": "Goeppertia orbifolia",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Demanding: needs high humidity or leaf edges brown fast.",
+    "careTips": "Keep evenly moist, never waterlogged. High humidity and filtered or rainwater only — leaf tips brown with tap water. Keep away from direct sun.",
+    "toxicToPets": false,
+    "toxicToChildren": false,
+    "diagnosisChecklist": "[{\"symptom\": \"Crispy brown leaf margins\", \"causes\": [\"Low humidity\", \"Minerals or chlorine in tap water\"]}, {\"symptom\": \"Leaves curling inward\", \"causes\": [\"Underwatering\", \"Heat stress\"]}, {\"symptom\": \"Faded leaf patterns\", \"causes\": [\"Light too strong\"]}]"
+  },
+  {
+    "commonName": "Jade Plant",
+    "scientificName": "Crassula ovata",
+    "defaultWateringIntervalDays": 21,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Fine in dry indoor air.",
+    "careTips": "A succulent: water deeply but rarely and let soil dry fully. Bright light keeps it compact. Repot every 2-3 years; toxic to pets.",
+    "toxicToPets": true,
+    "toxicToChildren": true,
+    "diagnosisChecklist": "[{\"symptom\": \"Shrivelled, soft leaves\", \"causes\": [\"Underwatering\", \"Root damage\"]}, {\"symptom\": \"Black, mushy stems\", \"causes\": [\"Root rot from excess water\"]}, {\"symptom\": \"Lost bottom leaves only\", \"causes\": [\"Normal aging of an established plant\"]}]"
+  },
+  {
+    "commonName": "Bird of Paradise",
+    "scientificName": "Strelitzia nicolai",
+    "defaultWateringIntervalDays": 10,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Appreciates occasional misting in dry rooms.",
+    "careTips": "Wants the brightest window you have. Split mature rootballs to propagate. Leaves split naturally in low humidity — cosmetic only.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "African Violet",
+    "scientificName": "Saintpaulia ionantha",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Likes steady household humidity; avoid cold drafts.",
+    "careTips": "Water from the bottom or around the crown — water on leaves spots them. Warm water only. Bright indirect light keeps blooms coming.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Christmas Cactus",
+    "scientificName": "Schlumbergera buckleyi",
+    "defaultWateringIntervalDays": 12,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Average room humidity is fine.",
+    "careTips": "Not a desert cactus: keep slightly moist in growth. Cool, dark nights in autumn trigger blooms. Cuttings root easily in water.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Alocasia Polly",
+    "scientificName": "Alocasia amazonica",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "High humidity; crisps up fast in dry air.",
+    "careTips": "Bright indirect light and well-draining chunky mix. Sensitive to cold: keep above 15 C. Dormant in winter — cut watering back hard. Toxic to pets and children.",
+    "toxicToPets": true,
+    "toxicToChildren": true
   }
 ]

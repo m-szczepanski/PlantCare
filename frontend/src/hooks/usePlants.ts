@@ -9,6 +9,7 @@ export const plantKeys = {
   detail: (id: number) => ["plants", id] as const,
   wateringLogs: (id: number) => ["plants", id, "watering-logs"] as const,
   notes: (id: number) => ["plants", id, "notes"] as const,
+  journal: (id: number) => ["plants", id, "journal"] as const,
   careTasks: (id: number) => ["plants", id, "care-tasks"] as const,
 };
 
@@ -231,6 +232,40 @@ export function useSnoozeAllPlants() {
     },
     onError: (error) => toastError("Could not snooze plants", error),
   });
+}
+
+export function useJournalEntries(id: number) {
+  return useQuery({
+    queryKey: plantKeys.journal(id),
+    queryFn: () => plantsApi.journal(id),
+    enabled: Number.isInteger(id),
+  });
+}
+
+export function useJournalMutations(id: number) {
+  const queryClient = useQueryClient();
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: plantKeys.journal(id) });
+
+  const add = useMutation({
+    mutationFn: (input: { entryDate?: string; text?: string; file?: File | null }) =>
+      plantsApi.addJournalEntry(id, input),
+    onSuccess: () => {
+      invalidate();
+      toast.success("Journal entry added");
+    },
+    onError: (error) => toastError("Could not add journal entry", error),
+  });
+
+  const remove = useMutation({
+    mutationFn: (entryId: number) => plantsApi.deleteJournalEntry(id, entryId),
+    onSuccess: () => {
+      invalidate();
+      toast.success("Journal entry deleted");
+    },
+    onError: (error) => toastError("Could not delete journal entry", error),
+  });
+
+  return { add, remove };
 }
 
 export function usePlantNotes(id: number) {

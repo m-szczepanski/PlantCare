@@ -1,4 +1,4 @@
-import type { CareTask, CareTaskType, Dashboard, Insights, Plant, PlantInput, PlantNote, PlantProfileOption, Room, RoomInput, WaterDetails, WateringLogEntry } from "./types";
+import type { CareTask, CareTaskType, Dashboard, Insights, JournalEntry, Plant, PlantInput, PlantNote, PlantProfile, PlantProfileInput, PlantProfileOption, Room, RoomInput, WaterDetails, WateringLogEntry } from "./types";
 
 export interface HealthResponse {
   status: string;
@@ -103,13 +103,28 @@ export const plantsApi = {
   clearSnooze: (id: number) => request<Plant>(`/plants/${id}/snooze`, { method: "DELETE" }),
   snoozeAll: (days: number) =>
     request<{ snoozedPlants: number }>(`/plants/snooze-all`, { method: "POST", body: JSON.stringify({ days }) }),
+  journal: (id: number) => request<JournalEntry[]>(`/plants/${id}/journal`),
+  addJournalEntry: async (id: number, input: { entryDate?: string; text?: string; file?: File | null }): Promise<JournalEntry> => {
+    const form = new FormData();
+    if (input.entryDate) form.append("entryDate", input.entryDate);
+    if (input.text) form.append("text", input.text);
+    if (input.file) form.append("file", input.file);
+    const response = await fetch(`${BASE_URL}/plants/${id}/journal`, { method: "POST", body: form });
+    return unwrap<JournalEntry>(response, `/plants/${id}/journal`);
+  },
+  deleteJournalEntry: (id: number, entryId: number) =>
+    request<void>(`/plants/${id}/journal/${entryId}`, { method: "DELETE" }),
   notes: (id: number) => request<PlantNote[]>(`/plants/${id}/notes`),
   addNote: (id: number, text: string) =>
     request<PlantNote>(`/plants/${id}/notes`, { method: "POST", body: JSON.stringify({ text }) }),
 };
 
 export const plantProfilesApi = {
-  list: () => request<PlantProfileOption[]>("/plant-profiles"),
+  list: () => request<PlantProfile[]>("/plant-profiles"),
+  create: (input: PlantProfileInput) =>
+    request<PlantProfile>("/plant-profiles", { method: "POST", body: JSON.stringify(input) }),
+  update: (id: number, input: PlantProfileInput) =>
+    request<PlantProfile>(`/plant-profiles/${id}`, { method: "PUT", body: JSON.stringify(input) }),
 };
 
 export const roomsApi = {

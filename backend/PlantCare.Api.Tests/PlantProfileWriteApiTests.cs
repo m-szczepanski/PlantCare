@@ -113,6 +113,77 @@ public class PlantProfileWriteApiTests : IDisposable
     }
 
     [Fact]
+    public async Task List_IncludesFullDetails_AndPlantCount()
+    {
+        var created = await _client.PostAsJsonAsync("/api/plant-profiles", Payload("Counted Coral"), Options);
+        var profile = await created.Content.ReadFromJsonAsync<PlantProfileResponseDto>(Options);
+        await _client.PostAsJsonAsync("/api/plants", new
+        {
+            nickName = "Coral C",
+            plantProfileId = profile!.Id,
+        }, Options);
+
+        var list = await _client.GetFromJsonAsync<List<PlantProfileResponseDto>>("/api/plant-profiles", Options);
+        var row = list!.Single(p => p.Id == profile.Id);
+
+        Assert.Equal(LightRequirement.Bright, row.LightRequirement);
+        Assert.Equal("Prefers dry air.", row.HumidityNotes);
+        Assert.Contains("Water sparingly", row.CareTips);
+        Assert.Equal(1, row.PlantCount);
+    }
+
+    [Fact]
+    public async Task Create_WithDiagnosisChecklist_RoundTrips_AndInvalidRejected()
+    {
+        var checklist = """
+            [{"symptom":"Yellow leaves","causes":["Overwatering","Old age"]}]
+            """;
+
+        var created = await _client.PostAsJsonAsync("/api/plant-profiles", new PlantProfileRequestDto
+        {
+            CommonName = "Checklist Charlie",
+            ScientificName = null,
+            DefaultWateringIntervalDays = 7,
+            LightRequirement = LightRequirement.Medium,
+            HumidityNotes = "x",
+            CareTips = "y",
+            DiagnosisChecklist = checklist,
+        }, Options);
+        created.EnsureSuccessStatusCode();
+        var profile = await created.Content.ReadFromJsonAsync<PlantProfileResponseDto>(Options);
+        Assert.Equal(checklist.Trim(), profile!.DiagnosisChecklist!.Trim());
+
+        var invalid = await _client.PostAsJsonAsync("/api/plant-profiles", new PlantProfileRequestDto
+        {
+            CommonName = "Checklist Broken",
+            ScientificName = null,
+            DefaultWateringIntervalDays = 7,
+            LightRequirement = LightRequirement.Medium,
+            HumidityNotes = "x",
+            CareTips = "y",
+            DiagnosisChecklist = "{\"not\": \"an array\"}",
+        }, Options);
+        Assert.Equal(System.Net.HttpStatusCode.BadRequest, invalid.StatusCode);
+    }
+
+    [Fact]
+    public async Task PlantCareTips_EmbedSeedDiagnosisChecklist()
+    {
+        var profiles = await _client.GetFromJsonAsync<List<PlantProfileResponseDto>>("/api/plant-profiles", Options);
+        var monstera = profiles!.Single(p => p.CommonName == "Monstera");
+        Assert.NotNull(monstera.DiagnosisChecklist);
+        Assert.Contains("Yellow leaves", monstera.DiagnosisChecklist);
+
+        var created = await _client.PostAsJsonAsync("/api/plants", new
+        {
+            nickName = "Tips Terry",
+            plantProfileId = monstera.Id,
+        }, Options);
+        var plant = await created.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
+        Assert.Contains("Yellow leaves", plant!.CareTips!.DiagnosisChecklist);
+    }
+
+    [Fact]
     public async Task Update_KeepsOwnName_ReturnsOk()
     {
         var profile = await CreateProfileAsync();

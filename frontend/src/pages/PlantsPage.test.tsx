@@ -32,6 +32,8 @@ const monstera: Plant = {
   acquiredDate: "2026-01-01T00:00:00",
   plantProfileId: 2,
   profileCommonName: "Monstera",
+  profileToxicToPets: false,
+  profileToxicToChildren: false,
   careTips: null,
   customWateringIntervalDays: null,
   reduceInWinter: null,

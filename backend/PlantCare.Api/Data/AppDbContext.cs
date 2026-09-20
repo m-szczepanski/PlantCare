@@ -17,6 +17,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<PlantNote> PlantNotes => Set<PlantNote>();
 
+    public DbSet<JournalEntry> JournalEntries => Set<JournalEntry>();
+
     public DbSet<NotificationDigest> NotificationDigests => Set<NotificationDigest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -58,6 +60,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasIndex(t => new { t.PlantId, t.Type }).IsUnique();
+        });
+
+        modelBuilder.Entity<JournalEntry>(entity =>
+        {
+            entity.HasOne(j => j.Plant)
+                .WithMany()
+                .HasForeignKey(j => j.PlantId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(j => new { j.PlantId, j.EntryDate });
         });
 
         modelBuilder.Entity<PlantNote>(entity =>

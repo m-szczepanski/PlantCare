@@ -10,6 +10,7 @@ public enum PlantProfileWriteStatus
     Success,
     NotFound,
     DuplicateName,
+    InvalidChecklist,
 }
 
 public sealed record PlantProfileWriteResult(PlantProfileWriteStatus Status, PlantProfileResponseDto? Profile = null);
@@ -28,6 +29,7 @@ public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
     public async Task<IReadOnlyList<PlantProfileResponseDto>> ListAsync(CancellationToken cancellationToken = default)
     {
         var profiles = await db.PlantProfiles
+            .Include(p => p.Plants)
             .OrderBy(p => p.CommonName)
             .ToListAsync(cancellationToken);
 
@@ -44,6 +46,11 @@ public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
             return new PlantProfileWriteResult(PlantProfileWriteStatus.DuplicateName);
         }
 
+        if (!DiagnosisChecklist.TryValidate(dto.DiagnosisChecklist, out _, out _))
+        {
+            return new PlantProfileWriteResult(PlantProfileWriteStatus.InvalidChecklist);
+        }
+
         var profile = new PlantProfile
         {
             CommonName = commonName,
@@ -52,12 +59,15 @@ public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
             LightRequirement = dto.LightRequirement,
             HumidityNotes = dto.HumidityNotes.Trim(),
             CareTips = dto.CareTips.Trim(),
+            ToxicToPets = dto.ToxicToPets,
+            ToxicToChildren = dto.ToxicToChildren,
+            DiagnosisChecklist = dto.DiagnosisChecklist?.Trim(),
         };
 
         db.PlantProfiles.Add(profile);
         await db.SaveChangesAsync(cancellationToken);
 
-        return new PlantProfileWriteResult(PlantProfileWriteStatus.Success, ToResponse(profile));
+        return new PlantProfileWriteResult(PlantProfileWriteStatus.Success, await ReloadAsync(profile.Id, cancellationToken));
     }
 
     public async Task<PlantProfileWriteResult> UpdateAsync(int id, PlantProfileRequestDto dto, CancellationToken cancellationToken = default)
@@ -74,6 +84,11 @@ public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
             return new PlantProfileWriteResult(PlantProfileWriteStatus.DuplicateName);
         }
 
+        if (!DiagnosisChecklist.TryValidate(dto.DiagnosisChecklist, out _, out _))
+        {
+            return new PlantProfileWriteResult(PlantProfileWriteStatus.InvalidChecklist);
+        }
+
         profile.CommonName = commonName;
         profile.ScientificName = dto.ScientificName?.Trim();
         profile.DefaultWateringIntervalDays = dto.DefaultWateringIntervalDays;
@@ -81,9 +96,18 @@ public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
         profile.HumidityNotes = dto.HumidityNotes.Trim();
         profile.CareTips = dto.CareTips.Trim();
 
-        await db.SaveChangesAsync(cancellationToken);
+        profile.LightRequirement = dto.LightRequirement;
+            profile.HumidityNotes = dto.HumidityNotes.Trim();
+            profile.CareTips = dto.CareTips.Trim();
+            profile.ToxicToPets = dto.ToxicToPets;
+            profile.ToxicToChildren = dto.ToxicToChildren;
+            profile.DiagnosisChecklist = dto.DiagnosisChecklist?.Trim();
+            profile.DefaultWateringIntervalDays = dto.DefaultWateringIntervalDays;
+            profile.ScientificName = dto.ScientificName?.Trim();
 
-        return new PlantProfileWriteResult(PlantProfileWriteStatus.Success, ToResponse(profile));
+            await db.SaveChangesAsync(cancellationToken);
+
+        return new PlantProfileWriteResult(PlantProfileWriteStatus.Success, await ReloadAsync(profile.Id, cancellationToken));
     }
 
     private Task<bool> NameTakenAsync(string commonName, int? excludeId, CancellationToken cancellationToken)
@@ -97,5 +121,22 @@ public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
         CommonName = profile.CommonName,
         ScientificName = profile.ScientificName,
         DefaultWateringIntervalDays = profile.DefaultWateringIntervalDays,
+        LightRequirement = profile.LightRequirement,
+        HumidityNotes = profile.HumidityNotes,
+        CareTips = profile.CareTips,
+        ToxicToPets = profile.ToxicToPets,
+        ToxicToChildren = profile.ToxicToChildren,
+        DiagnosisChecklist = profile.DiagnosisChecklist,
+        PlantCount = profile.Plants?.Count ?? 0,
     };
+
+    private async Task<PlantProfileResponseDto> ReloadAsync(int id, CancellationToken cancellationToken)
+    {
+        var profile = await db.PlantProfiles
+            .Include(p => p.Plants)
+            .AsNoTracking()
+            .FirstAsync(p => p.Id == id, cancellationToken);
+
+        return ToResponse(profile);
+    }
 }

@@ -47,11 +47,17 @@ export interface RoomInput {
   temperatureCelsius?: number | null;
 }
 
+export interface DiagnosisEntry {
+  symptom: string;
+  causes: string[];
+}
+
 export interface PlantCareTips {
   commonName: string;
   lightRequirement: LightRequirement;
   humidityNotes: string;
   careTips: string;
+  diagnosisChecklist: string | null;
 }
 
 export interface Plant {
@@ -68,6 +74,8 @@ export interface Plant {
   acquiredDate: string;
   plantProfileId: number | null;
   profileCommonName: string | null;
+  profileToxicToPets: boolean;
+  profileToxicToChildren: boolean;
   careTips: PlantCareTips | null;
   customWateringIntervalDays: number | null;
   reduceInWinter: boolean | null;
@@ -145,6 +153,35 @@ export interface PlantProfileOption {
   commonName: string;
   scientificName: string | null;
   defaultWateringIntervalDays: number;
+}
+
+export interface PlantProfile extends PlantProfileOption {
+  lightRequirement: LightRequirement;
+  humidityNotes: string;
+  careTips: string;
+  toxicToPets: boolean;
+  toxicToChildren: boolean;
+  diagnosisChecklist: string | null;
+  plantCount: number;
+}
+
+export interface PlantProfileInput {
+  commonName: string;
+  scientificName?: string | null;
+  defaultWateringIntervalDays: number;
+  lightRequirement: LightRequirement;
+  humidityNotes: string;
+  careTips: string;
+  toxicToPets?: boolean;
+  toxicToChildren?: boolean;
+  diagnosisChecklist?: string | null;
+}
+
+export interface JournalEntry {
+  id: number;
+  entryDate: string;
+  photoUrl: string | null;
+  text: string | null;
 }
 
 export interface PlantNote {

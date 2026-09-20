@@ -292,7 +292,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         string photoUrl;
         try
         {
-            photoUrl = await photos.SaveAsync(id, content, contentType ?? string.Empty, cancellationToken);
+            photoUrl = await photos.SaveAsync(id, content, contentType ?? string.Empty, null, cancellationToken);
         }
         catch (InvalidDataException ex)
         {
@@ -455,6 +455,8 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             AcquiredDate = plant.AcquiredDate,
             PlantProfileId = plant.PlantProfileId,
             ProfileCommonName = plant.PlantProfile?.CommonName,
+            ProfileToxicToPets = plant.PlantProfile?.ToxicToPets ?? false,
+            ProfileToxicToChildren = plant.PlantProfile?.ToxicToChildren ?? false,
             CareTips = features.CareTipsEnabled && plant.PlantProfile is { } profile
                 ? new PlantCareTipsDto
                 {
@@ -462,6 +464,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
                     LightRequirement = profile.LightRequirement.ToString(),
                     HumidityNotes = profile.HumidityNotes,
                     CareTips = profile.CareTips,
+                    DiagnosisChecklist = profile.DiagnosisChecklist,
                 }
                 : null,
             CustomWateringIntervalDays = watering?.IntervalDays,

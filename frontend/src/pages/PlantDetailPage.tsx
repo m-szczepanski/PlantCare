@@ -2,6 +2,8 @@ import { useState, useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AlertTriangle, Droplets } from "lucide-react";
 import { CareTasksCard } from "@/components/CareTasksCard";
+import { DiagnosticsCard } from "@/components/DiagnosticsCard";
+import { JournalCard } from "@/components/JournalCard";
 import { CareTipsCard } from "@/components/CareTipsCard";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { DueStatusBadge } from "@/components/DueStatusBadge";
@@ -22,6 +24,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -214,7 +217,30 @@ export function PlantDetailPage() {
         </CardContent>
       </Card>
 
+      {plant.profileToxicToPets || plant.profileToxicToChildren ? (
+        <div className="flex flex-wrap gap-2" role="status">
+          {plant.profileToxicToPets ? (
+            <Badge variant="destructive" className="gap-1">
+              <AlertTriangle className="h-3 w-3" aria-hidden="true" />
+              Toxic to pets
+            </Badge>
+          ) : null}
+          {plant.profileToxicToChildren ? (
+            <Badge variant="destructive" className="gap-1">
+              <AlertTriangle className="h-3 w-3" aria-hidden="true" />
+              Toxic to children
+            </Badge>
+          ) : null}
+        </div>
+      ) : null}
+
       {plant.careTips ? <CareTipsCard tips={plant.careTips} /> : null}
+      {plant.careTips?.diagnosisChecklist ? (
+        <DiagnosticsCard
+          checklist={plant.careTips.diagnosisChecklist}
+          commonName={plant.careTips.commonName}
+        />
+      ) : null}
 
       <Card>
         <CardHeader>
@@ -292,6 +318,8 @@ export function PlantDetailPage() {
       </Card>
 
       <CareTasksCard plantId={plantId} />
+
+      <JournalCard plantId={plantId} nickName={plant.nickName} />
 
       <Card>
         <CardHeader>

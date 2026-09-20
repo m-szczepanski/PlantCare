@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlantCare.Api.Data;
 
@@ -10,9 +11,11 @@ using PlantCare.Api.Data;
 namespace PlantCare.Api.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260920095706_AddToxicityFlags")]
+    partial class AddToxicityFlags
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.12");
@@ -73,31 +76,6 @@ namespace PlantCare.Api.Data.Migrations
                     b.HasIndex("CareTaskId", "DoneAt");
 
                     b.ToTable("CareTaskLogs");
-                });
-
-            modelBuilder.Entity("PlantCare.Api.Models.JournalEntry", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("EntryDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PhotoUrl")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("PlantId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Text")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlantId", "EntryDate");
-
-                    b.ToTable("JournalEntries");
                 });
 
             modelBuilder.Entity("PlantCare.Api.Models.NotificationDigest", b =>
@@ -214,9 +192,6 @@ namespace PlantCare.Api.Data.Migrations
                     b.Property<int>("DefaultWateringIntervalDays")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("DiagnosisChecklist")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("HumidityNotes")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -292,17 +267,6 @@ namespace PlantCare.Api.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("CareTask");
-                });
-
-            modelBuilder.Entity("PlantCare.Api.Models.JournalEntry", b =>
-                {
-                    b.HasOne("PlantCare.Api.Models.Plant", "Plant")
-                        .WithMany()
-                        .HasForeignKey("PlantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Plant");
                 });
 
             modelBuilder.Entity("PlantCare.Api.Models.Plant", b =>

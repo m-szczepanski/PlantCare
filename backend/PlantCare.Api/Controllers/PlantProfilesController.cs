@@ -20,6 +20,7 @@ public class PlantProfilesController(IPlantProfileService profiles) : Controller
         return result.Status switch
         {
             PlantProfileWriteStatus.DuplicateName => Conflict(new ProblemDetails { Title = "Profile name already in use.", Detail = $"A plant profile named '{dto.CommonName}' already exists." }),
+            PlantProfileWriteStatus.InvalidChecklist => BadRequest(new ProblemDetails { Title = "Invalid diagnosis checklist.", Detail = "Provide a JSON array of { symptom, causes[] } entries with non-empty values." }),
             _ => StatusCode(StatusCodes.Status201Created, result.Profile),
         };
     }
@@ -32,6 +33,7 @@ public class PlantProfilesController(IPlantProfileService profiles) : Controller
         {
             PlantProfileWriteStatus.NotFound => NotFound(),
             PlantProfileWriteStatus.DuplicateName => Conflict(new ProblemDetails { Title = "Profile name already in use.", Detail = $"A plant profile named '{dto.CommonName}' already exists." }),
+            PlantProfileWriteStatus.InvalidChecklist => BadRequest(new ProblemDetails { Title = "Invalid diagnosis checklist.", Detail = "Provide a JSON array of { symptom, causes[] } entries with non-empty values." }),
             _ => Ok(result.Profile),
         };
     }
