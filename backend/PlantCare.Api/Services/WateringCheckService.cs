@@ -27,7 +27,9 @@ public sealed class WateringCheckService(
     public async Task<WateringCheckResult> RunAsync(CancellationToken cancellationToken = default)
     {
         var due = (await plants.ListAsync(cancellationToken))
-            .Where(p => p.NotifyEnabled && p.DueStatus is PlantDueStatus.Overdue or PlantDueStatus.DueToday)
+            .Where(p => p.NotifyEnabled
+                && (p.SnoozedUntil is null || p.SnoozedUntil <= DateTime.UtcNow)
+                && p.DueStatus is PlantDueStatus.Overdue or PlantDueStatus.DueToday)
             .ToList();
 
         if (due.Count == 0)

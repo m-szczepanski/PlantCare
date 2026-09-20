@@ -37,6 +37,7 @@ const plant: Plant = {
   soilMix: null,
   propagatedFrom: null,
   notifyEnabled: true,
+  snoozedUntil: null,
   acquiredDate: "2026-01-01T00:00:00",
   plantProfileId: null,
   profileCommonName: null,

@@ -22,6 +22,8 @@ public class PlantResponseDto
 
     public bool NotifyEnabled { get; set; }
 
+    public DateTime? SnoozedUntil { get; set; }
+
     public DateTime AcquiredDate { get; set; }
 
     public int? PlantProfileId { get; set; }

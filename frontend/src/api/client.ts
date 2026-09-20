@@ -98,6 +98,11 @@ export const plantsApi = {
     request<void>(`/plants/${id}/care-tasks/${taskId}`, { method: "DELETE" }),
   markCareTaskDone: (id: number, type: CareTaskType) =>
     request<CareTask>(`/plants/${id}/care-tasks/${type}/done`, { method: "POST", body: JSON.stringify({}) }),
+  snooze: (id: number, days: number) =>
+    request<Plant>(`/plants/${id}/snooze`, { method: "POST", body: JSON.stringify({ days }) }),
+  clearSnooze: (id: number) => request<Plant>(`/plants/${id}/snooze`, { method: "DELETE" }),
+  snoozeAll: (days: number) =>
+    request<{ snoozedPlants: number }>(`/plants/snooze-all`, { method: "POST", body: JSON.stringify({ days }) }),
   notes: (id: number) => request<PlantNote[]>(`/plants/${id}/notes`),
   addNote: (id: number, text: string) =>
     request<PlantNote>(`/plants/${id}/notes`, { method: "POST", body: JSON.stringify({ text }) }),

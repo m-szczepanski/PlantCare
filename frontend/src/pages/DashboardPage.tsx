@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { DashboardStatsStrip } from "@/components/DashboardStatsStrip";
 import { NoPlantsEmptyState } from "@/components/NoPlantsEmptyState";
@@ -6,7 +7,7 @@ import { PlantCardSkeletonGrid } from "@/components/PlantCardSkeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useDashboard } from "@/hooks/useDashboard";
-import { useWaterPlant } from "@/hooks/usePlants";
+import { useSnoozeAllPlants, useWaterPlant } from "@/hooks/usePlants";
 import { dashboardSections, type DashboardSection } from "@/lib/dashboard";
 import type { Dashboard } from "@/api/types";
 import { touchButton } from "@/lib/ui";
@@ -14,8 +15,10 @@ import { touchButton } from "@/lib/ui";
 export function DashboardPage() {
   const { data: dashboard, isPending, isError, error } = useDashboard();
   const water = useWaterPlant();
+  const snoozeAll = useSnoozeAllPlants();
   const [params, setParams] = useSearchParams();
   const group = params.get("group");
+  const [vacationDays, setVacationDays] = useState("14");
 
   if (isPending) {
     return (
@@ -51,9 +54,29 @@ export function DashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-bold">Dashboard</h1>
-        <Button asChild className={touchButton}>
-          <Link to="/plants/new">Add plant</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <select
+            aria-label="Vacation snooze days"
+            value={vacationDays}
+            onChange={(event) => setVacationDays(event.target.value)}
+            className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
+          >
+            {[3, 7, 14, 30, 60].map((days) => (
+              <option key={days} value={String(days)}>{days} days</option>
+            ))}
+          </select>
+          <Button
+            variant="outline"
+            className={touchButton}
+            disabled={snoozeAll.isPending}
+            onClick={() => snoozeAll.mutate(Number(vacationDays))}
+          >
+            Snooze all
+          </Button>
+          <Button asChild className={touchButton}>
+            <Link to="/plants/new">Add plant</Link>
+          </Button>
+        </div>
       </div>
 
       <DashboardStatsStrip dashboard={dashboard} />
