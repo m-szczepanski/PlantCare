@@ -454,5 +454,47 @@
   },
   "water": {
     "method": { "none": "Dowolna woda", "Tap": "Z kranu", "Filtered": "Filtrowana", "Rainwater": "Deszczówka" }
+  },
+  "setup":   {
+    "checking": "Sprawdzam konfigurację…",
+    "stepOf": "Krok {{current}} z {{total}}",
+    "start": "Zaczynamy",
+    "back": "Wstecz",
+    "next": "Dalej",
+    "skip": "Pomiń na razie",
+    "steps": {
+      "welcome": "Witaj w PlantCare",
+      "rooms": "Pokoje",
+      "plants": "Rośliny",
+      "preferences": "Motyw i język",
+      "finish": "Gotowe"
+    },
+    "welcome": {
+      "intro": "Poświęć chwilę, aby ustawić dom dla swoich roślin. Wszystko możesz zmienić później w aplikacji.",
+      "itemRooms": "Utwórz pokoje, w których stoją Twoje rośliny",
+      "itemPlants": "Dodaj swoje pierwsze rośliny i wybierz ich gatunek",
+      "itemPreferences": "Wybierz motyw i język"
+    },
+    "rooms": {
+      "description": "Dodaj pokoje, w których stoją Twoje rośliny. Kierunek światła i warunki ustawisz później na stronie Pokoje.",
+      "removeAria": "Usuń {{name}}"
+    },
+    "plants": {
+      "description": "Dodaj swoje pierwsze rośliny. Wybierz profil gatunku, aby przejąć jego częstotliwość podlewania.",
+      "added_one": "Dodano na razie {{count}} roślinę",
+      "added_few": "Dodano na razie {{count}} rośliny",
+      "added_many": "Dodano na razie {{count}} roślin",
+      "added_other": "Dodano na razie {{count}} roślin"
+    },
+    "preferences": {
+      "theme": "Motyw",
+      "language": "Język"
+    },
+    "finish": {
+      "description": "Wszystko gotowe — kolejne pokoje i rośliny dodasz zawsze z menu bocznego.",
+      "rooms": "Dodane pokoje: {{count}}",
+      "plants": "Dodane rośliny: {{count}}",
+      "goToDashboard": "Przejdź do pulpitu"
+    }
   }
 }

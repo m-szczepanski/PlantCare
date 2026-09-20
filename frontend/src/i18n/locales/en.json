@@ -435,5 +435,45 @@
   },
   "water": {
     "method": { "none": "Any water", "Tap": "Tap", "Filtered": "Filtered", "Rainwater": "Rainwater" }
+  },
+  "setup":   {
+    "checking": "Checking your setup…",
+    "stepOf": "Step {{current}} of {{total}}",
+    "start": "Let's go",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip for now",
+    "steps": {
+      "welcome": "Welcome to PlantCare",
+      "rooms": "Rooms",
+      "plants": "Plants",
+      "preferences": "Theme & language",
+      "finish": "All set"
+    },
+    "welcome": {
+      "intro": "Let's take a minute to set up your plant home. You can change everything later in the app.",
+      "itemRooms": "Create the rooms where your plants live",
+      "itemPlants": "Add your first plants and pick their species",
+      "itemPreferences": "Choose your theme and language"
+    },
+    "rooms": {
+      "description": "Add the rooms your plants live in. Orientation and environment can be refined later on the Rooms page.",
+      "removeAria": "Remove {{name}}"
+    },
+    "plants": {
+      "description": "Add your first plants. Pick a species profile to inherit its watering interval.",
+      "added_one": "{{count}} plant added so far",
+      "added_other": "{{count}} plants added so far"
+    },
+    "preferences": {
+      "theme": "Theme",
+      "language": "Language"
+    },
+    "finish": {
+      "description": "You're all set — you can always add more rooms and plants from the sidebar.",
+      "rooms": "Rooms added: {{count}}",
+      "plants": "Plants added: {{count}}",
+      "goToDashboard": "Go to dashboard"
+    }
   }
 }
