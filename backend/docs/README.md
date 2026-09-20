@@ -61,6 +61,7 @@ Profile data: `DiagnosisChecklist` is a validated JSON array (`[{symptom, causes
 ## Data Model
 
 - **`PlantProfile`** — species-level defaults (common/scientific name, `DefaultWateringIntervalDays`, `LightRequirement` enum Low/Medium/Bright/DirectSun, humidity notes, care tips text/markdown). Seeded from JSON in `Seed/`.
+- **`PlantProfileTranslation`** — per-language localized profile content (`Language` two-letter code, nullable `CommonName`/`HumidityNotes`/`CareTips`/`DiagnosisChecklist`), FK-cascaded with a unique `(PlantProfileId, Language)` index. The English row on `PlantProfile` stays canonical; reads fall back field-by-field (`ProfileTranslations`). Shipped languages come from `Seed/plant-profiles.<lang>.json` (keyed by the English `commonName`, upserted at startup); PUT `/api/plant-profiles/{id}` in a non-English request language upserts that language's translation row (structural fields stay on the canonical row).
 - **`Room`** — a physical room: `Name` (unique), optional `Orientation` (North/East/South/West) and environment params (`LightExposure` reusing the `LightRequirement` scale, `Humidity` Low/Medium/High, `TemperatureCelsius`). Replaced the old free-text `Plant.Location` (migration copies distinct values into rooms and rewires the FK).
 - **`CareTask`** — one recurring activity per plant+type (`Watering`, `Fertilizing`, `Repotting`): `IntervalDays` (null = profile default for watering), `LastDoneAt`, `ReduceInWinter` (null = profile's `DefaultReduceInWinter`). `CareTaskLog` rows record completions (note + watering-only `AmountMilliliters`/`Method`). This replaced the old `WateringLog` table and the `CustomWateringIntervalDays`/`LastWateredAt` columns (data migrated in `AddCareTasks`); the `/water` and `/watering-logs` endpoints kept their contracts via the task layer.
 - **`PlantNote`** — dated free-text health note per plant (list + create endpoints; cascade-deleted with the plant).
@@ -73,6 +74,10 @@ Profile data: `DiagnosisChecklist` is a validated JSON array (`[{symptom, causes
 - **EF Core + SQLite** by default; the SQLite file lives on a Docker volume (`/data`). Postgres is reachable later via a provider/connection-string change only — no query rewrites expected.
 - Every schema change ships with an EF Core migration, committed alongside the code change that requires it.
 - Seed data is loaded from JSON at startup so users can extend species defaults without touching code.
+
+## Localization
+
+The API speaks two languages — English (canonical/default) and Polish (`pl`). Server-generated text (due messages in plant/care-task DTOs, the watering digest, care-task hints, ICS summaries, quick-action responses, ProblemDetails titles/details) comes from a static message catalog (`Services/Localization/Messages.cs`) behind the scoped `IAppLocalizer`. The language for HTTP requests is resolved from the caller's `Accept-Language` header (the SPA sends its UI language explicitly; unsupported values fall back to English). Background jobs have no request context and use the `APP_LANGUAGE` env default. Plurals use per-language cardinal categories (`one/few/many/other` — Polish needs all three for integers). Enum values keep crossing the wire as stable PascalCase names — the frontend maps them to localized labels; `JobRunLog.Outcome` stays a machine token for the same reason. Profile content localization is per-row (`PlantProfileTranslation`, see Data Model).
 
 ## Background Scheduling & Notifications
 
@@ -94,6 +99,7 @@ All runtime knobs come from environment variables / `.env`:
 | Variable | Purpose |
 |----------|---------|
 | `WATERING_CHECK_CRON` | Watering-check cron expression (default `0 8 * * *`) |
+| `APP_LANGUAGE` | Default language (`en`/`pl`) for server text without a request context (digests); HTTP responses follow `Accept-Language` |
 | `NTFY_URL` / `NTFY_TOPIC` | Where notification POSTs go (defaults `http://ntfy:80`, `plant-care`) |
 | `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` | Set both to also deliver digests via Telegram |
 | `QUICK_ACTION_SECRET` / `QUICK_ACTION_URL_BASE` | Shared secret for quick-water buttons / public origin used to build the links |
