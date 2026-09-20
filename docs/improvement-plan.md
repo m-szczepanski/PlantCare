@@ -125,6 +125,13 @@ Every chunk follows the AGENTS.md workflow: acceptance criteria defined before c
   - `feature/room-entity` — `Room` (name unique, orientation) + EF migration that copies distinct `Plants.Location` values into rooms and rewires `Plant.RoomId` (free-text column dropped); rooms CRUD (`/api/rooms`, 409 on duplicate, SetNull on delete); room picker + inline "quickly add a room" in the plant form; `/rooms` admin page with per-room plant list; dashboard `?group=room` view. ntfy text now uses the room name.
   - `feature/room-environment` — optional room params (light exposure, humidity, temperature °C) with a second migration; `RoomLightMatch` computed server-side (profile `LightRequirement` vs room exposure, `Good/Slightly*/MuchToo*`), surfaced as `RoomLightBadge` on detail and in the rooms view ("wrong room" flag at ≥2 levels).
   - `feature/room-sensors` — **deferred: the plan itself flags this as needing a design decision first** (which smart-home source: MQTT/HA, read-only sync model, secrets). No code was invented for it; revisit as its own epic-6-style slice once the source is chosen.
+- **Epic 6 ships as one PR: `epic/care-tasks`** — all six chunks done (this was the deliberate invasive-migration window; the API surface stayed compatible throughout):
+  - `feature/care-task-model` — typed `CareTask` (`Watering`/`Fertilizing`/`Repotting`) + `CareTaskLog` replace `WateringLog` + the plant's interval/last-watered columns (`AddCareTasks` migration moves all data); `/water` and `/watering-logs` kept working unchanged; generic `GET/POST/DELETE /api/plants/{id}/care-tasks*` with "mark as done" per type; insights/adherence/streaks now computed from tasks.
+  - `feature/fertilizing-schedule` — Fertilizing task type with add/remove/mark-done UI in `CareTasksCard` + server hints: winter rest (Dec–Feb) and flush-soil reminder at ~120 days (`CareTaskHints`).
+  - `feature/seasonal-intervals` — `ReduceInWinter` (nullable per task, `DefaultReduceInWinter` per profile); winter doubles the effective interval in the single-source schedule service. v1 non-goal explicitly revisited and lifted.
+  - `feature/repot-lifecycle` — `PotSizeCm`/`SoilMix`/`PropagatedFrom` on the plant (form + detail), yearly Repotting task; last/next repot from task data.
+  - `feature/water-details` — optional `amountMilliliters` + `method` (Tap/Filtered/Rainwater) on watering logs, "log a watering" form on detail.
+  - `feature/plant-notes` — `PlantNote` entity + `GET/POST /api/plants/{id}/notes` + notes section on detail.
 
 ## Suggested sequencing
 
