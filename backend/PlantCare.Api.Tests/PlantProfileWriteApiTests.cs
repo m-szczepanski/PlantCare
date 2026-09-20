@@ -23,7 +23,7 @@ public class PlantProfileWriteApiTests : IDisposable
         _client = _database.CreateFactory().CreateClient();
     }
 
-    private static PlantProfileRequestDto Payload(string commonName = "String of Pearls") => new()
+    private static PlantProfileRequestDto Payload(string commonName = "String of Diamonds") => new()
     {
         CommonName = commonName,
         ScientificName = "Senecio rowleyanus",
@@ -43,7 +43,7 @@ public class PlantProfileWriteApiTests : IDisposable
         Assert.NotNull(profile);
 
         var list = await _client.GetFromJsonAsync<List<PlantProfileResponseDto>>("/api/plant-profiles", Options);
-        Assert.Contains(list!, p => p.Id == profile.Id && p.CommonName == "String of Pearls");
+        Assert.Contains(list!, p => p.Id == profile.Id && p.CommonName == "String of Diamonds");
     }
 
     [Fact]
@@ -195,7 +195,7 @@ public class PlantProfileWriteApiTests : IDisposable
 
     private async Task<PlantProfileResponseDto> CreateProfileAsync(string? commonName = null)
     {
-        var created = await _client.PostAsJsonAsync("/api/plant-profiles", Payload(commonName ?? "String of Pearls"), Options);
+        var created = await _client.PostAsJsonAsync("/api/plant-profiles", Payload(commonName ?? "String of Diamonds"), Options);
         created.EnsureSuccessStatusCode();
         return (await created.Content.ReadFromJsonAsync<PlantProfileResponseDto>(Options))!;
     }
