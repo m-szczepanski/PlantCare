@@ -188,6 +188,51 @@ export function useCareTaskMutations(id: number) {
   return { add, remove, markDone };
 }
 
+function invalidatePlantCaches(queryClient: QueryClient, id: number) {
+  queryClient.invalidateQueries({ queryKey: plantKeys.detail(id) });
+  queryClient.invalidateQueries({ queryKey: plantKeys.all });
+  queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+}
+
+export function useSnoozePlant(id: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (days: number) => plantsApi.snooze(id, days),
+    onSuccess: (plant) => {
+      queryClient.setQueryData(plantKeys.detail(plant.id), plant);
+      invalidatePlantCaches(queryClient, plant.id);
+      toast.success("Reminders snoozed", { description: `${plant.nickName} is on vacation.` });
+    },
+    onError: (error) => toastError("Could not snooze reminders", error),
+  });
+}
+
+export function useUnsnoozePlant(id: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => plantsApi.clearSnooze(id),
+    onSuccess: (plant) => {
+      queryClient.setQueryData(plantKeys.detail(plant.id), plant);
+      invalidatePlantCaches(queryClient, plant.id);
+      toast.success("Reminders resumed", { description: `${plant.nickName} is back on schedule.` });
+    },
+    onError: (error) => toastError("Could not resume reminders", error),
+  });
+}
+
+export function useSnoozeAllPlants() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (days: number) => plantsApi.snoozeAll(days),
+    onSuccess: (result) => {
+      invalidatePlantCaches(queryClient, -1);
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      toast.success("All plants snoozed", { description: `${result.snoozedPlants} plants paused.` });
+    },
+    onError: (error) => toastError("Could not snooze plants", error),
+  });
+}
+
 export function usePlantNotes(id: number) {
   return useQuery({
     queryKey: plantKeys.notes(id),

@@ -21,20 +21,26 @@ public class WateringCheckApiTests : IDisposable
 
     private sealed class RecordingPublisher : INtfyPublisher
     {
-        public List<(string Title, string Message)> Published { get; } = [];
+        public List<(string Title, string Message, int Priority)> Published { get; } = [];
 
-        public Func<(string Title, string Message), bool>? FailWhen { get; set; }
+        public bool FailNext { get; set; }
 
-        public Task PublishAsync(string title, string message, CancellationToken cancellationToken = default)
+        public Task PublishAsync(string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
         {
-            if (FailWhen is not null && FailWhen((title, message)))
+            if (FailNext)
             {
+                FailNext = false;
                 throw new HttpRequestException("ntfy unreachable");
             }
 
-            Published.Add((title, message));
+            Published.Add((title, message, priority));
+            LastButtonUrl = buttonUrl;
+            LastClickUrl = clickUrl;
             return Task.CompletedTask;
         }
+
+        public string? LastButtonUrl { get; private set; }
+        public string? LastClickUrl { get; private set; }
     }
 
     private static DateTime Today => DateTime.UtcNow.Date;
@@ -62,17 +68,17 @@ public class WateringCheckApiTests : IDisposable
         return await scope.ServiceProvider.GetRequiredService<IWateringCheckService>().RunAsync();
     }
 
-    private async Task<PlantResponseDto> CreatePlant(string nickName, int? intervalDays, int? daysSinceWatered)
-        => await CreatePlant(nickName, intervalDays, daysSinceWatered is null ? null : Today.AddDays(-daysSinceWatered.Value));
+    private async Task<PlantResponseDto> CreatePlant(string nickName, int? intervalDays, int? daysSinceWatered, bool notifyEnabled = true)
+        => await CreatePlant(nickName, intervalDays, daysSinceWatered is null ? null : Today.AddDays(-daysSinceWatered.Value), notifyEnabled);
 
-    private async Task<PlantResponseDto> CreatePlant(string nickName, int? intervalDays, DateTime? lastWateredAt)
+    private async Task<PlantResponseDto> CreatePlant(string nickName, int? intervalDays, DateTime? lastWateredAt, bool notifyEnabled = true)
     {
         var created = await _client.PostAsJsonAsync("/api/plants", new
         {
             nickName,
-            location = "Desk",
             customWateringIntervalDays = intervalDays,
             lastWateredAt,
+            notifyEnabled,
         }, Options);
 
         created.EnsureSuccessStatusCode();
@@ -80,58 +86,79 @@ public class WateringCheckApiTests : IDisposable
     }
 
     [Fact]
-    public async Task Run_OnlyOverdueAndDueTodayPlants_ArePublished()
+    public async Task Run_SendsOneDigestForDuePlants_AtDefaultPriority()
     {
-        var overdue = await CreatePlant("Thirsty", 7, 30);
-        var dueToday = await CreatePlant("Parched", 7, 7);
-        var watered = await CreatePlant("Fresh", 7, 0);
-        var unscheduled = await CreatePlant("Wildcard", null, (int?)null);
+        await CreatePlant("Due one", 7, 7);
+        await CreatePlant("Due two", 7, 7);
+        await CreatePlant("Fresh", 7, 0);
+        await CreatePlant("Wildcard", null, (int?)null);
 
         var result = await RunCheckAsync();
 
-        Assert.Equal(2, result.Sent);
-        Assert.Equal(0, result.Failed);
-        Assert.Equal(0, result.SkippedDuplicates);
+        Assert.Equal(1, result.SentDigests);
+        var digest = Assert.Single(_publisher.Published);
+        Assert.Equal("2 plants need water", digest.Title);
+        Assert.Contains("• Due one", digest.Message);
+        Assert.Contains("• Due two", digest.Message);
+        Assert.DoesNotContain("Fresh", digest.Message);
+        Assert.DoesNotContain("Wildcard", digest.Message);
+        Assert.Equal(3, digest.Priority);
+    }
 
-        Assert.Contains(_publisher.Published, m => m.Message.StartsWith(overdue.NickName));
-        Assert.Contains(_publisher.Published, m => m.Message.StartsWith(dueToday.NickName));
-        Assert.DoesNotContain(_publisher.Published, m => m.Message.StartsWith(watered.NickName));
-        Assert.DoesNotContain(_publisher.Published, m => m.Message.StartsWith(unscheduled.NickName));
-        Assert.All(_publisher.Published, m => Assert.Equal("Watering due", m.Title));
+    [Fact]
+    public async Task Run_WithOverdue_EscalatesPriorityAndTitle()
+    {
+        await CreatePlant("Thirsty", 7, 30);
+        await CreatePlant("Due", 7, 7);
+
+        await RunCheckAsync();
+
+        var digest = Assert.Single(_publisher.Published);
+        Assert.Equal("2 plants need water (1 overdue)", digest.Title);
+        Assert.Equal(5, digest.Priority);
+    }
+
+    [Fact]
+    public async Task Run_SkipsMutedPlants()
+    {
+        await CreatePlant("Quiet Carol", 7, 30, notifyEnabled: false);
+        await CreatePlant("Loud Larry", 7, 30);
+
+        var result = await RunCheckAsync();
+
+        Assert.Equal(1, result.PlantsInDigest);
+        var digest = Assert.Single(_publisher.Published);
+        Assert.DoesNotContain("Quiet Carol", digest.Message);
     }
 
     [Fact]
     public async Task Run_TwiceSameDay_SecondRunSendsNothing()
     {
-        var overdue = await CreatePlant("Thirsty", 7, 30);
+        await CreatePlant("Thirsty", 7, 30);
 
         await RunCheckAsync();
         var second = await RunCheckAsync();
 
-        Assert.Equal(0, second.Sent);
+        Assert.Equal(0, second.SentDigests);
         Assert.Equal(1, second.SkippedDuplicates);
         Assert.Single(_publisher.Published);
-
-        var logs = await GetNotificationLogsAsync();
-        Assert.Equal([overdue.Id], logs.Select(l => l.PlantId));
-        Assert.All(logs, l => Assert.Equal(NotificationType.WateringDue, l.Type));
     }
 
     [Fact]
-    public async Task Run_PublisherFailsForOnePlant_OthersStillSentAndFailureNotLogged()
+    public async Task Run_PublisherFails_NoDigestLogged_SameDayRetrySucceeds()
     {
-        await CreatePlant("Fails", 7, 30);
-        var ok = await CreatePlant("Succeeds", 7, 30);
+        await CreatePlant("Thirsty", 7, 30);
+        _publisher.FailNext = true;
 
-        _publisher.FailWhen = m => m.Message.StartsWith("Fails");
-        var result = await RunCheckAsync();
+        var failed = await RunCheckAsync();
 
-        Assert.Equal(1, result.Sent);
-        Assert.Equal(1, result.Failed);
-        Assert.Contains(_publisher.Published, m => m.Message.StartsWith(ok.NickName));
+        Assert.Equal(1, failed.Failed);
+        Assert.Equal(0, failed.SentDigests);
 
-        var logs = await GetNotificationLogsAsync();
-        Assert.Equal([ok.Id], logs.Select(l => l.PlantId));
+        var retried = await RunCheckAsync();
+
+        Assert.Equal(1, retried.SentDigests);
+        Assert.Equal(1, _publisher.Published.Count);
     }
 
     [Fact]
@@ -142,30 +169,52 @@ public class WateringCheckApiTests : IDisposable
 
         var result = await RunCheckAsync();
 
-        Assert.Equal(0, result.Sent);
+        Assert.Equal(0, result.SentDigests);
         Assert.Empty(_publisher.Published);
     }
 
     [Fact]
-    public async Task Run_OldNotificationLog_DoesNotSuppressToday()
+    public async Task Run_SingleDuePlantWithQuickActions_EmitsWaterButton()
     {
-        var overdue = await CreatePlant("Thirsty", 7, 30);
-        await using (var scope = CreateScope())
+        using var withSecret = _database.CreateFactory(configureBuilder: builder =>
         {
-            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            db.NotificationLogs.Add(new NotificationLog
-            {
-                PlantId = overdue.Id,
-                Type = NotificationType.WateringDue,
-                SentAt = Today.AddDays(-1).AddHours(12),
-            });
-            await db.SaveChangesAsync();
-        }
+            builder.UseSetting("QUICK_ACTION_SECRET", "s3cret");
+            builder.UseSetting("QUICK_ACTION_URL_BASE", "http://plant.lan:3000/");
+        }, configureTestServices: services =>
+        {
+            services.Remove(services.Single(d => d.ServiceType == typeof(INtfyPublisher)));
+            services.AddSingleton<INtfyPublisher>(_publisher);
+        });
 
-        var result = await RunCheckAsync();
+        var client = withSecret.CreateClient();
+        var created = await client.PostAsJsonAsync("/api/plants", new
+        {
+            nickName = "Only one",
+            customWateringIntervalDays = 7,
+            lastWateredAt = Today.AddDays(-10),
+        }, Options);
+        var plant = (await created.Content.ReadFromJsonAsync<PlantResponseDto>(Options))!;
 
-        Assert.Equal(1, result.Sent);
-        Assert.Equal(0, result.SkippedDuplicates);
+        await using var scope = withSecret.Services.CreateAsyncScope();
+        await scope.ServiceProvider.GetRequiredService<IWateringCheckService>().RunAsync();
+
+        Assert.Equal($"http://plant.lan:3000/api/plants/{plant.Id}/quick-water?key=s3cret", _publisher.LastButtonUrl);
+        Assert.Equal("http://plant.lan:3000", _publisher.LastClickUrl);
+    }
+
+    [Fact]
+    public async Task DigestRecorded_PlantAndOverdueCountsPersisted()
+    {
+        await CreatePlant("Thirsty", 7, 30);
+
+        await RunCheckAsync();
+
+        await using var scope = CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var digest = Assert.Single(await db.NotificationDigests.ToListAsync());
+        Assert.Equal(1, digest.PlantCount);
+        Assert.Equal(1, digest.OverdueCount);
+        Assert.Equal(5, digest.Priority);
     }
 
     [Fact]
@@ -178,13 +227,6 @@ public class WateringCheckApiTests : IDisposable
         var job = scope.ServiceProvider.GetRequiredService<WateringCheckJob>();
 
         Assert.NotNull(job);
-    }
-
-    private async Task<List<NotificationLog>> GetNotificationLogsAsync()
-    {
-        await using var scope = CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        return await db.NotificationLogs.OrderBy(n => n.Id).ToListAsync();
     }
 
     public void Dispose()

@@ -22,9 +22,14 @@ public class Plant
 
     public string? PropagatedFrom { get; set; }
 
+    /// <summary>When false the plant is skipped by the daily watering digest.</summary>
+    public bool NotifyEnabled { get; set; } = true;
+
+    /// <summary>Vacation snooze: reminders are skipped until this instant.</summary>
+    public DateTime? SnoozedUntil { get; set; }
+
     public DateTime AcquiredDate { get; set; }
 
     public List<CareTask> CareTasks { get; set; } = [];
 
-    public List<NotificationLog> NotificationLogs { get; set; } = [];
 }

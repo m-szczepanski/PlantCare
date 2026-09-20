@@ -38,6 +38,8 @@ import {
   useDeletePlant,
   usePlant,
   usePlantNotes,
+  useSnoozePlant,
+  useUnsnoozePlant,
   useUploadPlantPhoto,
   useWaterPlant,
   useWateringLogs,
@@ -69,6 +71,9 @@ export function PlantDetailPage() {
   const { data: wateringLogs } = useWateringLogs(plantId);
   const { data: notes } = usePlantNotes(plantId);
   const addNote = useAddPlantNote(plantId);
+  const snooze = useSnoozePlant(plantId);
+  const unsnooze = useUnsnoozePlant(plantId);
+  const [snoozeDays, setSnoozeDays] = useState("14");
   const [noteText, setNoteText] = useState("");
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -164,6 +169,48 @@ export function PlantDetailPage() {
           <Field label="Propagated from" value={plant.propagatedFrom ?? "Not recorded"} />
           <Field label="Watering interval" value={plant.wateringIntervalDays ? `${plant.wateringIntervalDays} days` : "Not scheduled"} />
           <Field label="Next due" value={formatDate(plant.nextDueDate)} />
+          <Field label="Reminders" value={plant.notifyEnabled ? "On" : "Muted"} />
+          <div>
+            <dt className="text-muted-foreground">Snooze</dt>
+            <dd className="flex flex-wrap items-center gap-2">
+              {plant.snoozedUntil && new Date(plant.snoozedUntil) > new Date() ? (
+                <>
+                  <span className="text-muted-foreground">
+                    on hold until {new Date(plant.snoozedUntil).toLocaleDateString()}
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={unsnooze.isPending}
+                    onClick={() => unsnooze.mutate()}
+                  >
+                    Resume now
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <select
+                    aria-label="Snooze days"
+                    value={snoozeDays}
+                    onChange={(event) => setSnoozeDays(event.target.value)}
+                    className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
+                  >
+                    {[3, 7, 14, 30].map((days) => (
+                      <option key={days} value={String(days)}>{days} days</option>
+                    ))}
+                  </select>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={snooze.isPending}
+                    onClick={() => snooze.mutate(Number(snoozeDays))}
+                  >
+                    Snooze reminders
+                  </Button>
+                </>
+              )}
+            </dd>
+          </div>
         </CardContent>
       </Card>
 

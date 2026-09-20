@@ -35,6 +35,15 @@ public class DashboardServiceTests
         public Task<PlantCare.Api.Dtos.PlantNoteResponseDto?> AddNoteAsync(int id, string text, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
+        public Task<PlantResponseDto?> SetSnoozeAsync(int id, int days, CancellationToken cancellationToken = default)
+            => throw new NotSupportedException();
+
+        public Task<PlantResponseDto?> ClearSnoozeAsync(int id, CancellationToken cancellationToken = default)
+            => throw new NotSupportedException();
+
+        public Task<int> SnoozeAllAsync(int days, CancellationToken cancellationToken = default)
+            => throw new NotSupportedException();
+
         public Task<IReadOnlyList<WateringLogResponseDto>?> GetWateringHistoryAsync(int id, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 

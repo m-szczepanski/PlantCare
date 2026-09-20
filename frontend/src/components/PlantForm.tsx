@@ -45,6 +45,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
   const [potSizeCm, setPotSizeCm] = useState(initial?.potSizeCm?.toString() ?? "");
   const [soilMix, setSoilMix] = useState(initial?.soilMix ?? "");
   const [propagatedFrom, setPropagatedFrom] = useState(initial?.propagatedFrom ?? "");
+  const [notifyEnabled, setNotifyEnabled] = useState<boolean>(initial?.notifyEnabled ?? true);
   const [profileId, setProfileId] = useState<number | null>(initial?.plantProfileId ?? null);
   const [customInterval, setCustomInterval] = useState<string>(
     initial?.customWateringIntervalDays?.toString() ?? "",
@@ -86,6 +87,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
       potSizeCm: potSizeCm.trim() === "" ? null : Number(potSizeCm),
       soilMix: soilMix.trim() || null,
       propagatedFrom: propagatedFrom.trim() || null,
+      notifyEnabled,
       acquiredDate: fromDateString(acquiredDate) ?? new Date().toISOString(),
       plantProfileId: profileId,
       customWateringIntervalDays: intervalDays !== null && Number.isFinite(intervalDays) ? intervalDays : null,
@@ -256,6 +258,16 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
           className={touchField}
         />
       </div>
+
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={notifyEnabled}
+          onChange={(e) => setNotifyEnabled(e.target.checked)}
+          className="h-4 w-4 shrink-0 rounded border-input accent-primary"
+        />
+        Send watering reminders for this plant
+      </label>
 
       <label className="flex items-center gap-2 text-sm">
         <input

@@ -18,6 +18,8 @@ vi.mock("@/api/client", () => ({
     notes: vi.fn(),
     addNote: vi.fn(),
     careTasks: vi.fn(),
+    snooze: vi.fn(),
+    clearSnooze: vi.fn(),
     addCareTask: vi.fn(),
     deleteCareTask: vi.fn(),
     markCareTaskDone: vi.fn(),
@@ -35,6 +37,8 @@ const plant: Plant = {
   potSizeCm: null,
   soilMix: null,
   propagatedFrom: null,
+  notifyEnabled: true,
+  snoozedUntil: null,
   acquiredDate: "2026-01-01T00:00:00",
   plantProfileId: null,
   profileCommonName: null,
@@ -136,6 +140,8 @@ describe("PlantDetailPage", () => {
       potSizeCm: null,
       soilMix: null,
       propagatedFrom: null,
+      notifyEnabled: true,
+      snoozedUntil: null,
     });
 
     renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
@@ -234,6 +240,21 @@ describe("PlantDetailPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Add note" }));
 
     await waitFor(() => expect(plantsApi.addNote).toHaveBeenCalledWith(1, "Yellowing tip"));
+  });
+
+  it("snoozes reminders for the selected length", async () => {
+    vi.mocked(plantsApi.snooze).mockResolvedValue({
+      ...plant,
+      snoozedUntil: new Date(Date.now() + 14 * 86_400_000).toISOString(),
+    });
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    await screen.findByRole("heading", { level: 1, name: "Monstera Mike" });
+    fireEvent.change(screen.getByLabelText("Snooze days"), { target: { value: "30" } });
+    fireEvent.click(screen.getByRole("button", { name: "Snooze reminders" }));
+
+    await waitFor(() => expect(plantsApi.snooze).toHaveBeenCalledWith(1, 30));
   });
 
   it("lists care tasks with due info and marks them done", async () => {

@@ -74,13 +74,14 @@ GET    /api/insights               read-only collection stats: totals, species d
 
 Handled with **Coravel** — `IInvocable` jobs run on Coravel's hosted scheduler, deliberately chosen over Hangfire/Quartz since a single daily job needs no job-store infrastructure. The scheduled job type must be registered in DI (Coravel resolves invocables via `GetRequiredService`).
 
-Daily check flow:
+Daily check flow (one digest per day, not one message per plant):
 
 1. Coravel fires at the cron from `WATERING_CHECK_CRON` (default `0 8 * * *`).
-2. Query plants where `LastWateredAt + interval <= today` (interval = custom override ?? profile default); shared logic lives in `WateringScheduleService`.
-3. For each due/overdue plant, POST a message to the ntfy container topic (e.g., `http://ntfy:80/plant-care`).
-4. Write a `NotificationLog` row to avoid duplicate sends on the same day (at most one `WateringDue` per plant per day).
-5. ntfy failure must not crash the job or block the rest of the check — degrade gracefully.
+2. Collect due/overdue plants (task interval: `IntervalDays ?? profile default`, winter-doubled when reduced); shared logic lives in `WateringScheduleService`. Plants with `NotifyEnabled = false` (per-plant mute) or an active `SnoozedUntil` (vacation, set via `/api/plants/{id}/snooze` or `/api/plants/snooze-all`) are skipped.
+3. Publish ONE digest message (`"N plants need water"`, bulleted lines, `1 plant needs water (1 overdue)` style) through every registered `INotificationChannel`. Priority 5 when anything is overdue, else 3 — delivered to ntfy always, and to Telegram when `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID` are set (email stays unimplemented pending an SMTP decision).
+4. Write a `NotificationDigest` row so a second run the same day sends nothing; the digest is only recorded if at least one channel delivered (same-day retry after a total failure).
+5. Channel failure must never crash the run — each channel is try/caught; the old per-plant `NotificationLog` table was replaced by the digest log.
+6. Quick actions: when `QUICK_ACTION_SECRET` is set, a digest for exactly one due plant carries an ntfy action button POSTing to `/api/plants/{id}/quick-water?key=SECRET` (constant-time compare, in-process sliding-window rate limit of 10/plant+IP per 10 min, every attempt logged). Disabled without the secret (404).
 
 ## Configuration (env-driven)
 
@@ -90,6 +91,8 @@ All runtime knobs come from environment variables / `.env`:
 |----------|---------|
 | `WATERING_CHECK_CRON` | Watering-check cron expression (default `0 8 * * *`) |
 | `NTFY_URL` / `NTFY_TOPIC` | Where notification POSTs go (defaults `http://ntfy:80`, `plant-care`) |
+| `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` | Set both to also deliver digests via Telegram |
+| `QUICK_ACTION_SECRET` / `QUICK_ACTION_URL_BASE` | Shared secret for quick-water buttons / public origin used to build the links |
 | `ConnectionStrings__Default` | SQLite path (or Postgres later) |
 | `PHOTO_STORAGE_PATH` | Directory for uploaded plant photos (default `/data/uploads`, the `plant-photos` volume; override for bare local runs) |
 | `ENABLE_CARE_TIPS` | Set to `false` to hide the care tips section on plant detail (default on) |

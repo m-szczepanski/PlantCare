@@ -84,6 +84,37 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks) 
         };
     }
 
+    [HttpPost("{id:int}/snooze")]
+    public async Task<ActionResult<PlantResponseDto>> Snooze(int id, SnoozeRequestDto dto, CancellationToken cancellationToken)
+    {
+        if (dto.Days is < 1 or > 365)
+        {
+            return BadRequest(new ProblemDetails { Title = "Days must be between 1 and 365." });
+        }
+
+        var plant = await plants.SetSnoozeAsync(id, dto.Days, cancellationToken);
+        return plant is null ? NotFound() : Ok(plant);
+    }
+
+    [HttpDelete("{id:int}/snooze")]
+    public async Task<ActionResult<PlantResponseDto>> ClearSnooze(int id, CancellationToken cancellationToken)
+    {
+        var plant = await plants.ClearSnoozeAsync(id, cancellationToken);
+        return plant is null ? NotFound() : Ok(plant);
+    }
+
+    [HttpPost("snooze-all")]
+    public async Task<ActionResult<SnoozeAllResponseDto>> SnoozeAll(SnoozeRequestDto dto, CancellationToken cancellationToken)
+    {
+        if (dto.Days is < 1 or > 365)
+        {
+            return BadRequest(new ProblemDetails { Title = "Days must be between 1 and 365." });
+        }
+
+        var count = await plants.SnoozeAllAsync(dto.Days, cancellationToken);
+        return Ok(new SnoozeAllResponseDto { SnoozedPlants = count });
+    }
+
     [HttpGet("{id:int}/care-tasks")]
     public async Task<ActionResult<IReadOnlyList<CareTaskResponseDto>>> CareTasks(int id, CancellationToken cancellationToken)
     {

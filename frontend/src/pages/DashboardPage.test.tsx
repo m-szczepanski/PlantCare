@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { screen, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { dashboardApi } from "@/api/client";
 import type { Dashboard, Plant } from "@/api/types";
 import DashboardPage from "@/pages/DashboardPage";
@@ -7,6 +7,11 @@ import { renderWithProviders } from "@/test/render";
 
 vi.mock("@/api/client", () => ({
   dashboardApi: { get: vi.fn() },
+  plantsApi: {
+    list: vi.fn().mockResolvedValue([]),
+    snoozeAll: vi.fn(),
+    water: vi.fn(),
+  },
   ApiError: class ApiError extends Error {},
 }));
 
@@ -21,6 +26,8 @@ function plant(over: Partial<Plant>): Plant {
     potSizeCm: null,
     soilMix: null,
     propagatedFrom: null,
+    notifyEnabled: true,
+    snoozedUntil: null,
     acquiredDate: "2026-01-01T00:00:00",
     plantProfileId: null,
     profileCommonName: null,
@@ -61,6 +68,22 @@ describe("DashboardPage", () => {
     expect(screen.getByRole("link", { name: "Thirsty Theo" })).toBeInTheDocument();
     expect(screen.getByText("Parched Paula")).toBeInTheDocument();
     expect(screen.getByText("Fine Fiona")).toBeInTheDocument();
+  });
+
+  it("snoozes every plant for the vacation length", async () => {
+    const { plantsApi } = await import("@/api/client");
+    vi.mocked(plantsApi.snoozeAll).mockResolvedValue({ snoozedPlants: 3 });
+    vi.mocked(dashboardApi.get).mockResolvedValue({
+      ...emptyDashboard,
+      upcoming: [plant({ id: 3, nickName: "Fine Fiona" })],
+    });
+
+    renderWithProviders(<DashboardPage />);
+
+    await screen.findByRole("heading", { level: 2, name: "Upcoming" });
+    fireEvent.click(screen.getByRole("button", { name: "Snooze all" }));
+
+    await waitFor(() => expect(plantsApi.snoozeAll).toHaveBeenCalledWith(14));
   });
 
   it("shows the all-caught-up state when nothing is overdue or due today", async () => {
