@@ -22,6 +22,7 @@ public sealed class WateringCheckService(
     AppDbContext db,
     IPlantService plants,
     INtfyPublisher publisher,
+    QuickActionOptions quickActions,
     ILogger<WateringCheckService> logger) : IWateringCheckService
 {
     public async Task<WateringCheckResult> RunAsync(CancellationToken cancellationToken = default)
@@ -57,9 +58,16 @@ public sealed class WateringCheckService(
         var message = string.Join("\n", due.Select(p =>
             $"• {p.NickName}{(p.RoomName is null ? "" : $" ({p.RoomName})")} — {p.DueMessage}"));
 
+        string? clickUrl = string.IsNullOrWhiteSpace(quickActions.PublicBaseUrl)
+            ? null
+            : quickActions.PublicBaseUrl.TrimEnd('/');
+        string? buttonUrl = quickActions.Enabled && due.Count == 1
+            ? quickActions.QuickWaterUrl(due[0].Id)
+            : null;
+
         try
         {
-            await publisher.PublishAsync(title, message, priority, cancellationToken);
+            await publisher.PublishAsync(title, message, priority, clickUrl, "Water now", buttonUrl, cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

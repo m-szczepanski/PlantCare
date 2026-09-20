@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Default") ?? "Data Source=plantcare.db";
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -33,6 +34,10 @@ builder.Services.AddScoped<IInsightsService, InsightsService>();
 var ntfyBaseUrl = builder.Configuration["NTFY_URL"] ?? "http://ntfy:80";
 var ntfyTopic = builder.Configuration["NTFY_TOPIC"] ?? "plant-care";
 builder.Services.AddSingleton(new NtfyOptions(ntfyBaseUrl, ntfyTopic));
+var quickActionSecret = builder.Configuration["QUICK_ACTION_SECRET"];
+var quickActionBaseUrl = builder.Configuration["QUICK_ACTION_URL_BASE"];
+builder.Services.AddSingleton(new QuickActionOptions(quickActionSecret, quickActionBaseUrl));
+builder.Services.AddSingleton<QuickActionRateLimiter>();
 builder.Services.AddHttpClient<INtfyPublisher, NtfyPublisher>();
 
 builder.Services.AddScheduler();

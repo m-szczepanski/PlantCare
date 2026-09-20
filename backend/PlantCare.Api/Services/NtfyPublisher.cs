@@ -8,16 +8,32 @@ namespace PlantCare.Api.Services;
 public interface INtfyPublisher
 {
     /// <summary>ntfy priority 1-5 (3 default; 5 = high for overdue escalations).</summary>
-    Task PublishAsync(string title, string message, int priority = 3, CancellationToken cancellationToken = default);
+    Task PublishAsync(
+        string title,
+        string message,
+        int priority = 3,
+        string? clickUrl = null,
+        string? buttonLabel = null,
+        string? buttonUrl = null,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class NtfyPublisher(HttpClient http, NtfyOptions options, ILogger<NtfyPublisher> logger) : INtfyPublisher
 {
-    public async Task PublishAsync(string title, string message, int priority = 3, CancellationToken cancellationToken = default)
+    public async Task PublishAsync(string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, $"{options.BaseUrl.TrimEnd('/')}/{options.Topic}");
         request.Headers.TryAddWithoutValidation("Title", title);
         request.Headers.TryAddWithoutValidation("Priority", priority.ToString());
+        if (!string.IsNullOrWhiteSpace(clickUrl))
+        {
+            request.Headers.TryAddWithoutValidation("Click", clickUrl);
+        }
+
+        if (!string.IsNullOrWhiteSpace(buttonUrl))
+        {
+            request.Headers.TryAddWithoutValidation("Actions", $"{buttonLabel ?? "Open"},{buttonUrl},POST");
+        }
         request.Content = new StringContent(message);
 
         var response = await http.SendAsync(request, cancellationToken);

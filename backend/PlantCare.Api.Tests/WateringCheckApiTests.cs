@@ -25,7 +25,7 @@ public class WateringCheckApiTests : IDisposable
 
         public bool FailNext { get; set; }
 
-        public Task PublishAsync(string title, string message, int priority = 3, CancellationToken cancellationToken = default)
+        public Task PublishAsync(string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
         {
             if (FailNext)
             {
@@ -34,8 +34,13 @@ public class WateringCheckApiTests : IDisposable
             }
 
             Published.Add((title, message, priority));
+            LastButtonUrl = buttonUrl;
+            LastClickUrl = clickUrl;
             return Task.CompletedTask;
         }
+
+        public string? LastButtonUrl { get; private set; }
+        public string? LastClickUrl { get; private set; }
     }
 
     private static DateTime Today => DateTime.UtcNow.Date;
@@ -166,6 +171,35 @@ public class WateringCheckApiTests : IDisposable
 
         Assert.Equal(0, result.SentDigests);
         Assert.Empty(_publisher.Published);
+    }
+
+    [Fact]
+    public async Task Run_SingleDuePlantWithQuickActions_EmitsWaterButton()
+    {
+        using var withSecret = _database.CreateFactory(configureBuilder: builder =>
+        {
+            builder.UseSetting("QUICK_ACTION_SECRET", "s3cret");
+            builder.UseSetting("QUICK_ACTION_URL_BASE", "http://plant.lan:3000/");
+        }, configureTestServices: services =>
+        {
+            services.Remove(services.Single(d => d.ServiceType == typeof(INtfyPublisher)));
+            services.AddSingleton<INtfyPublisher>(_publisher);
+        });
+
+        var client = withSecret.CreateClient();
+        var created = await client.PostAsJsonAsync("/api/plants", new
+        {
+            nickName = "Only one",
+            customWateringIntervalDays = 7,
+            lastWateredAt = Today.AddDays(-10),
+        }, Options);
+        var plant = (await created.Content.ReadFromJsonAsync<PlantResponseDto>(Options))!;
+
+        await using var scope = withSecret.Services.CreateAsyncScope();
+        await scope.ServiceProvider.GetRequiredService<IWateringCheckService>().RunAsync();
+
+        Assert.Equal($"http://plant.lan:3000/api/plants/{plant.Id}/quick-water?key=s3cret", _publisher.LastButtonUrl);
+        Assert.Equal("http://plant.lan:3000", _publisher.LastClickUrl);
     }
 
     [Fact]
