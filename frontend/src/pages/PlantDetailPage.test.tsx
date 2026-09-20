@@ -187,6 +187,19 @@ describe("PlantDetailPage", () => {
     );
   });
 
+  it("does not upload an unsupported photo type (e.g. HEIC) client-side", async () => {
+    vi.mocked(plantsApi.uploadPhoto).mockClear();
+    const { container } = renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+    await screen.findByRole("heading", { name: "Monstera Mike" });
+
+    const fileInput = container.querySelector<HTMLInputElement>('input[type="file"].hidden');
+    fireEvent.change(fileInput!, {
+      target: { files: [new File(["data"], "photo.heic", { type: "image/heic" })] },
+    });
+
+    expect(plantsApi.uploadPhoto).not.toHaveBeenCalled();
+  });
+
   it("gives the phone action buttons touch-friendly targets", async () => {
     renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
 

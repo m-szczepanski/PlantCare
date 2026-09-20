@@ -153,7 +153,7 @@
     "removePhoto": "Usuń",
     "photoHint": "JPEG, PNG, WebP lub GIF, do 5 MB.",
     "photoTooLarge": "Zdjęcie jest większe niż {{max}} MB.",
-    "photoBadType": "Nieobsługiwany typ zdjęcia - użyj JPEG, PNG, WebP lub GIF.",
+    "photoBadType": "Nieobsługiwany typ zdjęcia - użyj JPEG, PNG, WebP lub GIF (HEIC nie jest obsługiwany).",
     "noSchedulePreview": "Brak harmonogramu podlewania — wybierz profil lub ustaw przedział.",
     "nextDuePreview": "Następne podlanie: {{date}} ({{when}})",
     "today": "dziś",
