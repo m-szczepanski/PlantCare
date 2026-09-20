@@ -147,6 +147,22 @@ export interface PlantProfileOption {
   defaultWateringIntervalDays: number;
 }
 
+export interface PlantProfile extends PlantProfileOption {
+  lightRequirement: LightRequirement;
+  humidityNotes: string;
+  careTips: string;
+  plantCount: number;
+}
+
+export interface PlantProfileInput {
+  commonName: string;
+  scientificName?: string | null;
+  defaultWateringIntervalDays: number;
+  lightRequirement: LightRequirement;
+  humidityNotes: string;
+  careTips: string;
+}
+
 export interface PlantNote {
   id: number;
   createdAt: string;

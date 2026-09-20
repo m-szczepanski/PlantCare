@@ -113,6 +113,26 @@ public class PlantProfileWriteApiTests : IDisposable
     }
 
     [Fact]
+    public async Task List_IncludesFullDetails_AndPlantCount()
+    {
+        var created = await _client.PostAsJsonAsync("/api/plant-profiles", Payload("Counted Coral"), Options);
+        var profile = await created.Content.ReadFromJsonAsync<PlantProfileResponseDto>(Options);
+        await _client.PostAsJsonAsync("/api/plants", new
+        {
+            nickName = "Coral C",
+            plantProfileId = profile!.Id,
+        }, Options);
+
+        var list = await _client.GetFromJsonAsync<List<PlantProfileResponseDto>>("/api/plant-profiles", Options);
+        var row = list!.Single(p => p.Id == profile.Id);
+
+        Assert.Equal(LightRequirement.Bright, row.LightRequirement);
+        Assert.Equal("Prefers dry air.", row.HumidityNotes);
+        Assert.Contains("Water sparingly", row.CareTips);
+        Assert.Equal(1, row.PlantCount);
+    }
+
+    [Fact]
     public async Task Update_KeepsOwnName_ReturnsOk()
     {
         var profile = await CreateProfileAsync();

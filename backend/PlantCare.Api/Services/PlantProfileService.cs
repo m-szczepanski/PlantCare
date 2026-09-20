@@ -28,6 +28,7 @@ public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
     public async Task<IReadOnlyList<PlantProfileResponseDto>> ListAsync(CancellationToken cancellationToken = default)
     {
         var profiles = await db.PlantProfiles
+            .Include(p => p.Plants)
             .OrderBy(p => p.CommonName)
             .ToListAsync(cancellationToken);
 
@@ -57,7 +58,7 @@ public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
         db.PlantProfiles.Add(profile);
         await db.SaveChangesAsync(cancellationToken);
 
-        return new PlantProfileWriteResult(PlantProfileWriteStatus.Success, ToResponse(profile));
+        return new PlantProfileWriteResult(PlantProfileWriteStatus.Success, await ReloadAsync(profile.Id, cancellationToken));
     }
 
     public async Task<PlantProfileWriteResult> UpdateAsync(int id, PlantProfileRequestDto dto, CancellationToken cancellationToken = default)
@@ -83,7 +84,7 @@ public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
 
         await db.SaveChangesAsync(cancellationToken);
 
-        return new PlantProfileWriteResult(PlantProfileWriteStatus.Success, ToResponse(profile));
+        return new PlantProfileWriteResult(PlantProfileWriteStatus.Success, await ReloadAsync(profile.Id, cancellationToken));
     }
 
     private Task<bool> NameTakenAsync(string commonName, int? excludeId, CancellationToken cancellationToken)
@@ -97,5 +98,19 @@ public sealed class PlantProfileService(AppDbContext db) : IPlantProfileService
         CommonName = profile.CommonName,
         ScientificName = profile.ScientificName,
         DefaultWateringIntervalDays = profile.DefaultWateringIntervalDays,
+        LightRequirement = profile.LightRequirement,
+        HumidityNotes = profile.HumidityNotes,
+        CareTips = profile.CareTips,
+        PlantCount = profile.Plants?.Count ?? 0,
     };
+
+    private async Task<PlantProfileResponseDto> ReloadAsync(int id, CancellationToken cancellationToken)
+    {
+        var profile = await db.PlantProfiles
+            .Include(p => p.Plants)
+            .AsNoTracking()
+            .FirstAsync(p => p.Id == id, cancellationToken);
+
+        return ToResponse(profile);
+    }
 }
