@@ -221,7 +221,7 @@ describe("PlantDetailPage", () => {
     expect(water.compareDocumentPosition(details) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("renders the photo as a portrait on the right of the details", async () => {
+  it("renders the photo on the right of the details, matching the card height on lg", async () => {
     vi.mocked(plantsApi.get).mockResolvedValue({
       ...plant,
       photoUrl: "https://example.com/mike.jpg",
@@ -230,7 +230,7 @@ describe("PlantDetailPage", () => {
     renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
 
     const img = await screen.findByRole("img", { name: "Monstera Mike" });
-    expect(img).toHaveClass("aspect-[3/4]", "lg:order-2");
+    expect(img).toHaveClass("aspect-[3/4]", "lg:order-2", "lg:aspect-auto", "lg:self-stretch");
   });
 
   it("confirms deletion in a dialog", async () => {

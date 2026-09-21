@@ -206,7 +206,7 @@ export function PlantDetailPage() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+      <div className="flex flex-col gap-4 lg:flex-row">
         <Card className="order-2 min-w-0 flex-1 lg:order-1">
           <CardHeader>
             <CardTitle>{t("detail.title")}</CardTitle>
@@ -318,7 +318,7 @@ export function PlantDetailPage() {
         <PlantPhoto
           photoUrl={plant.photoUrl}
           nickName={plant.nickName}
-          className="order-1 aspect-[3/4] w-full max-w-xs self-center rounded-lg shadow-sm sm:w-64 lg:order-2 lg:w-72 lg:max-w-none lg:self-start xl:w-80"
+          className="order-1 w-full max-w-xs self-center rounded-lg shadow-sm aspect-[3/4] sm:w-64 lg:order-2 lg:w-72 lg:max-w-none lg:self-stretch lg:aspect-auto lg:h-full xl:w-80"
         />
       </div>
 
