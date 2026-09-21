@@ -15,6 +15,11 @@ export interface SoilTypeOption {
   wateringIntervalFactor: number;
 }
 
+export interface SoilMixOption {
+  id: number;
+  name: string;
+}
+
 export interface CareTask {
   id: number;
   type: CareTaskType;
