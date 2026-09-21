@@ -212,6 +212,27 @@ describe("PlantDetailPage", () => {
     expect(button).toHaveClass("min-h-11", "sm:min-h-9");
   });
 
+  it("places the action buttons above the details section", async () => {
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    const water = await screen.findByRole("button", { name: "Mark as watered" });
+    const details = screen.getByText("Details");
+    // The details heading must follow the action row in document order.
+    expect(water.compareDocumentPosition(details) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("renders the photo as a portrait on the right of the details", async () => {
+    vi.mocked(plantsApi.get).mockResolvedValue({
+      ...plant,
+      photoUrl: "https://example.com/mike.jpg",
+    });
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    const img = await screen.findByRole("img", { name: "Monstera Mike" });
+    expect(img).toHaveClass("aspect-[3/4]", "lg:order-2");
+  });
+
   it("confirms deletion in a dialog", async () => {
     const remove = vi.fn().mockResolvedValue(undefined);
     vi.mocked(plantsApi.remove).mockImplementation(remove);
