@@ -57,6 +57,11 @@ public sealed class CareTaskService(AppDbContext db, IWateringScheduleService sc
         var task = plant.CareTasks.FirstOrDefault(t => t.Type == type) ?? CreateTask(plant, type);
         var doneAt = DateTime.UtcNow;
         task.LastDoneAt = doneAt;
+        if (type == CareTaskType.Watering)
+        {
+            // Completing the watering resolves any "soil still wet" deferral.
+            plant.SoilWetUntil = null;
+        }
         task.Logs.Add(new CareTaskLog
         {
             DoneAt = doneAt,

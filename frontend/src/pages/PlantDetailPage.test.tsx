@@ -20,6 +20,8 @@ vi.mock("@/api/client", () => ({
     careTasks: vi.fn(),
     snooze: vi.fn(),
     clearSnooze: vi.fn(),
+    soilWet: vi.fn(),
+    clearSoilWet: vi.fn(),
     addCareTask: vi.fn(),
     deleteCareTask: vi.fn(),
     markCareTaskDone: vi.fn(),
@@ -40,6 +42,7 @@ const plant: Plant = {
   propagatedFrom: null,
   notifyEnabled: true,
   snoozedUntil: null,
+  soilWetUntil: null,
   acquiredDate: "2026-01-01T00:00:00",
   plantProfileId: null,
   profileCommonName: null,
@@ -145,6 +148,7 @@ describe("PlantDetailPage", () => {
       propagatedFrom: null,
       notifyEnabled: true,
       snoozedUntil: null,
+      soilWetUntil: null,
     });
 
     renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
@@ -272,6 +276,39 @@ describe("PlantDetailPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Snooze reminders" }));
 
     await waitFor(() => expect(plantsApi.snooze).toHaveBeenCalledWith(1, 30));
+  });
+
+  it("defers watering when the soil is still wet", async () => {
+    vi.mocked(plantsApi.soilWet).mockResolvedValue({
+      ...plant,
+      soilWetUntil: new Date(Date.now() + 5 * 86_400_000).toISOString(),
+    });
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    await screen.findByRole("heading", { level: 1, name: "Monstera Mike" });
+    fireEvent.change(screen.getByLabelText("Recheck watering in days"), { target: { value: "5" } });
+    fireEvent.click(screen.getByRole("button", { name: "Soil is still wet" }));
+
+    await waitFor(() => expect(plantsApi.soilWet).toHaveBeenCalledWith(1, 5));
+  });
+
+  it("shows an active deferral and resumes on check-now", async () => {
+    vi.mocked(plantsApi.get).mockResolvedValue({
+      ...plant,
+      soilWetUntil: new Date(Date.now() + 4 * 86_400_000).toISOString(),
+      dueStatus: "Upcoming",
+      daysUntilDue: 4,
+    });
+    vi.mocked(plantsApi.clearSoilWet).mockResolvedValue({ ...plant, soilWetUntil: null });
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    expect(await screen.findByText(/deferred until/)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Soil is still wet" })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Check now" }));
+    await waitFor(() => expect(plantsApi.clearSoilWet).toHaveBeenCalledWith(1));
   });
 
   it("lists care tasks with due info and marks them done", async () => {

@@ -127,6 +127,20 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
         return Ok(new SnoozeAllResponseDto { SnoozedPlants = count });
     }
 
+    [HttpPost("{id:int}/soil-wet")]
+    public async Task<ActionResult<PlantResponseDto>> SetSoilWet(int id, SoilWetRequestDto dto, CancellationToken cancellationToken)
+    {
+        var plant = await plants.SetSoilWetAsync(id, dto.Days, cancellationToken);
+        return plant is null ? NotFound() : Ok(plant);
+    }
+
+    [HttpDelete("{id:int}/soil-wet")]
+    public async Task<ActionResult<PlantResponseDto>> ClearSoilWet(int id, CancellationToken cancellationToken)
+    {
+        var plant = await plants.ClearSoilWetAsync(id, cancellationToken);
+        return plant is null ? NotFound() : Ok(plant);
+    }
+
     [HttpGet("{id:int}/care-tasks")]
     public async Task<ActionResult<IReadOnlyList<CareTaskResponseDto>>> CareTasks(int id, CancellationToken cancellationToken)
     {

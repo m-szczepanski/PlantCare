@@ -44,6 +44,12 @@ public class DashboardServiceTests
         public Task<int> SnoozeAllAsync(int days, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
+        public Task<PlantResponseDto?> SetSoilWetAsync(int id, int days, CancellationToken cancellationToken = default)
+            => throw new NotSupportedException();
+
+        public Task<PlantResponseDto?> ClearSoilWetAsync(int id, CancellationToken cancellationToken = default)
+            => throw new NotSupportedException();
+
         public Task<PlantCare.Api.Services.BulkWaterResult> BulkWaterAsync(IReadOnlyList<int> ids, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 

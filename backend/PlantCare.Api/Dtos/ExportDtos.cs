@@ -75,6 +75,8 @@ public class ExportPlantDto
 
     public DateTime? SnoozedUntil { get; set; }
 
+    public DateTime? SoilWetUntil { get; set; }
+
     public required IReadOnlyList<ExportCareTaskDto> CareTasks { get; set; }
 
     public required IReadOnlyList<ExportNoteDto> Notes { get; set; }

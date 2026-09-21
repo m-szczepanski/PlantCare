@@ -26,6 +26,8 @@ public class PlantResponseDto
 
     public DateTime? SnoozedUntil { get; set; }
 
+    public DateTime? SoilWetUntil { get; set; }
+
     public DateTime AcquiredDate { get; set; }
 
     public int? PlantProfileId { get; set; }
