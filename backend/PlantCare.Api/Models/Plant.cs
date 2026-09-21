@@ -18,6 +18,9 @@ public class Plant
 
     public int? PotSizeCm { get; set; }
 
+    /// <summary>Substrate category driving the watering-schedule permeability factor.</summary>
+    public SoilType? SoilType { get; set; }
+
     public string? SoilMix { get; set; }
 
     public string? PropagatedFrom { get; set; }

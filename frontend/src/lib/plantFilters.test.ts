@@ -11,6 +11,7 @@ function plant(over: Partial<Plant>): Plant {
     roomName: "Kitchen",
     photoUrl: null,
     potSizeCm: null,
+    soilType: null,
     soilMix: null,
     propagatedFrom: null,
     notifyEnabled: true,

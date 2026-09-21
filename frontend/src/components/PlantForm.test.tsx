@@ -1,13 +1,23 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, screen } from "@testing-library/react";
 import { plantProfilesApi } from "@/api/client";
-import type { PlantProfile } from "@/api/types";
+import type { Plant, PlantProfile } from "@/api/types";
 import { PlantForm } from "@/components/PlantForm";
 import { renderWithProviders } from "@/test/render";
 
 vi.mock("@/api/client", () => ({
   plantProfilesApi: { list: vi.fn() },
   roomsApi: { list: vi.fn().mockResolvedValue([]), create: vi.fn(), update: vi.fn(), remove: vi.fn() },
+  referenceDataApi: {
+    soilTypes: vi.fn().mockResolvedValue([
+      { type: "AllPurpose", wateringIntervalFactor: 1 },
+      { type: "CactusMix", wateringIntervalFactor: 0.7 },
+      { type: "ChunkyBark", wateringIntervalFactor: 0.55 },
+      { type: "PeatCoco", wateringIntervalFactor: 1.15 },
+      { type: "SemiHydro", wateringIntervalFactor: 1.3 },
+      { type: "SelfWatering", wateringIntervalFactor: 1.5 },
+    ]),
+  },
   ApiError: class ApiError extends Error {},
 }));
 
@@ -43,6 +53,47 @@ const profiles: PlantProfile[] = [
 function renderForm() {
   return renderWithProviders(
     <PlantForm submitting={false} submitLabel="Create plant" onSubmit={vi.fn()} onCancel={vi.fn()} />,
+  );
+}
+
+const basePlant: Plant = {
+  id: 1,
+  nickName: "Pothos Pat",
+  roomId: null,
+  roomName: null,
+  photoUrl: null,
+  potSizeCm: null,
+  soilType: null,
+  soilMix: null,
+  propagatedFrom: null,
+  notifyEnabled: true,
+  snoozedUntil: null,
+  acquiredDate: "2026-01-01T00:00:00",
+  plantProfileId: null,
+  profileCommonName: null,
+  profileToxicToPets: false,
+  profileToxicToChildren: false,
+  careTips: null,
+  customWateringIntervalDays: 10,
+  reduceInWinter: null,
+  lastWateredAt: null,
+  dueStatus: "Upcoming",
+  wateringIntervalDays: 10,
+  daysUntilDue: 5,
+  nextDueDate: null,
+  dueMessage: "5 days until due",
+  roomLightMatch: null,
+};
+
+function renderFormWithInitial(over: Partial<Plant>) {
+  return renderWithProviders(
+    <PlantForm
+      initial={{ ...basePlant, ...over }}
+      submitting={false}
+      submitLabel="Update details"
+      onSubmit={vi.fn()}
+      onCancel={vi.fn()}
+    />,
   );
 }
 
@@ -141,5 +192,43 @@ describe("PlantForm", () => {
     fireEvent.change(fileInput, { target: { files: [doc] } });
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Unsupported photo type");
+  });
+
+  it("applies the soil permeability factor to the live next-due preview", async () => {
+    renderFormWithInitial({ soilType: "SemiHydro" });
+
+    // The hint only renders once the soil options have loaded from the API.
+    const hint = await screen.findByText("Semi-hydroton (LECA) changes watering from 10 to 13 days");
+    expect(hint).toBeInTheDocument();
+    // 10-day base scaled by the 1.3 semi-hydro factor -> 13 days.
+    expect(screen.getByRole("status")).toHaveTextContent("in 13 days");
+  });
+
+  it("keeps all-purpose soil on the base interval (no hint)", async () => {
+    renderFormWithInitial({ soilType: "AllPurpose" });
+
+    const status = await screen.findByRole("status");
+    expect(status).toHaveTextContent("in 10 days");
+    expect(screen.queryByText(/changes watering/)).not.toBeInTheDocument();
+  });
+
+  it("passes the selected soil type through to onSubmit", async () => {
+    const onSubmit = vi.fn();
+    renderWithProviders(
+      <PlantForm
+        initial={{ ...basePlant, soilType: "SemiHydro" }}
+        submitting={false}
+        submitLabel="Update details"
+        onSubmit={onSubmit}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(await screen.findByRole("button", { name: "Update details" }));
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ soilType: "SemiHydro", customWateringIntervalDays: 10 }),
+      null,
+    );
   });
 });

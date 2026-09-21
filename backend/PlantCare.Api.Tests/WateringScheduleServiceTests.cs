@@ -13,13 +13,14 @@ public class WateringScheduleServiceTests
 
     private static readonly DateOnly WinterDay = new(2026, 1, 15);
 
-    private static Plant Plant(int? intervalDays = null, DateTime? lastDoneAt = null, PlantProfile? profile = null)
+    private static Plant Plant(int? intervalDays = null, DateTime? lastDoneAt = null, PlantProfile? profile = null, SoilType? soilType = null)
     {
         var plant = new Plant
         {
             NickName = "Rex",
             AcquiredDate = new DateTime(2026, 1, 1),
             PlantProfile = profile,
+            SoilType = soilType,
         };
         plant.CareTasks.Add(new CareTask
         {
@@ -181,5 +182,94 @@ public class WateringScheduleServiceTests
 
         Assert.Equal(14, due.IntervalDays);
         Assert.Equal(10, due.DaysUntilDue);
+    }
+
+    [Fact]
+    public void AllPurposeSoil_KeepsBaseInterval()
+    {
+        var plant = Plant(intervalDays: 10, lastDoneAt: new DateTime(2026, 3, 10), soilType: SoilType.AllPurpose);
+
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
+
+        Assert.Equal(10, due.IntervalDays);
+        Assert.Equal(5, due.DaysUntilDue);
+    }
+
+    [Fact]
+    public void NoSoilType_KeepsBaseInterval()
+    {
+        var plant = Plant(intervalDays: 10, lastDoneAt: new DateTime(2026, 3, 5), soilType: null);
+
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
+
+        Assert.Equal(10, due.IntervalDays);
+    }
+
+    [Theory]
+    [InlineData(SoilType.ChunkyBark, 10, 6)]
+    [InlineData(SoilType.CactusMix, 10, 7)]
+    [InlineData(SoilType.PeatCoco, 10, 12)]
+    [InlineData(SoilType.SemiHydro, 10, 13)]
+    [InlineData(SoilType.SelfWatering, 10, 15)]
+    public void SoilType_ScalesWateringInterval(SoilType soil, int baseInterval, int expected)
+    {
+        var plant = Plant(intervalDays: baseInterval, lastDoneAt: new DateTime(2026, 3, 5), soilType: soil);
+
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
+
+        Assert.Equal(expected, due.IntervalDays);
+    }
+
+    [Fact]
+    public void FastDrainingSoil_CanPushAPlantToOverdue()
+    {
+        // 10-day schedule in fast-draining soil becomes 7 days: the 3-7 watering is now 1 day overdue.
+        var plant = Plant(intervalDays: 10, lastDoneAt: new DateTime(2026, 3, 7), soilType: SoilType.CactusMix);
+
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
+
+        Assert.Equal(PlantDueStatus.Overdue, due.Status);
+        Assert.Equal(-1, due.DaysUntilDue);
+    }
+
+    [Fact]
+    public void SoilType_ScalesProfileDefaultIntervalWhenNoCustom()
+    {
+        var profile = new PlantProfile { CommonName = "Monstera", DefaultWateringIntervalDays = 10, HumidityNotes = "", CareTips = "" };
+        var plant = Plant(intervalDays: null, lastDoneAt: new DateTime(2026, 3, 5), profile: profile, soilType: SoilType.SemiHydro);
+
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
+
+        Assert.Equal(13, due.IntervalDays);
+    }
+
+    [Fact]
+    public void SoilType_ComposesWithWinterDoubling()
+    {
+        // Base 10 → SemiHydro 13 → winter doubling 26.
+        var plant = Plant(intervalDays: 10, lastDoneAt: new DateTime(2026, 1, 10), soilType: SoilType.SemiHydro);
+        Watering(plant).ReduceInWinter = true;
+
+        var due = _service.GetDueInfo(Watering(plant), plant, WinterDay);
+
+        Assert.Equal(26, due.IntervalDays);
+    }
+
+    [Fact]
+    public void SoilType_DoesNotAffectFertilizingInterval()
+    {
+        var plant = Plant(soilType: SoilType.SelfWatering);
+        plant.CareTasks.Clear();
+        plant.CareTasks.Add(new CareTask
+        {
+            Type = CareTaskType.Fertilizing,
+            IntervalDays = 30,
+            LastDoneAt = new DateTime(2026, 3, 5),
+        });
+
+        var due = _service.GetDueInfo(plant.CareTasks.Single(), plant, Today);
+
+        Assert.Equal(30, due.IntervalDays);
+        Assert.Equal(20, due.DaysUntilDue);
     }
 }

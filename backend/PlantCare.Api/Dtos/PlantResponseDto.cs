@@ -16,6 +16,8 @@ public class PlantResponseDto
 
     public int? PotSizeCm { get; set; }
 
+    public SoilType? SoilType { get; set; }
+
     public string? SoilMix { get; set; }
 
     public string? PropagatedFrom { get; set; }

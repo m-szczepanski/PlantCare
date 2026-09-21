@@ -49,7 +49,8 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 
 ### Forms
 
-- `PlantForm` also edits the repot-lifecycle fields (pot cm, soil mix, propagated-from) and a "Reduce watering in winter" checkbox (`reduceInWinter`, doubles the interval Dec–Feb; profiles can default it).
+- `PlantForm` also edits the repot-lifecycle fields (pot cm, soil type, soil mix, propagated-from) and a "Reduce watering in winter" checkbox (`reduceInWinter`, doubles the interval Dec–Feb; profiles can default it).
+- Soil type picker: a `SoilType` `Select` in the plant form is populated from `GET /api/reference-data/soil-types` (`useSoilTypes`), so the permeability factors stay server-owned (single source of truth). The live next-due preview multiplies the base interval by the selected type's factor via `applySoilFactor` (`src/lib/soilTypes.ts` — rounding matches the backend's away-from-zero), and a hint line explains the adjustment (e.g. "Semi-hydroton (LECA) changes watering from 10 to 13 days").
 - `PlantForm` UX: the species profile picker is a searchable combobox (`ProfileCombobox` = Popover + Command); a `role="status"` line previews the effective next watering date (custom interval wins, otherwise profile default, otherwise "no schedule"); `acquiredDate` defaults to today for new plants; the custom-interval placeholder shows the selected profile's default.
 - API 400 responses with `ProblemDetails.errors` map to per-field messages via `splitApiError` (`src/lib/validation.ts`) — PascalCase keys become camelCase field names, inputs get `aria-invalid`; only non-field errors (e.g. unknown profile) render as the banner above the buttons.
 - `CareTasksCard` (detail page) is the generic typed-task UI: each task row shows the due message (destructive when overdue) and the server's seasonal hint ("Winter rest…", flush reminder, "Winter: watering interval is doubled"), with "Mark done" per type, an "Add fertilizing" interval/skip-winter form and "Add repotting (yearly)". Mutations live in `useCareTaskMutations(plantId)` (`src/hooks/usePlants.ts`).
@@ -137,14 +138,14 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 | Insights | Read-only collection stats from `GET /api/insights`: totals, species diversity, most-neglected, 30-day adherence, on-time streaks, monthly watering bars |
 | Plant list | Owned plants with due status, search (name/species/room), due-status filter, and sort (name / room / soonest due / recently watered) |
 | Rooms | Room CRUD (`/rooms`): name, orientation, optional environment (light exposure / humidity / temperature °C), plant list per room with light-match badges |
-| Plant detail | Plant info (incl. pot size / soil mix / propagated-from / acquired), photo (or placeholder), toxicity badges, care tips, diagnostics checklist card (collapsible symptom → causes), "log a watering" form (note + optional amount/method), care-tasks card (watering/fertilizing/repotting with per-type "mark done", hints, add/remove), care journal (dated photo+note entries + before/after comparison), notes section, watering history with monthly bar chart |
+| Plant detail | Plant info (incl. pot size / soil type / soil mix / propagated-from / acquired), photo (or placeholder), toxicity badges, care tips, diagnostics checklist card (collapsible symptom → causes), "log a watering" form (note + optional amount/method), care-tasks card (watering/fertilizing/repotting with per-type "mark done", hints, add/remove), care journal (dated photo+note entries + before/after comparison), notes section, watering history with monthly bar chart |
 | Profiles | Species profile management (`/profiles`): list with plant counts/toxicity badges, create/edit form incl. care tips markdown, toxicity checkboxes and the diagnostics checklist JSON |
 | Plant form | Create/edit plants; species profiles are managed via the API only (no profile form UI yet) |
 | Wall mode (`/wall`) | Read-only auto-refreshing (60s) full-screen route for a home tablet — no shell/nav chrome, big cards + stats strip. Not in the nav; bookmark the URL. Calendar feed for phones: `/calendar.ics` (nginx proxies to `GET /api/calendar.ics`) |
 
 ## API Surface Used
 
-All endpoints under `/api/*` — plants CRUD, rooms CRUD (`GET/POST/PUT/DELETE /api/rooms`), `POST /api/plants/{id}/water`, `POST /api/plants/{id}/photo` (multipart upload), `GET /api/plants/{id}/watering-logs` (detail page history), plant-profiles list/create/update, and the dashboard summary. Shapes are defined by the backend's DTOs (see `backend/docs/README.md`). Uploaded photos are static files served by nginx under `/uploads/*`, outside the API surface.
+All endpoints under `/api/*` — plants CRUD, rooms CRUD (`GET/POST/PUT/DELETE /api/rooms`), `POST /api/plants/{id}/water`, `POST /api/plants/{id}/photo` (multipart upload), `GET /api/plants/{id}/watering-logs` (detail page history), plant-profiles list/create/update, the dashboard summary, and reference data (`GET /api/reference-data/soil-types` for the plant-form soil picker). Shapes are defined by the backend's DTOs (see `backend/docs/README.md`). Uploaded photos are static files served by nginx under `/uploads/*`, outside the API surface.
 
 ## Conventions
 

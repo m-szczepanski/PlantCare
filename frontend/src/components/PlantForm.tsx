@@ -13,9 +13,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { usePlantProfiles } from "@/hooks/usePlantProfiles";
+import { useSoilTypes } from "@/hooks/useSoilTypes";
 import { useCreateRoom, useRooms } from "@/hooks/useRooms";
+import { applySoilFactor } from "@/lib/soilTypes";
 import { touchButton, touchField } from "@/lib/ui";
-import type { Plant, PlantInput } from "@/api/types";
+import type { Plant, PlantInput, SoilType } from "@/api/types";
 
 function toDateValue(iso: string | null | undefined): string {
   return iso ? iso.slice(0, 10) : "";
@@ -38,6 +40,7 @@ export interface PlantFormProps {
 export function PlantForm({ initial, submitting, error, fieldErrors = {}, submitLabel, onSubmit, onCancel }: PlantFormProps) {
   const { t, i18n } = useTranslation();
   const { data: profiles = [] } = usePlantProfiles();
+  const { data: soilTypes = [] } = useSoilTypes();
   const { data: rooms = [] } = useRooms();
   const createRoom = useCreateRoom();
 
@@ -47,6 +50,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
   const [photoUrl, setPhotoUrl] = useState(initial?.photoUrl ?? "");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [potSizeCm, setPotSizeCm] = useState(initial?.potSizeCm?.toString() ?? "");
+  const [soilType, setSoilType] = useState<SoilType | null>(initial?.soilType ?? null);
   const [soilMix, setSoilMix] = useState(initial?.soilMix ?? "");
   const [propagatedFrom, setPropagatedFrom] = useState(initial?.propagatedFrom ?? "");
   const [notifyEnabled, setNotifyEnabled] = useState<boolean>(initial?.notifyEnabled ?? true);
@@ -60,13 +64,14 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
 
   const selectedProfile = profiles.find((profile) => profile.id === profileId);
   const customDays = customInterval.trim() === "" ? null : Number(customInterval);
-  const effectiveInterval =
+  const baseInterval =
     customDays !== null && Number.isFinite(customDays)
       ? customDays
       : selectedProfile?.defaultWateringIntervalDays ?? null;
+  const effectiveInterval = applySoilFactor(soilTypes, soilType, baseInterval);
 
   const nextDuePreview = (() => {
-    if (effectiveInterval === null || !Number.isInteger(effectiveInterval) || effectiveInterval < 1) {
+    if (effectiveInterval === null) {
       return t("form.noSchedulePreview");
     }
     const base = lastWateredAt ? new Date(`${lastWateredAt}T00:00:00`) : new Date();
@@ -76,6 +81,17 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
       (dueMidnight.getTime() - new Date().setHours(0, 0, 0, 0)) / 86_400_000,
     );
     return t("form.nextDuePreview", { date: due.toLocaleDateString(i18n.language), when: daysFromToday === 0 ? t("form.today") : t("form.inDays", { count: daysFromToday }) });
+  })();
+
+  const soilHint = (() => {
+    if (!soilType || baseInterval === null || effectiveInterval === null || effectiveInterval === baseInterval) {
+      return null;
+    }
+    return t("form.soilTypeHint", {
+      soil: t(`soilType.${soilType}`),
+      from: baseInterval,
+      to: effectiveInterval,
+    });
   })();
 
   function handleSubmit(event: FormEvent) {
@@ -90,6 +106,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
         roomId,
         photoUrl: photoUrl.trim() || null,
         potSizeCm: potSizeCm.trim() === "" ? null : Number(potSizeCm),
+        soilType,
         soilMix: soilMix.trim() || null,
         propagatedFrom: propagatedFrom.trim() || null,
         notifyEnabled,
@@ -256,15 +273,36 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
           <FieldError message={fieldErrors.potSizeCm} />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="soilMix">{t("form.soilMix")}</Label>
-          <Input
-            id="soilMix"
-            value={soilMix}
-            onChange={(e) => setSoilMix(e.target.value)}
-            placeholder={t("form.soilMixPlaceholder")}
-            className={touchField}
-          />
+          <Label htmlFor="soilType">{t("form.soilType")}</Label>
+          <Select
+            value={soilType ?? "none"}
+            onValueChange={(value) => setSoilType(value === "none" ? null : (value as SoilType))}
+          >
+            <SelectTrigger id="soilType" className={touchField}>
+              <SelectValue placeholder={t("form.soilTypeNone")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">{t("form.soilTypeNone")}</SelectItem>
+              {soilTypes.map((option) => (
+                <SelectItem key={option.type} value={option.type}>
+                  {t(`soilType.${option.type}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {soilHint ? <p className="text-xs text-muted-foreground">{soilHint}</p> : null}
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="soilMix">{t("form.soilMix")}</Label>
+        <Input
+          id="soilMix"
+          value={soilMix}
+          onChange={(e) => setSoilMix(e.target.value)}
+          placeholder={t("form.soilMixPlaceholder")}
+          className={touchField}
+        />
       </div>
 
       <div className="space-y-2">

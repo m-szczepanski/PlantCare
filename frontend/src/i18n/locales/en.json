@@ -104,6 +104,14 @@
     "directSun": "Direct sun",
     "level": { "Low": "Low", "Medium": "Medium", "Bright": "Bright", "DirectSun": "Direct sun" }
   },
+  "soilType": {
+    "AllPurpose": "All-purpose potting mix",
+    "CactusMix": "Cactus & succulent mix (fast draining)",
+    "ChunkyBark": "Chunky bark / orchid mix (very fast draining)",
+    "PeatCoco": "Peat / coco coir (holds moisture)",
+    "SemiHydro": "Semi-hydroton (LECA)",
+    "SelfWatering": "Self-watering pot (reservoir)"
+  },
   "careTips": {
     "title": "Care tips — {{name}}",
     "light": "Light",
@@ -167,6 +175,9 @@
     "lastWatered": "Last watered",
     "photoUrl": "Photo URL (external, advanced)",
     "potSize": "Pot size (cm)",
+    "soilType": "Soil type",
+    "soilTypeNone": "Not specified",
+    "soilTypeHint": "{{soil}} changes watering from {{from}} to {{to}} days",
     "soilMix": "Soil mix",
     "soilMixPlaceholder": "Aroid chunky blend",
     "propagatedFrom": "Propagated from",
@@ -408,6 +419,7 @@
     "potSize": "Pot size",
     "potSizeValue": "{{cm}} cm",
     "notRecorded": "Not recorded",
+    "soilType": "Soil type",
     "wateringInterval": "Watering interval",
     "nextDue": "Next due",
     "reminders": "Reminders",

@@ -25,19 +25,23 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
 
     public PlantDueInfo GetDueInfo(CareTask? wateringTask, Plant plant, DateOnly today)
     {
+        var isWatering = (wateringTask?.Type ?? CareTaskType.Watering) == CareTaskType.Watering;
+
         var intervalDays = wateringTask?.IntervalDays
-            ?? (((wateringTask?.Type ?? CareTaskType.Watering) == CareTaskType.Watering)
-                ? plant.PlantProfile?.DefaultWateringIntervalDays
-                : null);
+            ?? (isWatering ? plant.PlantProfile?.DefaultWateringIntervalDays : null);
 
         if (intervalDays is null or <= 0)
         {
             return new PlantDueInfo(PlantDueStatus.NotScheduled, null, null, null, localizer.T("due.none"));
         }
 
+        var baseInterval = intervalDays.Value;
+        // Substrate permeability only scales the watering schedule (not fertilizing/repotting).
+        var effectiveInterval = isWatering ? SoilTypes.AdjustInterval(plant.SoilType, baseInterval) : baseInterval;
+
         var reduceInWinter = wateringTask?.ReduceInWinter ?? plant.PlantProfile?.DefaultReduceInWinter ?? false;
         var winter = isWinter(today);
-        var effectiveInterval = reduceInWinter && winter ? intervalDays.Value * 2 : intervalDays.Value;
+        effectiveInterval = reduceInWinter && winter ? effectiveInterval * 2 : effectiveInterval;
 
         var anchor = DateOnly.FromDateTime((wateringTask?.LastDoneAt ?? plant.AcquiredDate).Date);
         var nextDue = anchor.AddDays(effectiveInterval);

@@ -110,6 +110,14 @@
     "directSun": "Pełne słońce",
     "level": { "Low": "Słabe", "Medium": "Średnie", "Bright": "Jasne", "DirectSun": "Pełne słońce" }
   },
+  "soilType": {
+    "AllPurpose": "Uniwersowe podłoże",
+    "CactusMix": "Mieszanka dla kaktusów i sukulentów (szybko przesycha)",
+    "ChunkyBark": "Grube podłoże korowe / dla storczyków (bardzo szybko przesycha)",
+    "PeatCoco": "Torfowe / kokosowe (trzyma wilgoć)",
+    "SemiHydro": "Półhydroponik (keramzyt LECA)",
+    "SelfWatering": "Doniczka z systemem nawadniania (zbiornik)"
+  },
   "careTips": {
     "title": "Wskazówki — {{name}}",
     "light": "Światło",
@@ -174,6 +182,9 @@
     "lastWatered": "Ostatnio podlano",
     "photoUrl": "Adres URL zdjęcia (zewnętrzny, zaawansowane)",
     "potSize": "Średnica doniczki (cm)",
+    "soilType": "Typ podłoża",
+    "soilTypeNone": "Nieokreślony",
+    "soilTypeHint": "{{soil}} zmienia podlewanie z {{from}} na {{to}} dni",
     "soilMix": "Mieszanka podłoża",
     "soilMixPlaceholder": "Grube podłoże dla obrazkowatych",
     "propagatedFrom": "Pochodzi z",
@@ -427,6 +438,7 @@
     "potSize": "Doniczka",
     "potSizeValue": "{{cm}} cm",
     "notRecorded": "Brak wpisu",
+    "soilType": "Typ podłoża",
     "wateringInterval": "Przedział podlewania",
     "nextDue": "Następne podlanie",
     "reminders": "Przypomnienia",
