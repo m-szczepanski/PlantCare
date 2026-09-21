@@ -315,11 +315,13 @@ export function PlantDetailPage() {
           </CardContent>
         </Card>
 
-        <PlantPhoto
-          photoUrl={plant.photoUrl}
-          nickName={plant.nickName}
-          className="order-1 w-full max-w-xs self-center rounded-lg shadow-sm aspect-[3/4] sm:w-64 lg:order-2 lg:w-72 lg:max-w-none lg:self-stretch lg:aspect-auto lg:h-full xl:w-80"
-        />
+        <div className="relative order-1 aspect-[3/4] w-full max-w-xs self-center overflow-hidden rounded-lg shadow-sm sm:w-64 lg:order-2 lg:w-80 lg:max-w-none lg:aspect-auto lg:self-stretch xl:w-96">
+          <PlantPhoto
+            photoUrl={plant.photoUrl}
+            nickName={plant.nickName}
+            className="absolute inset-0 h-full w-full"
+          />
+        </div>
       </div>
 
       {plant.profileToxicToPets || plant.profileToxicToChildren ? (
