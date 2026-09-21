@@ -31,6 +31,7 @@ function plant(over: Partial<Plant>): Plant {
     propagatedFrom: null,
     notifyEnabled: true,
     snoozedUntil: null,
+    soilWetUntil: null,
     acquiredDate: "2026-01-01T00:00:00",
     plantProfileId: null,
     profileCommonName: null,

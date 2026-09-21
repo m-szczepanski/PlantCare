@@ -250,6 +250,32 @@ export function useSnoozeAllPlants() {
   });
 }
 
+export function useSetSoilWet(id: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (days: number) => plantsApi.soilWet(id, days),
+    onSuccess: (plant) => {
+      queryClient.setQueryData(plantKeys.detail(plant.id), plant);
+      invalidatePlantCaches(queryClient, plant.id);
+      toast.success(i18n.t("toasts.soilWetMarked"), { description: i18n.t("toasts.soilWetMarkedDesc", { name: plant.nickName }) });
+    },
+    onError: (error) => toastError(i18n.t("toasts.soilWetFailed"), error),
+  });
+}
+
+export function useClearSoilWet(id: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => plantsApi.clearSoilWet(id),
+    onSuccess: (plant) => {
+      queryClient.setQueryData(plantKeys.detail(plant.id), plant);
+      invalidatePlantCaches(queryClient, plant.id);
+      toast.success(i18n.t("toasts.soilWetCleared"), { description: i18n.t("toasts.soilWetClearedDesc", { name: plant.nickName }) });
+    },
+    onError: (error) => toastError(i18n.t("toasts.soilWetClearFailed"), error),
+  });
+}
+
 export function useJournalEntries(id: number) {
   return useQuery({
     queryKey: plantKeys.journal(id),

@@ -109,6 +109,9 @@ export const plantsApi = {
   clearSnooze: (id: number) => request<Plant>(`/plants/${id}/snooze`, { method: "DELETE" }),
   snoozeAll: (days: number) =>
     request<{ snoozedPlants: number }>(`/plants/snooze-all`, { method: "POST", body: JSON.stringify({ days }) }),
+  soilWet: (id: number, days: number) =>
+    request<Plant>(`/plants/${id}/soil-wet`, { method: "POST", body: JSON.stringify({ days }) }),
+  clearSoilWet: (id: number) => request<Plant>(`/plants/${id}/soil-wet`, { method: "DELETE" }),
   journal: (id: number) => request<JournalEntry[]>(`/plants/${id}/journal`),
   addJournalEntry: async (id: number, input: { entryDate?: string; text?: string; file?: File | null }): Promise<JournalEntry> => {
     const form = new FormData();

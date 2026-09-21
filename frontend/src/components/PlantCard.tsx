@@ -16,7 +16,9 @@ interface PlantCardProps {
 }
 
 export function PlantCard({ plant, onWater, isWatering }: PlantCardProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const soilWetActive =
+    !!plant.soilWetUntil && new Date(plant.soilWetUntil).getTime() > Date.now();
   return (
     <Card
       data-plant-card={plant.id}
@@ -55,6 +57,14 @@ export function PlantCard({ plant, onWater, isWatering }: PlantCardProps) {
           <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1">
             <DueStatusBadge plant={plant} />
             <span className="text-xs text-muted-foreground">{wateredRelative(plant.lastWateredAt)}</span>
+            {soilWetActive ? (
+              <span className="flex items-center gap-1 text-xs text-muted-foreground" role="status">
+                <Droplets className="h-3 w-3" aria-hidden="true" />
+                {t("plant.soilWetUntil", {
+                  date: new Date(plant.soilWetUntil as string).toLocaleDateString(i18n.language),
+                })}
+              </span>
+            ) : null}
             {onWater ? (
               <Button
                 size="sm"

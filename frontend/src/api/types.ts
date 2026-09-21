@@ -85,6 +85,7 @@ export interface Plant {
   propagatedFrom: string | null;
   notifyEnabled: boolean;
   snoozedUntil: string | null;
+  soilWetUntil: string | null;
   acquiredDate: string;
   plantProfileId: number | null;
   profileCommonName: string | null;

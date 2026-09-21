@@ -41,9 +41,11 @@ import {
 } from "@/components/ui/select";
 import {
   useAddPlantNote,
+  useClearSoilWet,
   useDeletePlant,
   usePlant,
   usePlantNotes,
+  useSetSoilWet,
   useSnoozePlant,
   useUnsnoozePlant,
   useUploadPlantPhoto,
@@ -73,7 +75,10 @@ export function PlantDetailPage() {
   const addNote = useAddPlantNote(plantId);
   const snooze = useSnoozePlant(plantId);
   const unsnooze = useUnsnoozePlant(plantId);
+  const setSoilWet = useSetSoilWet(plantId);
+  const clearSoilWet = useClearSoilWet(plantId);
   const [snoozeDays, setSnoozeDays] = useState("14");
+  const [soilWetDays, setSoilWetDays] = useState("3");
   const [noteText, setNoteText] = useState("");
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -207,6 +212,48 @@ export function PlantDetailPage() {
                     onClick={() => snooze.mutate(Number(snoozeDays))}
                   >
                     {t("detail.snoozeReminders")}
+                  </Button>
+                </>
+              )}
+            </dd>
+          </div>
+
+          <div>
+            <dt className="text-muted-foreground">{t("detail.soilWet")}</dt>
+            <dd className="flex flex-wrap items-center gap-2">
+              {plant.soilWetUntil && new Date(plant.soilWetUntil) > new Date() ? (
+                <>
+                  <span className="text-muted-foreground">
+                    {t("detail.soilWetUntil", { date: new Date(plant.soilWetUntil).toLocaleDateString(i18n.language) })}
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={clearSoilWet.isPending}
+                    onClick={() => clearSoilWet.mutate()}
+                  >
+                    {t("detail.soilWetCheckNow")}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <select
+                    aria-label={t("detail.soilWetDaysAria")}
+                    value={soilWetDays}
+                    onChange={(event) => setSoilWetDays(event.target.value)}
+                    className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
+                  >
+                    {[2, 3, 5, 7].map((days) => (
+                      <option key={days} value={String(days)}>{t("common.days", { count: days })}</option>
+                    ))}
+                  </select>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={setSoilWet.isPending}
+                    onClick={() => setSoilWet.mutate(Number(soilWetDays))}
+                  >
+                    {t("detail.soilWetMark")}
                   </Button>
                 </>
               )}
