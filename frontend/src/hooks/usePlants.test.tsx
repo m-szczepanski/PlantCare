@@ -34,6 +34,7 @@ const plant: Plant = {
   roomName: "Shelf",
   photoUrl: null,
   potSizeCm: null,
+  soilType: null,
   soilMix: null,
   propagatedFrom: null,
   notifyEnabled: true,

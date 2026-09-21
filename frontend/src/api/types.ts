@@ -2,6 +2,19 @@ export type PlantDueStatus = "NotScheduled" | "Overdue" | "DueToday" | "Upcoming
 
 export type CareTaskType = "Watering" | "Fertilizing" | "Repotting";
 
+export type SoilType =
+  | "AllPurpose"
+  | "SandyGrit"
+  | "ChunkyBark"
+  | "PeatCoco"
+  | "SemiHydro"
+  | "SelfWatering";
+
+export interface SoilTypeOption {
+  type: SoilType;
+  wateringIntervalFactor: number;
+}
+
 export interface CareTask {
   id: number;
   type: CareTaskType;
@@ -67,6 +80,7 @@ export interface Plant {
   roomName: string | null;
   photoUrl: string | null;
   potSizeCm: number | null;
+  soilType: SoilType | null;
   soilMix: string | null;
   propagatedFrom: string | null;
   notifyEnabled: boolean;
@@ -234,6 +248,7 @@ export interface PlantInput {
   roomId?: number | null;
   photoUrl?: string | null;
   potSizeCm?: number | null;
+  soilType?: SoilType | null;
   soilMix?: string | null;
   propagatedFrom?: string | null;
   notifyEnabled?: boolean;

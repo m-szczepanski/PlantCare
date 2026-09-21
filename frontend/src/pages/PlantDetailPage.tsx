@@ -165,6 +165,7 @@ export function PlantDetailPage() {
           <Field label={t("detail.acquired")} value={formatDate(plant.acquiredDate, i18n.language)} />
           <Field label={t("form.lastWatered")} value={formatInstant(plant.lastWateredAt, false)} />
           <Field label={t("detail.potSize")} value={plant.potSizeCm ? t("detail.potSizeValue", { cm: plant.potSizeCm }) : t("room.unknown")} />
+          <Field label={t("detail.soilType")} value={plant.soilType ? t(`soilType.${plant.soilType}`) : t("detail.notRecorded")} />
           <Field label={t("form.soilMix")} value={plant.soilMix ?? t("detail.notRecorded")} />
           <Field label={t("form.propagatedFrom")} value={plant.propagatedFrom ?? t("detail.notRecorded")} />
           <Field label={t("detail.wateringInterval")} value={plant.wateringIntervalDays ? t("common.days", { count: plant.wateringIntervalDays }) : t("due.notScheduled")} />

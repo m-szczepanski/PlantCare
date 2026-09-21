@@ -1,4 +1,4 @@
-import type { CareTask, CareTaskType, Dashboard, ImportResult, Insights, JournalEntry, Plant, PlantInput, PlantNote, PlantProfile, PlantProfileInput, PlantProfileOption, Room, RoomInput, StatusInfo, WaterDetails, WateringLogEntry } from "./types";
+import type { CareTask, CareTaskType, Dashboard, ImportResult, Insights, JournalEntry, Plant, PlantInput, PlantNote, PlantProfile, PlantProfileInput, PlantProfileOption, Room, RoomInput, SoilTypeOption, StatusInfo, WaterDetails, WateringLogEntry } from "./types";
 import { apiHeaders } from "./headers";
 
 export interface HealthResponse {
@@ -140,6 +140,10 @@ export const roomsApi = {
   update: (id: number, input: RoomInput) =>
     request<Room>(`/rooms/${id}`, { method: "PUT", body: JSON.stringify(input) }),
   remove: (id: number) => request<void>(`/rooms/${id}`, { method: "DELETE" }),
+};
+
+export const referenceDataApi = {
+  soilTypes: () => request<SoilTypeOption[]>("/reference-data/soil-types"),
 };
 
 export const dashboardApi = {
