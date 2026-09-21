@@ -91,6 +91,7 @@ Plant (user's owned instance)
 - SoilType (nullable enum: AllPurpose/CactusMix/ChunkyBark/PeatCoco/SemiHydro/SelfWatering — its water permeability scales the watering interval)
 - CustomWateringIntervalDays (nullable — overrides profile default)
 - LastWateredAt
+- SoilWetUntil (nullable — "soil is still wet" deferral that pushes the watering due date out to this instant)
 
 WateringLog
 - Id
