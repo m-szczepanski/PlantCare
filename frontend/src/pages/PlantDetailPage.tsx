@@ -143,22 +143,75 @@ export function PlantDetailPage() {
       <Breadcrumbs
         items={[{ label: t("common.home"), to: "/" }, { label: t("plants.title"), to: "/plants" }, { label: plant.nickName }]}
       />
-      <div className="flex items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold break-words">{plant.nickName}</h1>
-        <DueStatusBadge plant={plant} />
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h1 className="text-2xl font-bold break-words">{plant.nickName}</h1>
+          <DueStatusBadge plant={plant} />
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            className="hidden"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              event.target.value = "";
+              if (!file) return;
+              const errorKey = photoFileError(file);
+              if (errorKey) {
+                toast.error(i18n.t("toasts.photoUploadFailed"), { description: i18n.t(errorKey, { max: PHOTO_MAX_BYTES / 1024 / 1024 }) });
+                return;
+              }
+              uploadPhoto.mutate(file);
+            }}
+          />
+          <Button onClick={waterNow} disabled={waterPlant.isPending} className={touchButton}>
+            {waterPlant.isPending ? t("plant.watering") : t("detail.markWatered")}
+          </Button>
+          <Button variant="secondary" onClick={() => photoInputRef.current?.click()} disabled={uploadPhoto.isPending} className={touchButton}>
+            {uploadPhoto.isPending ? t("detail.uploading") : plant.photoUrl ? t("detail.changePhoto") : t("detail.uploadPhoto")}
+          </Button>
+          <Button asChild className={touchButton}>
+            <Link to={`/plants/${plant.id}/edit`}>{t("common.edit")}</Link>
+          </Button>
+          <Button variant="outline" asChild className={touchButton}>
+            <Link to="/plants">{t("detail.backToList")}</Link>
+          </Button>
+          <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" disabled={deletePlant.isPending} className={touchButton}>
+                {deletePlant.isPending ? t("detail.deleting") : t("common.delete")}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{t("detail.deleteTitle", { name: plant.nickName })}</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {t("detail.deleteDescription")}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  onClick={handleDelete}
+                >
+                  {t("common.delete")}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
 
-      <PlantPhoto
-        photoUrl={plant.photoUrl}
-        nickName={plant.nickName}
-        className="h-64 w-full sm:h-72"
-      />
-
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("detail.title")}</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+        <Card className="order-2 min-w-0 flex-1 lg:order-1">
+          <CardHeader>
+            <CardTitle>{t("detail.title")}</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
           <div>
             <dt className="text-muted-foreground">{t("form.room")}</dt>
             <dd className="flex flex-wrap items-center gap-2 font-medium">
@@ -259,8 +312,15 @@ export function PlantDetailPage() {
               )}
             </dd>
           </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+        <PlantPhoto
+          photoUrl={plant.photoUrl}
+          nickName={plant.nickName}
+          className="order-1 aspect-[3/4] w-full max-w-xs self-center rounded-lg shadow-sm sm:w-64 lg:order-2 lg:w-72 lg:max-w-none lg:self-start xl:w-80"
+        />
+      </div>
 
       {plant.profileToxicToPets || plant.profileToxicToChildren ? (
         <div className="flex flex-wrap gap-2" role="status">
@@ -405,62 +465,6 @@ export function PlantDetailPage() {
           )}
         </CardContent>
       </Card>
-
-      <div className="flex flex-wrap gap-2">
-        <input
-          ref={photoInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
-          className="hidden"
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-            event.target.value = "";
-            if (!file) return;
-            const errorKey = photoFileError(file);
-            if (errorKey) {
-              toast.error(i18n.t("toasts.photoUploadFailed"), { description: i18n.t(errorKey, { max: PHOTO_MAX_BYTES / 1024 / 1024 }) });
-              return;
-            }
-            uploadPhoto.mutate(file);
-          }}
-        />
-        <Button onClick={waterNow} disabled={waterPlant.isPending} className={touchButton}>
-          {waterPlant.isPending ? t("plant.watering") : t("detail.markWatered")}
-        </Button>
-        <Button variant="secondary" onClick={() => photoInputRef.current?.click()} disabled={uploadPhoto.isPending} className={touchButton}>
-          {uploadPhoto.isPending ? t("detail.uploading") : plant.photoUrl ? t("detail.changePhoto") : t("detail.uploadPhoto")}
-        </Button>
-        <Button asChild className={touchButton}>
-          <Link to={`/plants/${plant.id}/edit`}>{t("common.edit")}</Link>
-        </Button>
-        <Button variant="outline" asChild className={touchButton}>
-          <Link to="/plants">{t("detail.backToList")}</Link>
-        </Button>
-        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <AlertDialogTrigger asChild>
-            <Button variant="destructive" disabled={deletePlant.isPending} className={touchButton}>
-              {deletePlant.isPending ? t("detail.deleting") : t("common.delete")}
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{t("detail.deleteTitle", { name: plant.nickName })}</AlertDialogTitle>
-              <AlertDialogDescription>
-                {t("detail.deleteDescription")}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
-              <AlertDialogAction
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                onClick={handleDelete}
-              >
-                {t("common.delete")}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
     </div>
   );
 }
