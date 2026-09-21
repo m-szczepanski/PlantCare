@@ -1,4 +1,4 @@
-import type { CareTask, CareTaskType, Dashboard, ImportResult, Insights, JournalEntry, Plant, PlantInput, PlantNote, PlantProfile, PlantProfileInput, PlantProfileOption, Room, RoomInput, SoilTypeOption, StatusInfo, WaterDetails, WateringLogEntry } from "./types";
+import type { CareTask, CareTaskType, Dashboard, ImportResult, Insights, JournalEntry, Plant, PlantInput, PlantNote, PlantProfile, PlantProfileInput, PlantProfileOption, Room, RoomInput, SoilMixOption, SoilTypeOption, StatusInfo, WaterDetails, WateringLogEntry } from "./types";
 import { apiHeaders } from "./headers";
 
 export interface HealthResponse {
@@ -147,6 +147,7 @@ export const roomsApi = {
 
 export const referenceDataApi = {
   soilTypes: () => request<SoilTypeOption[]>("/reference-data/soil-types"),
+  soilMixes: () => request<SoilMixOption[]>("/reference-data/soil-mixes"),
 };
 
 export const dashboardApi = {
