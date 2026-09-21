@@ -75,6 +75,7 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
                 PropagatedFrom = p.PropagatedFrom,
                 NotifyEnabled = p.NotifyEnabled,
                 SnoozedUntil = p.SnoozedUntil,
+                SoilWetUntil = p.SoilWetUntil,
                 CareTasks = p.CareTasks.OrderBy(t => t.Type).Select(t => new ExportCareTaskDto
                 {
                     Type = t.Type,
@@ -188,6 +189,7 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
                 PropagatedFrom = plant.PropagatedFrom,
                 NotifyEnabled = plant.NotifyEnabled,
                 SnoozedUntil = plant.SnoozedUntil,
+                SoilWetUntil = plant.SoilWetUntil,
             };
 
             foreach (var task in plant.CareTasks)

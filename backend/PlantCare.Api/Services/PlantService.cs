@@ -57,6 +57,10 @@ public interface IPlantService
     Task<PlantResponseDto?> ClearSnoozeAsync(int id, CancellationToken cancellationToken = default);
 
     Task<int> SnoozeAllAsync(int days, CancellationToken cancellationToken = default);
+
+    Task<PlantResponseDto?> SetSoilWetAsync(int id, int days, CancellationToken cancellationToken = default);
+
+    Task<PlantResponseDto?> ClearSoilWetAsync(int id, CancellationToken cancellationToken = default);
 }
 
 public sealed class PlantService(AppDbContext db, IWateringScheduleService schedule, FeatureFlags features, IPlantPhotoStorage photos, IAppLocalizer localizer) : IPlantService
@@ -198,6 +202,8 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         var wateredAt = DateTime.UtcNow;
         var watering = WateringTask(plant) ?? NewWateringTask(plant);
         watering.LastDoneAt = wateredAt;
+        // Watering resolves a "soil still wet" deferral.
+        plant.SoilWetUntil = null;
         watering.Logs.Add(new CareTaskLog
         {
             DoneAt = wateredAt,
@@ -390,6 +396,44 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         return plants.Count;
     }
 
+    public async Task<PlantResponseDto?> SetSoilWetAsync(int id, int days, CancellationToken cancellationToken = default)
+    {
+        var plant = await db.Plants
+            .Include(p => p.PlantProfile!.Translations)
+            .Include(p => p.Room)
+            .Include(p => p.CareTasks)
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        if (plant is null)
+        {
+            return null;
+        }
+
+        var now = DateTime.UtcNow;
+        var from = plant.SoilWetUntil is { } existing && existing > now ? existing : now;
+        plant.SoilWetUntil = from.AddDays(days);
+        await db.SaveChangesAsync(cancellationToken);
+
+        return ToResponse(plant);
+    }
+
+    public async Task<PlantResponseDto?> ClearSoilWetAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var plant = await db.Plants
+            .Include(p => p.PlantProfile!.Translations)
+            .Include(p => p.Room)
+            .Include(p => p.CareTasks)
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        if (plant is null)
+        {
+            return null;
+        }
+
+        plant.SoilWetUntil = null;
+        await db.SaveChangesAsync(cancellationToken);
+
+        return ToResponse(plant);
+    }
+
     public async Task<IReadOnlyList<PlantNoteResponseDto>?> GetNotesAsync(int id, CancellationToken cancellationToken = default)
     {
         if (!await db.Plants.AnyAsync(p => p.Id == id, cancellationToken))
@@ -484,6 +528,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             PropagatedFrom = plant.PropagatedFrom,
             NotifyEnabled = plant.NotifyEnabled,
             SnoozedUntil = plant.SnoozedUntil,
+            SoilWetUntil = plant.SoilWetUntil,
             AcquiredDate = plant.AcquiredDate,
             PlantProfileId = plant.PlantProfileId,
             ProfileCommonName = ProfileTranslations.LocalizedCommonName(profile, translation) ?? plant.PlantProfile?.CommonName,

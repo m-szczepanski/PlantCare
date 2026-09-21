@@ -31,6 +31,12 @@ public class Plant
     /// <summary>Vacation snooze: reminders are skipped until this instant.</summary>
     public DateTime? SnoozedUntil { get; set; }
 
+    /// <summary>
+    /// Soil-wet deferral: the watering is not needed yet, so the due date is
+    /// pushed out to this instant (the plant re-presents as due once it passes).
+    /// </summary>
+    public DateTime? SoilWetUntil { get; set; }
+
     public DateTime AcquiredDate { get; set; }
 
     public List<CareTask> CareTasks { get; set; } = [];
