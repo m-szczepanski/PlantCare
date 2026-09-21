@@ -53,6 +53,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         modelBuilder.Entity<Plant>(entity =>
         {
+            entity.Property(p => p.SoilType).HasConversion<string>();
+
             entity.HasOne(p => p.PlantProfile)
                 .WithMany(pp => pp.Plants)
                 .HasForeignKey(p => p.PlantProfileId)

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using PlantCare.Api.Models;
 
 namespace PlantCare.Api.Dtos;
 
@@ -15,6 +16,8 @@ public class UpdatePlantRequestDto
 
     [Range(1, 200)]
     public int? PotSizeCm { get; set; }
+
+    public SoilType? SoilType { get; set; }
 
     [StringLength(200)]
     public string? SoilMix { get; set; }
