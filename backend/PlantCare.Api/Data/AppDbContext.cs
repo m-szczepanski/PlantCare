@@ -25,12 +25,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<PlantProfileTranslation> PlantProfileTranslations => Set<PlantProfileTranslation>();
 
+    public DbSet<SoilMix> SoilMixes => Set<SoilMix>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<PlantProfile>(entity =>
         {
             entity.Property(p => p.LightRequirement).HasConversion<string>();
             entity.HasIndex(p => p.CommonName).IsUnique();
+        });
+
+        modelBuilder.Entity<SoilMix>(entity =>
+        {
+            entity.HasIndex(m => m.Name).IsUnique();
         });
 
         modelBuilder.Entity<PlantProfileTranslation>(entity =>

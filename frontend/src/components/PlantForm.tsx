@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { usePlantProfiles } from "@/hooks/usePlantProfiles";
+import { useSoilMixes } from "@/hooks/useSoilMixes";
 import { useSoilTypes } from "@/hooks/useSoilTypes";
 import { useCreateRoom, useRooms } from "@/hooks/useRooms";
 import { applySoilFactor } from "@/lib/soilTypes";
@@ -41,6 +42,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
   const { t, i18n } = useTranslation();
   const { data: profiles = [] } = usePlantProfiles();
   const { data: soilTypes = [] } = useSoilTypes();
+  const { data: soilMixes = [] } = useSoilMixes();
   const { data: rooms = [] } = useRooms();
   const createRoom = useCreateRoom();
 
@@ -63,6 +65,10 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
   const [reduceInWinter, setReduceInWinter] = useState<boolean>(initial?.reduceInWinter ?? false);
 
   const selectedProfile = profiles.find((profile) => profile.id === profileId);
+
+  const soilMixNames = soilMixes.map((mix) => mix.name);
+  const soilMixOptions =
+    soilMix !== "" && !soilMixNames.includes(soilMix) ? [soilMix, ...soilMixNames] : soilMixNames;
   const customDays = customInterval.trim() === "" ? null : Number(customInterval);
   const baseInterval =
     customDays !== null && Number.isFinite(customDays)
@@ -296,13 +302,22 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
 
       <div className="space-y-2">
         <Label htmlFor="soilMix">{t("form.soilMix")}</Label>
-        <Input
-          id="soilMix"
-          value={soilMix}
-          onChange={(e) => setSoilMix(e.target.value)}
-          placeholder={t("form.soilMixPlaceholder")}
-          className={touchField}
-        />
+        <Select
+          value={soilMix === "" ? "none" : soilMix}
+          onValueChange={(value) => setSoilMix(value === "none" ? "" : value)}
+        >
+          <SelectTrigger id="soilMix" className={touchField}>
+            <SelectValue placeholder={t("form.soilMixNone")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">{t("form.soilMixNone")}</SelectItem>
+            {soilMixOptions.map((name) => (
+              <SelectItem key={name} value={name}>
+                {name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">

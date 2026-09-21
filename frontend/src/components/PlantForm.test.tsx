@@ -17,6 +17,10 @@ vi.mock("@/api/client", () => ({
       { type: "SemiHydro", wateringIntervalFactor: 1.3 },
       { type: "SelfWatering", wateringIntervalFactor: 1.5 },
     ]),
+    soilMixes: vi.fn().mockResolvedValue([
+      { id: 1, name: "Aroid chunky blend" },
+      { id: 2, name: "Cactus & succulent mix" },
+    ]),
   },
   ApiError: class ApiError extends Error {},
 }));
@@ -229,6 +233,54 @@ describe("PlantForm", () => {
 
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ soilType: "SemiHydro", customWateringIntervalDays: 10 }),
+      null,
+    );
+  });
+
+  it("passes the selected soil mix through to onSubmit", async () => {
+    const onSubmit = vi.fn();
+    const { container } = renderWithProviders(
+      <PlantForm
+        submitting={false}
+        submitLabel="Create plant"
+        onSubmit={onSubmit}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    // The catalog is fetched from the DB and offered as a single-choice picker.
+    const trigger = await screen.findByRole("combobox", { name: "Soil mix" });
+    expect(container.querySelector('input#soilMix')).toBeNull();
+    fireEvent.click(trigger);
+    fireEvent.click(await screen.findByRole("option", { name: "Cactus & succulent mix" }));
+
+    fireEvent.change(screen.getByLabelText("Nick name"), { target: { value: "Pat" } });
+    fireEvent.click(screen.getByRole("button", { name: "Create plant" }));
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ soilMix: "Cactus & succulent mix" }),
+      null,
+    );
+  });
+
+  it("preserves a legacy free-text soil mix not present in the catalog", async () => {
+    const onSubmit = vi.fn();
+    renderWithProviders(
+      <PlantForm
+        initial={{ ...basePlant, soilMix: "Grandma's secret blend" }}
+        submitting={false}
+        submitLabel="Update details"
+        onSubmit={onSubmit}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    const trigger = await screen.findByRole("combobox", { name: "Soil mix" });
+    expect(trigger).toHaveTextContent("Grandma's secret blend");
+
+    fireEvent.click(screen.getByRole("button", { name: "Update details" }));
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ soilMix: "Grandma's secret blend" }),
       null,
     );
   });
