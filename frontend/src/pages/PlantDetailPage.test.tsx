@@ -230,7 +230,11 @@ describe("PlantDetailPage", () => {
     renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
 
     const img = await screen.findByRole("img", { name: "Monstera Mike" });
-    expect(img).toHaveClass("aspect-[3/4]", "lg:order-2", "lg:aspect-auto", "lg:self-stretch");
+    // The img fills an absolutely-positioned wrapper; the wrapper (not the img)
+    // carries the stretch classes so flexbox sizes it to the details card.
+    const wrapper = img.parentElement as HTMLElement;
+    expect(img).toHaveClass("absolute", "inset-0", "h-full");
+    expect(wrapper).toHaveClass("aspect-[3/4]", "lg:aspect-auto", "lg:self-stretch", "lg:order-2");
   });
 
   it("confirms deletion in a dialog", async () => {
