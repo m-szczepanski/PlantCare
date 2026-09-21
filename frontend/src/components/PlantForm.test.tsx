@@ -11,7 +11,7 @@ vi.mock("@/api/client", () => ({
   referenceDataApi: {
     soilTypes: vi.fn().mockResolvedValue([
       { type: "AllPurpose", wateringIntervalFactor: 1 },
-      { type: "SandyGrit", wateringIntervalFactor: 0.7 },
+      { type: "CactusMix", wateringIntervalFactor: 0.7 },
       { type: "ChunkyBark", wateringIntervalFactor: 0.55 },
       { type: "PeatCoco", wateringIntervalFactor: 1.15 },
       { type: "SemiHydro", wateringIntervalFactor: 1.3 },

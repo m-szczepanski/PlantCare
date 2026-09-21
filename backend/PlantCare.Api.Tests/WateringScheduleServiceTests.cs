@@ -207,7 +207,7 @@ public class WateringScheduleServiceTests
 
     [Theory]
     [InlineData(SoilType.ChunkyBark, 10, 6)]
-    [InlineData(SoilType.SandyGrit, 10, 7)]
+    [InlineData(SoilType.CactusMix, 10, 7)]
     [InlineData(SoilType.PeatCoco, 10, 12)]
     [InlineData(SoilType.SemiHydro, 10, 13)]
     [InlineData(SoilType.SelfWatering, 10, 15)]
@@ -224,7 +224,7 @@ public class WateringScheduleServiceTests
     public void FastDrainingSoil_CanPushAPlantToOverdue()
     {
         // 10-day schedule in fast-draining soil becomes 7 days: the 3-7 watering is now 1 day overdue.
-        var plant = Plant(intervalDays: 10, lastDoneAt: new DateTime(2026, 3, 7), soilType: SoilType.SandyGrit);
+        var plant = Plant(intervalDays: 10, lastDoneAt: new DateTime(2026, 3, 7), soilType: SoilType.CactusMix);
 
         var due = _service.GetDueInfo(Watering(plant), plant, Today);
 

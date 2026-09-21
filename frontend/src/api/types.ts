@@ -4,7 +4,7 @@ export type CareTaskType = "Watering" | "Fertilizing" | "Repotting";
 
 export type SoilType =
   | "AllPurpose"
-  | "SandyGrit"
+  | "CactusMix"
   | "ChunkyBark"
   | "PeatCoco"
   | "SemiHydro"

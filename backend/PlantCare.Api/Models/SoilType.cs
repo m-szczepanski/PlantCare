@@ -9,7 +9,7 @@ namespace PlantCare.Api.Models;
 public enum SoilType
 {
     AllPurpose,
-    SandyGrit,
+    CactusMix,
     ChunkyBark,
     PeatCoco,
     SemiHydro,

@@ -88,7 +88,7 @@ Plant (user's owned instance)
 - Room (FK to a `Room` entity: name + orientation, optional light/humidity/temperature; replaced the old free-text location, migrated from distinct values)
 - PhotoUrl (nullable)
 - AcquiredDate
-- SoilType (nullable enum: AllPurpose/SandyGrit/ChunkyBark/PeatCoco/SemiHydro/SelfWatering — its water permeability scales the watering interval)
+- SoilType (nullable enum: AllPurpose/CactusMix/ChunkyBark/PeatCoco/SemiHydro/SelfWatering — its water permeability scales the watering interval)
 - CustomWateringIntervalDays (nullable — overrides profile default)
 - LastWateredAt
 

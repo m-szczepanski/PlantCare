@@ -4,7 +4,7 @@ import { applySoilFactor, soilFactor } from "@/lib/soilTypes";
 
 const options: SoilTypeOption[] = [
   { type: "AllPurpose", wateringIntervalFactor: 1 },
-  { type: "SandyGrit", wateringIntervalFactor: 0.7 },
+  { type: "CactusMix", wateringIntervalFactor: 0.7 },
   { type: "ChunkyBark", wateringIntervalFactor: 0.55 },
   { type: "PeatCoco", wateringIntervalFactor: 1.15 },
   { type: "SemiHydro", wateringIntervalFactor: 1.3 },
@@ -43,7 +43,7 @@ describe("applySoilFactor", () => {
   });
 
   it("scales up and down", () => {
-    expect(applySoilFactor(options, "SandyGrit", 10)).toBe(7);
+    expect(applySoilFactor(options, "CactusMix", 10)).toBe(7);
     expect(applySoilFactor(options, "SelfWatering", 10)).toBe(15);
   });
 

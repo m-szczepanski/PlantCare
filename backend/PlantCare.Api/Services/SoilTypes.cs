@@ -17,7 +17,7 @@ public static class SoilTypes
     private static readonly Dictionary<SoilType, double> Factors = new()
     {
         [SoilType.AllPurpose] = 1.0,
-        [SoilType.SandyGrit] = 0.7,
+        [SoilType.CactusMix] = 0.7,
         [SoilType.ChunkyBark] = 0.55,
         [SoilType.PeatCoco] = 1.15,
         [SoilType.SemiHydro] = 1.3,
