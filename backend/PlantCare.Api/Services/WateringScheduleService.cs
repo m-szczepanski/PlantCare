@@ -45,6 +45,20 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
 
         var anchor = DateOnly.FromDateTime((wateringTask?.LastDoneAt ?? plant.AcquiredDate).Date);
         var nextDue = anchor.AddDays(effectiveInterval);
+
+        // A "soil still wet" deferral pushes the watering due date out to the recheck
+        // day (never earlier; watering only). The plant leaves the overdue/due buckets
+        // and shows as upcoming, and the daily digest skips it in turn. On the recheck
+        // day the deferral has lapsed and the plant becomes due again.
+        if (isWatering && plant.SoilWetUntil is { } wetUntil)
+        {
+            var recheck = DateOnly.FromDateTime(wetUntil.Date);
+            if (recheck > today && recheck > nextDue)
+            {
+                nextDue = recheck;
+            }
+        }
+
         var daysUntilDue = nextDue.DayNumber - today.DayNumber;
 
         var status = daysUntilDue switch

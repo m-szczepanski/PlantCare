@@ -13,7 +13,7 @@ public class WateringScheduleServiceTests
 
     private static readonly DateOnly WinterDay = new(2026, 1, 15);
 
-    private static Plant Plant(int? intervalDays = null, DateTime? lastDoneAt = null, PlantProfile? profile = null, SoilType? soilType = null)
+    private static Plant Plant(int? intervalDays = null, DateTime? lastDoneAt = null, PlantProfile? profile = null, SoilType? soilType = null, DateTime? soilWetUntil = null)
     {
         var plant = new Plant
         {
@@ -21,6 +21,7 @@ public class WateringScheduleServiceTests
             AcquiredDate = new DateTime(2026, 1, 1),
             PlantProfile = profile,
             SoilType = soilType,
+            SoilWetUntil = soilWetUntil,
         };
         plant.CareTasks.Add(new CareTask
         {
@@ -271,5 +272,85 @@ public class WateringScheduleServiceTests
 
         Assert.Equal(30, due.IntervalDays);
         Assert.Equal(20, due.DaysUntilDue);
+    }
+
+    [Fact]
+    public void SoilWet_DeferralPushesOverdueWateringOutToRecheckDay()
+    {
+        // Overdue by 5 days, but "soil wet until 3-18" -> due on 3-18 (3 days out).
+        var plant = Plant(intervalDays: 7, lastDoneAt: new DateTime(2026, 3, 3), soilWetUntil: new DateTime(2026, 3, 18));
+
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
+
+        Assert.Equal(PlantDueStatus.Upcoming, due.Status);
+        Assert.Equal(3, due.DaysUntilDue);
+        Assert.Equal(new DateOnly(2026, 3, 18), due.NextDueDate);
+    }
+
+    [Fact]
+    public void SoilWet_RecheckDayToday_ResurfacesAsDue()
+    {
+        // Natural due was 3-10; the wet flag held it until 3-15. On the recheck day
+        // the deferral has lapsed, so it comes back as (still) overdue.
+        var plant = Plant(intervalDays: 7, lastDoneAt: new DateTime(2026, 3, 3), soilWetUntil: new DateTime(2026, 3, 15));
+
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
+
+        Assert.Equal(PlantDueStatus.Overdue, due.Status);
+        Assert.Equal(-5, due.DaysUntilDue);
+    }
+
+    [Fact]
+    public void SoilWet_ExpiredDeferral_KeepsOverdueStatus()
+    {
+        var plant = Plant(intervalDays: 7, lastDoneAt: new DateTime(2026, 3, 3), soilWetUntil: new DateTime(2026, 3, 10));
+
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
+
+        Assert.Equal(PlantDueStatus.Overdue, due.Status);
+        Assert.Equal(-5, due.DaysUntilDue);
+    }
+
+    [Fact]
+    public void SoilWet_EarlierThanNaturalDue_DoesNotBringItForward()
+    {
+        // Natural next due is 3-20; a wet flag for 3-17 must not move the due date earlier.
+        var plant = Plant(intervalDays: 7, lastDoneAt: new DateTime(2026, 3, 13), soilWetUntil: new DateTime(2026, 3, 17));
+
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
+
+        Assert.Equal(new DateOnly(2026, 3, 20), due.NextDueDate);
+        Assert.Equal(5, due.DaysUntilDue);
+    }
+
+    [Fact]
+    public void SoilWet_DoesNotAffectFertilizing()
+    {
+        var plant = Plant(soilWetUntil: new DateTime(2026, 3, 25));
+        plant.CareTasks.Clear();
+        plant.CareTasks.Add(new CareTask
+        {
+            Type = CareTaskType.Fertilizing,
+            IntervalDays = 30,
+            LastDoneAt = new DateTime(2026, 3, 1),
+        });
+
+        var due = _service.GetDueInfo(plant.CareTasks.Single(), plant, Today);
+
+        // Natural due 3-31 is already past the 3-25 wet flag and stays put.
+        Assert.Equal(new DateOnly(2026, 3, 31), due.NextDueDate);
+    }
+
+    [Fact]
+    public void SoilWet_AppliesAfterSoilTypeAdjustment()
+    {
+        // 10-day base, semi-hydro x1.3 -> 13 -> natural due 3-18; wet flag for 3-22 pushes out to 3-22.
+        var plant = Plant(intervalDays: 10, lastDoneAt: new DateTime(2026, 3, 5), soilType: SoilType.SemiHydro, soilWetUntil: new DateTime(2026, 3, 22));
+
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
+
+        Assert.Equal(13, due.IntervalDays);
+        Assert.Equal(new DateOnly(2026, 3, 22), due.NextDueDate);
+        Assert.Equal(7, due.DaysUntilDue);
     }
 }
