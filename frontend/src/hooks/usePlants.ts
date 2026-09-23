@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tansta
 import { toast } from "sonner";
 import { plantsApi } from "@/api/client";
 import i18n from "@/i18n";
-import type { Dashboard, Plant, PlantInput, WaterDetails } from "@/api/types";
+import type { Dashboard, HealthStatus, Plant, PlantInput, WaterDetails } from "@/api/types";
 import { toastError } from "@/lib/toast";
 import { dashboardKeys } from "@/hooks/useDashboard";
 
@@ -13,6 +13,7 @@ export const plantKeys = {
   notes: (id: number) => ["plants", id, "notes"] as const,
   journal: (id: number) => ["plants", id, "journal"] as const,
   careTasks: (id: number) => ["plants", id, "care-tasks"] as const,
+  healthChecks: (id: number) => ["plants", id, "health-checks"] as const,
 };
 
 function optimisticWatered(plant: Plant): Plant {
@@ -414,6 +415,33 @@ export function useAddPlantNote(id: number) {
       toast.success(i18n.t("toasts.noteAdded"));
     },
     onError: (error) => toastError(i18n.t("toasts.noteAddFailed"), error),
+  });
+}
+
+export function useHealthChecks(id: number) {
+  return useQuery({
+    queryKey: plantKeys.healthChecks(id),
+    queryFn: () => plantsApi.healthChecks(id),
+    enabled: Number.isInteger(id),
+  });
+}
+
+export function useAddHealthCheck(id: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { status: HealthStatus; note?: string }) => plantsApi.addHealthCheck(id, input),
+    onSuccess: (plant) => {
+      queryClient.setQueryData(plantKeys.detail(plant.id), plant);
+      patchDashboard(queryClient, plant);
+      queryClient.invalidateQueries({ queryKey: plantKeys.all });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
+      queryClient.invalidateQueries({ queryKey: plantKeys.healthChecks(id) });
+      queryClient.invalidateQueries({ queryKey: plantKeys.careTasks(id) });
+      toast.success(i18n.t("toasts.checkupLogged"), {
+        description: i18n.t("toasts.checkupLoggedDesc", { name: plant.nickName }),
+      });
+    },
+    onError: (error) => toastError(i18n.t("toasts.checkupFailed"), error),
   });
 }
 

@@ -57,6 +57,9 @@ function plant(over: Partial<Plant>): Plant {
     nextDueDate: `${localKey(3)}T00:00:00`,
     dueMessage: "",
     roomLightMatch: null,
+    healthStatus: null,
+    lastCheckupAt: null,
+    checkupDue: false,
     ...over,
   };
 }

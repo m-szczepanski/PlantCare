@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { AlertTriangle, Droplets } from "lucide-react";
+import { AlertTriangle, Droplets, Stethoscope } from "lucide-react";
 import { DueCount, DueStatusBadge } from "@/components/DueStatusBadge";
+import { HealthBadge } from "@/components/HealthBadge";
 import { PlantPhoto } from "@/components/PlantPhoto";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -56,7 +57,14 @@ export function PlantCard({ plant, onWater, isWatering }: PlantCardProps) {
           ) : null}
           <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1">
             <DueStatusBadge plant={plant} />
+            {plant.healthStatus ? <HealthBadge status={plant.healthStatus} /> : null}
             <span className="text-xs text-muted-foreground">{wateredRelative(plant.lastWateredAt)}</span>
+            {plant.checkupDue ? (
+              <span className="flex items-center gap-1 text-xs font-medium" role="status">
+                <Stethoscope className="h-3 w-3" aria-hidden="true" />
+                {t("plant.checkupDue")}
+              </span>
+            ) : null}
             {soilWetActive ? (
               <span className="flex items-center gap-1 text-xs text-muted-foreground" role="status">
                 <Droplets className="h-3 w-3" aria-hidden="true" />

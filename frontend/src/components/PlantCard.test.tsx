@@ -34,6 +34,9 @@ function plant(over: Partial<Plant>): Plant {
     daysUntilDue: 4,
     nextDueDate: null,
     roomLightMatch: null,
+    healthStatus: null,
+    lastCheckupAt: null,
+    checkupDue: false,
     dueMessage: "4 days until due",
     ...over,
   };
@@ -131,6 +134,19 @@ describe("PlantCard", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Water" }));
     expect(onWater).toHaveBeenCalledWith(p);
+  });
+
+  it("shows the health badge when a checkup exists", () => {
+    renderCard(<PlantCard plant={plant({ healthStatus: "Excellent", lastCheckupAt: "2026-03-01T00:00:00" })} />);
+
+    expect(screen.getByText("Excellent")).toBeInTheDocument();
+    expect(screen.queryByText("Checkup due")).not.toBeInTheDocument();
+  });
+
+  it("flags a due checkup without an answer", () => {
+    renderCard(<PlantCard plant={plant({ checkupDue: true })} />);
+
+    expect(screen.getByText("Checkup due")).toBeInTheDocument();
   });
 
   it("hides the water button while a watering is in flight", () => {

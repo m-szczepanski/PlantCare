@@ -88,6 +88,9 @@ const basePlant: Plant = {
   nextDueDate: null,
   dueMessage: "5 days until due",
   roomLightMatch: null,
+  healthStatus: null,
+  lastCheckupAt: null,
+  checkupDue: false,
 };
 
 function renderFormWithInitial(over: Partial<Plant>) {

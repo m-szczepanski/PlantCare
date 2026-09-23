@@ -25,6 +25,8 @@ vi.mock("@/api/client", () => ({
     addCareTask: vi.fn(),
     deleteCareTask: vi.fn(),
     markCareTaskDone: vi.fn(),
+    healthChecks: vi.fn(),
+    addHealthCheck: vi.fn(),
   },
   ApiError: class ApiError extends Error {},
 }));
@@ -58,6 +60,9 @@ const plant: Plant = {
   nextDueDate: "2026-03-08T00:00:00",
   dueMessage: "3 days overdue",
   roomLightMatch: null,
+  healthStatus: null,
+  lastCheckupAt: null,
+  checkupDue: false,
 };
 
 const logs: WateringLogEntry[] = [
@@ -73,6 +78,8 @@ describe("PlantDetailPage", () => {
       { id: 9, createdAt: "2026-03-02T10:00:00Z", text: "New leaf unfurling" },
     ]);
     vi.mocked(plantsApi.addNote).mockReset();
+    vi.mocked(plantsApi.healthChecks).mockReset().mockResolvedValue([]);
+    vi.mocked(plantsApi.addHealthCheck).mockReset();
     vi.mocked(plantsApi.careTasks).mockReset().mockResolvedValue([
       {
         id: 1,
@@ -286,6 +293,45 @@ describe("PlantDetailPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Add note" }));
 
     await waitFor(() => expect(plantsApi.addNote).toHaveBeenCalledWith(1, "Yellowing tip"));
+  });
+
+  it("logs a one-tap health checkup with an optional note", async () => {
+    vi.mocked(plantsApi.get).mockResolvedValue({ ...plant, checkupDue: true });
+    vi.mocked(plantsApi.addHealthCheck).mockResolvedValue({
+      ...plant,
+      healthStatus: "Sick",
+      lastCheckupAt: "2026-03-04T10:00:00",
+      checkupDue: false,
+    });
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    expect(await screen.findByText("Monthly checkup due — how is this plant doing?")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Checkup note (optional)"), { target: { value: "Mushy stem" } });
+    fireEvent.click(screen.getByRole("button", { name: "Sick" }));
+
+    await waitFor(() =>
+      expect(plantsApi.addHealthCheck).toHaveBeenCalledWith(1, { status: "Sick", note: "Mushy stem" }),
+    );
+  });
+
+  it("shows the current health status and past checkups", async () => {
+    vi.mocked(plantsApi.get).mockResolvedValue({
+      ...plant,
+      healthStatus: "Excellent",
+      lastCheckupAt: "2026-03-01T10:00:00",
+    });
+    vi.mocked(plantsApi.healthChecks).mockResolvedValue([
+      { id: 2, status: "Excellent", checkedAt: "2026-03-01T10:00:00", note: null },
+      { id: 1, status: "Bad", checkedAt: "2026-02-01T10:00:00", note: "Dropping leaves" },
+    ]);
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    expect(await screen.findByText(/Last checkup/)).toBeInTheDocument();
+    expect(screen.getAllByText("Excellent").length).toBeGreaterThanOrEqual(1);
+    expect(await screen.findByText("Checkup history")).toBeInTheDocument();
+    expect(screen.getByText("Dropping leaves")).toBeInTheDocument();
   });
 
   it("snoozes reminders for the selected length", async () => {

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { AlertTriangle, Droplets } from "lucide-react";
 import { CareTasksCard } from "@/components/CareTasksCard";
 import { DiagnosticsCard } from "@/components/DiagnosticsCard";
+import { HealthCheckCard } from "@/components/HealthCheckCard";
 import { JournalCard } from "@/components/JournalCard";
 import { CareTipsCard } from "@/components/CareTipsCard";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -425,6 +426,8 @@ export function PlantDetailPage() {
       </Card>
 
       <CareTasksCard plantId={plantId} />
+
+      <HealthCheckCard plant={plant} />
 
       <JournalCard plantId={plantId} nickName={plant.nickName} />
 

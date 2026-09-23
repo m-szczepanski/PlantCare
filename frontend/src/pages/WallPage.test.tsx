@@ -40,6 +40,9 @@ function plant(over: Partial<Plant>): Plant {
     nextDueDate: "2026-03-20T00:00:00",
     dueMessage: "2 days overdue",
     roomLightMatch: null,
+    healthStatus: null,
+    lastCheckupAt: null,
+    checkupDue: false,
     ...over,
   };
 }

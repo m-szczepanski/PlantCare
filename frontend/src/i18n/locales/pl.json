@@ -57,6 +57,7 @@
     "watering": "Podlewanie...",
     "water": "Podlej",
     "soilWetUntil": "Mokre podłoże — sprawdź {{date}}",
+    "checkupDue": "Przegląd do zrobienia",
     "noPhoto": "Brak zdjęcia: {{name}}"
   },
   "stats": {
@@ -126,6 +127,23 @@
     "notes": "Notatki pielęgnacyjne"
   },
   "diagnostics": { "title": "Kiedy coś jest nie tak — {{name}}" },
+  "health": {
+    "title": "Zdrowie",
+    "status": { "Sick": "Chora", "Bad": "Słabo", "Good": "Dobrze", "Excellent": "Świetnie" },
+    "none": "Brak jeszcze przeglądu zdrowia.",
+    "lastCheckup": "Ostatni przegląd: {{date}}",
+    "due": "Miesięczny przegląd — jak radzi sobie ta roślina?",
+    "noteOptional": "Notatka z przeglądu (opcjonalna)",
+    "notePlaceholder": "np. Dwa nowe liście!",
+    "hint": "Odpowiedź dostosowuje harmonogram do następnego przeglądu: chore rośliny podlewamy rzadziej i nie nawozimy; świetnie rozwijające się — nieco wcześniej.",
+    "historyTitle": "Historia przeglądów",
+    "bannerTitle": "Przeglądy zdrowia do zrobienia",
+    "bannerDescription_one": "{{count}} roślina czeka na miesięczny przegląd zdrowia.",
+    "bannerDescription_few": "{{count}} rośliny czekają na miesięczny przegląd zdrowia.",
+    "bannerDescription_many": "{{count}} roślin czeka na miesięczny przegląd zdrowia.",
+    "bannerDescription_other": "{{count}} roślin czeka na miesięczny przegląd zdrowia.",
+    "bannerAria": "Rośliny oczekujące na przegląd zdrowia"
+  },
   "careTask": {
     "title": "Zadania pielęgnacyjne",
     "markDone": "Oznacz jako zrobione",
@@ -249,6 +267,9 @@
     "photoUploaded": "Wysłano zdjęcie",
     "photoUploadedDesc": "Zaktualizowano: {{name}}.",
     "photoUploadFailed": "Nie udało się wysłać zdjęcia",
+    "checkupLogged": "Przegląd zapisany",
+    "checkupLoggedDesc": "Zapisano stan zdrowia rośliny {{name}}.",
+    "checkupFailed": "Nie udało się zapisać przeglądu",
     "roomCreated": "Utworzono pokój",
     "roomAddedDesc": "Dodano: {{name}}.",
     "roomCreateFailed": "Nie udało się utworzyć pokoju",
