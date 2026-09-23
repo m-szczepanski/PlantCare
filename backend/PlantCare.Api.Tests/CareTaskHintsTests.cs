@@ -62,4 +62,26 @@ public class CareTaskHintsTests
 
         Assert.Contains("doubled", CareTaskHints.For(task, PlantWith(task, profile), Winter, Localizer));
     }
+
+    [Fact]
+    public void Fertilizing_WhileUnwell_PausedHintWinsOverSeasonalHints()
+    {
+        var task = new CareTask { Type = CareTaskType.Fertilizing, LastDoneAt = new DateTime(2026, 1, 10) };
+        var plant = PlantWith(task);
+        plant.HealthStatus = HealthStatus.Sick;
+
+        Assert.Equal(
+            "Feeding is paused while the plant is unwell — it resumes at the next health checkup.",
+            CareTaskHints.For(task, plant, Winter, Localizer));
+    }
+
+    [Fact]
+    public void Fertilizing_Healthy_NoPauseHint()
+    {
+        var task = new CareTask { Type = CareTaskType.Fertilizing, LastDoneAt = new DateTime(2026, 6, 1) };
+        var plant = PlantWith(task);
+        plant.HealthStatus = HealthStatus.Good;
+
+        Assert.Null(CareTaskHints.For(task, plant, Summer, Localizer));
+    }
 }

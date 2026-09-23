@@ -13,7 +13,7 @@ public class WateringScheduleServiceTests
 
     private static readonly DateOnly WinterDay = new(2026, 1, 15);
 
-    private static Plant Plant(int? intervalDays = null, DateTime? lastDoneAt = null, PlantProfile? profile = null, SoilType? soilType = null, DateTime? soilWetUntil = null)
+    private static Plant Plant(int? intervalDays = null, DateTime? lastDoneAt = null, PlantProfile? profile = null, SoilType? soilType = null, DateTime? soilWetUntil = null, HealthStatus? health = null, DateTime? lastCheckupAt = null)
     {
         var plant = new Plant
         {
@@ -22,6 +22,8 @@ public class WateringScheduleServiceTests
             PlantProfile = profile,
             SoilType = soilType,
             SoilWetUntil = soilWetUntil,
+            HealthStatus = health,
+            LastCheckupAt = lastCheckupAt,
         };
         plant.CareTasks.Add(new CareTask
         {
@@ -352,5 +354,115 @@ public class WateringScheduleServiceTests
         Assert.Equal(13, due.IntervalDays);
         Assert.Equal(new DateOnly(2026, 3, 22), due.NextDueDate);
         Assert.Equal(7, due.DaysUntilDue);
+    }
+
+    [Theory]
+    [InlineData(HealthStatus.Sick, 10, 15)]
+    [InlineData(HealthStatus.Bad, 10, 13)]
+    [InlineData(HealthStatus.Good, 10, 10)]
+    [InlineData(HealthStatus.Excellent, 10, 8)]
+    public void HealthStatus_ScalesWateringInterval(HealthStatus status, int baseInterval, int expected)
+    {
+        var plant = Plant(intervalDays: baseInterval, lastDoneAt: new DateTime(2026, 3, 5), health: status, lastCheckupAt: new DateTime(2026, 3, 10));
+
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
+
+        Assert.Equal(expected, due.IntervalDays);
+    }
+
+    [Fact]
+    public void Health_ComposesWithSoilFactor()
+    {
+        // Base 10 -> semi-hydro 13 -> sick x1.5 -> 19.5 -> 20 (away from zero).
+        var plant = Plant(intervalDays: 10, lastDoneAt: new DateTime(2026, 3, 5), soilType: SoilType.SemiHydro, health: HealthStatus.Sick, lastCheckupAt: new DateTime(2026, 3, 10));
+
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
+
+        Assert.Equal(20, due.IntervalDays);
+    }
+
+    [Fact]
+    public void Health_ComposesWithWinterDoubling()
+    {
+        // Base 10 -> excellent 8 -> winter doubling 16.
+        var plant = Plant(intervalDays: 10, lastDoneAt: new DateTime(2026, 1, 10), health: HealthStatus.Excellent, lastCheckupAt: new DateTime(2026, 1, 5));
+        Watering(plant).ReduceInWinter = true;
+
+        var due = _service.GetDueInfo(Watering(plant), plant, WinterDay);
+
+        Assert.Equal(16, due.IntervalDays);
+    }
+
+    [Fact]
+    public void Fertilizing_Excellent_ShortensInterval()
+    {
+        var plant = Plant(health: HealthStatus.Excellent, lastCheckupAt: new DateTime(2026, 3, 10));
+        plant.CareTasks.Clear();
+        plant.CareTasks.Add(new CareTask
+        {
+            Type = CareTaskType.Fertilizing,
+            IntervalDays = 30,
+            LastDoneAt = new DateTime(2026, 3, 5),
+        });
+
+        var due = _service.GetDueInfo(plant.CareTasks.Single(), plant, Today);
+
+        Assert.Equal(24, due.IntervalDays);
+    }
+
+    [Fact]
+    public void Fertilizing_Sick_PausedUntilNextCheckupDay()
+    {
+        // Would be overdue since 3-03; the sick answer holds it until the next checkup (3-31).
+        var plant = Plant(health: HealthStatus.Sick, lastCheckupAt: new DateTime(2026, 3, 1));
+        plant.CareTasks.Clear();
+        plant.CareTasks.Add(new CareTask
+        {
+            Type = CareTaskType.Fertilizing,
+            IntervalDays = 30,
+            LastDoneAt = new DateTime(2026, 2, 1),
+        });
+
+        var due = _service.GetDueInfo(plant.CareTasks.Single(), plant, Today);
+
+        Assert.Equal(PlantDueStatus.Upcoming, due.Status);
+        Assert.Equal(new DateOnly(2026, 3, 31), due.NextDueDate);
+        Assert.Equal(16, due.DaysUntilDue);
+    }
+
+    [Fact]
+    public void Fertilizing_PauseClamp_NeverBringsDueDateEarlier()
+    {
+        // Natural due 4-04 is past the resume day 3-31; the pause must not accelerate it.
+        var plant = Plant(health: HealthStatus.Bad, lastCheckupAt: new DateTime(2026, 3, 1));
+        plant.CareTasks.Clear();
+        plant.CareTasks.Add(new CareTask
+        {
+            Type = CareTaskType.Fertilizing,
+            IntervalDays = 30,
+            LastDoneAt = new DateTime(2026, 3, 5),
+        });
+
+        var due = _service.GetDueInfo(plant.CareTasks.Single(), plant, Today);
+
+        Assert.Equal(new DateOnly(2026, 4, 4), due.NextDueDate);
+    }
+
+    [Fact]
+    public void Repotting_IsNotHealthAdjusted()
+    {
+        var plant = Plant(health: HealthStatus.Sick, lastCheckupAt: new DateTime(2026, 3, 1));
+        plant.CareTasks.Clear();
+        plant.CareTasks.Add(new CareTask
+        {
+            Type = CareTaskType.Repotting,
+            IntervalDays = 365,
+            LastDoneAt = new DateTime(2025, 1, 1),
+        });
+
+        var due = _service.GetDueInfo(plant.CareTasks.Single(), plant, Today);
+
+        Assert.Equal(365, due.IntervalDays);
+        Assert.Equal(PlantDueStatus.Overdue, due.Status);
     }
 }

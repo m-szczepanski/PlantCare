@@ -553,6 +553,9 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             NextDueDate = due.NextDueDate?.ToDateTime(TimeOnly.MinValue),
             DueMessage = due.Message,
             RoomLightMatch = ComputeRoomLightMatch(plant),
+            HealthStatus = plant.HealthStatus,
+            LastCheckupAt = plant.LastCheckupAt,
+            CheckupDue = HealthPolicy.IsCheckupDue(plant, DateOnly.FromDateTime(DateTime.UtcNow.Date)),
         };
     }
 

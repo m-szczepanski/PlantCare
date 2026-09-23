@@ -39,6 +39,17 @@ public class Plant
 
     public DateTime AcquiredDate { get; set; }
 
+    /// <summary>Current health from the latest checkup (null = never checked); see <c>HealthPolicy</c>.</summary>
+    public HealthStatus? HealthStatus { get; set; }
+
+    /// <summary>When the latest health checkup was answered.</summary>
+    public DateTime? LastCheckupAt { get; set; }
+
+    /// <summary>When the ntfy checkup-due reminder was last sent for this plant.</summary>
+    public DateTime? CheckupReminderSentAt { get; set; }
+
     public List<CareTask> CareTasks { get; set; } = [];
+
+    public List<PlantHealthCheck> HealthChecks { get; set; } = [];
 
 }

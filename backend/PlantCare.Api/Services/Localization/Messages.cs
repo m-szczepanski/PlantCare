@@ -32,6 +32,7 @@ public static class Messages
             ["digest.button"] = "Water now",
 
             ["hint.fertilizingWinter"] = "Winter rest: hold off feeding until spring.",
+            ["hint.fertilizingPaused"] = "Feeding is paused while the plant is unwell — it resumes at the next health checkup.",
             ["hint.flush"] = "Flushing the soil with plain water helps clear fertilizer salts.",
             ["hint.wateringWinter"] = "Winter: watering interval is doubled.",
 
@@ -88,6 +89,7 @@ public static class Messages
             ["digest.button"] = "Podlej teraz",
 
             ["hint.fertilizingWinter"] = "Zimowy spoczynek: wstrzymaj nawożenie do wiosny.",
+            ["hint.fertilizingPaused"] = "Nawożenie jest wstrzymane, dopóki roślina jest chora — wróci przy następnym przeglądzie zdrowia.",
             ["hint.flush"] = "Przepłukanie podłoża czystą wodą pomaga usunąć sole z nawozów.",
             ["hint.wateringWinter"] = "Zima: przedział podlewania jest wydłużony dwukrotnie.",
 

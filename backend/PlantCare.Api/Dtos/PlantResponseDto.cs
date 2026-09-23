@@ -61,4 +61,12 @@ public class PlantResponseDto
     /// null when either side is unknown.
     /// </summary>
     public RoomLightMatch? RoomLightMatch { get; set; }
+
+    /// <summary>Health status from the latest monthly checkup (null = never checked).</summary>
+    public HealthStatus? HealthStatus { get; set; }
+
+    public DateTime? LastCheckupAt { get; set; }
+
+    /// <summary>True when the plant is old enough and has no checkup answer in the current period.</summary>
+    public bool CheckupDue { get; set; }
 }

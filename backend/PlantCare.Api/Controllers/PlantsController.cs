@@ -8,7 +8,7 @@ namespace PlantCare.Api.Controllers;
 [ApiController]
 [Route("api/plants")]
 [Produces("application/json")]
-public class PlantsController(IPlantService plants, ICareTaskService careTasks, IAppLocalizer localizer) : ControllerBase
+public class PlantsController(IPlantService plants, ICareTaskService careTasks, IHealthCheckService healthChecks, IAppLocalizer localizer) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<PlantResponseDto>>> List(CancellationToken cancellationToken)
@@ -195,5 +195,19 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
     {
         var logs = await plants.GetWateringHistoryAsync(id, cancellationToken);
         return logs is null ? NotFound() : Ok(logs);
+    }
+
+    [HttpGet("{id:int}/health-checks")]
+    public async Task<ActionResult<IReadOnlyList<HealthCheckResponseDto>>> HealthChecks(int id, CancellationToken cancellationToken)
+    {
+        var checks = await healthChecks.ListAsync(id, cancellationToken);
+        return checks is null ? NotFound() : Ok(checks);
+    }
+
+    [HttpPost("{id:int}/health-checks")]
+    public async Task<ActionResult<PlantResponseDto>> AddHealthCheck(int id, CreateHealthCheckRequestDto dto, CancellationToken cancellationToken)
+    {
+        var plant = await healthChecks.AddAsync(id, dto.Status, dto.Note, cancellationToken);
+        return plant is null ? NotFound() : Ok(plant);
     }
 }
