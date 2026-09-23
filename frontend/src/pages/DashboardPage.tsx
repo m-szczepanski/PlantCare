@@ -199,7 +199,7 @@ function OnboardingStep() {
             </span>
           ) : (
             <span className="text-muted-foreground">
-              {t("onboarding.serverUnreachable", { url: status.ntfy.baseUrl })}
+              {t("onboarding.serverUnreachable", { url: status.ntfy.publicBaseUrl })}
             </span>
           )}
         </p>

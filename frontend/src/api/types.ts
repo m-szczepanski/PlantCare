@@ -232,6 +232,7 @@ export interface DigestStatus {
 
 export interface NtfyStatus {
   baseUrl: string;
+  publicBaseUrl: string;
   topic: string;
   subscribeUrl: string;
   reachable: boolean;

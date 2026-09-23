@@ -70,7 +70,10 @@ builder.Services.AddScoped<IInsightsService, InsightsService>();
 
 var ntfyBaseUrl = builder.Configuration["NTFY_URL"] ?? "http://ntfy:80";
 var ntfyTopic = builder.Configuration["NTFY_TOPIC"] ?? "plant-care";
-builder.Services.AddSingleton(new NtfyOptions(ntfyBaseUrl, ntfyTopic));
+var ntfyPublicPort = int.TryParse(builder.Configuration["NTFY_PUBLIC_PORT"], out var parsedNtfyPort) && parsedNtfyPort is > 0 and < 65536
+    ? parsedNtfyPort
+    : (int?)null;
+builder.Services.AddSingleton(new NtfyOptions(ntfyBaseUrl, ntfyTopic, ntfyPublicPort));
 var quickActionSecret = builder.Configuration["QUICK_ACTION_SECRET"];
 var quickActionBaseUrl = builder.Configuration["QUICK_ACTION_URL_BASE"];
 builder.Services.AddSingleton(new QuickActionOptions(quickActionSecret, quickActionBaseUrl));

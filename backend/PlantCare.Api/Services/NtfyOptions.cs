@@ -1,6 +1,12 @@
 namespace PlantCare.Api.Services;
 
-public sealed record NtfyOptions(string BaseUrl, string Topic);
+/// <summary>
+/// <see cref="BaseUrl"/> is the server-side (Docker network) origin used for
+/// publishing. <see cref="PublicPort"/> optionally overrides the port of the
+/// browser-facing subscribe URL, which is otherwise built from the incoming
+/// request's host so it adapts to wherever the app is served from.
+/// </summary>
+public sealed record NtfyOptions(string BaseUrl, string Topic, int? PublicPort = null);
 
 /// <summary>
 /// Shared-secret quick actions: when <see cref="Secret"/> is set, the watering

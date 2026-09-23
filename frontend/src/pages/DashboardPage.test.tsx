@@ -241,8 +241,9 @@ describe("DashboardPage", () => {
       lastDigest: null,
       ntfy: {
         baseUrl: "http://ntfy:80",
+        publicBaseUrl: "http://192.168.0.2:8080",
         topic: "plant-care",
-        subscribeUrl: "http://ntfy:80/plant-care",
+        subscribeUrl: "http://192.168.0.2:8080/plant-care",
         reachable: true,
         latencyMs: 8,
         error: null,
@@ -255,7 +256,7 @@ describe("DashboardPage", () => {
     expect(await screen.findByText("Getting started")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "plant-care" })).toHaveAttribute(
       "href",
-      "http://ntfy:80/plant-care",
+      "http://192.168.0.2:8080/plant-care",
     );
   });
 

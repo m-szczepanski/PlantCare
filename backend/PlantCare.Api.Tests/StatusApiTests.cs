@@ -43,6 +43,22 @@ public class StatusApiTests : IDisposable
     }
 
     [Fact]
+    public async Task Status_WithNtfyPublicPort_BuildsSubscribeUrlFromRequestHost()
+    {
+        var factory = _database.CreateFactory(configureBuilder: builder => builder.UseSetting("NTFY_PUBLIC_PORT", "8080"));
+        var client = factory.CreateClient();
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/status");
+        request.Headers.Host = "192.168.0.2";
+        var response = await client.SendAsync(request);
+        var status = await response.Content.ReadFromJsonAsync<StatusInfo>(Options);
+
+        Assert.Equal("http://ntfy:80", status!.Ntfy.BaseUrl);
+        Assert.Equal("http://192.168.0.2:8080", status.Ntfy.PublicBaseUrl);
+        Assert.Equal("http://192.168.0.2:8080/plant-care", status.Ntfy.SubscribeUrl);
+    }
+
+    [Fact]
     public async Task Status_RecordsLastCheckRunAndDigest()
     {
         await _client.PostAsJsonAsync("/api/plants", new

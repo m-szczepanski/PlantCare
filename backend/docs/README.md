@@ -109,6 +109,7 @@ All runtime knobs come from environment variables / `.env`:
 | `WATERING_CHECK_CRON` | Watering-check cron expression (default `0 8 * * *`) |
 | `APP_LANGUAGE` | Default language (`en`/`pl`) for server text without a request context (digests); HTTP responses follow `Accept-Language` |
 | `NTFY_URL` / `NTFY_TOPIC` | Where notification POSTs go (defaults `http://ntfy:80`, `plant-care`) |
+| `NTFY_PUBLIC_PORT` | Host port ntfy is published on; the browser-facing subscribe link is built as `<scheme>://<request host>:<port>/<topic>` so it follows wherever the app is served from (empty → fall back to `NTFY_URL`) |
 | `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` | Set both to also deliver digests via Telegram |
 | `QUICK_ACTION_SECRET` / `QUICK_ACTION_URL_BASE` | Shared secret for quick-water buttons / public origin used to build the links |
 | `ConnectionStrings__Default` | SQLite path; with the postgres profile use `Host=db;Database=plantcare;Username=plantcare;Password=…` |

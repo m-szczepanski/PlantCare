@@ -19,8 +19,9 @@ const status: StatusInfo = {
   lastDigest: { sentAt: "2026-09-20T06:00:00Z", plantCount: 3, overdueCount: 1, priority: 5 },
   ntfy: {
     baseUrl: "http://ntfy:80",
+    publicBaseUrl: "http://192.168.0.2:8080",
     topic: "plant-care",
-    subscribeUrl: "http://ntfy:80/plant-care",
+    subscribeUrl: "http://192.168.0.2:8080/plant-care",
     reachable: true,
     latencyMs: 12,
     error: null,
@@ -38,9 +39,10 @@ describe("StatusPage", () => {
 
     expect(await screen.findByText(/digest sent/i)).toBeInTheDocument();
     expect(screen.getByText(/Reachable \(12 ms\)/)).toBeInTheDocument();
+    expect(screen.getByText("http://192.168.0.2:8080")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open subscription page" })).toHaveAttribute(
       "href",
-      "http://ntfy:80/plant-care",
+      "http://192.168.0.2:8080/plant-care",
     );
     expect(screen.getByText(/Server time zone: UTC/)).toBeInTheDocument();
   });
