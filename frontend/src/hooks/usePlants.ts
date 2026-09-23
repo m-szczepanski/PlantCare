@@ -2,8 +2,9 @@ import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tansta
 import { toast } from "sonner";
 import { plantsApi } from "@/api/client";
 import i18n from "@/i18n";
-import type { Plant, PlantInput, WaterDetails } from "@/api/types";
+import type { Dashboard, Plant, PlantInput, WaterDetails } from "@/api/types";
 import { toastError } from "@/lib/toast";
+import { dashboardKeys } from "@/hooks/useDashboard";
 
 export const plantKeys = {
   all: ["plants"] as const,
@@ -29,6 +30,43 @@ function optimisticWatered(plant: Plant): Plant {
   };
 }
 
+function dashboardSectionFor(plant: Plant): keyof Dashboard {
+  if (plant.dueStatus === "Overdue") return "overdue";
+  if (plant.dueStatus === "DueToday") return "dueToday";
+  return "upcoming";
+}
+
+function sortDashboardBucket(bucket: Plant[], section: keyof Dashboard): Plant[] {
+  if (section === "dueToday") return [...bucket].sort((a, b) => a.nickName.localeCompare(b.nickName));
+  return [...bucket].sort(
+    (a, b) =>
+      (a.daysUntilDue ?? Number.MAX_SAFE_INTEGER) - (b.daysUntilDue ?? Number.MAX_SAFE_INTEGER) ||
+      a.nickName.localeCompare(b.nickName),
+  );
+}
+
+function upsertPlantOnDashboard(dashboard: Dashboard, plant: Plant): Dashboard {
+  const target = dashboardSectionFor(plant);
+  const without = (bucket: Plant[]) => bucket.filter((p) => p.id !== plant.id);
+  return {
+    overdue: target === "overdue" ? sortDashboardBucket([...without(dashboard.overdue), plant], "overdue") : without(dashboard.overdue),
+    dueToday: target === "dueToday" ? sortDashboardBucket([...without(dashboard.dueToday), plant], "dueToday") : without(dashboard.dueToday),
+    upcoming: target === "upcoming" ? sortDashboardBucket([...without(dashboard.upcoming), plant], "upcoming") : without(dashboard.upcoming),
+  };
+}
+
+function patchDashboard(queryClient: QueryClient, plant: Plant) {
+  queryClient.setQueryData<Dashboard>(dashboardKeys.all, (current) => (current ? upsertPlantOnDashboard(current, plant) : current));
+}
+
+function removePlantFromDashboard(queryClient: QueryClient, id: number) {
+  queryClient.setQueryData<Dashboard>(dashboardKeys.all, (current) => {
+    if (!current) return current;
+    const without = (bucket: Plant[]) => bucket.filter((p) => p.id !== id);
+    return { overdue: without(current.overdue), dueToday: without(current.dueToday), upcoming: without(current.upcoming) };
+  });
+}
+
 export function usePlants() {
   return useQuery({
     queryKey: plantKeys.all,
@@ -50,6 +88,7 @@ export function useCreatePlant() {
     mutationFn: (input: PlantInput) => plantsApi.create(input),
     onSuccess: (plant) => {
       queryClient.invalidateQueries({ queryKey: plantKeys.all });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       toast.success(i18n.t("toasts.plantAdded"), { description: i18n.t("toasts.plantAddedDesc", { name: plant.nickName }) });
     },
     onError: (error) => toastError(i18n.t("toasts.plantAddFailed"), error),
@@ -63,6 +102,8 @@ export function useUpdatePlant() {
     onSuccess: (plant) => {
       queryClient.invalidateQueries({ queryKey: plantKeys.all });
       queryClient.setQueryData(plantKeys.detail(plant.id), plant);
+      patchDashboard(queryClient, plant);
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       toast.success(i18n.t("toasts.plantUpdated"), { description: i18n.t("toasts.plantSaved", { name: plant.nickName }) });
     },
     onError: (error) => toastError(i18n.t("toasts.plantUpdateFailed"), error),
@@ -73,8 +114,10 @@ export function useDeletePlant() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => plantsApi.remove(id),
-    onSuccess: () => {
+    onSuccess: (_result, id) => {
+      removePlantFromDashboard(queryClient, id);
       queryClient.invalidateQueries({ queryKey: plantKeys.all });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       toast.success(i18n.t("toasts.plantDeleted"));
     },
     onError: (error) => toastError(i18n.t("toasts.plantDeleteFailed"), error),
@@ -89,7 +132,13 @@ export function useWaterPlant() {
     onMutate: async ({ id }) => {
       const previousList = queryClient.getQueryData<Plant[]>(plantKeys.all);
       const previousDetail = queryClient.getQueryData<Plant>(plantKeys.detail(id));
-      const target = previousDetail ?? previousList?.find((p) => p.id === id);
+      const previousDashboard = queryClient.getQueryData<Dashboard>(dashboardKeys.all);
+      const target =
+        previousDetail ??
+        previousList?.find((p) => p.id === id) ??
+        (previousDashboard
+          ? [...previousDashboard.overdue, ...previousDashboard.dueToday, ...previousDashboard.upcoming].find((p) => p.id === id)
+          : undefined);
 
       if (previousList) {
         queryClient.setQueryData(
@@ -99,9 +148,10 @@ export function useWaterPlant() {
       }
       if (target) {
         queryClient.setQueryData(plantKeys.detail(id), optimisticWatered(target));
+        patchDashboard(queryClient, optimisticWatered(target));
       }
 
-      return { previousList, previousDetail };
+      return { previousList, previousDetail, previousDashboard };
     },
     onError: (error, { id }, context) => {
       if (context?.previousList) {
@@ -110,11 +160,16 @@ export function useWaterPlant() {
       if (context?.previousDetail) {
         queryClient.setQueryData(plantKeys.detail(id), context.previousDetail);
       }
+      if (context?.previousDashboard) {
+        queryClient.setQueryData(dashboardKeys.all, context.previousDashboard);
+      }
       toastError(i18n.t("toasts.waterFailed"), error);
     },
     onSuccess: (plant) => {
       queryClient.invalidateQueries({ queryKey: plantKeys.all });
       queryClient.setQueryData(plantKeys.detail(plant.id), plant);
+      patchDashboard(queryClient, plant);
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       toast.success(i18n.t("toasts.watered"), {
         description: i18n.t("toasts.wateredDesc", { name: plant.nickName }),
         action: { label: i18n.t("common.undo"), onClick: () => void undoWatering(plant.id, queryClient) },
@@ -127,14 +182,40 @@ export function useBulkWater() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (ids: number[]) => plantsApi.bulkWater(ids),
+    onMutate: async (ids) => {
+      const idSet = new Set(ids);
+      const previousList = queryClient.getQueryData<Plant[]>(plantKeys.all);
+      const previousDashboard = queryClient.getQueryData<Dashboard>(dashboardKeys.all);
+
+      if (previousList) {
+        queryClient.setQueryData(
+          plantKeys.all,
+          previousList.map((p) => (idSet.has(p.id) ? optimisticWatered(p) : p)),
+        );
+      }
+      if (previousDashboard) {
+        let dashboard = previousDashboard;
+        const plants = [...dashboard.overdue, ...dashboard.dueToday, ...dashboard.upcoming];
+        for (const plant of plants) {
+          if (idSet.has(plant.id)) dashboard = upsertPlantOnDashboard(dashboard, optimisticWatered(plant));
+        }
+        queryClient.setQueryData(dashboardKeys.all, dashboard);
+      }
+
+      return { previousList, previousDashboard };
+    },
+    onError: (error, _ids, context) => {
+      if (context?.previousList) queryClient.setQueryData(plantKeys.all, context.previousList);
+      if (context?.previousDashboard) queryClient.setQueryData(dashboardKeys.all, context.previousDashboard);
+      toastError(i18n.t("toasts.bulkWaterFailed"), error);
+    },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: plantKeys.all });
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       toast.success(i18n.t("toasts.watered"), {
         description: i18n.t("toasts.bulkWateredDesc", { watered: result.watered, requested: result.requested }),
       });
     },
-    onError: (error) => toastError(i18n.t("toasts.bulkWaterFailed"), error),
   });
 }
 
@@ -142,7 +223,9 @@ async function undoWatering(id: number, queryClient: QueryClient) {
   try {
     const plant = await plantsApi.undoWater(id);
     queryClient.setQueryData(plantKeys.detail(plant.id), plant);
+    patchDashboard(queryClient, plant);
     queryClient.invalidateQueries({ queryKey: plantKeys.all });
+    queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     toast.success(i18n.t("toasts.waterUndone"), { description: i18n.t("toasts.waterUndoneDesc", { name: plant.nickName }) });
   } catch (error) {
     toastError(i18n.t("toasts.waterUndoFailed"), error);
@@ -172,6 +255,7 @@ export function useCareTaskMutations(id: number) {
     queryClient.invalidateQueries({ queryKey: plantKeys.all });
     queryClient.invalidateQueries({ queryKey: plantKeys.detail(id) });
     queryClient.invalidateQueries({ queryKey: plantKeys.wateringLogs(id) });
+    queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
   };
 
   const add = useMutation({
@@ -208,7 +292,7 @@ export function useCareTaskMutations(id: number) {
 function invalidatePlantCaches(queryClient: QueryClient, id: number) {
   queryClient.invalidateQueries({ queryKey: plantKeys.detail(id) });
   queryClient.invalidateQueries({ queryKey: plantKeys.all });
-  queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+  queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
 }
 
 export function useSnoozePlant(id: number) {
@@ -217,6 +301,7 @@ export function useSnoozePlant(id: number) {
     mutationFn: (days: number) => plantsApi.snooze(id, days),
     onSuccess: (plant) => {
       queryClient.setQueryData(plantKeys.detail(plant.id), plant);
+      patchDashboard(queryClient, plant);
       invalidatePlantCaches(queryClient, plant.id);
       toast.success(i18n.t("toasts.snoozed"), { description: i18n.t("toasts.snoozedDesc", { name: plant.nickName }) });
     },
@@ -230,6 +315,7 @@ export function useUnsnoozePlant(id: number) {
     mutationFn: () => plantsApi.clearSnooze(id),
     onSuccess: (plant) => {
       queryClient.setQueryData(plantKeys.detail(plant.id), plant);
+      patchDashboard(queryClient, plant);
       invalidatePlantCaches(queryClient, plant.id);
       toast.success(i18n.t("toasts.resumed"), { description: i18n.t("toasts.resumedDesc", { name: plant.nickName }) });
     },
@@ -243,7 +329,6 @@ export function useSnoozeAllPlants() {
     mutationFn: (days: number) => plantsApi.snoozeAll(days),
     onSuccess: (result) => {
       invalidatePlantCaches(queryClient, -1);
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       toast.success(i18n.t("toasts.snoozedAll"), { description: i18n.t("toasts.snoozedAllDesc", { count: result.snoozedPlants }) });
     },
     onError: (error) => toastError(i18n.t("toasts.snoozeAllFailed"), error),
@@ -256,6 +341,7 @@ export function useSetSoilWet(id: number) {
     mutationFn: (days: number) => plantsApi.soilWet(id, days),
     onSuccess: (plant) => {
       queryClient.setQueryData(plantKeys.detail(plant.id), plant);
+      patchDashboard(queryClient, plant);
       invalidatePlantCaches(queryClient, plant.id);
       toast.success(i18n.t("toasts.soilWetMarked"), { description: i18n.t("toasts.soilWetMarkedDesc", { name: plant.nickName }) });
     },
@@ -269,6 +355,7 @@ export function useClearSoilWet(id: number) {
     mutationFn: () => plantsApi.clearSoilWet(id),
     onSuccess: (plant) => {
       queryClient.setQueryData(plantKeys.detail(plant.id), plant);
+      patchDashboard(queryClient, plant);
       invalidatePlantCaches(queryClient, plant.id);
       toast.success(i18n.t("toasts.soilWetCleared"), { description: i18n.t("toasts.soilWetClearedDesc", { name: plant.nickName }) });
     },

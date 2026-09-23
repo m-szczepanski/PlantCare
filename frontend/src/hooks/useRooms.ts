@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { roomsApi } from "@/api/client";
 import type { RoomInput } from "@/api/types";
 import { toastError } from "@/lib/toast";
+import { dashboardKeys } from "@/hooks/useDashboard";
 import i18n from "@/i18n";
 
 export const roomKeys = {
@@ -35,6 +36,7 @@ export function useUpdateRoom() {
     onSuccess: (room) => {
       queryClient.invalidateQueries({ queryKey: roomKeys.all });
       queryClient.invalidateQueries({ queryKey: ["plants"] });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       toast.success(i18n.t("toasts.roomUpdated"), { description: i18n.t("toasts.roomSavedDesc", { name: room.name }) });
     },
     onError: (error) => toastError(i18n.t("toasts.roomUpdateFailed"), error),
@@ -48,6 +50,7 @@ export function useDeleteRoom() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: roomKeys.all });
       queryClient.invalidateQueries({ queryKey: ["plants"] });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       toast.success(i18n.t("toasts.roomDeleted"), { description: i18n.t("toasts.roomDeletedDesc") });
     },
     onError: (error) => toastError(i18n.t("toasts.roomDeleteFailed"), error),
