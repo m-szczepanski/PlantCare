@@ -93,6 +93,44 @@ describe("DashboardPage", () => {
     await waitFor(() => expect(plantsApi.bulkWater).toHaveBeenCalledWith([1]));
   });
 
+  it("removes a watered plant from the due today section before the server responds", async () => {
+    const { plantsApi } = await import("@/api/client");
+    vi.mocked(plantsApi.water).mockReturnValue(new Promise(() => {}));
+    vi.mocked(dashboardApi.get).mockResolvedValue({
+      overdue: [],
+      dueToday: [plant({ id: 2, nickName: "Parched Paula", dueStatus: "DueToday", dueMessage: "Due today" })],
+      upcoming: [],
+    });
+
+    renderWithProviders(<DashboardPage />);
+
+    expect(await screen.findByText("Parched Paula")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Water" }));
+
+    await waitFor(() => expect(screen.queryByRole("heading", { level: 2, name: "Due today" })).not.toBeInTheDocument());
+    expect(screen.getByRole("group", { name: "Due today: 0" })).toBeInTheDocument();
+    const upcomingSection = screen.getByRole("heading", { level: 2, name: "Upcoming" }).closest("section")!;
+    expect(within(upcomingSection).getByText("Parched Paula")).toBeInTheDocument();
+  });
+
+  it("restores the plant to due today when watering fails", async () => {
+    const { plantsApi } = await import("@/api/client");
+    vi.mocked(plantsApi.water).mockRejectedValue(new Error("boom"));
+    vi.mocked(dashboardApi.get).mockResolvedValue({
+      overdue: [],
+      dueToday: [plant({ id: 2, nickName: "Parched Paula", dueStatus: "DueToday", dueMessage: "Due today" })],
+      upcoming: [],
+    });
+
+    renderWithProviders(<DashboardPage />);
+
+    expect(await screen.findByText("Parched Paula")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Water" }));
+
+    await waitFor(() => expect(screen.getByText("Parched Paula")).toBeInTheDocument());
+    expect(screen.getByRole("group", { name: "Due today: 1" })).toBeInTheDocument();
+  });
+
   it("snoozes every plant for the vacation length", async () => {
     const { plantsApi } = await import("@/api/client");
     vi.mocked(plantsApi.snoozeAll).mockResolvedValue({ snoozedPlants: 3 });
