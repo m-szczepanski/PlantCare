@@ -17,7 +17,7 @@ public sealed record JobRunStatus(DateTime RanAt, string Outcome, int SentDigest
 
 public sealed record DigestStatus(DateTime SentAt, int PlantCount, int OverdueCount, int Priority);
 
-public sealed record NtfyStatus(string BaseUrl, string Topic, string SubscribeUrl, bool Reachable, int? LatencyMs, string? Error);
+public sealed record NtfyStatus(string BaseUrl, string PublicBaseUrl, string Topic, string SubscribeUrl, bool Reachable, int? LatencyMs, string? Error);
 
 public interface IStatusService
 {
@@ -28,7 +28,8 @@ public sealed class StatusService(
     AppDbContext db,
     IHttpClientFactory httpFactory,
     NtfyOptions ntfy,
-    IConfiguration configuration) : IStatusService
+    IConfiguration configuration,
+    IHttpContextAccessor httpContextAccessor) : IStatusService
 {
     public async Task<StatusInfo> GetAsync(CancellationToken cancellationToken = default)
     {
@@ -55,7 +56,8 @@ public sealed class StatusService(
     private async Task<NtfyStatus> ProbeNtfyAsync(CancellationToken cancellationToken)
     {
         var baseUrl = ntfy.BaseUrl.TrimEnd('/');
-        var subscribeUrl = $"{baseUrl}/{ntfy.Topic}";
+        var publicBaseUrl = ResolvePublicBaseUrl(baseUrl);
+        var subscribeUrl = $"{publicBaseUrl}/{ntfy.Topic}";
         var stopwatch = Stopwatch.StartNew();
         try
         {
@@ -63,12 +65,31 @@ public sealed class StatusService(
             http.Timeout = TimeSpan.FromSeconds(2);
             using var response = await http.GetAsync(baseUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             stopwatch.Stop();
-            return new NtfyStatus(baseUrl, ntfy.Topic, subscribeUrl, response.IsSuccessStatusCode, (int)stopwatch.ElapsedMilliseconds, null);
+            return new NtfyStatus(baseUrl, publicBaseUrl, ntfy.Topic, subscribeUrl, response.IsSuccessStatusCode, (int)stopwatch.ElapsedMilliseconds, null);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             stopwatch.Stop();
-            return new NtfyStatus(baseUrl, ntfy.Topic, subscribeUrl, false, null, ex.Message);
+            return new NtfyStatus(baseUrl, publicBaseUrl, ntfy.Topic, subscribeUrl, false, null, ex.Message);
         }
+    }
+
+    // NTFY_URL points at the Docker-internal ntfy service (fine for publishing,
+    // useless in a browser). When NTFY_PUBLIC_PORT is set, the subscribe link is
+    // rebuilt from the host the request actually arrived on, so it tracks wherever
+    // the app is served from (NAS IP, hostname, reverse proxy) without hardcoding.
+    private string ResolvePublicBaseUrl(string internalBaseUrl)
+    {
+        var request = httpContextAccessor.HttpContext?.Request;
+        if (ntfy.PublicPort is null || string.IsNullOrEmpty(request?.Host.Host))
+        {
+            return internalBaseUrl;
+        }
+
+        var forwardedScheme = request!.Headers["X-Forwarded-Proto"].FirstOrDefault();
+        var scheme = !string.IsNullOrEmpty(forwardedScheme) && Uri.CheckSchemeName(forwardedScheme)
+            ? forwardedScheme
+            : request.Scheme;
+        return $"{scheme}://{request.Host.Host}:{ntfy.PublicPort}";
     }
 }

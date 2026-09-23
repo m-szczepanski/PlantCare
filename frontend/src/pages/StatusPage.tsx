@@ -111,7 +111,7 @@ export function StatusPage() {
                 <span>{status.ntfy.reachable ? t("status.reachable", { ms: status.ntfy.latencyMs }) : t("status.unreachable")}</span>
               </p>
               <p className="text-muted-foreground">
-                {t("status.server")} <span className="font-mono">{status.ntfy.baseUrl}</span> · {t("status.topic")}{" "}
+                {t("status.server")} <span className="font-mono">{status.ntfy.publicBaseUrl}</span> · {t("status.topic")}{" "}
                 <span className="font-mono">{status.ntfy.topic}</span>
               </p>
               {status.ntfy.error ? (

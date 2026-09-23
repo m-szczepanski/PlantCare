@@ -9,6 +9,9 @@ services:
       TZ: ${TZ:-UTC}
       ConnectionStrings__Default: ${DB_CONNECTIONSTRING:-Data Source=/data/plantcare.db}
       PHOTO_STORAGE_PATH: /data/uploads
+      NTFY_URL: ${NTFY_URL:-http://ntfy:80}
+      NTFY_TOPIC: ${NTFY_TOPIC:-plant-care}
+      NTFY_PUBLIC_PORT: ${NTFY_PUBLIC_PORT:-8080}
     volumes:
       - plant-data:/data
       - plant-photos:/data/uploads
@@ -43,7 +46,7 @@ services:
     image: binwiederhier/ntfy
     command: serve
     ports:
-      - "8080:80"
+      - "${NTFY_PUBLIC_PORT:-8080}:80"
     volumes:
       - ntfy-data:/var/lib/ntfy
 
