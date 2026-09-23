@@ -115,6 +115,16 @@ public class HealthCheckApiTests : IDisposable
     }
 
     [Fact]
+    public async Task AddHealthCheck_RejectsMissingStatus()
+    {
+        var plant = await CreatePlant("Silent Simon");
+
+        var response = await Checkup(plant.Id, new { note = "no status given" });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
     public async Task AddHealthCheck_RejectsOverlongNote()
     {
         var plant = await CreatePlant("Verbose Victor");

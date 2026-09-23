@@ -47,7 +47,7 @@ public sealed class WateringCheckService(
             .Where(p => checkupCandidateIds.Contains(p.Id))
             .ToDictionaryAsync(p => p.Id, p => p.CheckupReminderSentAt, cancellationToken);
         var checkups = checkupCandidateIds
-            .Where(id => reminderDates[id] is null || reminderDates[id] <= now.AddDays(-HealthPolicy.CheckupIntervalDays))
+            .Where(id => HealthPolicy.IsReminderStale(reminderDates[id], now))
             .Select(id => all.First(p => p.Id == id))
             .ToList();
 

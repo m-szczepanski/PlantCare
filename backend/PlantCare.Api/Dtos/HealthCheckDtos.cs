@@ -16,7 +16,9 @@ public class HealthCheckResponseDto
 
 public class CreateHealthCheckRequestDto
 {
-    public HealthStatus Status { get; set; }
+    /// <summary>Required: a missing field must not silently record the default (worst) status.</summary>
+    [Required]
+    public HealthStatus? Status { get; set; }
 
     [StringLength(500)]
     public string? Note { get; set; }

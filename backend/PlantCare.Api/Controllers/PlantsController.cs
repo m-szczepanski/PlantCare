@@ -207,7 +207,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
     [HttpPost("{id:int}/health-checks")]
     public async Task<ActionResult<PlantResponseDto>> AddHealthCheck(int id, CreateHealthCheckRequestDto dto, CancellationToken cancellationToken)
     {
-        var plant = await healthChecks.AddAsync(id, dto.Status, dto.Note, cancellationToken);
+        var plant = await healthChecks.AddAsync(id, dto.Status!.Value, dto.Note, cancellationToken);
         return plant is null ? NotFound() : Ok(plant);
     }
 }

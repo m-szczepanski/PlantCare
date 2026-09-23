@@ -394,7 +394,7 @@ public class WateringScheduleServiceTests
     }
 
     [Fact]
-    public void Fertilizing_Excellent_ShortensInterval()
+    public void Fertilizing_Excellent_ReducesInterval()
     {
         var plant = Plant(health: HealthStatus.Excellent, lastCheckupAt: new DateTime(2026, 3, 10));
         plant.CareTasks.Clear();

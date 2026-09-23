@@ -23,9 +23,9 @@ public static class HealthPolicy
         [HealthStatus.Excellent] = 0.8,
     };
 
-    public const double ExcellentFertilizingFactor = 0.8;
+    private const double ExcellentFertilizingFactor = 0.8;
 
-    public static double WateringFactor(HealthStatus? status)
+    private static double WateringFactor(HealthStatus? status)
         => status is { } s ? WateringFactors[s] : 1.0;
 
     /// <summary>Applies the health factor to a base watering interval, never below one day.</summary>
@@ -58,4 +58,8 @@ public static class HealthPolicy
         return plant.LastCheckupAt is not { } last
             || today.DayNumber - DateOnly.FromDateTime(last.Date).DayNumber >= CheckupIntervalDays;
     }
+
+    /// <summary>Whether the ntfy checkup reminder may fire again (at most once per period per plant).</summary>
+    public static bool IsReminderStale(DateTime? lastReminderSentAt, DateTime now)
+        => lastReminderSentAt is null || lastReminderSentAt <= now.AddDays(-CheckupIntervalDays);
 }
