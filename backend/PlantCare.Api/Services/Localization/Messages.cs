@@ -30,8 +30,12 @@ public static class Messages
             ["digest.toxicPets"] = " [toxic to pets]",
             ["digest.toxicChildren"] = " [toxic to children]",
             ["digest.button"] = "Water now",
+            ["digest.checkups.title.one"] = "1 health checkup is due",
+            ["digest.checkups.title.other"] = "{0} health checkups are due",
+            ["digest.checkups.header"] = "Health checkups due ({0}):",
 
             ["hint.fertilizingWinter"] = "Winter rest: hold off feeding until spring.",
+            ["hint.fertilizingPaused"] = "Feeding is paused while the plant is unwell — it resumes at the next health checkup.",
             ["hint.flush"] = "Flushing the soil with plain water helps clear fertilizer salts.",
             ["hint.wateringWinter"] = "Winter: watering interval is doubled.",
 
@@ -86,8 +90,13 @@ public static class Messages
             ["digest.toxicPets"] = " [trująca dla zwierząt]",
             ["digest.toxicChildren"] = " [trująca dla dzieci]",
             ["digest.button"] = "Podlej teraz",
+            ["digest.checkups.title.one"] = "1 przegląd zdrowia do zrobienia",
+            ["digest.checkups.title.few"] = "{0} przeglądy zdrowia do zrobienia",
+            ["digest.checkups.title.many"] = "{0} przeglądów zdrowia do zrobienia",
+            ["digest.checkups.header"] = "Przeglądy zdrowia do zrobienia ({0}):",
 
             ["hint.fertilizingWinter"] = "Zimowy spoczynek: wstrzymaj nawożenie do wiosny.",
+            ["hint.fertilizingPaused"] = "Nawożenie jest wstrzymane, dopóki roślina jest chora — wróci przy następnym przeglądzie zdrowia.",
             ["hint.flush"] = "Przepłukanie podłoża czystą wodą pomaga usunąć sole z nawozów.",
             ["hint.wateringWinter"] = "Zima: przedział podlewania jest wydłużony dwukrotnie.",
 

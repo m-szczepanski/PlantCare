@@ -32,6 +32,9 @@ function plant(over: Partial<Plant>): Plant {
     nextDueDate: null,
     dueMessage: "",
     roomLightMatch: null,
+    healthStatus: null,
+    lastCheckupAt: null,
+    checkupDue: false,
     ...over,
   };
 }

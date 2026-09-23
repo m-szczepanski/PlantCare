@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
 import { CircleCheck, CircleDashed } from "lucide-react";
 import { DashboardStatsStrip } from "@/components/DashboardStatsStrip";
+import { CheckupBanner } from "@/components/CheckupBanner";
 import { NoPlantsEmptyState } from "@/components/NoPlantsEmptyState";
 import { PlantCard } from "@/components/PlantCard";
 import { PlantCardSkeletonGrid } from "@/components/PlantCardSkeleton";
@@ -86,6 +87,10 @@ export function DashboardPage() {
       </div>
 
       <DashboardStatsStrip dashboard={dashboard} />
+
+      <CheckupBanner
+        plants={[...dashboard.overdue, ...dashboard.dueToday, ...dashboard.upcoming].filter((p) => p.checkupDue)}
+      />
 
       <div className="flex gap-2" role="group" aria-label={t("dashboard.groupingAria")}>
         <Button

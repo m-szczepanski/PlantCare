@@ -2,6 +2,15 @@ export type PlantDueStatus = "NotScheduled" | "Overdue" | "DueToday" | "Upcoming
 
 export type CareTaskType = "Watering" | "Fertilizing" | "Repotting";
 
+export type HealthStatus = "Sick" | "Bad" | "Good" | "Excellent";
+
+export interface HealthCheckEntry {
+  id: number;
+  status: HealthStatus;
+  checkedAt: string;
+  note: string | null;
+}
+
 export type SoilType =
   | "AllPurpose"
   | "CactusMix"
@@ -106,6 +115,9 @@ export interface Plant {
   nextDueDate: string | null;
   dueMessage: string;
   roomLightMatch: RoomLightMatch | null;
+  healthStatus: HealthStatus | null;
+  lastCheckupAt: string | null;
+  checkupDue: boolean;
 }
 
 export interface Dashboard {

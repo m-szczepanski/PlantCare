@@ -32,6 +32,7 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
             .Include(p => p.PlantProfile)
             .Include(p => p.CareTasks)
             .ThenInclude(t => t.Logs)
+            .Include(p => p.HealthChecks)
             .OrderBy(p => p.NickName)
             .ToListAsync(cancellationToken);
         var notes = await db.PlantNotes.AsNoTracking().ToListAsync(cancellationToken);
@@ -76,6 +77,14 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
                 NotifyEnabled = p.NotifyEnabled,
                 SnoozedUntil = p.SnoozedUntil,
                 SoilWetUntil = p.SoilWetUntil,
+                HealthStatus = p.HealthStatus,
+                LastCheckupAt = p.LastCheckupAt,
+                HealthChecks = p.HealthChecks.OrderBy(h => h.CheckedAt).Select(h => new ExportHealthCheckDto
+                {
+                    CheckedAt = h.CheckedAt,
+                    Status = h.Status,
+                    Note = h.Note,
+                }).ToList(),
                 CareTasks = p.CareTasks.OrderBy(t => t.Type).Select(t => new ExportCareTaskDto
                 {
                     Type = t.Type,
@@ -190,7 +199,19 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
                 NotifyEnabled = plant.NotifyEnabled,
                 SnoozedUntil = plant.SnoozedUntil,
                 SoilWetUntil = plant.SoilWetUntil,
+                HealthStatus = plant.HealthStatus,
+                LastCheckupAt = plant.LastCheckupAt,
             };
+
+            foreach (var check in plant.HealthChecks)
+            {
+                entity.HealthChecks.Add(new PlantHealthCheck
+                {
+                    CheckedAt = check.CheckedAt,
+                    Status = check.Status,
+                    Note = check.Note,
+                });
+            }
 
             foreach (var task in plant.CareTasks)
             {

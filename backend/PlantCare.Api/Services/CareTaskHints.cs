@@ -16,6 +16,8 @@ public static class CareTaskHints
 
         return task.Type switch
         {
+            CareTaskType.Fertilizing when HealthPolicy.PausesFertilizing(plant.HealthStatus) =>
+                localizer.T("hint.fertilizingPaused"),
             CareTaskType.Fertilizing when winter =>
                 localizer.T("hint.fertilizingWinter"),
             CareTaskType.Fertilizing when lastDone is not null && today.DayNumber - lastDone.Value.DayNumber >= 120 =>

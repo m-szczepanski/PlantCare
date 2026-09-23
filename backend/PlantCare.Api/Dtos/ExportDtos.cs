@@ -77,6 +77,13 @@ public class ExportPlantDto
 
     public DateTime? SoilWetUntil { get; set; }
 
+    public HealthStatus? HealthStatus { get; set; }
+
+    public DateTime? LastCheckupAt { get; set; }
+
+    /// <summary>Checkup history; absent in pre-health exports (schema stays at v1).</summary>
+    public IReadOnlyList<ExportHealthCheckDto> HealthChecks { get; set; } = [];
+
     public required IReadOnlyList<ExportCareTaskDto> CareTasks { get; set; }
 
     public required IReadOnlyList<ExportNoteDto> Notes { get; set; }
@@ -113,6 +120,15 @@ public class ExportNoteDto
     public DateTime CreatedAt { get; set; }
 
     public required string Text { get; set; }
+}
+
+public class ExportHealthCheckDto
+{
+    public DateTime CheckedAt { get; set; }
+
+    public HealthStatus Status { get; set; }
+
+    public string? Note { get; set; }
 }
 
 public class ExportJournalEntryDto

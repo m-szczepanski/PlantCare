@@ -53,6 +53,7 @@
     "watering": "Watering...",
     "water": "Water",
     "soilWetUntil": "Soil wet — recheck {{date}}",
+    "checkupDue": "Checkup due",
     "noPhoto": "No photo of {{name}}"
   },
   "stats": {
@@ -120,6 +121,21 @@
     "notes": "Care notes"
   },
   "diagnostics": { "title": "When something's off — {{name}}" },
+  "health": {
+    "title": "Health",
+    "status": { "Sick": "Sick", "Bad": "Bad", "Good": "Good", "Excellent": "Excellent" },
+    "none": "No health checkup yet.",
+    "lastCheckup": "Last checkup {{date}}",
+    "due": "Monthly checkup due — how is this plant doing?",
+    "noteOptional": "Checkup note (optional)",
+    "notePlaceholder": "e.g. Two new leaves!",
+    "hint": "Answers adjust the schedule until the next checkup: unwell plants are watered less often and not fertilized; thriving plants a little sooner.",
+    "historyTitle": "Checkup history",
+    "bannerTitle": "Health checkups due",
+    "bannerDescription_one": "{{count}} plant is due for its monthly health checkup.",
+    "bannerDescription_other": "{{count}} plants are due for their monthly health checkup.",
+    "bannerAria": "Plants awaiting a health checkup"
+  },
   "careTask": {
     "title": "Care tasks",
     "markDone": "Mark done",
@@ -241,6 +257,9 @@
     "photoUploaded": "Photo uploaded",
     "photoUploadedDesc": "{{name}} updated.",
     "photoUploadFailed": "Could not upload photo",
+    "checkupLogged": "Checkup logged",
+    "checkupLoggedDesc": "{{name}}'s health status saved.",
+    "checkupFailed": "Could not log the checkup",
     "roomCreated": "Room created",
     "roomAddedDesc": "{{name}} added.",
     "roomCreateFailed": "Could not create room",

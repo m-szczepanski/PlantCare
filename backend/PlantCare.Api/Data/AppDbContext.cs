@@ -27,6 +27,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<SoilMix> SoilMixes => Set<SoilMix>();
 
+    public DbSet<PlantHealthCheck> PlantHealthChecks => Set<PlantHealthCheck>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<PlantProfile>(entity =>
@@ -61,6 +63,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<Plant>(entity =>
         {
             entity.Property(p => p.SoilType).HasConversion<string>();
+            entity.Property(p => p.HealthStatus).HasConversion<string>();
 
             entity.HasOne(p => p.PlantProfile)
                 .WithMany(pp => pp.Plants)
@@ -71,6 +74,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .WithMany(r => r.Plants)
                 .HasForeignKey(p => p.RoomId)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<PlantHealthCheck>(entity =>
+        {
+            entity.Property(h => h.Status).HasConversion<string>();
+
+            entity.HasOne(h => h.Plant)
+                .WithMany(p => p.HealthChecks)
+                .HasForeignKey(h => h.PlantId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(h => new { h.PlantId, h.CheckedAt });
         });
 
         modelBuilder.Entity<CareTask>(entity =>

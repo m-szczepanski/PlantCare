@@ -55,6 +55,9 @@ const plant: Plant = {
   nextDueDate: "2026-03-22T00:00:00",
   dueMessage: "7 days until due",
   roomLightMatch: null,
+  healthStatus: null,
+  lastCheckupAt: null,
+  checkupDue: false,
 };
 
 function wrapper({ children }: { children: ReactNode }) {

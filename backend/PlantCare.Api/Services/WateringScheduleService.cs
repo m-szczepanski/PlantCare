@@ -39,6 +39,17 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
         // Substrate permeability only scales the watering schedule (not fertilizing/repotting).
         var effectiveInterval = isWatering ? SoilTypes.AdjustInterval(plant.SoilType, baseInterval) : baseInterval;
 
+        // The latest health checkup answer scales intervals on top of the soil
+        // factor (watering every status; fertilizing only the thriving plants).
+        if (isWatering)
+        {
+            effectiveInterval = HealthPolicy.AdjustWateringInterval(plant.HealthStatus, effectiveInterval);
+        }
+        else if (wateringTask?.Type == CareTaskType.Fertilizing)
+        {
+            effectiveInterval = HealthPolicy.AdjustFertilizingInterval(plant.HealthStatus, effectiveInterval);
+        }
+
         var reduceInWinter = wateringTask?.ReduceInWinter ?? plant.PlantProfile?.DefaultReduceInWinter ?? false;
         var winter = isWinter(today);
         effectiveInterval = reduceInWinter && winter ? effectiveInterval * 2 : effectiveInterval;
@@ -57,6 +68,17 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
             {
                 nextDue = recheck;
             }
+        }
+
+        // A sick/bad checkup answer pauses fertilizing until the next checkup day
+        // (the same clamp pattern as the soil-wet deferral): the plant drops out of
+        // the due buckets and resurfaces when the answer goes stale and is re-asked.
+        if (!isWatering && wateringTask?.Type == CareTaskType.Fertilizing
+            && HealthPolicy.PausesFertilizing(plant.HealthStatus)
+            && HealthPolicy.NextCheckupDue(plant) is { } resume
+            && resume > today && resume > nextDue)
+        {
+            nextDue = resume;
         }
 
         var daysUntilDue = nextDue.DayNumber - today.DayNumber;

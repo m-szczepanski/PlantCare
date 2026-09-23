@@ -46,6 +46,9 @@ function plant(over: Partial<Plant>): Plant {
     daysUntilDue: 3,
     nextDueDate: "2026-03-22T00:00:00",
     roomLightMatch: null,
+    healthStatus: null,
+    lastCheckupAt: null,
+    checkupDue: false,
     dueMessage: "3 days until due",
     ...over,
   };
@@ -74,6 +77,35 @@ describe("DashboardPage", () => {
     expect(screen.getByRole("link", { name: "Thirsty Theo" })).toBeInTheDocument();
     expect(screen.getByText("Parched Paula")).toBeInTheDocument();
     expect(screen.getByText("Fine Fiona")).toBeInTheDocument();
+  });
+
+  it("prompts monthly health checkups for due plants", async () => {
+    vi.mocked(dashboardApi.get).mockResolvedValue({
+      overdue: [],
+      dueToday: [plant({ id: 2, nickName: "Skipper", dueStatus: "DueToday", dueMessage: "Due today", checkupDue: true })],
+      upcoming: [plant({ id: 3, nickName: "Recently checked", checkupDue: false, healthStatus: "Good", lastCheckupAt: "2026-03-01T00:00:00" })],
+    });
+
+    renderWithProviders(<DashboardPage />);
+
+    expect(await screen.findByText("Health checkups due")).toBeInTheDocument();
+    expect(screen.getByText("1 plant is due for its monthly health checkup.")).toBeInTheDocument();
+    const pending = screen.getByRole("list", { name: "Plants awaiting a health checkup" });
+    expect(within(pending).getByRole("link", { name: "Skipper" })).toBeInTheDocument();
+    expect(within(pending).queryByRole("link", { name: "Recently checked" })).not.toBeInTheDocument();
+  });
+
+  it("hides the checkup banner when nobody is due", async () => {
+    vi.mocked(dashboardApi.get).mockResolvedValue({
+      overdue: [],
+      dueToday: [],
+      upcoming: [plant({ id: 3, nickName: "Fine Fiona" })],
+    });
+
+    renderWithProviders(<DashboardPage />);
+
+    await screen.findByText("Fine Fiona");
+    expect(screen.queryByText("Health checkups due")).not.toBeInTheDocument();
   });
 
   it("waters a whole bucket in one batch call", async () => {

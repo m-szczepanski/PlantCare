@@ -59,6 +59,7 @@ builder.Services.AddScoped<IPlantProfileService, PlantProfileService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<ISoilMixService, SoilMixService>();
 builder.Services.AddScoped<ICareTaskService, CareTaskService>();
+builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
 builder.Services.AddScoped<IJournalService, JournalService>();
 builder.Services.AddScoped<IExportImportService, ExportImportService>();
 builder.Services.AddScoped<IStatusService, StatusService>();

@@ -46,6 +46,9 @@ const monstera: Plant = {
   nextDueDate: "2026-03-08T00:00:00",
   dueMessage: "3 days overdue",
   roomLightMatch: null,
+  healthStatus: null,
+  lastCheckupAt: null,
+  checkupDue: false,
 };
 
 describe("PlantsPage", () => {

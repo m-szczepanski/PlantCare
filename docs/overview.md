@@ -12,6 +12,7 @@ A self-hosted, highly customizable web app for tracking owned plants, watering r
 - Care tips per species (light, humidity notes, plus markdown care notes covering topics like temperature and fertilizing)
 - Simple dashboard: "due today / overdue / upcoming" view
 - "Mark as watered" action with a per-plant watering history
+- Monthly health checkups: four statuses (sick/bad/good/excellent) answered once a month (prompted on the dashboard and via the ntfy digest); the latest answer adjusts the watering/fertilizing schedule until the next checkup
 - Bilingual UI (English + Polish) with a language switch; localized species profiles, due messages and push notifications
 
 **Explicit non-goals for v1:** multi-user auth, mobile app, cloud sync. The app stays single-user and local-network friendly.
@@ -97,6 +98,13 @@ WateringLog
 - Id
 - PlantId (FK)
 - WateredAt
+- Note (nullable)
+
+PlantHealthCheck (monthly checkup answer — immutable history)
+- Id
+- PlantId (FK)
+- CheckedAt
+- Status (enum: Sick/Bad/Good/Excellent)
 - Note (nullable)
 
 NotificationLog (optional, for dedup/audit)
