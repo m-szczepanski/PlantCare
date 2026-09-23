@@ -96,6 +96,19 @@ Every chunk follows the AGENTS.md workflow: acceptance criteria defined before c
 | `feature/onboarding` | First-run dashboard: add-plant prompt + ntfy subscribe link/topic from config | app-status (config echo) | UX: onboarding |
 | `feature/postgres-profile` | Optional Postgres compose profile tested + documented | — | Func: Postgres |
 
+## Epic 10 — Plant Health Checkups
+
+| Branch | Deliverable | Depends on | Covers idea |
+|--------|-------------|------------|-------------|
+| `feature/health-check-model` | `HealthStatus` enum (`Sick`/`Bad`/`Good`/`Excellent`), `PlantHealthCheck` history entity + current-status columns on `Plant` (migration), `GET/POST /api/plants/{id}/health-checks`, health factors applied in `WateringScheduleService` (watering interval scaling; fertilizing paused while sick/bad until the next checkup, shortened for excellent), `healthStatus`/`checkupDue` on plant + dashboard responses | — | Func: health checkups adjust the schedule |
+| `feature/health-checkup-ui` | Health badge on cards/detail, monthly checkup prompt banner on the dashboard, one-tap 4-status checkup card with optional note + history list on detail, EN/PL | health-check-model | UX: monthly checkup prompt |
+| `feature/health-checkup-reminders` | Checkup-due plants appended to the daily digest as a separate section, deduped to at most one ntfy reminder per plant per ~30 days (stamped on the plant), skipped for muted/snoozed plants; digest also fires when nothing needs water but checkups are due | health-check-model | Func: monthly checkup nudge |
+
+Acceptance criteria:
+- `feature/health-check-model`: posting a checkup immediately changes the plant's effective watering interval (sick → longer, excellent → shorter) in dashboard/digest/ICS via the single schedule service; fertilizing is paused (due date clamped to the next checkup day) while sick/bad and hinted in the care-task list; history is immutable (no edit/delete endpoints); migration committed; plant DTOs carry `healthStatus` + `checkupDue`.
+- `feature/health-checkup-ui`: a plant older than 30 days with no (or ≥30-day-old) checkup shows a prompt on the dashboard banner and the card; answering takes one tap (+optional note); the badge shows the current status with icon+text (not color alone); all strings EN/PL.
+- `feature/health-checkup-reminders`: the daily job includes a checkup-due section; per-plant reminders are stamped and re-sent at most every 30 days; a run with no due waterings but pending checkups still sends one digest; muted/snoozed plants are skipped; channel failure never crashes the run.
+
 ## Progress
 
 - `feature/theme-toggle` — done. `ThemeProvider` + `useTheme` (light/dark/system, persisted in `localStorage`, system-following), `ModeToggle` dropdown in the header, pre-paint FOUC script in `index.html`, Vitest coverage; dark tokens unchanged in `index.css`.

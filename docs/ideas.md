@@ -40,6 +40,7 @@ Improvement ideas collected after the v1.0 release. This is a parking lot, not a
 - Search and filter/sort on the plants list (by name, location, due status, species).
 - Group plants by location (room) on the dashboard or as an alternate view.
 - Plant health status / free-text notes on the plant itself (issues, observations), separate from the profile's care tips.
+- Periodic health checkups: a four-level status per plant (sick / bad / good / excellent) recorded via a monthly checkup prompt; the latest answer adjusts the watering/fertilizing schedule until the next checkup (less water + paused feeding while unwell, slightly more while thriving).
 - Unwatered/absence tracking: mark a plant "on vacation" / snooze notifications for N days.
 - Data export/import (JSON) for backup and moving to a new install; SQLite file backup guidance in README.
 - Wider plant catalog with type-ahead species search: instead of picking from the small seeded list, the plant form gets a search-as-you-type combobox backed by an external species database (e.g., Plants-US / Trefle / Perenote API), so any plant the user owns can be found and matched to care defaults. Needs a provider choice (data quality, rate limits, offline-friendliness) and a strategy for caching/importing matches into local `PlantProfile`s.
