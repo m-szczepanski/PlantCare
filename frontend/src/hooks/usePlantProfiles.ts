@@ -3,6 +3,8 @@ import { toast } from "sonner";
 import { plantProfilesApi } from "@/api/client";
 import type { PlantProfileInput } from "@/api/types";
 import { toastError } from "@/lib/toast";
+import { dashboardKeys } from "@/hooks/useDashboard";
+import { plantKeys } from "@/hooks/usePlants";
 import i18n from "@/i18n";
 
 export const profileKeys = { all: ["plant-profiles"] as const };
@@ -32,6 +34,8 @@ export function useProfileMutations() {
     mutationFn: ({ id, input }: { id: number; input: PlantProfileInput }) => plantProfilesApi.update(id, input),
     onSuccess: (profile) => {
       invalidate();
+      queryClient.invalidateQueries({ queryKey: plantKeys.all });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       toast.success(i18n.t("toasts.profileUpdated"), { description: i18n.t("toasts.profileSavedDesc", { name: profile.commonName }) });
     },
     onError: (error) => toastError(i18n.t("toasts.profileUpdateFailed"), error),
