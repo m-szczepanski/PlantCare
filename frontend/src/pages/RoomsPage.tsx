@@ -116,6 +116,7 @@ function RoomCard({ room, plants }: { room: Room; plants: Plant[] }) {
   const update = useUpdateRoom();
   const remove = useDeleteRoom();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [name, setName] = useState(room.name);
   const [orientation, setOrientation] = useState<RoomOrientation | "none">(room.orientation ?? "none");
   const [light, setLight] = useState<LightRequirement | "none">(room.lightExposure ?? "none");
@@ -124,6 +125,24 @@ function RoomCard({ room, plants }: { room: Room; plants: Plant[] }) {
     room.temperatureCelsius === null ? "" : String(room.temperatureCelsius),
   );
 
+  function syncFromRoom() {
+    setName(room.name);
+    setOrientation(room.orientation ?? "none");
+    setLight(room.lightExposure ?? "none");
+    setHumidity(room.humidity ?? "none");
+    setTemperature(room.temperatureCelsius === null ? "" : String(room.temperatureCelsius));
+  }
+
+  function startEdit() {
+    syncFromRoom();
+    setEditing(true);
+  }
+
+  function cancelEdit() {
+    syncFromRoom();
+    setEditing(false);
+  }
+
   const dirty =
     name.trim() !== room.name ||
     orientation !== (room.orientation ?? "none") ||
@@ -131,33 +150,57 @@ function RoomCard({ room, plants }: { room: Room; plants: Plant[] }) {
     humidity !== (room.humidity ?? "none") ||
     temperature !== (room.temperatureCelsius === null ? "" : String(room.temperatureCelsius));
 
+  function save() {
+    if (!dirty) {
+      setEditing(false);
+      return;
+    }
+    update.mutate(
+      {
+        id: room.id,
+        input: {
+          name: name.trim(),
+          orientation: orientation === "none" ? null : orientation,
+          lightExposure: light === "none" ? null : light,
+          humidity: humidity === "none" ? null : humidity,
+          temperatureCelsius: temperature.trim() === "" ? null : Number(temperature),
+        },
+      },
+      { onSuccess: () => setEditing(false) },
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>{room.name}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 text-sm">
-        <p className="text-muted-foreground">
-          {room.orientation ? t("room.facing", { orientation: t(`room.orientationShort.${room.orientation}`) }) : t("room.noOrientationSet")} · {t("room.plantCount", { count: room.plantCount })}
-        </p>
-        {room.lightExposure || room.humidity || room.temperatureCelsius !== null ? (
-          <p className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-            {room.lightExposure ? (
-              <span className="flex items-center gap-1">
-                <Sun className="h-3 w-3" aria-hidden="true" /> {t(`roomLight.level.${room.lightExposure}`)}
-              </span>
+        {!editing ? (
+          <>
+            <p className="text-muted-foreground">
+              {room.orientation ? t("room.facing", { orientation: t(`room.orientationShort.${room.orientation}`) }) : t("room.noOrientationSet")} · {t("room.plantCount", { count: room.plantCount })}
+            </p>
+            {room.lightExposure || room.humidity || room.temperatureCelsius !== null ? (
+              <p className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                {room.lightExposure ? (
+                  <span className="flex items-center gap-1">
+                    <Sun className="h-3 w-3" aria-hidden="true" /> {t(`roomLight.level.${room.lightExposure}`)}
+                  </span>
+                ) : null}
+                {room.humidity ? (
+                  <span className="flex items-center gap-1">
+                    <Droplets className="h-3 w-3" aria-hidden="true" /> {t("room.humidityValue", { level: t(`room.humidity.${room.humidity}`) })}
+                  </span>
+                ) : null}
+                {room.temperatureCelsius !== null ? (
+                  <span className="flex items-center gap-1">
+                    <Thermometer className="h-3 w-3" aria-hidden="true" /> {room.temperatureCelsius}°C
+                  </span>
+                ) : null}
+              </p>
             ) : null}
-            {room.humidity ? (
-              <span className="flex items-center gap-1">
-                <Droplets className="h-3 w-3" aria-hidden="true" /> {t("room.humidityValue", { level: t(`room.humidity.${room.humidity}`) })}
-              </span>
-            ) : null}
-            {room.temperatureCelsius !== null ? (
-              <span className="flex items-center gap-1">
-                <Thermometer className="h-3 w-3" aria-hidden="true" /> {room.temperatureCelsius}°C
-              </span>
-            ) : null}
-          </p>
+          </>
         ) : null}
         {plants.length > 0 ? (
           <ul className="space-y-1 text-sm">
@@ -169,98 +212,102 @@ function RoomCard({ room, plants }: { room: Room; plants: Plant[] }) {
             ))}
           </ul>
         ) : null}
-        <div className="space-y-1">
-          <Label htmlFor={`room-name-${room.id}`}>{t("room.name")}</Label>
-          <Input
-            id={`room-name-${room.id}`}
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            className={touchField}
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          <div className="space-y-1">
-            <Label htmlFor={`room-light-${room.id}`}>{t("room.lightExposure")}</Label>
-            <Select value={light} onValueChange={(value) => setLight(value as LightRequirement | "none")}>
-              <SelectTrigger id={`room-light-${room.id}`} className={touchField}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">{t("room.unknown")}</SelectItem>
-                {LIGHT_EXPOSURES.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {t(`roomLight.level.${option}`)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        {editing ? (
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label htmlFor={`room-name-${room.id}`}>{t("room.name")}</Label>
+              <Input
+                id={`room-name-${room.id}`}
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                className={touchField}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <Label htmlFor={`room-light-${room.id}`}>{t("room.lightExposure")}</Label>
+                <Select value={light} onValueChange={(value) => setLight(value as LightRequirement | "none")}>
+                  <SelectTrigger id={`room-light-${room.id}`} className={touchField}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">{t("room.unknown")}</SelectItem>
+                    {LIGHT_EXPOSURES.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {t(`roomLight.level.${option}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor={`room-humidity-${room.id}`}>{t("room.humidityLabel")}</Label>
+                <Select value={humidity} onValueChange={(value) => setHumidity(value as HumidityLevel | "none")}>
+                  <SelectTrigger id={`room-humidity-${room.id}`} className={touchField}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">{t("room.unknown")}</SelectItem>
+                    {HUMIDITIES.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {t(`room.humidity.${option}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor={`room-temperature-${room.id}`}>{t("room.temperature")}</Label>
+              <Input
+                id={`room-temperature-${room.id}`}
+                type="number"
+                min={-10}
+                max={45}
+                value={temperature}
+                onChange={(event) => setTemperature(event.target.value)}
+                className={touchField}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor={`room-orientation-${room.id}`}>{t("room.orientationLabel")}</Label>
+              <Select
+                value={orientation}
+                onValueChange={(value) => setOrientation(value as RoomOrientation | "none")}
+              >
+                <SelectTrigger id={`room-orientation-${room.id}`} className={touchField}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ORIENTATIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {t(option.labelKey)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="space-y-1">
-            <Label htmlFor={`room-humidity-${room.id}`}>{t("room.humidityLabel")}</Label>
-            <Select value={humidity} onValueChange={(value) => setHumidity(value as HumidityLevel | "none")}>
-              <SelectTrigger id={`room-humidity-${room.id}`} className={touchField}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">{t("room.unknown")}</SelectItem>
-                {HUMIDITIES.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {t(`room.humidity.${option}`)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        <div className="space-y-1">
-          <Label htmlFor={`room-temperature-${room.id}`}>{t("room.temperature")}</Label>
-          <Input
-            id={`room-temperature-${room.id}`}
-            type="number"
-            min={-10}
-            max={45}
-            value={temperature}
-            onChange={(event) => setTemperature(event.target.value)}
-            className={touchField}
-          />
-        </div>
-        <div className="space-y-1">
-          <Label htmlFor={`room-orientation-${room.id}`}>{t("room.orientationLabel")}</Label>
-          <Select
-            value={orientation}
-            onValueChange={(value) => setOrientation(value as RoomOrientation | "none")}
-          >
-            <SelectTrigger id={`room-orientation-${room.id}`} className={touchField}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {ORIENTATIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {t(option.labelKey)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        ) : null}
         <div className="flex flex-wrap gap-2">
-          <Button
-            size="sm"
-            disabled={!dirty || update.isPending || name.trim() === ""}
-            onClick={() =>
-              update.mutate({
-                id: room.id,
-                input: {
-                  name: name.trim(),
-                  orientation: orientation === "none" ? null : orientation,
-                  lightExposure: light === "none" ? null : light,
-                  humidity: humidity === "none" ? null : humidity,
-                  temperatureCelsius: temperature.trim() === "" ? null : Number(temperature),
-                },
-              })
-            }
-          >
-            {t("common.save")}
-          </Button>
+          {editing ? (
+            <>
+              <Button
+                size="sm"
+                disabled={update.isPending || name.trim() === ""}
+                onClick={save}
+              >
+                {update.isPending ? t("common.saving") : t("common.save")}
+              </Button>
+              <Button size="sm" variant="ghost" disabled={update.isPending} onClick={cancelEdit}>
+                {t("common.cancel")}
+              </Button>
+            </>
+          ) : (
+            <Button size="sm" variant="outline" disabled={remove.isPending} onClick={startEdit}>
+              {t("common.edit")}
+            </Button>
+          )}
           <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
             <AlertDialogTrigger asChild>
               <Button size="sm" variant="outline" disabled={remove.isPending}>
