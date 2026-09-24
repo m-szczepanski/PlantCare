@@ -34,6 +34,9 @@ public static class Messages
             ["digest.checkups.title.other"] = "{0} health checkups are due",
             ["digest.checkups.header"] = "Health checkups due ({0}):",
 
+            ["test.title"] = "PlantCare test notification",
+            ["test.body"] = "This is a test push from PlantCare. If you can read this on your phone, notifications are wired up correctly.",
+
             ["hint.fertilizingWinter"] = "Winter rest: hold off feeding until spring.",
             ["hint.fertilizingPaused"] = "Feeding is paused while the plant is unwell — it resumes at the next health checkup.",
             ["hint.flush"] = "Flushing the soil with plain water helps clear fertilizer salts.",
@@ -94,6 +97,9 @@ public static class Messages
             ["digest.checkups.title.few"] = "{0} przeglądy zdrowia do zrobienia",
             ["digest.checkups.title.many"] = "{0} przeglądów zdrowia do zrobienia",
             ["digest.checkups.header"] = "Przeglądy zdrowia do zrobienia ({0}):",
+
+            ["test.title"] = "Testowe powiadomienie PlantCare",
+            ["test.body"] = "To jest testowe powiadomienie z PlantCare. Jeśli to widzisz, powiadomienia są skonfigurowane poprawnie.",
 
             ["hint.fertilizingWinter"] = "Zimowy spoczynek: wstrzymaj nawożenie do wiosny.",
             ["hint.fertilizingPaused"] = "Nawożenie jest wstrzymane, dopóki roślina jest chora — wróci przy następnym przeglądzie zdrowia.",

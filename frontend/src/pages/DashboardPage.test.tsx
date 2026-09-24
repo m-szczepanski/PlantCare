@@ -248,6 +248,7 @@ describe("DashboardPage", () => {
         latencyMs: 8,
         error: null,
       },
+      channels: ["ntfy"],
     });
     vi.mocked(dashboardApi.get).mockResolvedValue(emptyDashboard);
 

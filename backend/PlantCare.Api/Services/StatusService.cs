@@ -11,7 +11,8 @@ public sealed record StatusInfo(
     string WateringCheckCron,
     JobRunStatus? LastJobRun,
     DigestStatus? LastDigest,
-    NtfyStatus Ntfy);
+    NtfyStatus Ntfy,
+    IReadOnlyList<string> Channels);
 
 public sealed record JobRunStatus(DateTime RanAt, string Outcome, int SentDigests, int Failed);
 
@@ -29,6 +30,7 @@ public sealed class StatusService(
     IHttpClientFactory httpFactory,
     NtfyOptions ntfy,
     IConfiguration configuration,
+    IEnumerable<INotificationChannel> channels,
     IHttpContextAccessor httpContextAccessor) : IStatusService
 {
     public async Task<StatusInfo> GetAsync(CancellationToken cancellationToken = default)
@@ -50,7 +52,8 @@ public sealed class StatusService(
             configuration["WATERING_CHECK_CRON"] ?? "0 8 * * *",
             lastRun is null ? null : new JobRunStatus(lastRun.RanAt, lastRun.Outcome, lastRun.SentDigests, lastRun.Failed),
             lastDigest is null ? null : new DigestStatus(lastDigest.SentAt, lastDigest.PlantCount, lastDigest.OverdueCount, lastDigest.Priority),
-            ntfyStatus);
+            ntfyStatus,
+            channels.Select(c => c.Name).Distinct().OrderBy(n => n, StringComparer.Ordinal).ToList());
     }
 
     private async Task<NtfyStatus> ProbeNtfyAsync(CancellationToken cancellationToken)

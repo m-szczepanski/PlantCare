@@ -80,6 +80,7 @@ builder.Services.AddSingleton(new QuickActionOptions(quickActionSecret, quickAct
 builder.Services.AddSingleton<QuickActionRateLimiter>();
 builder.Services.AddHttpClient<INtfyPublisher, NtfyPublisher>();
 builder.Services.AddSingleton<INotificationChannel, NtfyChannel>();
+builder.Services.AddScoped<INotificationTestService, NotificationTestService>();
 var telegramToken = builder.Configuration["TELEGRAM_BOT_TOKEN"];
 var telegramChatId = builder.Configuration["TELEGRAM_CHAT_ID"];
 if (!string.IsNullOrWhiteSpace(telegramToken) && !string.IsNullOrWhiteSpace(telegramChatId))

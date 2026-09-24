@@ -247,6 +247,27 @@ export interface StatusInfo {
   lastJobRun: JobRunStatus | null;
   lastDigest: DigestStatus | null;
   ntfy: NtfyStatus;
+  channels: string[];
+}
+
+export interface NotificationChannelResult {
+  name: string;
+  delivered: boolean;
+  error: string | null;
+}
+
+export interface NotificationTestResult {
+  channels: NotificationChannelResult[];
+  anyDelivered: boolean;
+  total: number;
+  delivered: number;
+}
+
+export interface WateringCheckResult {
+  sentDigests: number;
+  skippedDuplicates: number;
+  failed: number;
+  plantsInDigest: number;
 }
 
 export interface ImportResult {

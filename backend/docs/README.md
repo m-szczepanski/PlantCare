@@ -59,6 +59,10 @@ GET    /api/insights               read-only collection stats: totals, species d
 
 GET    /api/reference-data/soil-types   pickable soil types with their watering-permeability factors (drives the plant-form picker and live preview)
 GET    /api/reference-data/soil-mixes   DB-backed soil mix catalog (seeded from Seed/soil-mixes.json) powering the plant-form soil-mix picker
+
+GET    /api/status                 scheduler cron, last job run, last digest, live ntfy probe (reachable/latency + browser-facing subscribe URL) and the list of configured delivery channels
+POST   /api/notifications/test     sends an ad-hoc test push through every configured `INotificationChannel`; body `{ message? }` (blank -> localized default); returns per-channel `delivered`/`error` results and never fails a channel aborts the rest
+POST   /api/notifications/run-check runs the daily watering check immediately (same path as the Coravel job; honors the once-per-day digest dedup)
 ```
 
 Profile data: `DiagnosisChecklist` is a validated JSON array (`[{symptom, causes[]}]`, `DiagnosisChecklist.TryValidate`) served inside `PlantProfile` responses and the embedded care tips; `ToxicToPets`/`ToxicToChildren` flags surface on cards, the detail page and the watering digest. `SeedLoader` also scans `SEED_CUSTOM_PATH` (default `/data/seed-custom`, on the plant-data volume) at startup for drop-in `*.json` user species — existing names skipped, malformed files logged and ignored. (single source of truth). ICS output uses CRLF line endings with 74-char folding and text escaping; adherence counts logs in the last 30 days against `window / interval` expectations; a streak is consecutive recent waterings whose gaps stay within `interval + 2` days.
