@@ -26,6 +26,7 @@ const status: StatusInfo = {
     latencyMs: 12,
     error: null,
   },
+  channels: ["ntfy"],
 };
 
 beforeEach(() => {

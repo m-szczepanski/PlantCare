@@ -1,13 +1,16 @@
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { CircleCheck, CircleX } from "lucide-react";
+import { CircleCheck, CircleX, Send, Play } from "lucide-react";
 import { toast } from "sonner";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { backupApi } from "@/api/client";
 import { useStatus } from "@/hooks/useStatus";
+import { useRunWateringCheck, useSendTestNotification } from "@/hooks/useNotifications";
 import { toastError } from "@/lib/toast";
 import { formatInstant } from "@/lib/dates";
 import { touchButton } from "@/lib/ui";
@@ -35,6 +38,13 @@ export function StatusPage() {
   const { data: status, isPending, isError, error } = useStatus(30_000);
   const [importing, setImporting] = useState(false);
   const importInputRef = useRef<HTMLInputElement>(null);
+  const [testMessage, setTestMessage] = useState("");
+  const sendTest = useSendTestNotification();
+  const runCheck = useRunWateringCheck();
+
+  function handleSendTest() {
+    sendTest.mutate(testMessage);
+  }
 
   async function handleImport(file: File) {
     setImporting(true);
@@ -117,11 +127,52 @@ export function StatusPage() {
               {status.ntfy.error ? (
                 <p className="text-muted-foreground">{status.ntfy.error}</p>
               ) : null}
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground">{t("status.channels")}:</span>
+                {status.channels.length > 0 ? (
+                  status.channels.map((name) => (
+                    <Badge key={name} variant="secondary" className="capitalize">
+                      {name}
+                    </Badge>
+                  ))
+                ) : (
+                  <span className="text-muted-foreground">{t("status.noChannels")}</span>
+                )}
+              </div>
               <Button variant="outline" asChild className={touchButton}>
                 <a href={status.ntfy.subscribeUrl} target="_blank" rel="noreferrer">
                   {t("status.openSubscription")}
                 </a>
               </Button>
+
+              <div className="space-y-2 border-t pt-3">
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Input
+                    value={testMessage}
+                    onChange={(event) => setTestMessage(event.target.value)}
+                    placeholder={t("status.testPlaceholder")}
+                    maxLength={200}
+                    disabled={sendTest.isPending}
+                  />
+                  <Button
+                    className={touchButton}
+                    onClick={handleSendTest}
+                    disabled={sendTest.isPending || status.channels.length === 0}
+                  >
+                    <Send className="h-4 w-4" aria-hidden="true" />
+                    {sendTest.isPending ? t("status.testSending") : t("status.testSend")}
+                  </Button>
+                </div>
+                <Button
+                  variant="outline"
+                  className={touchButton}
+                  onClick={() => runCheck.mutate()}
+                  disabled={runCheck.isPending}
+                >
+                  <Play className="h-4 w-4" aria-hidden="true" />
+                  {runCheck.isPending ? t("status.checkRunning") : t("status.checkRunNow")}
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
