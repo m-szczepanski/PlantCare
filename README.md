@@ -38,7 +38,7 @@ docker compose up -d --build
 | API | http://localhost:5001 |
 | ntfy | http://localhost:8080 |
 
-To receive notifications, subscribe to your topic (default `plant-care`) in the [ntfy](https://ntfy.sh) mobile or desktop app, or in the browser at http://localhost:8080, pointing it at your server.
+To receive notifications, subscribe to your topic (default `plant-care`) in the [ntfy](https://ntfy.sh) mobile or desktop app. In the app, first **add your own server** (it defaults to the public `ntfy.sh`) pointing at your ntfy host — e.g. `http://<your-nas-ip>:<port>` (the published port is `NTFY_PUBLIC_PORT`, `8080` by default; set it to whatever you map `ntfy` on, e.g. `7272`) — then subscribe to the `plant-care` topic. You can also open the browser UI at `http://localhost:8080/plant-care`. The in-app **Status page** shows the resolved subscribe link, a live ntfy reachability probe and the configured delivery channels, and has a **Send test notification** button (plus **Run watering check now**) to verify end-to-end delivery to your phone without waiting for the daily schedule.
 
 ## Configuration
 
@@ -48,6 +48,8 @@ All settings are read from `.env`. See [`.env.example`](.env.example) for the fu
 |----------|---------|-------------|
 | `WATERING_CHECK_CRON` | `0 8 * * *` | Cron schedule for the daily due-plants check |
 | `NTFY_TOPIC` | `plant-care` | ntfy topic that notifications are published to |
+| `NTFY_URL` | `http://ntfy:80` | Container-network URL the API publishes to |
+| `NTFY_PUBLIC_PORT` | `8080` | Host port ntfy is published on — used to build the phone/browser subscribe link (set to e.g. `7272` if you map it there; must match the `ntfy` service `ports:` mapping) |
 | `ENABLE_CARE_TIPS` | `true` | Show species care tips in the plant detail view |
 | `DB_CONNECTIONSTRING` | `Data Source=/data/plantcare.db` | EF Core connection string |
 
