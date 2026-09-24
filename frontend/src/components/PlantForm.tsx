@@ -8,6 +8,7 @@ import { ProfileCombobox } from "@/components/ProfileCombobox";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -93,6 +94,12 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
       to: effectiveInterval,
     });
   })();
+
+  const soilMixChoice = (value: string): SoilType | null => {
+    if (value === "none") return null;
+    const named = soilTypes.find((option) => option.mixes.includes(value));
+    return named ? named.type : (value as SoilType);
+  };
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -275,7 +282,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
           <Label htmlFor="soilType">{t("form.soilType")}</Label>
           <Select
             value={soilType ?? "none"}
-            onValueChange={(value) => setSoilType(value === "none" ? null : (value as SoilType))}
+            onValueChange={(value) => setSoilType(soilMixChoice(value))}
           >
             <SelectTrigger id="soilType" className={touchField}>
               <SelectValue placeholder={t("form.soilTypeNone")} />
@@ -283,9 +290,16 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
             <SelectContent>
               <SelectItem value="none">{t("form.soilTypeNone")}</SelectItem>
               {soilTypes.map((option) => (
-                <SelectItem key={option.type} value={option.type}>
-                  {t(`soilType.${option.type}`)}
-                </SelectItem>
+                <SelectGroup key={option.type}>
+                  <SelectItem value={option.type}>{t(`soilType.${option.type}`)}</SelectItem>
+                  {option.mixes
+                    .filter((mix) => mix !== t(`soilType.${option.type}`))
+                    .map((mix) => (
+                      <SelectItem key={mix} value={mix} className="text-muted-foreground">
+                        {mix}
+                      </SelectItem>
+                    ))}
+                </SelectGroup>
               ))}
             </SelectContent>
           </Select>

@@ -3,12 +3,12 @@ import type { SoilTypeOption } from "@/api/types";
 import { applySoilFactor, soilFactor } from "@/lib/soilTypes";
 
 const options: SoilTypeOption[] = [
-  { type: "AllPurpose", wateringIntervalFactor: 1 },
-  { type: "CactusMix", wateringIntervalFactor: 0.7 },
-  { type: "ChunkyBark", wateringIntervalFactor: 0.55 },
-  { type: "PeatCoco", wateringIntervalFactor: 1.15 },
-  { type: "SemiHydro", wateringIntervalFactor: 1.3 },
-  { type: "SelfWatering", wateringIntervalFactor: 1.5 },
+  { type: "AllPurpose", wateringIntervalFactor: 1, mixes: ["All-purpose potting mix", "Worm casting boost", "Leaf mold & loam"] },
+  { type: "CactusMix", wateringIntervalFactor: 0.7, mixes: ["Cactus & succulent mix", "Pumice-heavy inorganic mix"] },
+  { type: "ChunkyBark", wateringIntervalFactor: 0.55, mixes: ["Aroid chunky blend", "Orchid bark mix"] },
+  { type: "PeatCoco", wateringIntervalFactor: 1.15, mixes: ["Peat & perlite mix", "Coco coir & perlite blend", "Sphagnum moss"] },
+  { type: "SemiHydro", wateringIntervalFactor: 1.3, mixes: ["Semi-hydro LECA"] },
+  { type: "SelfWatering", wateringIntervalFactor: 1.5, mixes: ["Self-watering pot blend"] },
 ];
 
 describe("soilFactor", () => {

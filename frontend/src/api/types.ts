@@ -22,6 +22,7 @@ export type SoilType =
 export interface SoilTypeOption {
   type: SoilType;
   wateringIntervalFactor: number;
+  mixes: string[];
 }
 
 export interface CareTask {

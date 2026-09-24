@@ -10,6 +10,28 @@ namespace PlantCare.Api.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            // Fold the old soil-mix values into the soil-type category before the
+            // drop so plants keep a functional substrate (mirrors SoilTypes.MixToType).
+            migrationBuilder.Sql("""
+                UPDATE Plants
+                SET SoilType = CASE SoilMix
+                    WHEN 'All-purpose potting mix' THEN 'AllPurpose'
+                    WHEN 'Worm casting boost' THEN 'AllPurpose'
+                    WHEN 'Leaf mold & loam' THEN 'AllPurpose'
+                    WHEN 'Cactus & succulent mix' THEN 'CactusMix'
+                    WHEN 'Pumice-heavy inorganic mix' THEN 'CactusMix'
+                    WHEN 'Aroid chunky blend' THEN 'ChunkyBark'
+                    WHEN 'Orchid bark mix' THEN 'ChunkyBark'
+                    WHEN 'Peat & perlite mix' THEN 'PeatCoco'
+                    WHEN 'Coco coir & perlite blend' THEN 'PeatCoco'
+                    WHEN 'Sphagnum moss' THEN 'PeatCoco'
+                    WHEN 'Semi-hydro LECA' THEN 'SemiHydro'
+                    WHEN 'Self-watering pot blend' THEN 'SelfWatering'
+                    ELSE SoilType
+                END
+                WHERE SoilType IS NULL AND SoilMix IS NOT NULL;
+                """);
+
             migrationBuilder.DropTable(
                 name: "SoilMixes");
 

@@ -10,12 +10,12 @@ vi.mock("@/api/client", () => ({
   roomsApi: { list: vi.fn().mockResolvedValue([]), create: vi.fn(), update: vi.fn(), remove: vi.fn() },
   referenceDataApi: {
     soilTypes: vi.fn().mockResolvedValue([
-      { type: "AllPurpose", wateringIntervalFactor: 1 },
-      { type: "CactusMix", wateringIntervalFactor: 0.7 },
-      { type: "ChunkyBark", wateringIntervalFactor: 0.55 },
-      { type: "PeatCoco", wateringIntervalFactor: 1.15 },
-      { type: "SemiHydro", wateringIntervalFactor: 1.3 },
-      { type: "SelfWatering", wateringIntervalFactor: 1.5 },
+      { type: "AllPurpose", wateringIntervalFactor: 1, mixes: ["All-purpose potting mix", "Worm casting boost", "Leaf mold & loam"] },
+      { type: "CactusMix", wateringIntervalFactor: 0.7, mixes: ["Cactus & succulent mix", "Pumice-heavy inorganic mix"] },
+      { type: "ChunkyBark", wateringIntervalFactor: 0.55, mixes: ["Aroid chunky blend", "Orchid bark mix"] },
+      { type: "PeatCoco", wateringIntervalFactor: 1.15, mixes: ["Peat & perlite mix", "Coco coir & perlite blend", "Sphagnum moss"] },
+      { type: "SemiHydro", wateringIntervalFactor: 1.3, mixes: ["Semi-hydro LECA"] },
+      { type: "SelfWatering", wateringIntervalFactor: 1.5, mixes: ["Self-watering pot blend"] },
     ]),
   },
   ApiError: class ApiError extends Error {},
@@ -233,5 +233,45 @@ describe("PlantForm", () => {
       expect.objectContaining({ soilType: "SemiHydro", customWateringIntervalDays: 10 }),
       null,
     );
+  });
+
+  it("resolves a legacy soil mix name to its soil type on submit", async () => {
+    const onSubmit = vi.fn();
+    renderWithProviders(
+      <PlantForm
+        submitting={false}
+        submitLabel="Create plant"
+        onSubmit={onSubmit}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(await screen.findByRole("combobox", { name: "Soil type" }));
+    fireEvent.click(await screen.findByRole("option", { name: "Aroid chunky blend" }));
+
+    fireEvent.change(screen.getByLabelText("Nick name"), { target: { value: "Pat" } });
+    fireEvent.click(screen.getByRole("button", { name: "Create plant" }));
+
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ soilType: "ChunkyBark" }), null);
+  });
+
+  it("shows every catalogued soil mix name as a picker option", async () => {
+    renderForm();
+    fireEvent.click(await screen.findByRole("combobox", { name: "Soil type" }));
+    await screen.findByRole("option", { name: "Semi-hydro LECA" });
+
+    for (const mix of [
+      "Worm casting boost",
+      "Leaf mold & loam",
+      "Pumice-heavy inorganic mix",
+      "Aroid chunky blend",
+      "Orchid bark mix",
+      "Peat & perlite mix",
+      "Coco coir & perlite blend",
+      "Sphagnum moss",
+      "Self-watering pot blend",
+    ]) {
+      expect(screen.getByRole("option", { name: mix })).toBeInTheDocument();
+    }
   });
 });
