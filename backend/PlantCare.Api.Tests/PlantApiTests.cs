@@ -120,27 +120,23 @@ public class PlantApiTests : IDisposable
         {
             nickName = "Repot Rita",
             potSizeCm = 14,
-            soilMix = "Bark, perlite, coco",
             propagatedFrom = "Cutting from grandma's plant",
         });
         var body = await created.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
 
         Assert.Equal(14, body!.PotSizeCm);
-        Assert.Equal("Bark, perlite, coco", body.SoilMix);
         Assert.Equal("Cutting from grandma's plant", body.PropagatedFrom);
 
         var response = await _client.PutAsJsonAsync($"/api/plants/{body.Id}", new
         {
             nickName = "Repot Rita",
             potSizeCm = 18,
-            soilMix = "Fresh aroid mix",
             propagatedFrom = null as string,
         });
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var updated = await response.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
 
         Assert.Equal(18, updated!.PotSizeCm);
-        Assert.Equal("Fresh aroid mix", updated.SoilMix);
         Assert.Null(updated.PropagatedFrom);
     }
 

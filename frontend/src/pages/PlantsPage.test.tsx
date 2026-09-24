@@ -26,7 +26,6 @@ const monstera: Plant = {
   photoUrl: null,
   potSizeCm: null,
   soilType: null,
-  soilMix: null,
   propagatedFrom: null,
   notifyEnabled: true,
   snoozedUntil: null,

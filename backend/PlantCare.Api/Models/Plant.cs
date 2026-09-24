@@ -21,8 +21,6 @@ public class Plant
     /// <summary>Substrate category driving the watering-schedule permeability factor.</summary>
     public SoilType? SoilType { get; set; }
 
-    public string? SoilMix { get; set; }
-
     public string? PropagatedFrom { get; set; }
 
     /// <summary>When false the plant is skipped by the daily watering digest.</summary>

@@ -8,12 +8,12 @@ import { ProfileCombobox } from "@/components/ProfileCombobox";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { usePlantProfiles } from "@/hooks/usePlantProfiles";
-import { useSoilMixes } from "@/hooks/useSoilMixes";
 import { useSoilTypes } from "@/hooks/useSoilTypes";
 import { useCreateRoom, useRooms } from "@/hooks/useRooms";
 import { applySoilFactor } from "@/lib/soilTypes";
@@ -42,7 +42,6 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
   const { t, i18n } = useTranslation();
   const { data: profiles = [] } = usePlantProfiles();
   const { data: soilTypes = [] } = useSoilTypes();
-  const { data: soilMixes = [] } = useSoilMixes();
   const { data: rooms = [] } = useRooms();
   const createRoom = useCreateRoom();
 
@@ -53,7 +52,6 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [potSizeCm, setPotSizeCm] = useState(initial?.potSizeCm?.toString() ?? "");
   const [soilType, setSoilType] = useState<SoilType | null>(initial?.soilType ?? null);
-  const [soilMix, setSoilMix] = useState(initial?.soilMix ?? "");
   const [propagatedFrom, setPropagatedFrom] = useState(initial?.propagatedFrom ?? "");
   const [notifyEnabled, setNotifyEnabled] = useState<boolean>(initial?.notifyEnabled ?? true);
   const [profileId, setProfileId] = useState<number | null>(initial?.plantProfileId ?? null);
@@ -66,9 +64,6 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
 
   const selectedProfile = profiles.find((profile) => profile.id === profileId);
 
-  const soilMixNames = soilMixes.map((mix) => mix.name);
-  const soilMixOptions =
-    soilMix !== "" && !soilMixNames.includes(soilMix) ? [soilMix, ...soilMixNames] : soilMixNames;
   const customDays = customInterval.trim() === "" ? null : Number(customInterval);
   const baseInterval =
     customDays !== null && Number.isFinite(customDays)
@@ -100,6 +95,12 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
     });
   })();
 
+  const soilMixChoice = (value: string): SoilType | null => {
+    if (value === "none") return null;
+    const named = soilTypes.find((option) => option.mixes.includes(value));
+    return named ? named.type : (value as SoilType);
+  };
+
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
 
@@ -113,7 +114,6 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
         photoUrl: photoUrl.trim() || null,
         potSizeCm: potSizeCm.trim() === "" ? null : Number(potSizeCm),
         soilType,
-        soilMix: soilMix.trim() || null,
         propagatedFrom: propagatedFrom.trim() || null,
         notifyEnabled,
         acquiredDate: fromDateString(acquiredDate) ?? new Date().toISOString(),
@@ -282,7 +282,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
           <Label htmlFor="soilType">{t("form.soilType")}</Label>
           <Select
             value={soilType ?? "none"}
-            onValueChange={(value) => setSoilType(value === "none" ? null : (value as SoilType))}
+            onValueChange={(value) => setSoilType(soilMixChoice(value))}
           >
             <SelectTrigger id="soilType" className={touchField}>
               <SelectValue placeholder={t("form.soilTypeNone")} />
@@ -290,34 +290,21 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
             <SelectContent>
               <SelectItem value="none">{t("form.soilTypeNone")}</SelectItem>
               {soilTypes.map((option) => (
-                <SelectItem key={option.type} value={option.type}>
-                  {t(`soilType.${option.type}`)}
-                </SelectItem>
+                <SelectGroup key={option.type}>
+                  <SelectItem value={option.type}>{t(`soilType.${option.type}`)}</SelectItem>
+                  {option.mixes
+                    .filter((mix) => mix !== t(`soilType.${option.type}`))
+                    .map((mix) => (
+                      <SelectItem key={mix} value={mix} className="text-muted-foreground">
+                        {mix}
+                      </SelectItem>
+                    ))}
+                </SelectGroup>
               ))}
             </SelectContent>
           </Select>
           {soilHint ? <p className="text-xs text-muted-foreground">{soilHint}</p> : null}
         </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="soilMix">{t("form.soilMix")}</Label>
-        <Select
-          value={soilMix === "" ? "none" : soilMix}
-          onValueChange={(value) => setSoilMix(value === "none" ? "" : value)}
-        >
-          <SelectTrigger id="soilMix" className={touchField}>
-            <SelectValue placeholder={t("form.soilMixNone")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">{t("form.soilMixNone")}</SelectItem>
-            {soilMixOptions.map((name) => (
-              <SelectItem key={name} value={name}>
-                {name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
 
       <div className="space-y-2">

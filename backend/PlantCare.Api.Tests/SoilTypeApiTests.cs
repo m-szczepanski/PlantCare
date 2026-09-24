@@ -110,6 +110,36 @@ public class SoilTypeApiTests : IDisposable
         Assert.Equal(10, clearedBody.WateringIntervalDays);
     }
 
+    [Fact]
+    public async Task ReferenceData_SoilTypes_CoverEveryLegacySoilMixName()
+    {
+        var options = await _client.GetFromJsonAsync<List<SoilTypeOptionDto>>(
+            "/api/reference-data/soil-types", Options);
+
+        Assert.NotNull(options);
+        Assert.Equal(6, options.Count);
+
+        var mixes = options.SelectMany(o => o.Mixes).ToList();
+        foreach (var legacyName in new[]
+        {
+            "All-purpose potting mix",
+            "Aroid chunky blend",
+            "Cactus & succulent mix",
+            "Orchid bark mix",
+            "Peat & perlite mix",
+            "Coco coir & perlite blend",
+            "Worm casting boost",
+            "Pumice-heavy inorganic mix",
+            "Sphagnum moss",
+            "Leaf mold & loam",
+            "Semi-hydro LECA",
+            "Self-watering pot blend",
+        })
+        {
+            Assert.Contains(legacyName, mixes);
+        }
+    }
+
     public void Dispose()
     {
         _client.Dispose();
