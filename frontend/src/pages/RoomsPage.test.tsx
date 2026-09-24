@@ -32,16 +32,21 @@ describe("RoomsPage", () => {
     expect(screen.getByText(/No orientation set · 0 plants/)).toBeInTheDocument();
   });
 
-  it("shows environment chips and saves edits with environment values", async () => {
+  it("displays properties read-only and saves edits only after entering edit mode", async () => {
     vi.mocked(roomsApi.update).mockResolvedValue(rooms[0]);
 
     renderWithProviders(<RoomsPage />, { route: "/rooms" });
 
     expect(await screen.findByText("Medium humidity")).toBeInTheDocument();
     expect(screen.getByText("21°C")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Average temperature (°C)")).not.toBeInTheDocument();
 
-    fireEvent.change(screen.getAllByLabelText("Average temperature (°C)")[0], { target: { value: "19" } });
-    const save = screen.getAllByRole("button", { name: "Save" })[0];
+    const livingRoom = screen.getByText("Living room");
+    const card = livingRoom.closest<HTMLElement>("div.rounded-xl")!;
+    fireEvent.click(within(card).getByRole("button", { name: "Edit" }));
+
+    fireEvent.change(within(card).getByLabelText("Average temperature (°C)"), { target: { value: "19" } });
+    const save = within(card).getByRole("button", { name: "Save" });
     expect(save).toBeEnabled();
     fireEvent.click(save);
 
@@ -54,6 +59,24 @@ describe("RoomsPage", () => {
         temperatureCelsius: 19,
       }),
     );
+  });
+
+  it("discards changes and returns to read-only view on cancel", async () => {
+    vi.mocked(roomsApi.update).mockResolvedValue(rooms[0]);
+
+    renderWithProviders(<RoomsPage />, { route: "/rooms" });
+
+    const livingRoom = await screen.findByText("Living room");
+    const card = livingRoom.closest<HTMLElement>("div.rounded-xl")!;
+    fireEvent.click(within(card).getByRole("button", { name: "Edit" }));
+
+    const temperature = within(card).getByLabelText("Average temperature (°C)");
+    fireEvent.change(temperature, { target: { value: "19" } });
+    fireEvent.click(within(card).getByRole("button", { name: "Cancel" }));
+
+    expect(roomsApi.update).not.toHaveBeenCalled();
+    expect(within(card).queryByLabelText("Average temperature (°C)")).not.toBeInTheDocument();
+    expect(within(card).getByText("21°C")).toBeInTheDocument();
   });
 
   it("creates a room through the API", async () => {
