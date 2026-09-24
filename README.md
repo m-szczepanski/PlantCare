@@ -22,7 +22,7 @@ Built for personal use on a local network. Single-user by design, no accounts, n
 **Requirements:** Docker with Docker Compose.
 
 ```bash
-git clone <your-repo-url> plant-care-app
+git clone m-szczepanski/PlantCare
 cd plant-care-app
 cp .env.example .env
 docker compose up -d --build
