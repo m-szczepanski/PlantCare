@@ -107,7 +107,6 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             PhotoUrl = dto.PhotoUrl,
             PotSizeCm = dto.PotSizeCm,
             SoilType = dto.SoilType,
-            SoilMix = string.IsNullOrWhiteSpace(dto.SoilMix) ? null : dto.SoilMix.Trim(),
             PropagatedFrom = string.IsNullOrWhiteSpace(dto.PropagatedFrom) ? null : dto.PropagatedFrom.Trim(),
             AcquiredDate = dto.AcquiredDate,
             PlantProfileId = dto.PlantProfileId,
@@ -152,7 +151,6 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         plant.PhotoUrl = dto.PhotoUrl;
         plant.PotSizeCm = dto.PotSizeCm;
         plant.SoilType = dto.SoilType;
-        plant.SoilMix = string.IsNullOrWhiteSpace(dto.SoilMix) ? null : dto.SoilMix.Trim();
         plant.PropagatedFrom = string.IsNullOrWhiteSpace(dto.PropagatedFrom) ? null : dto.PropagatedFrom.Trim();
         plant.NotifyEnabled = dto.NotifyEnabled;
         plant.AcquiredDate = dto.AcquiredDate;
@@ -524,7 +522,6 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             PhotoUrl = plant.PhotoUrl,
             PotSizeCm = plant.PotSizeCm,
             SoilType = plant.SoilType,
-            SoilMix = plant.SoilMix,
             PropagatedFrom = plant.PropagatedFrom,
             NotifyEnabled = plant.NotifyEnabled,
             SnoozedUntil = plant.SnoozedUntil,

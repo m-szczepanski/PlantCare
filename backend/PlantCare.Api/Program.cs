@@ -57,7 +57,6 @@ builder.Services.AddScoped<IWateringScheduleService, WateringScheduleService>();
 builder.Services.AddScoped<IPlantService, PlantService>();
 builder.Services.AddScoped<IPlantProfileService, PlantProfileService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
-builder.Services.AddScoped<ISoilMixService, SoilMixService>();
 builder.Services.AddScoped<ICareTaskService, CareTaskService>();
 builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
 builder.Services.AddScoped<IJournalService, JournalService>();
@@ -124,7 +123,6 @@ using (var scope = app.Services.CreateScope())
         builder.Configuration["SEED_CUSTOM_PATH"] ?? "/data/seed-custom",
         logger);
     await SeedLoader.LoadProfileTranslationsAsync(db, seedDirectory, logger);
-    await SeedLoader.LoadSoilMixesAsync(db, Path.Combine(seedDirectory, "soil-mixes.json"), logger);
 }
 
 app.MapOpenApi();

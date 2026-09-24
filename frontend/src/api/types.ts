@@ -24,11 +24,6 @@ export interface SoilTypeOption {
   wateringIntervalFactor: number;
 }
 
-export interface SoilMixOption {
-  id: number;
-  name: string;
-}
-
 export interface CareTask {
   id: number;
   type: CareTaskType;
@@ -95,7 +90,6 @@ export interface Plant {
   photoUrl: string | null;
   potSizeCm: number | null;
   soilType: SoilType | null;
-  soilMix: string | null;
   propagatedFrom: string | null;
   notifyEnabled: boolean;
   snoozedUntil: string | null;
@@ -289,7 +283,6 @@ export interface PlantInput {
   photoUrl?: string | null;
   potSizeCm?: number | null;
   soilType?: SoilType | null;
-  soilMix?: string | null;
   propagatedFrom?: string | null;
   notifyEnabled?: boolean;
   acquiredDate: string;

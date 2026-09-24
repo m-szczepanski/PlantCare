@@ -32,52 +32,6 @@ public static class SeedLoader
     }
 
     /// <summary>
-    /// Soil mix catalog (Seed/soil-mixes.json) powering the plant-form picker.
-    /// Idempotent by name, like every other seed: existing rows are never touched.
-    /// </summary>
-    public static async Task LoadSoilMixesAsync(
-        AppDbContext db,
-        string seedFilePath,
-        ILogger logger,
-        CancellationToken cancellationToken = default)
-    {
-        if (!File.Exists(seedFilePath))
-        {
-            logger.LogWarning("Seed file {SeedFilePath} not found; skipping soil mix seeding.", seedFilePath);
-            return;
-        }
-
-        await using var stream = File.OpenRead(seedFilePath);
-        var seedMixes = await JsonSerializer.DeserializeAsync<List<SeedSoilMix>>(stream, JsonOptions, cancellationToken)
-            ?? [];
-
-        var existingSet = new HashSet<string>(
-            await db.SoilMixes.Select(m => m.Name).ToListAsync(cancellationToken),
-            StringComparer.OrdinalIgnoreCase);
-
-        var added = 0;
-        foreach (var seed in seedMixes)
-        {
-            if (!existingSet.Add(seed.Name))
-            {
-                continue;
-            }
-
-            db.SoilMixes.Add(new SoilMix { Name = seed.Name });
-            added++;
-        }
-
-        if (added > 0)
-        {
-            await db.SaveChangesAsync(cancellationToken);
-            logger.LogInformation("Seeded {AddedCount} soil mix(es) from {SeedFilePath}.", added, seedFilePath);
-        }
-    }
-
-    private sealed record SeedSoilMix(
-        [property: JsonPropertyName("name")] string Name);
-
-    /// <summary>
     /// Drop-in user species: every *.json file under <paramref name="directory"/> is
     /// loaded at startup (arrays shaped like plant-profiles.json). Existing names are
     /// skipped, malformed files are logged and ignored — a bad custom file must never

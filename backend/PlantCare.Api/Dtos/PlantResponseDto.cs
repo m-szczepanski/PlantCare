@@ -18,8 +18,6 @@ public class PlantResponseDto
 
     public SoilType? SoilType { get; set; }
 
-    public string? SoilMix { get; set; }
-
     public string? PropagatedFrom { get; set; }
 
     public bool NotifyEnabled { get; set; }

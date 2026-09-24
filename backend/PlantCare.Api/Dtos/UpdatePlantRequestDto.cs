@@ -20,9 +20,6 @@ public class UpdatePlantRequestDto
     public SoilType? SoilType { get; set; }
 
     [StringLength(200)]
-    public string? SoilMix { get; set; }
-
-    [StringLength(200)]
     public string? PropagatedFrom { get; set; }
 
     public DateTime AcquiredDate { get; set; } = DateTime.UtcNow;

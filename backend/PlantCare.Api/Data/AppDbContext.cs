@@ -25,8 +25,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<PlantProfileTranslation> PlantProfileTranslations => Set<PlantProfileTranslation>();
 
-    public DbSet<SoilMix> SoilMixes => Set<SoilMix>();
-
     public DbSet<PlantHealthCheck> PlantHealthChecks => Set<PlantHealthCheck>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -35,11 +33,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             entity.Property(p => p.LightRequirement).HasConversion<string>();
             entity.HasIndex(p => p.CommonName).IsUnique();
-        });
-
-        modelBuilder.Entity<SoilMix>(entity =>
-        {
-            entity.HasIndex(m => m.Name).IsUnique();
         });
 
         modelBuilder.Entity<PlantProfileTranslation>(entity =>
