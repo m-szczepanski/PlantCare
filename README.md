@@ -1,215 +1,182 @@
 # Plant Care App
 
-A self-hosted, highly customizable web app for tracking owned plants, watering reminders, and care tips. Designed to be deployed via Docker by end users as a personal/home template, not a multi-tenant SaaS.
+A self-hosted, customizable web app for keeping track of your plants: what you own, when each one needs care, and what it needs to thrive. Deploy it with Docker on your home server or NAS and get a push notification when something needs watering.
 
-## Core Features (v1)
+Built for personal use on a local network. Single-user by design, no accounts, no cloud.
 
-- CRUD for owned plants (name, species, location, photo URL, acquired date)
-- Watering schedule per plant, derived from a species/profile default but overridable per plant
-- Daily background check that flags plants due for watering and sends a push notification
-- Care tips per species (light, humidity notes, plus markdown care notes covering topics like temperature and fertilizing)
-- Simple dashboard: "due today / overdue / upcoming" view
-- "Mark as watered" action with a per-plant watering history
-- Bilingual UI (English + Polish) with a language switch; localized species profiles, due messages and push notifications
+## Features
 
-**Explicit non-goals for v1:** multi-user auth, mobile app, cloud sync. Keep it single-user, local-network friendly.
+- **Plant management**: name, species, location, photo (upload or external URL) and acquisition date
+- **Care schedules**: watering, fertilizing and repotting tasks per plant, with defaults inherited from the species profile and overridable per plant
+- **Seasonal adjustment**: optional winter reduction that doubles intervals from December to February
+- **Dashboard**: an at-a-glance view of what is due today, overdue and upcoming
+- **Watering history**: one-click "mark as watered" with a per-plant log
+- **Push notifications**: a daily background check sends reminders through [ntfy](https://ntfy.sh)
+- **Care tips**: per-species light and humidity requirements plus Markdown care notes on temperature, fertilizing and more
+- **Editable species library**: profiles are seeded from a JSON file and can be extended without touching code
+- **Bilingual**: English and Polish UI with a language switch, including species profiles, due messages and notifications
+- **Backup and restore**: JSON export/import, also available from the in-app Status page
 
-## Repository Structure
+## Quick Start
 
-**Decision: single repo (monorepo) for backend + frontend.** For a project of this size, run by one supervisor + an AI agent, a monorepo is the right call — one Docker Compose file, one set of issues/PRs, no version drift between API and UI. Split into separate repos only if this ever becomes a multi-team or publicly distributed product with independent release cadences.
+**Requirements:** Docker with Docker Compose.
 
-```text
-plant-care-app/
-├── docker-compose.yml
-├── docker-compose.override.yml.example   # copy to docker-compose.override.yml for local tweaks
-├── .env.example
-├── README.md                       # this file (feature/product source of truth)
-├── AGENTS.md                       # working instructions for agents and humans
-├── backend/
-│   ├── PlantCare.Api/              # ASP.NET Core Web API (.NET 10)
-│   │   ├── Controllers/            # REST endpoints (thin)
-│   │   ├── Models/                 # EF Core entities
-│   │   ├── Dtos/                   # Data transfer objects
-│   │   ├── Data/                   # DbContext, migrations
-│   │   ├── Services/               # scheduling, notification, care-tip logic
-│   │   ├── Seed/                   # default species/profile seed data (JSON)
-│   │   ├── Program.cs
-│   │   └── Dockerfile              # for the API service
-│   ├── PlantCare.Api.Tests/        # xUnit unit/integration tests
-│   └── docs/                       # backend documentation
-├── frontend/                       # React + Vite SPA
-│   ├── src/
-│   │   ├── components/             # shadcn/ui-based components
-│   │   ├── pages/                  # route views (React Router paths)
-│   │   ├── api/                    # typed API client helpers
-│   │   ├── hooks/                  # TanStack Query hooks for server state
-│   │   └── lib/                    # utility libraries, config
-│   ├── docs/                       # frontend documentation
-│   ├── vite.config.ts
-│   └── Dockerfile                  # for the web service (serves via nginx)
-└── docs/                           # project-level docs
-    ├── overview.md                 # feature scope, data model, non-goals
-    ├── architecture.md             # system shape, key decisions, boundaries
-    └── implementation-plan.md      # build order, test strategy, acceptance criteria
+```bash
+git clone <your-repo-url> plant-care-app
+cd plant-care-app
+cp .env.example .env
+docker compose up -d --build
 ```
+
+| Service | URL |
+|---------|-----|
+| Web app | http://localhost:3000 |
+| API | http://localhost:5001 |
+| ntfy | http://localhost:8080 |
+
+To receive notifications, subscribe to your topic (default `plant-care`) in the [ntfy](https://ntfy.sh) mobile or desktop app, or in the browser at http://localhost:8080, pointing it at your server.
+
+## Configuration
+
+All settings are read from `.env`. See [`.env.example`](.env.example) for the full list.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `WATERING_CHECK_CRON` | `0 8 * * *` | Cron schedule for the daily due-plants check |
+| `NTFY_TOPIC` | `plant-care` | ntfy topic that notifications are published to |
+| `ENABLE_CARE_TIPS` | `true` | Show species care tips in the plant detail view |
+| `DB_CONNECTIONSTRING` | `Data Source=/data/plantcare.db` | EF Core connection string |
+
+Use `docker-compose.override.yml` (copy from `docker-compose.override.yml.example`) for local tweaks such as changing ports.
+
+### Customizing species and care tips
+
+Species defaults (watering interval, light requirement, humidity notes, care tips) live in JSON under [`backend/PlantCare.Api/Seed/`](backend/PlantCare.Api/Seed/). Edit or extend the file to add your own species. You can also create and edit profiles from the app.
+
+### Theming
+
+Styling is centralized in `frontend/tailwind.config.ts`, so you can restyle the app without touching component logic.
+
+### Using PostgreSQL
+
+SQLite is the default and needs no extra setup. To switch to PostgreSQL, change the EF Core provider and set `DB_CONNECTIONSTRING`; no application code changes are required.
+
+## How It Works
+
+1. A [Coravel](https://github.com/jamesmh/coravel) scheduled job runs on `WATERING_CHECK_CRON`.
+2. It selects plants whose care is due today or overdue, using the plant's custom interval if set and the species default otherwise.
+3. For each plant not yet notified today, it publishes a message to the configured ntfy topic and records it in the notification log, which prevents duplicate reminders.
+4. A failed send is logged and skipped, so an ntfy outage never interrupts the run or blocks other plants.
 
 ## Tech Stack
 
-| Layer | Choice | Notes |
-|-------|--------|-------|
-| Backend | ASP.NET Core Web API (.NET 10) | REST/JSON API |
-| ORM / DB | EF Core + SQLite (default) | Swappable to Postgres via provider change only |
-| Scheduling | Coravel (`IInvocable` jobs on a hosted scheduler) | No extra infra needed; avoid Hangfire/Quartz unless job history/UI becomes a requirement |
-| Frontend | React + Vite + TypeScript | SPA, not Next.js |
-| UI kit | shadcn/ui + Tailwind CSS | Consistent, accessible components |
-| Notifications | ntfy (self-hosted container) | API POSTs to ntfy on due/overdue plants |
-| Containerization | Docker Compose | `api`, `web`, `ntfy`, optional `postgres` |
+| Layer | Technology |
+|-------|------------|
+| Backend | ASP.NET Core Web API (.NET 10) |
+| Data | EF Core with SQLite (PostgreSQL supported via provider change) |
+| Scheduling | Coravel |
+| Frontend | React, Vite, TypeScript, TanStack Query |
+| UI | shadcn/ui, Tailwind CSS |
+| Notifications | ntfy |
+| Deployment | Docker Compose, nginx |
 
-## Data Model
-
-```text
-PlantProfile (species-level defaults — seedable/customizable)
-- Id
-- CommonName (unique)
-- ScientificName (nullable)
-- DefaultWateringIntervalDays
-- LightRequirement (enum: Low/Medium/Bright/DirectSun)
-- HumidityNotes
-- CareTips (text/markdown)
-
-Plant (user's owned instance)
-- Id
-- PlantProfileId (FK, nullable — user can create a plant without a profile)
-- NickName
-- Location (e.g., "Living room window")
-- PhotoUrl (nullable — external URL, no upload in v1)
-- AcquiredDate
-- CustomWateringIntervalDays (nullable — overrides profile default)
-- LastWateredAt
-
-WateringLog
-- Id
-- PlantId (FK)
-- WateredAt
-- Note (nullable)
-
-NotificationLog (dedup/audit)
-- Id
-- PlantId (FK)
-- SentAt
-- Type (e.g., WateringDue)
-```
-
-Seed `PlantProfile` data from a JSON file in `backend/PlantCare.Api/Seed/` so users can extend/edit species defaults without touching code — this is the main "customization" lever for care tips and default schedules. Plant-level waterings and notification audit are written at runtime, not seeded.
-
-## API Endpoints
+## Project Structure
 
 ```text
-GET    /api/plants                        list owned plants (+ due status)
-POST   /api/plants
-GET    /api/plants/{id}                   detail (+ care tips when profiled and enabled)
-PUT    /api/plants/{id}
-DELETE /api/plants/{id}
-POST   /api/plants/{id}/water             logs a watering event, updates LastWateredAt
-GET    /api/plants/{id}/watering-logs     watering history for a plant (newest first)
-
-GET    /api/plant-profiles                list species/profiles
-POST   /api/plant-profiles                create a profile (409 on duplicate name)
-PUT    /api/plant-profiles/{id}           update a profile (409 on duplicate name)
-
-GET    /api/dashboard                     due today / overdue / upcoming summary
-
-GET    /health                            liveness probe (no DB dependency)
+plant-care-app/
+├── backend/
+│   ├── PlantCare.Api/          # ASP.NET Core Web API
+│   │   ├── Controllers/        # REST endpoints
+│   │   ├── Models/             # EF Core entities
+│   │   ├── Dtos/               # Request/response contracts
+│   │   ├── Data/               # DbContext and migrations
+│   │   ├── Services/           # Scheduling, notifications, care logic
+│   │   └── Seed/               # Default species profiles (JSON)
+│   └── PlantCare.Api.Tests/    # xUnit tests
+├── frontend/                   # React + Vite SPA
+│   └── src/
+│       ├── components/
+│       ├── pages/
+│       ├── api/                # Typed API client
+│       ├── hooks/              # TanStack Query hooks
+│       └── lib/
+├── docs/                       # Project documentation
+├── docker-compose.yml
+├── .env.example
+└── AGENTS.md                   # Contributor and agent guidelines
 ```
 
-## Notification Flow
+## API Overview
 
-1. Coravel's hosted scheduler fires on a cron from `WATERING_CHECK_CRON` (default `0 8 * * *`).
-2. The watering check service selects plants whose due status is `Overdue` or `DueToday` (`LastWateredAt + interval <= today`, interval = custom override ?? profile default).
-3. For each due plant not yet notified today (`NotificationLog` dedup), POST a message to the `ntfy` container's topic (e.g., `http://ntfy:80/plant-care`).
-4. Record the send in `NotificationLog`. A failed send is logged and skipped — ntfy outages never crash the run or block the remaining plants.
-5. User subscribes to the ntfy topic from their phone/desktop ntfy app or browser.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/plants` | List plants with due status |
+| `POST` | `/api/plants` | Create a plant |
+| `GET` | `/api/plants/{id}` | Plant detail, including care tips when available |
+| `PUT` | `/api/plants/{id}` | Update a plant |
+| `DELETE` | `/api/plants/{id}` | Delete a plant |
+| `POST` | `/api/plants/{id}/water` | Log a watering |
+| `GET` | `/api/plants/{id}/watering-logs` | Watering history, newest first |
+| `GET` | `/api/plant-profiles` | List species profiles |
+| `POST` | `/api/plant-profiles` | Create a profile (`409` on duplicate name) |
+| `PUT` | `/api/plant-profiles/{id}` | Update a profile (`409` on duplicate name) |
+| `GET` | `/api/dashboard` | Due today, overdue and upcoming summary |
+| `GET` | `/api/export` | Download a JSON backup |
+| `POST` | `/api/import` | Import a JSON backup |
+| `GET` | `/health` | Liveness probe |
 
-## Customization Strategy
+## Backups
 
-Since this is meant to be a template others can adapt:
+**Export and import.** `GET /api/export` downloads a JSON snapshot of rooms, plant profiles, plants with care tasks, watering logs, notes and journal entries. The same action is available from the Status page in the app. `POST /api/import` accepts that document and merges it by natural key (room name, profile common name, plant nickname). Existing records are skipped, so importing the same backup twice is safe.
 
-- **Data over code**: species defaults and care tips live in seed JSON, not hardcoded.
-- **Env-driven config**: notification schedule, ntfy topic/URL, DB provider connection string, feature flags (e.g., `ENABLE_CARE_TIPS=true`) all come from `.env`.
-- **Theming**: keep shadcn/Tailwind config centralized (`tailwind.config.ts`) so restyling doesn't require touching component logic.
+**Volumes.** Uploaded photo files are not part of the JSON snapshot. To back up everything, also archive the `plant-data` and `plant-photos` volumes:
 
-## Docker Compose
-
-```yaml
-services:
-  api:
-    build: ./backend/PlantCare.Api
-    env_file:
-      - path: .env
-        required: false
-    environment:
-      ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__Default: ${DB_CONNECTIONSTRING:-Data Source=/data/plantcare.db}
-    volumes:
-      - plant-data:/data      # SQLite file lives here
-    ports:
-      - "5001:8080"   # 5000 avoided: macOS AirPlay Receiver binds it
-
-  web:
-    build: ./frontend
-    ports:
-      - "3000:80"     # nginx serves the SPA and reverse-proxies /api to the api service
-    depends_on:
-      - api
-
-  ntfy:
-    image: binwiederhier/ntfy
-    command: serve
-    ports:
-      - "8080:80"
-    volumes:
-      - ntfy-data:/var/lib/ntfy
-
-volumes:
-  plant-data:
-  ntfy-data:
+```bash
+docker compose down
+docker run --rm -v plantcare-app_plant-data:/data -v "$PWD:/backup" alpine \
+  tar czf /backup/plant-data-backup.tgz /data
+docker run --rm -v plantcare-app_plant-photos:/data -v "$PWD:/backup" alpine \
+  tar czf /backup/plant-photos-backup.tgz /data
 ```
 
-Add `postgres` as an optional service later if/when moving off SQLite.
+Adjust the volume prefix to match your Compose project name. To restore, extract the archives into fresh volumes.
 
-## Backups & Data Safety
+## Development
 
-- **Export:** `GET /api/export` downloads a JSON snapshot (rooms, plant profiles, plants with care tasks, watering logs, notes and journal entries) — also available as a button on the in-app Status page.
-- **Import:** `POST /api/import` accepts the same document and merges by natural keys (room name, profile common name, plant nickname) — existing records are skipped, so re-importing the same backup is safe. Uploaded photo *files* are not part of the snapshot; keep the `plant-data` and `plant-photos` volumes backed up too:
-  ```bash
-  docker compose down
-  docker run --rm -v plantcare-app_plant-data:/data -v "$PWD:/backup" alpine tar czf /backup/plant-data-backup.tgz /data
-  docker run --rm -v plantcare-app_plant-photos:/data -v "$PWD:/backup" alpine tar czf /backup/plant-photos-backup.tgz /data
-  ```
-  (adjust the volume prefix to your compose project name; restore by extracting into fresh volumes.)
+**Backend**
 
-## Conventions
+```bash
+cd backend/PlantCare.Api
+dotnet run
 
-- **Backend**: standard .NET naming (PascalCase for types/members), controllers thin, business logic in `Services/`, DTOs separate from EF entities.
-- **Frontend**: functional components, TanStack Query hooks for server state, typed API client, shadcn components composed rather than modified in place.
-- **Commits**: small, scoped commits; agentic AI changes should be reviewable in isolated PRs per feature slice (e.g., "add PlantProfile CRUD", "add watering scheduler").
-- **Migrations**: every schema change ships with an EF Core migration, committed alongside the code change that needs it.
+# tests
+cd ../PlantCare.Api.Tests
+dotnet test
+```
 
-## Build Order (milestones)
+**Frontend**
 
-All eight milestones are implemented; see `docs/implementation-plan.md` for the per-step acceptance criteria and deviations.
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-1. Repo & Docker scaffold + health endpoint — done
-2. EF Core models + SQLite + initial migration — done
-3. Plant CRUD API + minimal frontend views — done
-4. Watering log endpoint + "mark as watered" UI action — done
-5. Dashboard endpoint + dashboard UI — done
-6. Coravel background job + ntfy notifications — done
-7. Care tips display in plant detail view — done
-8. Polish: production-readiness audit (docs sync, dead code, states) — done
+Every schema change must ship with an EF Core migration in the same commit.
 
-## Open Questions (resolved)
+## Scope
 
-- **Photo storage:** uploads implemented post-v1 — API writes to the `plant-photos` volume, nginx serves `/uploads/*`; externally hosted `PhotoUrl`s still work.
-- **Watering intervals:** per-plant typed care tasks (watering/fertilizing/repotting) with profile defaults and an optional winter reduction (interval doubled Dec–Feb).
-- **ntfy topics:** single topic (`NTFY_TOPIC`) for all notifications; revisit if a second category is ever added.
+Plant Care App is intentionally small. Multi-user authentication, a native mobile app and cloud sync are out of scope. It is meant to run on your own network as a personal template you can adapt.
+
+## Documentation
+
+- [`docs/overview.md`](docs/overview.md): feature scope and data model
+- [`docs/architecture.md`](docs/architecture.md): system design and key decisions
+- [`docs/implementation-plan.md`](docs/implementation-plan.md): build order, testing strategy and acceptance criteria
+
+## Contributing
+
+Contributions are welcome. Keep changes small and scoped, one feature slice per pull request. See [`AGENTS.md`](AGENTS.md) for coding conventions and workflow.
+
+- **Backend:** standard .NET naming, thin controllers, business logic in `Services/`, DTOs kept separate from EF entities
+- **Frontend:** functional components, TanStack Query for server state, a typed API client, shadcn/ui components composed rather than modified in place
