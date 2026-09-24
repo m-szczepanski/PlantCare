@@ -4,6 +4,10 @@ A self-hosted, customizable web app for keeping track of your plants: what you o
 
 Built for personal use on a local network. Single-user by design, no accounts, no cloud.
 
+![status](https://img.shields.io/badge/status-late%20stage%20development-yellowgreen)
+![platform](https://img.shields.io/badge/platform-all-blue)
+![license](https://img.shields.io/badge/license-MIT-green)
+
 ## Features
 
 - **Plant management**: name, species, location, photo (upload or external URL) and acquisition date
