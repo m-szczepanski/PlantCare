@@ -1,15 +1,34 @@
 {
   "jsPlugins": ["@shadcn/lint"],
   "rules": {
+    // no-unknown-classes left off: it needs Tailwind v4 to load the config; under v3 it false-positives on tailwindcss-animate classes.
     "shadcn/no-raw-colors": "error",
-    "shadcn/no-restyle": ["error", { "allow": ["layout"] }],
+    "shadcn/no-restyle": [
+      "error",
+      {
+        "allow": ["layout"],
+        "contracts": [
+          { "pattern": "^Card$", "allow": ["layout", "color", "effects", "motion", "focus-visible:*"] },
+          { "pattern": "^CardHeader$", "allow": ["layout", "spacing"] },
+          { "pattern": "^CardTitle$", "allow": ["layout", "spacing", "typography"] },
+          { "pattern": "^CardContent$", "allow": ["layout", "spacing", "typography", "color"] },
+          { "pattern": "^Badge$", "allow": ["layout", "spacing", "typography", "capitalize"] },
+          { "pattern": "^Skeleton$", "allow": ["layout", "shape"] },
+          { "pattern": "^PopoverContent$", "allow": ["layout", "spacing"] },
+          { "pattern": "^Input$", "allow": ["layout", "file:*"] },
+          { "pattern": "^AlertDialogAction$", "allow": ["layout", "color"] },
+          { "pattern": "^SelectItem$", "allow": ["layout", "color"] }
+        ]
+      }
+    ],
     "shadcn/no-arbitrary-values": "warn"
   },
   "overrides": [
     {
       "files": ["src/components/ui/**"],
       "rules": {
-        "shadcn/no-restyle": "off"
+        "shadcn/no-restyle": "off",
+        "shadcn/no-arbitrary-values": "off"
       }
     }
   ]
