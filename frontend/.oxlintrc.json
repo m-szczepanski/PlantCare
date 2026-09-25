@@ -1,11 +1,16 @@
 {
   "jsPlugins": ["@shadcn/lint"],
   "rules": {
-    "shadcn/no-duplicate-variants": "error",
-    "shadcn/no-invalid-variant": "error",
-    "shadcn/no-missing-variant": "error",
-    "shadcn/no-unused-variant": "error",
-    "shadcn/no-restyle": ["error", {"allow": ["layout"]}],
-    "shadcn/no-arbitraty-value": "error"
-  }
+    "shadcn/no-raw-colors": "error",
+    "shadcn/no-restyle": ["error", { "allow": ["layout"] }],
+    "shadcn/no-arbitrary-values": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["src/components/ui/**"],
+      "rules": {
+        "shadcn/no-restyle": "off"
+      }
+    }
+  ]
 }
