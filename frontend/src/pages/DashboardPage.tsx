@@ -29,7 +29,7 @@ export function DashboardPage() {
   if (isPending) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold">{t("dashboard.title")}</h1>
+        <h1 className="text-3xl font-bold">{t("dashboard.title")}</h1>
         <PlantCardSkeletonGrid label={t("dashboard.loading")} />
       </div>
     );
@@ -50,7 +50,7 @@ export function DashboardPage() {
   if (totalPlants === 0) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-bold">{t("dashboard.title")}</h1>
+        <h1 className="text-3xl font-bold">{t("dashboard.title")}</h1>
         <NoPlantsEmptyState />
         <OnboardingStep />
       </div>
@@ -60,7 +60,7 @@ export function DashboardPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold">{t("dashboard.title")}</h1>
+        <h1 className="text-3xl font-bold">{t("dashboard.title")}</h1>
         <div className="flex items-center gap-2">
           <select
             aria-label={t("dashboard.snoozeDaysAria")}
@@ -115,7 +115,7 @@ export function DashboardPage() {
         return (
           <section key={section.key} className="space-y-3">
             <div className="flex items-center justify-between gap-2">
-              <h2 className="text-lg font-semibold">{section.titleKey ? t(section.titleKey) : section.title}</h2>
+              <h2 className="text-xl font-semibold">{section.titleKey ? t(section.titleKey) : section.title}</h2>
               {section.key !== "upcoming" ? (
                 <Button
                   size="sm"
@@ -127,9 +127,9 @@ export function DashboardPage() {
                 </Button>
               ) : null}
             </div>
-            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {plants.map((plant) => (
-                <li key={plant.id}>
+                <li key={plant.id} className="h-full">
                   <PlantCard
                     plant={plant}
                     onWater={(p) => water.mutate({ id: p.id })}

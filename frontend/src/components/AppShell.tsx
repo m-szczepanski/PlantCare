@@ -97,10 +97,10 @@ export function AppShell({ children }: { children: ReactNode }) {
         </SidebarContent>
       </Sidebar>
       <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur">
-          <SidebarTrigger className="h-11 w-11 sm:h-8 sm:w-8" aria-label={t("shell.toggleSidebar")} />
-          <Link to="/" className="flex items-center gap-1.5 font-bold md:hidden">
-            <Leaf className="h-4 w-4 text-primary" />
+        <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur sm:px-6">
+          <SidebarTrigger className="h-11 w-11 sm:h-9 sm:w-9" aria-label={t("shell.toggleSidebar")} />
+          <Link to="/" className="flex items-center gap-1.5 text-lg font-bold md:hidden">
+            <Leaf className="h-5 w-5 text-primary" />
             PlantCare
           </Link>
           <div className="ml-auto flex items-center gap-1">
@@ -108,7 +108,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <ModeToggle />
           </div>
         </header>
-        <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6">
+        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
           {children}
         </main>
       </SidebarInset>

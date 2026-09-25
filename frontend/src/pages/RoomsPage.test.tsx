@@ -28,8 +28,18 @@ describe("RoomsPage", () => {
     renderWithProviders(<RoomsPage />, { route: "/rooms" });
 
     expect(await screen.findByText("Living room")).toBeInTheDocument();
-    expect(screen.getByText(/South-facing · 2 plants/)).toBeInTheDocument();
-    expect(screen.getByText(/No orientation set · 0 plants/)).toBeInTheDocument();
+    expect(screen.getByText("South-facing")).toBeInTheDocument();
+    expect(screen.getByText(/No orientation set/)).toBeInTheDocument();
+
+    const livingRoom = screen.getByText("Living room");
+    const card = livingRoom.closest<HTMLElement>("div.rounded-xl")!;
+    expect(within(card).getByText("plants").parentElement).toHaveTextContent("2");
+    expect(within(card).getByText("overdue").parentElement).toHaveTextContent("0");
+
+    const hallway = screen.getByText("Hallway");
+    const hallwayCard = hallway.closest<HTMLElement>("div.rounded-xl")!;
+    expect(within(hallwayCard).getByText("plants").parentElement).toHaveTextContent("0");
+    expect(within(hallwayCard).getByText("No plants here yet")).toBeInTheDocument();
   });
 
   it("displays properties read-only and saves edits only after entering edit mode", async () => {

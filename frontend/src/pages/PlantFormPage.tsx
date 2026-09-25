@@ -28,7 +28,7 @@ export function PlantFormPage() {
           { label: isEdit ? t("form.editPlant") : t("form.addPlant") },
         ]}
       />
-      <h1 className="text-2xl font-bold">{isEdit ? t("form.editPlant") : t("form.addPlant")}</h1>
+      <h1 className="text-3xl font-bold">{isEdit ? t("form.editPlant") : t("form.addPlant")}</h1>
       <Card>
         <CardHeader>
           <CardTitle>{isEdit ? t("form.updateDetails") : t("form.newPlant")}</CardTitle>

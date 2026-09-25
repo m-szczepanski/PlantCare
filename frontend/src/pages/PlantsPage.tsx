@@ -38,7 +38,7 @@ export function PlantsPage() {
   if (isPending) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-bold">{t("plants.title")}</h1>
+        <h1 className="text-3xl font-bold">{t("plants.title")}</h1>
         <PlantCardSkeletonGrid label={t("plants.loading")} />
       </div>
     );
@@ -57,7 +57,7 @@ export function PlantsPage() {
   if (!plants || plants.length === 0) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-bold">{t("plants.title")}</h1>
+        <h1 className="text-3xl font-bold">{t("plants.title")}</h1>
         <NoPlantsEmptyState />
       </div>
     );
@@ -82,7 +82,7 @@ export function PlantsPage() {
     <div className="space-y-4">
       <Breadcrumbs items={[{ label: t("common.home"), to: "/" }, { label: t("plants.title") }]} />
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold">{t("plants.title")}</h1>
+        <h1 className="text-3xl font-bold">{t("plants.title")}</h1>
         <Button asChild className={touchButton}>
           <Link to="/plants/new">{t("dashboard.addPlant")}</Link>
         </Button>
@@ -143,9 +143,9 @@ export function PlantsPage() {
           </CardContent>
         </Card>
       ) : (
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((plant) => (
-            <li key={plant.id}>
+            <li key={plant.id} className="h-full">
               <PlantCard
                 plant={plant}
                 onWater={(p) => water.mutate({ id: p.id })}

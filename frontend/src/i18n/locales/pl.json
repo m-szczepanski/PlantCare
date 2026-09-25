@@ -58,7 +58,11 @@
     "water": "Podlej",
     "soilWetUntil": "Mokre podłoże — sprawdź {{date}}",
     "checkupDue": "Przegląd do zrobienia",
-    "noPhoto": "Brak zdjęcia: {{name}}"
+    "noPhoto": "Brak zdjęcia: {{name}}",
+    "noProfile": "Brak profilu gatunku",
+    "nextDueOn": "Następne podlewanie {{date}}",
+    "wateringInterval": "Co {{interval}}",
+    "noSchedule": "Brak harmonogramu podlewania"
   },
   "stats": {
     "overdue": "Zaległe",
@@ -388,7 +392,16 @@
     "lightExposure": "Ekspozycja świetlna",
     "unknown": "Nieznane",
     "temperature": "Średnia temperatura (°C)",
-    "orientationLabel": "Strona świata"
+    "orientationLabel": "Strona świata",
+    "stat": { "plants": "rośliny", "overdue": "zaległe", "dueToday": "dzisiaj" },
+    "lightNotSet": "Brak światła",
+    "humidityNotSet": "Brak wilgotności",
+    "temperatureNotSet": "Brak temperatury",
+    "noPlants": "Brak roślin w tym pokoju",
+    "browsePlants": "Przeglądaj rośliny",
+    "morePlants_one": "+{{count}} inna roślina",
+    "morePlants_few": "+{{count}} inne rośliny",
+    "morePlants_many": "+{{count}} innych roślin"
   },
   "profiles": {
     "nameRequired": "Nazwa zwyczajowa jest wymagana.",

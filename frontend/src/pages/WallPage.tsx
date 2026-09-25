@@ -53,10 +53,10 @@ export function WallPage() {
             if (plants.length === 0) return null;
             return (
               <section key={section.key} className="space-y-3">
-                <h2 className="text-lg font-semibold">{section.titleKey ? t(section.titleKey) : section.title}</h2>
-                <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <h2 className="text-xl font-semibold">{section.titleKey ? t(section.titleKey) : section.title}</h2>
+                <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {plants.map((plant) => (
-                    <li key={plant.id}>
+                    <li key={plant.id} className="h-full">
                       <PlantCard plant={plant} />
                     </li>
                   ))}
