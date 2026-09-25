@@ -35,14 +35,14 @@ export function ProfileCombobox({ profiles, value, onChange, id }: ProfileCombob
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between font-normal", touchField)}
+          className={cn("w-full justify-between", touchField)}
         >
           {selected ? (
-            <span>
+            <span className="font-normal">
               {t("profile.selectedWithInterval", { name: selected.commonName, days: selected.defaultWateringIntervalDays })}
             </span>
           ) : (
-            <span className="text-muted-foreground">{t("profile.none")}</span>
+            <span className="font-normal text-muted-foreground">{t("profile.none")}</span>
           )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>

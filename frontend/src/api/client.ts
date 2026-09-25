@@ -1,4 +1,4 @@
-import type { CareTask, CareTaskType, Dashboard, HealthCheckEntry, HealthStatus, ImportResult, Insights, JournalEntry, NotificationTestResult, Plant, PlantInput, PlantNote, PlantProfile, PlantProfileInput, PlantProfileOption, Room, RoomInput, SoilTypeOption, StatusInfo, WaterDetails, WateringCheckResult, WateringLogEntry } from "./types";
+import type { CareTask, CareTaskType, Dashboard, HealthCheckEntry, HealthStatus, ImportResult, Insights, JournalEntry, NotificationTestResult, Plant, PlantInput, PlantNote, PlantProfile, PlantProfileInput, Room, RoomInput, SoilTypeOption, StatusInfo, WaterDetails, WateringCheckResult, WateringLogEntry } from "./types";
 import { apiHeaders } from "./headers";
 
 export interface HealthResponse {
@@ -29,7 +29,7 @@ export class ApiError extends Error {
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${BASE_URL}${path}`, {
     ...init,
-    headers: { ...apiHeaders(), "Content-Type": "application/json", ...(init?.headers ?? {}) },
+    headers: { ...apiHeaders(), "Content-Type": "application/json", ...(init?.headers) },
   });
   return unwrap<T>(response, path);
 }

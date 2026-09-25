@@ -4,7 +4,6 @@ import { parseInstant } from "@/lib/dates";
 import type { WateringLogEntry } from "@/api/types";
 
 const MONTHS_SHOWN = 6;
-const DAY_MS = 86_400_000;
 
 interface MonthBucket {
   key: string;
