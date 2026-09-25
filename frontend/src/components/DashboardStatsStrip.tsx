@@ -16,10 +16,10 @@ function Stat({
   emphasis?: "danger" | "ok";
 }) {
   return (
-    <div role="group" aria-label={`${label}: ${value}`} className="flex flex-1 items-center gap-3 px-4 py-3">
+    <div role="group" aria-label={`${label}: ${value}`} className="flex flex-1 items-center gap-3 px-5 py-4">
       <Icon
         className={cn(
-          "h-5 w-5 shrink-0 text-muted-foreground",
+          "h-6 w-6 shrink-0 text-muted-foreground",
           emphasis === "danger" && "text-destructive",
           emphasis === "ok" && "text-primary",
         )}
@@ -28,14 +28,14 @@ function Stat({
       <div>
         <div
           className={cn(
-            "text-2xl font-bold leading-none",
+            "text-3xl font-bold leading-none",
             emphasis === "danger" && "text-destructive",
             emphasis === "ok" && "text-primary",
           )}
         >
           {value}
         </div>
-        <div className="text-xs text-muted-foreground">{label}</div>
+        <div className="mt-0.5 text-sm text-muted-foreground">{label}</div>
       </div>
     </div>
   );

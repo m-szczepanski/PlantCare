@@ -95,7 +95,7 @@ export function ProfilesPage() {
     <div className="space-y-4">
       <Breadcrumbs items={[{ label: t("common.home"), to: "/" }, { label: t("profiles.title") }]} />
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold">{t("profiles.title")}</h1>
+        <h1 className="text-3xl font-bold">{t("profiles.title")}</h1>
         {!isEdit && editingId !== -1 ? (
           <Button onClick={startCreate} className={touchButton}>
             {t("profiles.new")}

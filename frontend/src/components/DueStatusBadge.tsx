@@ -55,13 +55,13 @@ export function DueCount({ plant }: { plant: Plant }) {
       <div
         className={
           dueStatus === "Overdue"
-            ? "text-2xl font-bold leading-none text-destructive"
-            : "text-2xl font-bold leading-none"
+            ? "text-3xl font-bold leading-none text-destructive"
+            : "text-3xl font-bold leading-none"
         }
       >
         {value}
       </div>
-      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="mt-0.5 text-xs text-muted-foreground">{label}</div>
     </div>
   );
 }

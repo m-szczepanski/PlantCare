@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Armchair, Droplets, Sun, Thermometer } from "lucide-react";
+import { Armchair, Droplets, Sprout, Sun, Thermometer } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import {
   AlertDialog,
@@ -25,6 +26,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PlantPhoto } from "@/components/PlantPhoto";
+import { wateredRelative } from "@/lib/dates";
 import {
   useCreateRoom,
   useDeleteRoom,
@@ -60,7 +63,7 @@ export function RoomsPage() {
   return (
     <div className="space-y-4">
       <Breadcrumbs items={[{ label: t("common.home"), to: "/" }, { label: t("rooms.title") }]} />
-      <h1 className="text-2xl font-bold">{t("rooms.title")}</h1>
+      <h1 className="text-3xl font-bold">{t("rooms.title")}</h1>
 
       <div className="flex flex-wrap gap-2">
         <Input
@@ -76,9 +79,9 @@ export function RoomsPage() {
       </div>
 
       {isPending ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }, (_, index) => (
-            <Skeleton key={index} className="h-24" />
+            <Skeleton key={index} className="h-56" />
           ))}
         </div>
       ) : !rooms || rooms.length === 0 ? (
@@ -94,7 +97,7 @@ export function RoomsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {rooms.map((room) => (
             <RoomCard
               key={room.id}
@@ -170,47 +173,102 @@ function RoomCard({ room, plants }: { room: Room; plants: Plant[] }) {
     );
   }
 
+  const overdueCount = plants.filter((plant) => plant.dueStatus === "Overdue").length;
+  const dueTodayCount = plants.filter((plant) => plant.dueStatus === "DueToday").length;
+  const visiblePlants = plants.slice(0, 5);
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{room.name}</CardTitle>
+    <Card className="flex h-full flex-col overflow-hidden">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-xl">{room.name}</CardTitle>
+        <p className="text-sm text-muted-foreground">
+          {room.orientation
+            ? t("room.facing", { orientation: t(`room.orientationShort.${room.orientation}`) })
+            : t("room.noOrientationSet")}
+        </p>
       </CardHeader>
-      <CardContent className="space-y-3 text-sm">
+      <CardContent className="flex flex-1 flex-col gap-3 text-sm">
         {!editing ? (
           <>
-            <p className="text-muted-foreground">
-              {room.orientation ? t("room.facing", { orientation: t(`room.orientationShort.${room.orientation}`) }) : t("room.noOrientationSet")} · {t("room.plantCount", { count: room.plantCount })}
+            <div className="grid grid-cols-3 divide-x rounded-lg border bg-muted/40 text-center">
+              <div className="px-2 py-3">
+                <div className="text-2xl font-bold leading-none">{room.plantCount}</div>
+                <div className="mt-1 text-xs text-muted-foreground">{t("room.stat.plants")}</div>
+              </div>
+              <div className="px-2 py-3">
+                <div
+                  className={
+                    overdueCount > 0
+                      ? "text-2xl font-bold leading-none text-destructive"
+                      : "text-2xl font-bold leading-none"
+                  }
+                >
+                  {overdueCount}
+                </div>
+                <div className="mt-1 text-xs text-muted-foreground">{t("room.stat.overdue")}</div>
+              </div>
+              <div className="px-2 py-3">
+                <div className="text-2xl font-bold leading-none">{dueTodayCount}</div>
+                <div className="mt-1 text-xs text-muted-foreground">{t("room.stat.dueToday")}</div>
+              </div>
+            </div>
+            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <Sun className="h-3.5 w-3.5" aria-hidden="true" />
+                {room.lightExposure
+                  ? t(`roomLight.level.${room.lightExposure}`)
+                  : t("room.lightNotSet")}
+              </span>
+              <span className="flex items-center gap-1">
+                <Droplets className="h-3.5 w-3.5" aria-hidden="true" />
+                {room.humidity
+                  ? t("room.humidityValue", { level: t(`room.humidity.${room.humidity}`) })
+                  : t("room.humidityNotSet")}
+              </span>
+              <span className="flex items-center gap-1">
+                <Thermometer className="h-3.5 w-3.5" aria-hidden="true" />
+                {room.temperatureCelsius !== null
+                  ? `${room.temperatureCelsius}°C`
+                  : t("room.temperatureNotSet")}
+              </span>
             </p>
-            {room.lightExposure || room.humidity || room.temperatureCelsius !== null ? (
-              <p className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                {room.lightExposure ? (
-                  <span className="flex items-center gap-1">
-                    <Sun className="h-3 w-3" aria-hidden="true" /> {t(`roomLight.level.${room.lightExposure}`)}
-                  </span>
+            {plants.length > 0 ? (
+              <ul className="space-y-1.5">
+                {visiblePlants.map((plant) => (
+                  <li key={plant.id} className="flex items-center gap-2">
+                    <PlantPhoto
+                      photoUrl={plant.photoUrl}
+                      nickName={plant.nickName}
+                      className="h-8 w-8 shrink-0"
+                    />
+                    <Link
+                      to={`/plants/${plant.id}`}
+                      className="min-w-0 flex-1 truncate font-medium hover:underline"
+                    >
+                      {plant.nickName}
+                    </Link>
+                    {plant.roomLightMatch ? <RoomLightBadge match={plant.roomLightMatch} /> : null}
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      {wateredRelative(plant.lastWateredAt)}
+                    </span>
+                  </li>
+                ))}
+                {plants.length > visiblePlants.length ? (
+                  <li className="text-xs text-muted-foreground">
+                    {t("room.morePlants", { count: plants.length - visiblePlants.length })}
+                  </li>
                 ) : null}
-                {room.humidity ? (
-                  <span className="flex items-center gap-1">
-                    <Droplets className="h-3 w-3" aria-hidden="true" /> {t("room.humidityValue", { level: t(`room.humidity.${room.humidity}`) })}
-                  </span>
-                ) : null}
-                {room.temperatureCelsius !== null ? (
-                  <span className="flex items-center gap-1">
-                    <Thermometer className="h-3 w-3" aria-hidden="true" /> {room.temperatureCelsius}°C
-                  </span>
-                ) : null}
-              </p>
-            ) : null}
+              </ul>
+            ) : (
+              <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-lg border border-dashed py-6 text-center">
+                <Sprout className="h-6 w-6 text-muted-foreground" aria-hidden="true" />
+                <p className="text-sm text-muted-foreground">{t("room.noPlants")}</p>
+                <Button asChild size="sm" variant="outline" className={touchButton}>
+                  <Link to="/plants">{t("room.browsePlants")}</Link>
+                </Button>
+              </div>
+            )}
           </>
-        ) : null}
-        {plants.length > 0 ? (
-          <ul className="space-y-1 text-sm">
-            {plants.map((plant) => (
-              <li key={plant.id} className="flex items-center justify-between gap-2">
-                <span>{plant.nickName}</span>
-                {plant.roomLightMatch ? <RoomLightBadge match={plant.roomLightMatch} /> : null}
-              </li>
-            ))}
-          </ul>
         ) : null}
         {editing ? (
           <div className="space-y-3">
@@ -289,7 +347,7 @@ function RoomCard({ room, plants }: { room: Room; plants: Plant[] }) {
             </div>
           </div>
         ) : null}
-        <div className="flex flex-wrap gap-2">
+        <div className={`${editing ? "" : "mt-auto "}flex flex-wrap gap-2${editing ? "" : " border-t pt-3"}`}>
           {editing ? (
             <>
               <Button

@@ -54,7 +54,11 @@
     "water": "Water",
     "soilWetUntil": "Soil wet — recheck {{date}}",
     "checkupDue": "Checkup due",
-    "noPhoto": "No photo of {{name}}"
+    "noPhoto": "No photo of {{name}}",
+    "noProfile": "No species profile",
+    "nextDueOn": "Next due {{date}}",
+    "wateringInterval": "Every {{interval}}",
+    "noSchedule": "No watering schedule"
   },
   "stats": {
     "overdue": "Overdue",
@@ -372,7 +376,15 @@
     "lightExposure": "Light exposure",
     "unknown": "Unknown",
     "temperature": "Average temperature (°C)",
-    "orientationLabel": "Orientation"
+    "orientationLabel": "Orientation",
+    "stat": { "plants": "plants", "overdue": "overdue", "dueToday": "due today" },
+    "lightNotSet": "Light not set",
+    "humidityNotSet": "Humidity not set",
+    "temperatureNotSet": "Temp not set",
+    "noPlants": "No plants here yet",
+    "browsePlants": "Browse plants",
+    "morePlants_one": "+{{count}} more plant",
+    "morePlants_other": "+{{count}} more plants"
   },
   "profiles": {
     "nameRequired": "Common name is required.",

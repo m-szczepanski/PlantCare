@@ -110,7 +110,7 @@ export function CalendarPage() {
   if (isPending) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-bold">{t("calendar.title")}</h1>
+        <h1 className="text-3xl font-bold">{t("calendar.title")}</h1>
         <PlantCardSkeletonGrid count={3} label={t("calendar.loading")} />
       </div>
     );
@@ -133,7 +133,7 @@ export function CalendarPage() {
     <div className="space-y-4">
       <Breadcrumbs items={[{ label: t("common.home"), to: "/" }, { label: t("calendar.title") }]} />
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold">{t("calendar.title")}</h1>
+        <h1 className="text-3xl font-bold">{t("calendar.title")}</h1>
         <div className="flex items-center gap-2">
           {view === "month" ? (
             <>

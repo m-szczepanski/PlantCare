@@ -29,7 +29,7 @@ export function InsightsPage() {
   if (isPending) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-bold">{t("insights.title")}</h1>
+        <h1 className="text-3xl font-bold">{t("insights.title")}</h1>
         <PlantCardSkeletonGrid count={3} label={t("insights.loading")} />
       </div>
     );
@@ -50,7 +50,7 @@ export function InsightsPage() {
   return (
     <div className="space-y-4">
       <Breadcrumbs items={[{ label: t("common.home"), to: "/" }, { label: t("insights.title") }]} />
-      <h1 className="text-2xl font-bold">{t("insights.title")}</h1>
+      <h1 className="text-3xl font-bold">{t("insights.title")}</h1>
 
       <Card>
         <CardContent className="p-0">

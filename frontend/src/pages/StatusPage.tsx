@@ -62,7 +62,7 @@ export function StatusPage() {
   return (
     <div className="space-y-4">
       <Breadcrumbs items={[{ label: t("common.home"), to: "/" }, { label: t("status.title") }]} />
-      <h1 className="text-2xl font-bold">{t("status.title")}</h1>
+      <h1 className="text-3xl font-bold">{t("status.title")}</h1>
 
       {isPending ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

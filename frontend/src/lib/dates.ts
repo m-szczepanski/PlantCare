@@ -26,6 +26,11 @@ export function wateredRelative(value: string | null): string {
   return i18n.t("dates.wateredDaysAgo", { count: days });
 }
 
+export function formatDate(value: string | null | undefined, locale: string): string {
+  if (!value) return "-";
+  return new Date(value).toLocaleDateString(locale);
+}
+
 export function formatInstant(value: string | null | undefined, withTime = true): string {
   if (!value) return "-";
   const date = parseInstant(value);

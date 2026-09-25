@@ -146,7 +146,7 @@ export function PlantDetailPage() {
       />
       <div className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h1 className="text-2xl font-bold break-words">{plant.nickName}</h1>
+          <h1 className="text-3xl font-bold break-words">{plant.nickName}</h1>
           <DueStatusBadge plant={plant} />
         </div>
 
