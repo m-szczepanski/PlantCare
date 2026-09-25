@@ -92,7 +92,7 @@ describe("plantsApi client", () => {
     expect(url).toBe("/api/plants/1/photo");
     expect(init?.method).toBe("POST");
     expect(init?.headers).toMatchObject({ "Accept-Language": "en" });
-    expect((init?.body as FormData).get("file")).toBeInstanceOf(File);
+    expect((init?.body as FormData | undefined)?.get("file")).toBeInstanceOf(File);
     expect(result.photoUrl).toBe("/uploads/plants/1/a.png");
   });
 
