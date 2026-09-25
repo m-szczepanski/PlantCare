@@ -33,6 +33,7 @@ Self-hosted plant tracking web app: ASP.NET Core (.NET 10) API + React/Vite/TS S
 - Check the acceptance criteria for the current step in `docs/implementation-plan.md`. All of them must be met. The only valid reason to skip one is if the implementation had to be done differently from what the task says (something changed in the meantime and we adjusted to it) — in that case, note the deviation.
 - All projects must build after the step is done: `dotnet build backend/PlantCare.Api` and `npm run build` in `frontend/` must succeed. A step is never finished with a broken build.
 - Always update `docs/implementation-plan.md` after implementation: tick off met acceptance criteria and adjust the remaining steps if reality diverged from the plan.
+- After making frontend changes, run `npm run lint` in `frontend/` (oxlint + @shadcn/lint) and fix all errors.
 
 ## Commands
 
@@ -46,7 +47,7 @@ dotnet ef migrations add <Name> --project backend/PlantCare.Api
 npm run dev        # in frontend/
 npm run test       # Vitest
 npm run build
-npm run lint       # if configured
+npm run lint       # oxlint + @shadcn/lint (config: frontend/.oxlintrc.json)
 npx shadcn@latest add <component>   # in frontend/ — pull in a shadcn/ui component
 
 # Full stack
