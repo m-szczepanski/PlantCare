@@ -192,6 +192,98 @@ public class TopUpWateringApiTests : IDisposable
         Assert.Equal(HttpStatusCode.NotFound, done.StatusCode);
     }
 
+    [Fact]
+    public async Task Digest_FiresForTopUpOnly_AndSkipsTakenTopUp()
+    {
+        // Watering due tomorrow; the top-up (half of 10) is due exactly today.
+        var plant = await CreatePlant("Toppy", SoilType.ChunkyBark, intervalDays: 10, wateredDaysAgo: 5);
+
+        var check = await RunCheckAsync();
+
+        Assert.Equal(1, check.SentDigests);
+        var digest = Assert.Single(_publisher.Published);
+        Assert.Equal("1 plant needs a water top-up", digest.Title);
+        Assert.Contains("Water top-ups due (1):", digest.Message);
+        Assert.Contains("• Toppy", digest.Message);
+
+        // Taking the top-up (and clearing today's digest record) leaves nothing
+        // due tomorrow: the next top-up lands mid-cycle of the next watering.
+        await _client.PostAsJsonAsync($"/api/plants/{plant.Id}/care-tasks/TopUpWatering/done", new { }, Options);
+        await using (var scope = _factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PlantCare.Api.Data.AppDbContext>();
+            db.NotificationDigests.RemoveRange(db.NotificationDigests);
+            await db.SaveChangesAsync();
+        }
+
+        var second = await RunCheckAsync();
+        Assert.Equal(0, second.SentDigests);
+        Assert.Single(_publisher.Published);
+    }
+
+    [Fact]
+    public async Task Digest_RidesAlongsideWateringSection()
+    {
+        await CreatePlant("Dry one", SoilType.AllPurpose, intervalDays: 7, wateredDaysAgo: 9);
+        await CreatePlant("Top-up one", SoilType.CactusMix, intervalDays: 10, wateredDaysAgo: 5);
+
+        await RunCheckAsync();
+
+        var digest = Assert.Single(_publisher.Published);
+        Assert.Equal("1 plant needs water (1 overdue)", digest.Title);
+        Assert.Contains("• Dry one", digest.Message);
+        Assert.Contains("Water top-ups due (1):", digest.Message);
+        Assert.Contains("• Top-up one", digest.Message);
+    }
+
+    [Fact]
+    public async Task MutedAndSnoozedPlants_SkipTheTopUpSection()
+    {
+        var muted = await CreatePlant("Muted", SoilType.ChunkyBark, intervalDays: 10, wateredDaysAgo: 5);
+        var holiday = await CreatePlant("On holiday", SoilType.ChunkyBark, intervalDays: 10, wateredDaysAgo: 5);
+
+        var update = await _client.PutAsJsonAsync($"/api/plants/{muted.Id}", new
+        {
+            nickName = "Muted",
+            soilType = SoilType.ChunkyBark,
+            customWateringIntervalDays = 10,
+            lastWateredAt = Today.AddDays(-5),
+            notifyEnabled = false,
+        }, Options);
+        update.EnsureSuccessStatusCode();
+        var snooze = await _client.PostAsJsonAsync($"/api/plants/{holiday.Id}/snooze", new { days = 3 }, Options);
+        snooze.EnsureSuccessStatusCode();
+
+        var check = await RunCheckAsync();
+
+        Assert.Equal(0, check.SentDigests);
+        Assert.Empty(_publisher.Published);
+    }
+
+    [Fact]
+    public async Task ExportImport_RoundTripsTheTopUpTask()
+    {
+        await CreatePlant("Exported", SoilType.ChunkyBark, intervalDays: 10, wateredDaysAgo: 4);
+
+        var export = await _client.GetAsync("/api/export");
+        export.EnsureSuccessStatusCode();
+        var document = await export.Content.ReadFromJsonAsync<ExportDocumentDto>(Options);
+        Assert.Contains(document!.Plants.Single().CareTasks, t => t.Type == CareTaskType.TopUpWatering);
+
+        using var target = _database.CreateFactory();
+        var targetClient = target.CreateClient();
+        var imported = await targetClient.PostAsJsonAsync("/api/import", document, Options);
+        Assert.Equal(HttpStatusCode.OK, imported.StatusCode);
+
+        var plants = await targetClient.GetFromJsonAsync<PlantResponseDto[]>("/api/plants", Options);
+        var topUp = Assert.Single(plants!, p => p.NickName == "Exported");
+        Assert.True(topUp.TopUpWateringEnabled);
+        Assert.Equal(PlantDueStatus.Upcoming, topUp.TopUpWateringStatus);
+
+        target.Dispose();
+        targetClient.Dispose();
+    }
+
     public void Dispose()
     {
         _client.Dispose();
