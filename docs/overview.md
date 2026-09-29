@@ -8,6 +8,7 @@ A self-hosted, highly customizable web app for tracking owned plants, watering r
 
 - CRUD for owned plants (name, species, room, photo URL, acquired date)
 - Watering schedule per plant, derived from a species/profile default but overridable per plant
+- "Top up water" prompt for plants in highly permeable (fast-draining) soil: a small mid-cycle drink between full waterings — the watering interval stays as scheduled instead of being shortened
 - Daily background check that flags plants due for watering and sends a push notification
 - Care tips per species (light, humidity notes, plus markdown care notes covering topics like temperature and fertilizing)
 - Simple dashboard: "due today / overdue / upcoming" view
@@ -89,7 +90,7 @@ Plant (user's owned instance)
 - Room (FK to a `Room` entity: name + orientation, optional light/humidity/temperature; replaced the old free-text location, migrated from distinct values)
 - PhotoUrl (nullable)
 - AcquiredDate
-- SoilType (nullable enum: AllPurpose/CactusMix/ChunkyBark/PeatCoco/SemiHydro/SelfWatering — its water permeability scales the watering interval)
+- SoilType (nullable enum: AllPurpose/CactusMix/ChunkyBark/PeatCoco/SemiHydro/SelfWatering — its water permeability scales the watering interval; fast-draining mixes keep the base interval and instead enable the derived "Top up water" task)
 - CustomWateringIntervalDays (nullable — overrides profile default)
 - LastWateredAt
 - SoilWetUntil (nullable — "soil is still wet" deferral that pushes the watering due date out to this instant)
@@ -99,6 +100,11 @@ WateringLog
 - PlantId (FK)
 - WateredAt
 - Note (nullable)
+
+CareTask (superseded WateringLog as the typed schedule/log store)
+- Type (Watering/Fertilizing/Repotting/TopUpWatering — TopUpWatering rows exist only
+  for plants in highly permeable soil; their due date is derived from the watering
+  cycle at half its interval)
 
 PlantHealthCheck (monthly checkup answer — immutable history)
 - Id

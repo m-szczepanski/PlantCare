@@ -29,6 +29,7 @@ Improvement ideas collected after the v1.0 release. This is a parking lot, not a
 - Repot & substrate lifecycle: pot size, soil mix, last-repot date, next-repot reminder (soil refresh intervals), drainage notes per plant.
 - Fertilizing as a first-class schedule with flush/season reminders, not just free-text care tips.
 - Water details per plant: amount, method (tap/filtered/rainwater) and notes — matters for species sensitive to chlorine/fluoride.
+- Top up water between waterings for highly permeable soils — **done** (`feature-top-up-water`): instead of shortening the watering interval, fast-draining plants (CactusMix/ChunkyBark) get a derived mid-cycle "top up" prompt riding the care tasks, dashboard, cards and daily digest; their base interval stays as-is.
 - Toxicity awareness: `ToxicToPets`/`ToxicToChildren` flags on the profile with warning badges on cards and in the notification text.
 - Collection insights page: total plants, species diversity, most-neglected plants, watering adherence/streak stats, seasonal trends — read-only aggregation over existing logs.
 - Bulk actions: "water all" in a dashboard bucket or per location (currently one-by-one only).
