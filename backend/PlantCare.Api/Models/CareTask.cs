@@ -5,6 +5,7 @@ public enum CareTaskType
     Watering,
     Fertilizing,
     Repotting,
+    TopUpWatering,
 }
 
 public enum WateringMethod

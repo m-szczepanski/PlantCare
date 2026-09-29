@@ -119,6 +119,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             LastDoneAt = dto.LastWateredAt,
             ReduceInWinter = dto.ReduceInWinter ?? false,
         });
+        TopUpWatering.SyncTask(plant);
 
         db.Plants.Add(plant);
         await db.SaveChangesAsync(cancellationToken);
@@ -160,6 +161,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         watering.IntervalDays = dto.CustomWateringIntervalDays;
         watering.LastDoneAt = dto.LastWateredAt;
         watering.ReduceInWinter = dto.ReduceInWinter ?? watering.ReduceInWinter;
+        TopUpWatering.SyncTask(plant);
 
         await db.SaveChangesAsync(cancellationToken);
 
@@ -200,8 +202,10 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         var wateredAt = DateTime.UtcNow;
         var watering = WateringTask(plant) ?? NewWateringTask(plant);
         watering.LastDoneAt = wateredAt;
-        // Watering resolves a "soil still wet" deferral.
+        // Watering resolves a "soil still wet" deferral and re-anchors the
+        // derived top-up cycle (the full watering absorbs any pending top-up).
         plant.SoilWetUntil = null;
+        TopUpWatering.SyncTask(plant);
         watering.Logs.Add(new CareTaskLog
         {
             DoneAt = wateredAt,
@@ -487,6 +491,9 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
     private static CareTask? WateringTask(Plant plant)
         => plant.CareTasks.FirstOrDefault(t => t.Type == CareTaskType.Watering);
 
+    private static CareTask? TopUpTask(Plant plant)
+        => plant.CareTasks.FirstOrDefault(t => t.Type == CareTaskType.TopUpWatering);
+
     private static CareTask NewWateringTask(Plant plant)
     {
         var task = new CareTask { Type = CareTaskType.Watering };
@@ -510,6 +517,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
     {
         var watering = WateringTask(plant);
         var due = schedule.GetDueInfo(watering, plant);
+        var topUp = schedule.GetTopUpDueInfo(watering, TopUpTask(plant), plant);
         var profile = plant.PlantProfile;
         var translation = ProfileTranslations.Pick(profile, localizer.Language);
 
@@ -553,6 +561,11 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             HealthStatus = plant.HealthStatus,
             LastCheckupAt = plant.LastCheckupAt,
             CheckupDue = HealthPolicy.IsCheckupDue(plant, DateOnly.FromDateTime(DateTime.UtcNow.Date)),
+            TopUpWateringEnabled = topUp.Enabled,
+            TopUpWateringStatus = topUp.Status,
+            TopUpWateringDaysUntilDue = topUp.DaysUntilDue,
+            TopUpWateringNextDueDate = topUp.NextDueDate?.ToDateTime(TimeOnly.MinValue),
+            TopUpWateringMessage = topUp.Message,
         };
     }
 

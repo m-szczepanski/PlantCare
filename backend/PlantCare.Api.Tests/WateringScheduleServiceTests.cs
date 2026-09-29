@@ -34,7 +34,8 @@ public class WateringScheduleServiceTests
         return plant;
     }
 
-    private static CareTask Watering(Plant plant) => plant.CareTasks.Single();
+    private static CareTask? Watering(Plant plant)
+        => plant.CareTasks.FirstOrDefault(t => t.Type == CareTaskType.Watering);
 
     [Fact]
     public void NoInterval_ReturnsNotScheduled()
@@ -209,8 +210,10 @@ public class WateringScheduleServiceTests
     }
 
     [Theory]
-    [InlineData(SoilType.ChunkyBark, 10, 6)]
-    [InlineData(SoilType.CactusMix, 10, 7)]
+    // Fast-draining mixes keep the base interval; their extra water comes from
+    // the mid-cycle top-up (feature/soil-type-schedule follow-up "top up water").
+    [InlineData(SoilType.ChunkyBark, 10, 10)]
+    [InlineData(SoilType.CactusMix, 10, 10)]
     [InlineData(SoilType.PeatCoco, 10, 12)]
     [InlineData(SoilType.SemiHydro, 10, 13)]
     [InlineData(SoilType.SelfWatering, 10, 15)]
@@ -224,15 +227,16 @@ public class WateringScheduleServiceTests
     }
 
     [Fact]
-    public void FastDrainingSoil_CanPushAPlantToOverdue()
+    public void FastDrainingSoil_KeepsWateringInterval_UnchangedByPermeability()
     {
-        // 10-day schedule in fast-draining soil becomes 7 days: the 3-7 watering is now 1 day overdue.
+        // The permeability no longer shortens the cycle (top-ups cover it instead):
+        // the 3-7 watering on a 10-day schedule is not due yet on 3-15.
         var plant = Plant(intervalDays: 10, lastDoneAt: new DateTime(2026, 3, 7), soilType: SoilType.CactusMix);
 
         var due = _service.GetDueInfo(Watering(plant), plant, Today);
 
-        Assert.Equal(PlantDueStatus.Overdue, due.Status);
-        Assert.Equal(-1, due.DaysUntilDue);
+        Assert.Equal(PlantDueStatus.Upcoming, due.Status);
+        Assert.Equal(2, due.DaysUntilDue);
     }
 
     [Fact]
@@ -464,5 +468,125 @@ public class WateringScheduleServiceTests
 
         Assert.Equal(365, due.IntervalDays);
         Assert.Equal(PlantDueStatus.Overdue, due.Status);
+    }
+
+    private static CareTask? TopUp(Plant plant)
+        => plant.CareTasks.FirstOrDefault(t => t.Type == CareTaskType.TopUpWatering);
+
+    [Fact]
+    public void TopUp_HalfwayThroughTheWateringCycle()
+    {
+        // 10-day watering due 3-22; watered 3-12 -> top-up due 3-17 (half of 10).
+        var plant = Plant(intervalDays: 10, lastDoneAt: new DateTime(2026, 3, 12));
+        plant.CareTasks.Add(new CareTask { Type = CareTaskType.TopUpWatering });
+
+        var due = _service.GetTopUpDueInfo(Watering(plant), TopUp(plant), plant, Today);
+
+        Assert.True(due.Enabled);
+        Assert.Equal(new DateOnly(2026, 3, 17), due.NextDueDate);
+        Assert.Equal(2, due.DaysUntilDue);
+        Assert.Equal(PlantDueStatus.Upcoming, due.Status);
+    }
+
+    [Theory]
+    [InlineData(SoilType.ChunkyBark, 10)]
+    [InlineData(SoilType.CactusMix, 10)]
+    [InlineData(SoilType.AllPurpose, 10)]
+    public void TopUp_UsesTheUnadjustedBaseCycle_NotTheSoilFactor(SoilType soil, int baseInterval)
+    {
+        // Watering in permeable soil is due sooner, but the top-up keeps the full
+        // (unadjusted) interval — its whole point is to replace a shorter interval.
+        var plant = Plant(intervalDays: baseInterval, lastDoneAt: new DateTime(2026, 3, 12), soilType: soil);
+        plant.CareTasks.Add(new CareTask { Type = CareTaskType.TopUpWatering });
+
+        var due = _service.GetTopUpDueInfo(Watering(plant), TopUp(plant), plant, Today);
+
+        Assert.Equal(new DateOnly(2026, 3, 17), due.NextDueDate);
+    }
+
+    [Fact]
+    public void TopUp_ManualIntervalOverridesTheHalfCycle()
+    {
+        var plant = Plant(intervalDays: 10, lastDoneAt: new DateTime(2026, 3, 10));
+        plant.CareTasks.Add(new CareTask { Type = CareTaskType.TopUpWatering, IntervalDays = 3 });
+
+        var due = _service.GetTopUpDueInfo(Watering(plant), TopUp(plant), plant, Today);
+
+        Assert.Equal(new DateOnly(2026, 3, 13), due.NextDueDate);
+    }
+
+    [Fact]
+    public void TopUp_CycleAlreadyTaken_AbsorbedUntilNextWatering()
+    {
+        // Watered 3-12 (10-day cycle), top-up done 3-17 -> next top-up would be 3-22,
+        // the watering day itself: absorbed until the watering re-anchors the cycle.
+        var plant = Plant(intervalDays: 10, lastDoneAt: new DateTime(2026, 3, 12));
+        plant.CareTasks.Add(new CareTask { Type = CareTaskType.TopUpWatering, LastDoneAt = new DateTime(2026, 3, 17) });
+
+        var due = _service.GetTopUpDueInfo(Watering(plant), TopUp(plant), plant, Today);
+
+        Assert.Equal(PlantDueStatus.NotScheduled, due.Status);
+    }
+
+    [Fact]
+    public void TopUp_WithoutWateringTask_IsNotScheduled()
+    {
+        var plant = Plant();
+        plant.CareTasks.Clear();
+        plant.CareTasks.Add(new CareTask { Type = CareTaskType.TopUpWatering });
+
+        var due = _service.GetTopUpDueInfo(null, TopUp(plant), plant, Today);
+
+        Assert.True(due.Enabled);
+        Assert.Equal(PlantDueStatus.NotScheduled, due.Status);
+    }
+
+    [Fact]
+    public void TopUp_UsesAcquiredDateAnchorWhenNeverWatered()
+    {
+        var plant = Plant(intervalDays: 8);
+        plant.AcquiredDate = new DateTime(2026, 3, 11);
+        plant.CareTasks.Add(new CareTask { Type = CareTaskType.TopUpWatering });
+
+        var due = _service.GetTopUpDueInfo(Watering(plant), TopUp(plant), plant, Today);
+
+        Assert.Equal(new DateOnly(2026, 3, 15), due.NextDueDate);
+    }
+
+    [Fact]
+    public void TopUp_GetDueInfoOnTopUpTask_ReturnsTheDerivedDate()
+    {
+        // The generic care-task path must report the same date as GetTopUpDueInfo.
+        var plant = Plant(intervalDays: 10, lastDoneAt: new DateTime(2026, 3, 12));
+        plant.CareTasks.Add(new CareTask { Type = CareTaskType.TopUpWatering });
+
+        var viaTask = _service.GetDueInfo(TopUp(plant), plant, Today);
+        var viaMethod = _service.GetTopUpDueInfo(Watering(plant), TopUp(plant), plant, Today);
+
+        Assert.Equal(viaMethod.NextDueDate, viaTask.NextDueDate);
+        Assert.Equal(viaMethod.Status, viaTask.Status);
+    }
+
+    [Fact]
+    public void TopUp_FastCyclesUnderThreeDays_HaveNoRoom()
+    {
+        var plant = Plant(intervalDays: 1, lastDoneAt: new DateTime(2026, 3, 15));
+        plant.CareTasks.Add(new CareTask { Type = CareTaskType.TopUpWatering });
+
+        var due = _service.GetTopUpDueInfo(Watering(plant), TopUp(plant), plant, Today);
+
+        Assert.Equal(PlantDueStatus.NotScheduled, due.Status);
+    }
+
+    [Fact]
+    public void SoilTypes_OnlyFastDrainingMixesAreHighlyPermeable()
+    {
+        Assert.True(SoilTypes.IsHighlyPermeable(SoilType.CactusMix));
+        Assert.True(SoilTypes.IsHighlyPermeable(SoilType.ChunkyBark));
+        Assert.False(SoilTypes.IsHighlyPermeable(SoilType.AllPurpose));
+        Assert.False(SoilTypes.IsHighlyPermeable(SoilType.PeatCoco));
+        Assert.False(SoilTypes.IsHighlyPermeable(SoilType.SemiHydro));
+        Assert.False(SoilTypes.IsHighlyPermeable(SoilType.SelfWatering));
+        Assert.False(SoilTypes.IsHighlyPermeable(null));
     }
 }

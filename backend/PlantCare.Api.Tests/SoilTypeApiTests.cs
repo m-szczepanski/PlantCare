@@ -96,7 +96,10 @@ public class SoilTypeApiTests : IDisposable
         }, Options);
         var changed = await update.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
         Assert.Equal(SoilType.ChunkyBark, changed!.SoilType);
-        Assert.Equal(6, changed.WateringIntervalDays);
+        // Fast-draining mixes keep the base interval; the extra water comes from
+        // the mid-cycle top-up prompt instead (feature "top up water").
+        Assert.Equal(10, changed.WateringIntervalDays);
+        Assert.True(changed.TopUpWateringEnabled);
 
         var cleared = await _client.PutAsJsonAsync($"/api/plants/{body.Id}", new
         {

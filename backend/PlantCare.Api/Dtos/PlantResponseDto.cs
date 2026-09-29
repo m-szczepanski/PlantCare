@@ -67,4 +67,18 @@ public class PlantResponseDto
 
     /// <summary>True when the plant is old enough and has no checkup answer in the current period.</summary>
     public bool CheckupDue { get; set; }
+
+    /// <summary>
+    /// A small mid-cycle "top up" drink for plants in highly permeable soil
+    /// (derived from the watering schedule; the full watering interval is unchanged).
+    /// </summary>
+    public bool TopUpWateringEnabled { get; set; }
+
+    public PlantDueStatus TopUpWateringStatus { get; set; }
+
+    public int? TopUpWateringDaysUntilDue { get; set; }
+
+    public DateTime? TopUpWateringNextDueDate { get; set; }
+
+    public string? TopUpWateringMessage { get; set; }
 }
