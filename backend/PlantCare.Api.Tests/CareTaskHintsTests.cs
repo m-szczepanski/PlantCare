@@ -84,4 +84,20 @@ public class CareTaskHintsTests
 
         Assert.Null(CareTaskHints.For(task, plant, Summer, Localizer));
     }
+
+    [Fact]
+    public void TopUpWatering_DerivedCadence_ExplainsTheSmallDrink()
+    {
+        var task = new CareTask { Type = CareTaskType.TopUpWatering };
+
+        Assert.Contains("small drink", CareTaskHints.For(task, PlantWith(task), Summer, Localizer));
+    }
+
+    [Fact]
+    public void TopUpWatering_ManualInterval_NoHint()
+    {
+        var task = new CareTask { Type = CareTaskType.TopUpWatering, IntervalDays = 3 };
+
+        Assert.Null(CareTaskHints.For(task, PlantWith(task), Summer, Localizer));
+    }
 }

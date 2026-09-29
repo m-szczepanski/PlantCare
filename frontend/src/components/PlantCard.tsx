@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { AlertTriangle, CalendarClock, Compass, Droplets, Stethoscope } from "lucide-react";
+import { AlertTriangle, CalendarClock, Compass, Droplet, Droplets, Stethoscope } from "lucide-react";
 import { DueCount, DueStatusBadge } from "@/components/DueStatusBadge";
 import { HealthBadge } from "@/components/HealthBadge";
 import { PlantPhoto } from "@/components/PlantPhoto";
@@ -96,6 +96,14 @@ export function PlantCard({ plant, onWater, isWatering }: PlantCardProps) {
                 ? t("plant.wateringInterval", { interval: t("common.days", { count: plant.wateringIntervalDays }) })
                 : t("plant.noSchedule")}
           </p>
+          {plant.topUpWateringEnabled ? (
+            <p className="flex items-center gap-1.5" role="status">
+              <Droplet className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              {t("plant.topUpWatering", {
+                status: plant.topUpWateringMessage ?? t("plant.noSchedule"),
+              })}
+            </p>
+          ) : null}
         </div>
 
         {onWater ? (

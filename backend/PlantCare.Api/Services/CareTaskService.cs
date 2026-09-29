@@ -54,13 +54,28 @@ public sealed class CareTaskService(AppDbContext db, IWateringScheduleService sc
             return null;
         }
 
-        var task = plant.CareTasks.FirstOrDefault(t => t.Type == type) ?? CreateTask(plant, type);
+        // The top-up task is soil-driven and derived; never auto-created here —
+        // "done" on a plant without one is a no-op (404), use the soil picker instead.
+        var task = plant.CareTasks.FirstOrDefault(t => t.Type == type)
+            ?? (type == CareTaskType.TopUpWatering ? null : CreateTask(plant, type));
+        if (task is null)
+        {
+            return null;
+        }
+
         var doneAt = DateTime.UtcNow;
         task.LastDoneAt = doneAt;
         if (type == CareTaskType.Watering)
         {
-            // Completing the watering resolves any "soil still wet" deferral.
+            // Completing the watering resolves any "soil still wet" deferral and
+            // re-anchors (or re-syncs) the derived top-up cycle.
             plant.SoilWetUntil = null;
+            TopUpWatering.SyncTask(plant);
+        }
+        else if (type == CareTaskType.TopUpWatering)
+        {
+            // A top-up drink absorbs an already-due full watering (see TopUpWatering).
+            TopUpWatering.AbsorbDueWatering(plant, task, doneAt);
         }
         task.Logs.Add(new CareTaskLog
         {

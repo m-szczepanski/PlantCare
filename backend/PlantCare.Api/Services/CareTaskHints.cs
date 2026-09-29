@@ -24,6 +24,8 @@ public static class CareTaskHints
                 localizer.T("hint.flush"),
             CareTaskType.Watering when winter && EffectiveReduce(task, plant) =>
                 localizer.T("hint.wateringWinter"),
+            CareTaskType.TopUpWatering when task.IntervalDays is null =>
+                localizer.T("hint.topUpWatering"),
             _ => null,
         };
     }

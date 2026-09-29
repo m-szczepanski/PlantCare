@@ -19,7 +19,9 @@ public interface IWateringCheckService
 /// At most one digest per day; a failed send is logged, never thrown.
 /// Monthly health-checkup prompts ride the same digest: plants whose last
 /// checkup answer is stale get a "checkups due" section, reminded at most
-/// once per checkup period per plant (stamped on the plant).
+/// once per checkup period per plant (stamped on the plant). Mid-cycle
+/// "top up water" prompts for highly permeable soils ride it as their own
+/// section (derived schedule, see <see cref="IWateringScheduleService.GetTopUpDueInfo"/>).
 /// </summary>
 public sealed class WateringCheckService(
     AppDbContext db,
@@ -41,6 +43,10 @@ public sealed class WateringCheckService(
             .Where(p => p.DueStatus is PlantDueStatus.Overdue or PlantDueStatus.DueToday)
             .ToList();
 
+        var topUps = notified
+            .Where(p => p.TopUpWateringEnabled && p.TopUpWateringStatus is PlantDueStatus.Overdue or PlantDueStatus.DueToday)
+            .ToList();
+
         // Checkup-due plants whose per-plant reminder stamp is missing or stale.
         var checkupCandidateIds = notified.Where(p => p.CheckupDue).Select(p => p.Id).ToList();
         var reminderDates = await db.Plants
@@ -51,7 +57,7 @@ public sealed class WateringCheckService(
             .Select(id => all.First(p => p.Id == id))
             .ToList();
 
-        if (due.Count == 0 && checkups.Count == 0)
+        if (due.Count == 0 && topUps.Count == 0 && checkups.Count == 0)
         {
             await LogRunAsync(new WateringCheckResult(0, 0, 0, 0), "nothing-due", cancellationToken);
             return new WateringCheckResult(0, 0, 0, 0);
@@ -69,7 +75,9 @@ public sealed class WateringCheckService(
         var priority = overdueCount > 0 ? 5 : 3;
         var title = due.Count > 0
             ? localizer.Tp("digest.title", due.Count)
-            : localizer.Tp("digest.checkups.title", checkups.Count);
+            : topUps.Count > 0
+                ? localizer.Tp("digest.topups.title", topUps.Count)
+                : localizer.Tp("digest.checkups.title", checkups.Count);
         if (overdueCount > 0)
         {
             title += localizer.Tp("digest.overdue", overdueCount);
@@ -79,6 +87,17 @@ public sealed class WateringCheckService(
             $"• {p.NickName}{(p.RoomName is null ? "" : $" ({p.RoomName})")} — {p.DueMessage}"
             + (p.ProfileToxicToPets ? localizer.T("digest.toxicPets") : "")
             + (p.ProfileToxicToChildren ? localizer.T("digest.toxicChildren") : "")));
+
+        if (topUps.Count > 0)
+        {
+            if (message.Length > 0)
+            {
+                message += "\n\n";
+            }
+            message += localizer.Tf("digest.topups.header", topUps.Count) + "\n"
+                + string.Join("\n", topUps.Select(p =>
+                    $"• {p.NickName}{(p.RoomName is null ? "" : $" ({p.RoomName})")}"));
+        }
 
         if (checkups.Count > 0)
         {

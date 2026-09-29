@@ -33,6 +33,9 @@ public static class Messages
             ["digest.checkups.title.one"] = "1 health checkup is due",
             ["digest.checkups.title.other"] = "{0} health checkups are due",
             ["digest.checkups.header"] = "Health checkups due ({0}):",
+            ["digest.topups.title.one"] = "1 plant needs a water top-up",
+            ["digest.topups.title.other"] = "{0} plants need a water top-up",
+            ["digest.topups.header"] = "Water top-ups due ({0}):",
 
             ["test.title"] = "PlantCare test notification",
             ["test.body"] = "This is a test push from PlantCare. If you can read this on your phone, notifications are wired up correctly.",
@@ -41,6 +44,7 @@ public static class Messages
             ["hint.fertilizingPaused"] = "Feeding is paused while the plant is unwell — it resumes at the next health checkup.",
             ["hint.flush"] = "Flushing the soil with plain water helps clear fertilizer salts.",
             ["hint.wateringWinter"] = "Winter: watering interval is doubled.",
+            ["hint.topUpWatering"] = "A small drink between full waterings — fast-draining soil dries out sooner. The watering schedule stays as it is.",
 
             ["calendar.name"] = "PlantCare watering",
             ["calendar.summary"] = "Water {0}",
@@ -97,6 +101,10 @@ public static class Messages
             ["digest.checkups.title.few"] = "{0} przeglądy zdrowia do zrobienia",
             ["digest.checkups.title.many"] = "{0} przeglądów zdrowia do zrobienia",
             ["digest.checkups.header"] = "Przeglądy zdrowia do zrobienia ({0}):",
+            ["digest.topups.title.one"] = "1 roślina potrzebuje uzupełnienia wody",
+            ["digest.topups.title.few"] = "{0} rośliny potrzebują uzupełnienia wody",
+            ["digest.topups.title.many"] = "{0} roślin potrzebuje uzupełnienia wody",
+            ["digest.topups.header"] = "Uzupełnienia wody do zrobienia ({0}):",
 
             ["test.title"] = "Testowe powiadomienie PlantCare",
             ["test.body"] = "To jest testowe powiadomienie z PlantCare. Jeśli to widzisz, powiadomienia są skonfigurowane poprawnie.",
@@ -105,6 +113,7 @@ public static class Messages
             ["hint.fertilizingPaused"] = "Nawożenie jest wstrzymane, dopóki roślina jest chora — wróci przy następnym przeglądzie zdrowia.",
             ["hint.flush"] = "Przepłukanie podłoża czystą wodą pomaga usunąć sole z nawozów.",
             ["hint.wateringWinter"] = "Zima: przedział podlewania jest wydłużony dwukrotnie.",
+            ["hint.topUpWatering"] = "Małe dozowanie wody między pełnymi podlaniami — szybko przesychające podłoże wymaga częstszego nawilżania. Harmonogram podlewania pozostaje bez zmian.",
 
             ["calendar.name"] = "Podlewanie PlantCare",
             ["calendar.summary"] = "Podlej: {0}",

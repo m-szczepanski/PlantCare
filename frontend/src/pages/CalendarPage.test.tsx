@@ -59,6 +59,11 @@ function plant(over: Partial<Plant>): Plant {
     healthStatus: null,
     lastCheckupAt: null,
     checkupDue: false,
+    topUpWateringEnabled: false,
+    topUpWateringStatus: "NotScheduled",
+    topUpWateringDaysUntilDue: null,
+    topUpWateringNextDueDate: null,
+    topUpWateringMessage: null,
     ...over,
   };
 }

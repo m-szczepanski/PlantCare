@@ -36,6 +36,11 @@ function plant(over: Partial<Plant>): Plant {
     healthStatus: null,
     lastCheckupAt: null,
     checkupDue: false,
+    topUpWateringEnabled: false,
+    topUpWateringStatus: "NotScheduled",
+    topUpWateringDaysUntilDue: null,
+    topUpWateringNextDueDate: null,
+    topUpWateringMessage: null,
     dueMessage: "4 days until due",
     ...over,
   };
@@ -152,5 +157,25 @@ describe("PlantCard", () => {
     renderCard(<PlantCard plant={plant({})} onWater={vi.fn()} isWatering />);
 
     expect(screen.getByRole("button", { name: "Watering..." })).toBeDisabled();
+  });
+
+  it("shows the top-up watering line when enabled", () => {
+    renderCard(
+      <PlantCard
+        plant={plant({
+          topUpWateringEnabled: true,
+          topUpWateringStatus: "DueToday",
+          topUpWateringMessage: "Due today",
+        })}
+      />,
+    );
+
+    expect(screen.getByText("Top up water: Due today")).toBeInTheDocument();
+  });
+
+  it("has no top-up line when the plant is not eligible", () => {
+    renderCard(<PlantCard plant={plant({})} />);
+
+    expect(screen.queryByText(/Top up water/)).not.toBeInTheDocument();
   });
 });
