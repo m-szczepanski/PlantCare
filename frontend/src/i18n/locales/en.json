@@ -58,7 +58,8 @@
     "noProfile": "No species profile",
     "nextDueOn": "Next due {{date}}",
     "wateringInterval": "Every {{interval}}",
-    "noSchedule": "No watering schedule"
+    "noSchedule": "No watering schedule",
+    "topUpWatering": "Top up water: {{status}}"
   },
   "stats": {
     "overdue": "Overdue",
@@ -150,7 +151,7 @@
     "everyDays": "Every (days)",
     "skipWinter": "Skip in winter",
     "addFertilizing": "Add fertilizing",
-    "types": { "Watering": "Watering", "Fertilizing": "Fertilizing", "Repotting": "Repotting" }
+    "types": { "Watering": "Watering", "Fertilizing": "Fertilizing", "Repotting": "Repotting", "TopUpWatering": "Top up water" }
   },
   "journal": {
     "title": "Care journal",
@@ -199,6 +200,7 @@
     "soilType": "Soil type",
     "soilTypeNone": "Not specified",
     "soilTypeHint": "{{soil}} changes watering from {{from}} to {{to}} days",
+    "topUpWateringHint": "Fast-draining soil: watering stays as scheduled, but the app will prompt a small \"top up\" drink halfway to the next watering.",
     "propagatedFrom": "Propagated from",
     "propagatedFromPlaceholder": "e.g. Cutting from grandma's monstera",
     "notifyReminders": "Send watering reminders for this plant",

@@ -1,6 +1,6 @@
 export type PlantDueStatus = "NotScheduled" | "Overdue" | "DueToday" | "Upcoming";
 
-export type CareTaskType = "Watering" | "Fertilizing" | "Repotting";
+export type CareTaskType = "Watering" | "Fertilizing" | "Repotting" | "TopUpWatering";
 
 export type HealthStatus = "Sick" | "Bad" | "Good" | "Excellent";
 
@@ -23,6 +23,7 @@ export interface SoilTypeOption {
   type: SoilType;
   wateringIntervalFactor: number;
   mixes: string[];
+  topUpWateringEligible: boolean;
 }
 
 export interface CareTask {
@@ -113,6 +114,11 @@ export interface Plant {
   healthStatus: HealthStatus | null;
   lastCheckupAt: string | null;
   checkupDue: boolean;
+  topUpWateringEnabled: boolean;
+  topUpWateringStatus: PlantDueStatus;
+  topUpWateringDaysUntilDue: number | null;
+  topUpWateringNextDueDate: string | null;
+  topUpWateringMessage: string | null;
 }
 
 export interface Dashboard {
