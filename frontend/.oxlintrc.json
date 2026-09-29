@@ -1,7 +1,7 @@
 {
   "jsPlugins": ["@shadcn/lint"],
   "rules": {
-    // no-unknown-classes left off: it needs Tailwind v4 to load the config; under v3 it false-positives on tailwindcss-animate classes.
+    "shadcn/no-unknown-classes": ["error", { "allow": ["toaster"] }],
     "shadcn/no-raw-colors": "error",
     "shadcn/no-restyle": [
       "error",
