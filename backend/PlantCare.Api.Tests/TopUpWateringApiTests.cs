@@ -139,6 +139,59 @@ public class TopUpWateringApiTests : IDisposable
         Assert.Contains("small drink", topUp.Hint);
     }
 
+    [Fact]
+    public async Task MarkTopUpDone_SchedulesNextTopUp_AndDoesNotTouchWatering()
+    {
+        // Watered 5 days ago: top-up due today, watering due in 5 days.
+        var plant = await CreatePlant("Thirsty but watered", SoilType.ChunkyBark, intervalDays: 10, wateredDaysAgo: 5);
+        Assert.Equal(PlantDueStatus.DueToday, plant.TopUpWateringStatus);
+
+        var done = await _client.PostAsJsonAsync($"/api/plants/{plant.Id}/care-tasks/TopUpWatering/done", new { }, Options);
+        Assert.Equal(HttpStatusCode.OK, done.StatusCode);
+        var task = await done.Content.ReadFromJsonAsync<CareTaskResponseDto>(Options);
+        Assert.NotNull(task!.LastDoneAt);
+
+        // Watering (still due in 5 days) stays exactly where it was; the next
+        // top-up would land on the watering day, so the cycle absorbs it until
+        // the full watering re-anchors.
+        var after = await GetPlant(plant.Id);
+        Assert.Equal(Today.AddDays(5), after.NextDueDate!.Value.Date);
+        Assert.Equal(PlantDueStatus.NotScheduled, after.TopUpWateringStatus);
+
+        // After the full watering the derived prompt comes back mid-cycle.
+        await _client.PostAsJsonAsync($"/api/plants/{plant.Id}/water", new { }, Options);
+        var watered = await GetPlant(plant.Id);
+        Assert.True(watered.TopUpWateringEnabled);
+        Assert.Equal(Today.AddDays(5), watered.TopUpWateringNextDueDate!.Value.Date);
+    }
+
+    [Fact]
+    public async Task MarkTopUpDone_WhenWateringIsOverdue_AbsorbsTheWatering()
+    {
+        // 10-day interval, watered 11 days ago: watering overdue by 1, top-up overdue by 1.
+        var plant = await CreatePlant("Neglected", SoilType.ChunkyBark, intervalDays: 10, wateredDaysAgo: 11);
+        Assert.Equal(PlantDueStatus.Overdue, plant.DueStatus);
+        Assert.Equal(PlantDueStatus.Overdue, plant.TopUpWateringStatus);
+
+        var done = await _client.PostAsJsonAsync($"/api/plants/{plant.Id}/care-tasks/TopUpWatering/done", new { }, Options);
+        Assert.Equal(HttpStatusCode.OK, done.StatusCode);
+
+        // The drink counts: the overdue full watering is absorbed (anchored to
+        // now) and the plant is scheduled a full cycle ahead again.
+        var after = await GetPlant(plant.Id);
+        Assert.Equal(PlantDueStatus.Upcoming, after.DueStatus);
+        Assert.Equal(Today.AddDays(10), after.NextDueDate!.Value.Date);
+    }
+
+    [Fact]
+    public async Task MarkTopUpDone_WithoutTopUpTask_Returns404()
+    {
+        var plant = await CreatePlant("No top up", SoilType.AllPurpose);
+
+        var done = await _client.PostAsJsonAsync($"/api/plants/{plant.Id}/care-tasks/TopUpWatering/done", new { }, Options);
+        Assert.Equal(HttpStatusCode.NotFound, done.StatusCode);
+    }
+
     public void Dispose()
     {
         _client.Dispose();
