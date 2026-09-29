@@ -84,6 +84,11 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
     return t("form.nextDuePreview", { date: due.toLocaleDateString(i18n.language), when: daysFromToday === 0 ? t("form.today") : t("form.inDays", { count: daysFromToday }) });
   })();
 
+  const selectedSoil = soilTypes.find((option) => option.type === soilType);
+  const topUpHint = selectedSoil?.topUpWateringEligible
+    ? t("form.topUpWateringHint")
+    : null;
+
   const soilHint = (() => {
     if (!soilType || baseInterval === null || effectiveInterval === null || effectiveInterval === baseInterval) {
       return null;
@@ -304,6 +309,11 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
             </SelectContent>
           </Select>
           {soilHint ? <p className="text-xs text-muted-foreground">{soilHint}</p> : null}
+          {topUpHint ? (
+            <p className="text-xs text-muted-foreground" role="status">
+              {topUpHint}
+            </p>
+          ) : null}
         </div>
       </div>
 

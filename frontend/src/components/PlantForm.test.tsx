@@ -10,12 +10,12 @@ vi.mock("@/api/client", () => ({
   roomsApi: { list: vi.fn().mockResolvedValue([]), create: vi.fn(), update: vi.fn(), remove: vi.fn() },
   referenceDataApi: {
     soilTypes: vi.fn().mockResolvedValue([
-      { type: "AllPurpose", wateringIntervalFactor: 1, mixes: ["All-purpose potting mix", "Worm casting boost", "Leaf mold & loam"] },
-      { type: "CactusMix", wateringIntervalFactor: 0.7, mixes: ["Cactus & succulent mix", "Pumice-heavy inorganic mix"] },
-      { type: "ChunkyBark", wateringIntervalFactor: 0.55, mixes: ["Aroid chunky blend", "Orchid bark mix"] },
-      { type: "PeatCoco", wateringIntervalFactor: 1.15, mixes: ["Peat & perlite mix", "Coco coir & perlite blend", "Sphagnum moss"] },
-      { type: "SemiHydro", wateringIntervalFactor: 1.3, mixes: ["Semi-hydro LECA"] },
-      { type: "SelfWatering", wateringIntervalFactor: 1.5, mixes: ["Self-watering pot blend"] },
+      { type: "AllPurpose", wateringIntervalFactor: 1, mixes: ["All-purpose potting mix", "Worm casting boost", "Leaf mold & loam"] , topUpWateringEligible: false},
+      { type: "CactusMix", wateringIntervalFactor: 0.7, mixes: ["Cactus & succulent mix", "Pumice-heavy inorganic mix"] , topUpWateringEligible: true},
+      { type: "ChunkyBark", wateringIntervalFactor: 0.55, mixes: ["Aroid chunky blend", "Orchid bark mix"] , topUpWateringEligible: true},
+      { type: "PeatCoco", wateringIntervalFactor: 1.15, mixes: ["Peat & perlite mix", "Coco coir & perlite blend", "Sphagnum moss"] , topUpWateringEligible: false},
+      { type: "SemiHydro", wateringIntervalFactor: 1.3, mixes: ["Semi-hydro LECA"] , topUpWateringEligible: false},
+      { type: "SelfWatering", wateringIntervalFactor: 1.5, mixes: ["Self-watering pot blend"] , topUpWateringEligible: false},
     ]),
   },
   ApiError: class ApiError extends Error {},
@@ -86,6 +86,11 @@ const basePlant: Plant = {
   healthStatus: null,
   lastCheckupAt: null,
   checkupDue: false,
+  topUpWateringEnabled: false,
+  topUpWateringStatus: "NotScheduled",
+  topUpWateringDaysUntilDue: null,
+  topUpWateringNextDueDate: null,
+  topUpWateringMessage: null,
 };
 
 function renderFormWithInitial(over: Partial<Plant>) {
@@ -213,6 +218,13 @@ describe("PlantForm", () => {
     const status = await screen.findByRole("status");
     expect(status).toHaveTextContent("in 10 days");
     expect(screen.queryByText(/changes watering/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/top up/i)).not.toBeInTheDocument();
+  });
+
+  it("promises the mid-cycle top-up prompt for fast-draining soil", async () => {
+    renderFormWithInitial({ soilType: "ChunkyBark" });
+
+    expect(await screen.findByText(/small "top up" drink/i)).toBeInTheDocument();
   });
 
   it("passes the selected soil type through to onSubmit", async () => {

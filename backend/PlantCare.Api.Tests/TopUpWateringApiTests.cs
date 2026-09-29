@@ -261,6 +261,19 @@ public class TopUpWateringApiTests : IDisposable
     }
 
     [Fact]
+    public async Task ReferenceData_FlagsPermeableSoilsAsTopUpEligible()
+    {
+        var options = await _client.GetFromJsonAsync<SoilTypeOptionDto[]>("/api/reference-data/soil-types", Options);
+
+        Assert.NotNull(options);
+        Assert.True(options!.Single(o => o.Type == SoilType.ChunkyBark).TopUpWateringEligible);
+        Assert.True(options.Single(o => o.Type == SoilType.CactusMix).TopUpWateringEligible);
+        Assert.Equal(1.0, options.Single(o => o.Type == SoilType.ChunkyBark).WateringIntervalFactor);
+        Assert.False(options.Single(o => o.Type == SoilType.AllPurpose).TopUpWateringEligible);
+        Assert.False(options.Single(o => o.Type == SoilType.SelfWatering).TopUpWateringEligible);
+    }
+
+    [Fact]
     public async Task ExportImport_RoundTripsTheTopUpTask()
     {
         await CreatePlant("Exported", SoilType.ChunkyBark, intervalDays: 10, wateredDaysAgo: 4);
