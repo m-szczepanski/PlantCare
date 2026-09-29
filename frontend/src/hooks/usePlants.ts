@@ -279,7 +279,7 @@ export function useCareTaskMutations(id: number) {
   });
 
   const markDone = useMutation({
-    mutationFn: (type: "Watering" | "Fertilizing" | "Repotting") => plantsApi.markCareTaskDone(id, type),
+    mutationFn: (type: "Watering" | "Fertilizing" | "Repotting" | "TopUpWatering") => plantsApi.markCareTaskDone(id, type),
     onSuccess: (task) => {
       invalidate();
       toast.success(i18n.t("toasts.careTaskDone", { type: i18n.t(`careTask.types.${task.type}`) }));

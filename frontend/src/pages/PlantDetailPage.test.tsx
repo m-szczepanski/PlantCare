@@ -62,6 +62,11 @@ const plant: Plant = {
   healthStatus: null,
   lastCheckupAt: null,
   checkupDue: false,
+  topUpWateringEnabled: false,
+  topUpWateringStatus: "NotScheduled",
+  topUpWateringDaysUntilDue: null,
+  topUpWateringNextDueDate: null,
+  topUpWateringMessage: null,
 };
 
 const logs: WateringLogEntry[] = [
@@ -300,6 +305,11 @@ describe("PlantDetailPage", () => {
       healthStatus: "Sick",
       lastCheckupAt: "2026-03-04T10:00:00",
       checkupDue: false,
+      topUpWateringEnabled: false,
+      topUpWateringStatus: "NotScheduled",
+      topUpWateringDaysUntilDue: null,
+      topUpWateringNextDueDate: null,
+      topUpWateringMessage: null,
     });
 
     renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });

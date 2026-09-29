@@ -16,6 +16,7 @@ export function CareTasksCard({ plantId }: { plantId: number }) {
     Watering: t("careTask.types.Watering"),
     Fertilizing: t("careTask.types.Fertilizing"),
     Repotting: t("careTask.types.Repotting"),
+    TopUpWatering: t("careTask.types.TopUpWatering"),
   };
   const { data: tasks = [] } = useCareTasks(plantId);
   const { add, remove, markDone } = useCareTaskMutations(plantId);
