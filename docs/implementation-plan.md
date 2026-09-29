@@ -214,7 +214,7 @@ Work the steps strictly in order — each step depends on the artifacts of the p
 **Acceptance criteria:**
 - [x] (If in scope) photo uploads persist across container restarts and render in list/detail. — *Not in scope: the open question resolved to "skip uploads for v1"; `PhotoUrl` accepts an externally hosted URL.*
 - [x] No view shows a blank screen in any state (loading, empty, error).
-- [x] Theme changes in `tailwind.config.ts` propagate across the whole app.
+- [x] Theme changes in `src/index.css` (Tailwind v4 theme) propagate across the whole app.
 - [x] Seed set covers the common species a home user would recognize.
 
 **Deviations / notes:**
