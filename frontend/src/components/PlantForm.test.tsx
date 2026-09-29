@@ -126,8 +126,6 @@ describe("PlantForm", () => {
       expect(screen.getByRole("status")).toHaveTextContent("in 10 days");
       expect(screen.getByPlaceholderText("Profile default: 10")).toBeInTheDocument();
     },
-    // cmdk list rendering is slow under jsdom
-    30_000,
   );
 
   it("previews a manually entered custom interval", async () => {

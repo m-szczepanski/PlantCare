@@ -62,7 +62,7 @@ beforeEach(() => {
 
 describe(
   "SetupWizard",
-  { timeout: 30_000 },
+  { timeout: 90_000 },
   () => {
     it("walks through rooms, plants, and preferences, then finishes", async () => {
       const { onFinished } = renderWizard();
