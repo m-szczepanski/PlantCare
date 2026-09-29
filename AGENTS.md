@@ -68,7 +68,7 @@ Verify builds and tests pass before finishing any task.
 - Functional components only; typed API client in `src/api/`, hooks in `src/hooks/` (TanStack Query), pages in `src/pages/`.
 - No raw `fetch` in components.
 - Compose shadcn primitives; never edit generated shadcn files in place.
-- Theming centralized in `tailwind.config.ts`.
+- Theming centralized in `src/index.css` (Tailwind v4, CSS-first config).
 
 ### General
 - No secrets in code; all config via env vars (document new ones in `.env.example`).

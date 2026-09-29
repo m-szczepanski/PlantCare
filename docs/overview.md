@@ -154,7 +154,7 @@ Since this is meant to be a template others can adapt:
 
 - **Data over code**: species defaults and care tips live in seed JSON, not hardcoded.
 - **Env-driven config**: notification schedule, ntfy topic/URL, DB provider connection string, feature flags (e.g., `ENABLE_CARE_TIPS=true`) all come from `.env`.
-- **Theming**: keep shadcn/Tailwind config centralized (`tailwind.config.ts`) so restyling doesn't require touching component logic.
+- **Theming**: keep shadcn/Tailwind config centralized (`src/index.css`, Tailwind v4 CSS-first config) so restyling doesn't require touching component logic.
 
 ## Docker Compose (target shape)
 
