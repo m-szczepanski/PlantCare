@@ -32,6 +32,8 @@ public class PlantResponseDto
 
     public string? ProfileCommonName { get; set; }
 
+    public string? ProfileScientificName { get; set; }
+
     public bool ProfileToxicToPets { get; set; }
 
     public bool ProfileToxicToChildren { get; set; }

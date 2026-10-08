@@ -38,7 +38,7 @@ const profiles: PlantProfile[] = [
   {
     id: 2,
     commonName: "Pothos",
-    scientificName: null,
+    scientificName: "Epipremnum aureum",
     defaultWateringIntervalDays: 10,
     lightRequirement: "Medium",
     humidityNotes: "Average.",
@@ -111,6 +111,21 @@ beforeEach(() => {
 
 describe("PlantForm", () => {
   it(
+    "finds a profile when searching by its Latin scientific name",
+    async () => {
+      renderForm();
+
+      fireEvent.click(await screen.findByRole("combobox", { name: "Species profile" }));
+      fireEvent.change(screen.getByPlaceholderText("Search profiles..."), { target: { value: "aureum" } });
+
+      expect(screen.queryByText(/Monstera \(7d\)/)).not.toBeInTheDocument();
+      fireEvent.click(await screen.findByRole("option", { name: /Pothos \(10d\)/ }));
+
+      expect(screen.getByRole("combobox", { name: "Species profile" })).toHaveTextContent("Pothos (10d)");
+    },
+  );
+
+  it(
     "shows the live next-due preview from a searched profile selection",
     async () => {
       renderForm();
@@ -119,7 +134,7 @@ describe("PlantForm", () => {
       fireEvent.change(screen.getByPlaceholderText("Search profiles..."), { target: { value: "Poth" } });
 
       expect(screen.queryByText("Monstera (7d)")).not.toBeInTheDocument();
-      fireEvent.click(await screen.findByRole("option", { name: "Pothos (10d)" }));
+      fireEvent.click(await screen.findByRole("option", { name: /Pothos \(10d\)/ }));
 
       expect(screen.getByRole("combobox", { name: "Species profile" })).toHaveTextContent("Pothos (10d)");
       expect(screen.getByRole("status")).toHaveTextContent("Next watering due");

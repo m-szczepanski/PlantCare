@@ -99,6 +99,7 @@ export interface Plant {
   acquiredDate: string;
   plantProfileId: number | null;
   profileCommonName: string | null;
+  profileScientificName?: string | null;
   profileToxicToPets: boolean;
   profileToxicToChildren: boolean;
   careTips: PlantCareTips | null;
