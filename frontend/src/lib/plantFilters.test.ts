@@ -49,7 +49,7 @@ const plants = [
   plant({ id: 2, nickName: "Monstera Mike", roomId: null,
  roomName: "Living room", profileCommonName: "Monstera", dueStatus: "DueToday", daysUntilDue: 0, lastWateredAt: "2026-03-10T00:00:00" }),
   plant({ id: 3, nickName: "Bamboo", roomId: null,
- roomName: "Office", dueStatus: "Upcoming", daysUntilDue: 5, lastWateredAt: null }),
+ profileScientificName: "Bambusa vulgaris", roomName: "Office", dueStatus: "Upcoming", daysUntilDue: 5, lastWateredAt: null }),
 ];
 
 const query = { search: "", due: "all", sort: "name" } as const;
@@ -60,6 +60,7 @@ describe("filterPlants", () => {
     expect(names(filterPlants(plants, { ...query, search: "pot" }))).toEqual(["Zoe"]);
     expect(names(filterPlants(plants, { ...query, search: "office" }))).toEqual(["Bamboo"]);
     expect(names(filterPlants(plants, { ...query, search: "MONSTERA" }))).toEqual(["Monstera Mike"]);
+    expect(names(filterPlants(plants, { ...query, search: "vulgaris" }))).toEqual(["Bamboo"]);
   });
 
   it("filters by due status", () => {

@@ -67,6 +67,7 @@ export function ProfileCombobox({ profiles, value, onChange, id }: ProfileCombob
                 <CommandItem
                   key={profile.id}
                   value={profile.commonName}
+                  keywords={profile.scientificName ? [profile.scientificName] : undefined}
                   onSelect={() => {
                     onChange(profile.id);
                     setOpen(false);
@@ -75,7 +76,12 @@ export function ProfileCombobox({ profiles, value, onChange, id }: ProfileCombob
                   <Check
                     className={cn("h-4 w-4", value === profile.id ? "opacity-100" : "opacity-0")}
                   />
-                  {t("profile.selectedWithInterval", { name: profile.commonName, days: profile.defaultWateringIntervalDays })}
+                  <span>
+                    {t("profile.selectedWithInterval", { name: profile.commonName, days: profile.defaultWateringIntervalDays })}
+                    {profile.scientificName ? (
+                      <span className="ml-2 italic text-muted-foreground">{profile.scientificName}</span>
+                    ) : null}
+                  </span>
                 </CommandItem>
               ))}
             </CommandGroup>

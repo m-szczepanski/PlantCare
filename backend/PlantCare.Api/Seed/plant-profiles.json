@@ -443,5 +443,2085 @@
     "careTips": "Vivid strap leaves need bright light. Water when the top layer dries, and use filtered water to prevent brown tips.",
     "toxicToPets": true,
     "toxicToChildren": true
+  },
+  {
+    "commonName": "Mini Monstera",
+    "scientificName": "Rhaphidophora tetrasperma",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Average room humidity is fine; appreciates occasional misting.",
+    "careTips": "Bright, indirect light. Let the top 2-3 cm of soil dry between waterings. Very forgiving — drooping leaves clearly signal thirst.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Split-Leaf Philodendron",
+    "scientificName": "Thaumatophyllum bipinnatifidum",
+    "defaultWateringIntervalDays": 8,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Average room humidity is fine; appreciates occasional misting.",
+    "careTips": "Bright, indirect light. Let the top 2-3 cm of soil dry between waterings. Very forgiving — drooping leaves clearly signal thirst.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Weeping Fig",
+    "scientificName": "Ficus benjamina",
+    "defaultWateringIntervalDays": 8,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Prefers stable conditions; keep away from drafts and avoid moving it.",
+    "careTips": "Bright, indirect light. Water when the top 3-4 cm dry out. Fussy about change — seasonal leaf drop is its way of complaining, not dying.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Umbrella Tree",
+    "scientificName": "Schefflera actinophylla",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Average humidity suits it.",
+    "careTips": "Bright light — some direct sun is fine. Water when the top 2-3 cm dry out; prune to keep it bushy.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Anthurium",
+    "scientificName": "Anthurium andraeanum",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Loves higher humidity; mist often or keep near a humidifier.",
+    "careTips": "Bright, indirect light — direct sun scorches the leaves. Water when the top 2 cm of soil are dry and use a chunky, airy mix.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Chinese Evergreen",
+    "scientificName": "Aglaonema commutatum",
+    "defaultWateringIntervalDays": 8,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Tolerates dry air well.",
+    "careTips": "One of the most forgiving low-to-medium light plants. Water when the top few centimetres are dry; hold off feeding in winter.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Calathea makoyana",
+    "scientificName": "Goeppertia makoyana",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Demands high humidity and hates tap water — use rain or distilled water; crispy edges mean dry air.",
+    "careTips": "Bright, indirect light only. Keep the mix lightly moist at all times, group plants or mist for humidity; leaves fold up when thirsty.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Calathea lancifolia",
+    "scientificName": "Goeppertia insignis",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Demands high humidity and hates tap water — use rain or distilled water; crispy edges mean dry air.",
+    "careTips": "Bright, indirect light only. Keep the mix lightly moist at all times, group plants or mist for humidity; leaves fold up when thirsty.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Peacock Plant",
+    "scientificName": "Goeppertia spp.",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Demands high humidity and hates tap water — use rain or distilled water; crispy edges mean dry air.",
+    "careTips": "Bright, indirect light only. Keep the mix lightly moist at all times, group plants or mist for humidity; leaves fold up when thirsty.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "String of Bananas",
+    "scientificName": "Curio radicans",
+    "defaultWateringIntervalDays": 12,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Likes dry air — perfect for a heated room.",
+    "careTips": "Water only when the soil is bone dry and the leaves start to shrink; overwatering kills faster than anything else. Lots of light keeps the stems tight.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Panda Plant",
+    "scientificName": "Kalanchoe tomentosa",
+    "defaultWateringIntervalDays": 12,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Prefers dry air.",
+    "careTips": "A succulent — let the soil dry out fully between waterings. Bright light keeps it compact; remove spent flower stems.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Flapjack Plant",
+    "scientificName": "Kalanchoe luciae",
+    "defaultWateringIntervalDays": 12,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Prefers dry air.",
+    "careTips": "A succulent — let the soil dry out fully between waterings. Bright light keeps it compact; remove spent flower stems.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Pencil Cactus",
+    "scientificName": "Euphorbia tirucalli",
+    "defaultWateringIntervalDays": 14,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Loves dry air.",
+    "careTips": "The white sap is caustic — keep away from children and pets. Water sparingly in gritty soil and give the brightest window available.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Crown of Thorns",
+    "scientificName": "Euphorbia milii",
+    "defaultWateringIntervalDays": 10,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Loves dry air.",
+    "careTips": "The white sap is caustic — keep away from children and pets. Water sparingly in gritty soil and give the brightest window available.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Thanksgiving Cactus",
+    "scientificName": "Schlumbergera truncata",
+    "defaultWateringIntervalDays": 10,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Likes steady humidity around the leaves.",
+    "careTips": "Water when the top of the mix dries; a cool, drier rest after blooming (autumn for holiday cacti) sets next year's buds.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Easter Cactus",
+    "scientificName": "Hatiora gaertneri",
+    "defaultWateringIntervalDays": 10,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Likes steady humidity around the leaves.",
+    "careTips": "Water when the top of the mix dries; a cool, drier rest after blooming (autumn for holiday cacti) sets next year's buds.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Angel Wing Begonia",
+    "scientificName": "Begonia maculata",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Loves humidity but never mist the leaves — use a pebble tray; wet crowns rot.",
+    "careTips": "Water at the base when the top centimetre dries. Bright, indirect light keeps the leaf pattern strong; protect from cold drafts.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Wax Begonia",
+    "scientificName": "Begonia semperflorens-cultorum",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Loves humidity but never mist the leaves — use a pebble tray; wet crowns rot.",
+    "careTips": "Water at the base when the top centimetre dries. Bright, indirect light keeps the leaf pattern strong; protect from cold drafts.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Polka Dot Plant",
+    "scientificName": "Fittonia albivenis",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Medium",
+    "humidityNotes": "High humidity — it faints dramatically whenever it dries.",
+    "careTips": "Keep the mix consistently moist in bright, indirect light; it perks back up within hours of watering. Pinch to keep it low and dense.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Watermelon Peperomia",
+    "scientificName": "Peperomia argyreia",
+    "defaultWateringIntervalDays": 9,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Fine in normal room air.",
+    "careTips": "Thick leaves store water — let the top half of the soil dry between waterings. Bright, indirect light keeps leaf colours vivid.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Raindrop Peperomia",
+    "scientificName": "Peperomia polybotrya",
+    "defaultWateringIntervalDays": 8,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Fine in normal room air.",
+    "careTips": "Thick leaves store water — let the top half of the soil dry between waterings. Bright, indirect light keeps leaf colours vivid.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "String of Turtles",
+    "scientificName": "Peperomia prostrata",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Fine in normal room air.",
+    "careTips": "Thick leaves store water — let the top half of the soil dry between waterings. Bright, indirect light keeps leaf colours vivid.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Ripple Peperomia",
+    "scientificName": "Peperomia caperata",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Fine in normal room air.",
+    "careTips": "Thick leaves store water — let the top half of the soil dry between waterings. Bright, indirect light keeps leaf colours vivid.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Friendship Plant",
+    "scientificName": "Pilea involucrata",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Average humidity is fine.",
+    "careTips": "Keep evenly moist but never wet, in bright indirect light. Trimmings root instantly in water.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Aluminum Plant",
+    "scientificName": "Pilea cadierei",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Average humidity is fine.",
+    "careTips": "Keep evenly moist but never wet, in bright indirect light. Trimmings root instantly in water.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Baby Tears",
+    "scientificName": "Soleirolia soleirolii",
+    "defaultWateringIntervalDays": 3,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Needs steady moisture and humidity; dries out fast.",
+    "careTips": "Never let the soil dry completely. Bright, indirect light; shear it back regularly to keep a tight mat.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Creeping Fig",
+    "scientificName": "Ficus pumila",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Prefers stable conditions; keep away from drafts and avoid moving it.",
+    "careTips": "Bright, indirect light. Water when the top 3-4 cm dry out. Fussy about change — seasonal leaf drop is its way of complaining, not dying.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Ficus Audrey",
+    "scientificName": "Ficus benghalensis",
+    "defaultWateringIntervalDays": 8,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Prefers stable conditions; keep away from drafts and avoid moving it.",
+    "careTips": "Bright, indirect light. Water when the top 3-4 cm dry out. Fussy about change — seasonal leaf drop is its way of complaining, not dying.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Ficus microcarpa",
+    "scientificName": "Ficus microcarpa",
+    "defaultWateringIntervalDays": 8,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Prefers stable conditions; keep away from drafts and avoid moving it.",
+    "careTips": "Bright, indirect light. Water when the top 3-4 cm dry out. Fussy about change — seasonal leaf drop is its way of complaining, not dying.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Fishtail Palm",
+    "scientificName": "Caryota mitis",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Loves humidity — brown frond tips mean the air is too dry.",
+    "careTips": "Keep the soil evenly moist but never waterlogged. Bright, indirect light; protect from hot, dry air and heaters.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Kentia Palm",
+    "scientificName": "Howea forsteriana",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Loves humidity — brown frond tips mean the air is too dry.",
+    "careTips": "Keep the soil evenly moist but never waterlogged. Bright, indirect light; protect from hot, dry air and heaters.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Lady Palm",
+    "scientificName": "Rhapis excelsa",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Loves humidity — brown frond tips mean the air is too dry.",
+    "careTips": "Keep the soil evenly moist but never waterlogged. Bright, indirect light; protect from hot, dry air and heaters.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Majesty Palm",
+    "scientificName": "Ravenea rivularis",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Loves humidity — brown frond tips mean the air is too dry.",
+    "careTips": "Keep the soil evenly moist but never waterlogged. Bright, indirect light; protect from hot, dry air and heaters.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Ponytail Palm",
+    "scientificName": "Beaucarnea recurvata",
+    "defaultWateringIntervalDays": 14,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Happy in average air; the swollen trunk stores water — overwatering, not drought, is the real risk.",
+    "careTips": "Give it the brightest spot you have and water sparingly, letting the soil dry almost completely. Never let the trunk sit in water.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Chinese Fan Palm",
+    "scientificName": "Livistona chinensis",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Loves humidity — brown frond tips mean the air is too dry.",
+    "careTips": "Keep the soil evenly moist but never waterlogged. Bright, indirect light; protect from hot, dry air and heaters.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Bamboo Palm",
+    "scientificName": "Chamaedorea seifrizii",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Loves humidity — brown frond tips mean the air is too dry.",
+    "careTips": "Keep the soil evenly moist but never waterlogged. Bright, indirect light; protect from hot, dry air and heaters.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Corn Plant",
+    "scientificName": "Dracaena fragrans",
+    "defaultWateringIntervalDays": 9,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Tolerates dry air; sensitive to fluoride and salts in tap water.",
+    "careTips": "Let the top few centimetres dry between waterings. Flush the pot occasionally to clear salts — that is what browns the leaf tips.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Lucky Bamboo",
+    "scientificName": "Dracaena sanderiana",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Tolerates dry air; sensitive to fluoride and salts in tap water.",
+    "careTips": "Let the top few centimetres dry between waterings. Flush the pot occasionally to clear salts — that is what browns the leaf tips.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Dragon Tree",
+    "scientificName": "Dracaena draco",
+    "defaultWateringIntervalDays": 12,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Tolerates dry air; sensitive to fluoride and salts in tap water.",
+    "careTips": "Let the top few centimetres dry between waterings. Flush the pot occasionally to clear salts — that is what browns the leaf tips.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Aralia",
+    "scientificName": "Polyscias spp.",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Prefers steady warmth and humidity; drops leaves when stressed.",
+    "careTips": "Bright light and even moisture — never fully dry, never soggy. Mist often; the fine foliage dislikes dust and drafts.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Ming Aralia",
+    "scientificName": "Polyscias fruticosa",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Prefers steady warmth and humidity; drops leaves when stressed.",
+    "careTips": "Bright light and even moisture — never fully dry, never soggy. Mist often; the fine foliage dislikes dust and drafts.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Fatsia",
+    "scientificName": "Fatsia japonica",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Tolerates cool rooms and short dry spells.",
+    "careTips": "Let the top layer dry between waterings; medium, indirect light; wipe the big leaves. Toxic if eaten — keep from children.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Coleus",
+    "scientificName": "Plectranthus scutellarioides",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Likes steady moisture and room humidity.",
+    "careTips": "Bright light keeps the leaf colours electric. Pinch off flower spikes to keep foliage dense; cuttings root trivially in water.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Swedish Ivy",
+    "scientificName": "Plectranthus verticillatus",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Likes steady moisture and room humidity.",
+    "careTips": "Bright light keeps the leaf colours electric. Pinch off flower spikes to keep foliage dense; cuttings root trivially in water.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Maidenhair Fern",
+    "scientificName": "Adiantum raddianum",
+    "defaultWateringIntervalDays": 3,
+    "lightRequirement": "Medium",
+    "humidityNotes": "High humidity essential — brown, crisp fronds mean the air is too dry.",
+    "careTips": "Keep evenly moist, never waterlogged. Medium, indirect light; cut old fronds at the base and feed lightly during growth.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Bird's Nest Fern",
+    "scientificName": "Asplenium nidus",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Medium",
+    "humidityNotes": "High humidity essential — brown, crisp fronds mean the air is too dry.",
+    "careTips": "Water at the pot edge, never into the central rosette; bright, indirect light and steady moisture.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Staghorn Fern",
+    "scientificName": "Platycerium bifurcatum",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Bright",
+    "humidityNotes": "High humidity essential — brown, crisp fronds mean the air is too dry.",
+    "careTips": "Grow mounted or in a very airy mix. Water when the fronds soften and let the base shield dry between drinks.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Button Fern",
+    "scientificName": "Pellaea rotundifolia",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Medium",
+    "humidityNotes": "High humidity essential — brown, crisp fronds mean the air is too dry.",
+    "careTips": "Keep evenly moist, never waterlogged. Medium, indirect light; cut old fronds at the base and feed lightly during growth.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Rabbit's Foot Fern",
+    "scientificName": "Davallia mariesii",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Medium",
+    "humidityNotes": "High humidity essential — brown, crisp fronds mean the air is too dry.",
+    "careTips": "The fuzzy rhizomes should sprawl over the surface, never buried. Keep lightly moist and humid.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Maidenhair Vine",
+    "scientificName": "Muehlenbeckia complexa",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Fine in normal room air.",
+    "careTips": "Tough and wiry. Water when the top dries; likes bright light and happily twines around a hoop or trellis.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Wax Ivy",
+    "scientificName": "Senecio macroglossus",
+    "defaultWateringIntervalDays": 10,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Likes dry air — perfect for a heated room.",
+    "careTips": "Water only when the soil is bone dry and the leaves start to shrink; overwatering kills faster than anything else. Lots of light keeps the stems tight.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Grape Ivy",
+    "scientificName": "Cissus alata",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Average humidity.",
+    "careTips": "Water when the top 2 cm dry; give a trellis or let it trail. Overwatering harms it faster than drought.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Kangaroo Vine",
+    "scientificName": "Cissus antarctica",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Average humidity.",
+    "careTips": "Water when the top 2 cm dry; give a trellis or let it trail. Overwatering harms it faster than drought.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Lipstick Plant",
+    "scientificName": "Aeschynanthus radicans",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Appreciates humidity; the trailing stems like warmth.",
+    "careTips": "Keep lightly moist in bright, indirect light and feed while flowering. Looks best on a shelf where the stems can hang.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Goldfish Plant",
+    "scientificName": "Nematanthus gregarius",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Appreciates humidity; the trailing stems like warmth.",
+    "careTips": "Keep lightly moist in bright, indirect light and feed while flowering. Looks best on a shelf where the stems can hang.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Flame Violet",
+    "scientificName": "Episcia cupreata",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Moderate humidity; never wet the fuzzy leaves.",
+    "careTips": "Water at the base once the top layer dries. Bright, indirect light powers flowers and leaf colour; soft water is best.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Alocasia zebrina",
+    "scientificName": "Alocasia zebrina",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Needs high humidity; ideal for a bright bathroom or terrarium corner.",
+    "careTips": "Bright, indirect light and consistently moist — never soggy — soil. Winter dormancy is normal: cut watering back hard.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Alocasia frydek",
+    "scientificName": "Alocasia micholitziana",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Needs high humidity; ideal for a bright bathroom or terrarium corner.",
+    "careTips": "Bright, indirect light and consistently moist — never soggy — soil. Winter dormancy is normal: cut watering back hard.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Caladium",
+    "scientificName": "Caladium bicolor",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Needs high humidity; ideal for a bright bathroom or terrarium corner.",
+    "careTips": "Bright, indirect light and consistently moist — never soggy — soil. Winter dormancy is normal: cut watering back hard.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Arrowhead Plant",
+    "scientificName": "Syngonium podophyllum",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Average room humidity is fine; appreciates occasional misting.",
+    "careTips": "Bright, indirect light. Let the top 2-3 cm of soil dry between waterings. Very forgiving — drooping leaves clearly signal thirst.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Velvet Plant",
+    "scientificName": "Gynura aurantiaca",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Average humidity; misting keeps the leaves plump.",
+    "careTips": "Bright, indirect light. Water when the top centimetre dries; keep the velvety leaves dry — misting causes spots.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Baby Bunny Bellies",
+    "scientificName": "Tradescantia chrysophylla",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Average humidity; misting keeps the leaves plump.",
+    "careTips": "More light means deeper colour. Water when the top layer dries; cut back leggy stems and root the trimmings in water.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Moses-in-the-Cradle",
+    "scientificName": "Tradescantia spathacea",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Average humidity; misting keeps the leaves plump.",
+    "careTips": "More light means deeper colour. Water when the top layer dries; cut back leggy stems and root the trimmings in water.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Purple Heart",
+    "scientificName": "Tradescantia pallida",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Average humidity; misting keeps the leaves plump.",
+    "careTips": "More light means deeper colour. Water when the top layer dries; cut back leggy stems and root the trimmings in water.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Geranium",
+    "scientificName": "Pelargonium spp.",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Prefers dry air.",
+    "careTips": "Let the soil dry between waterings and give the sunniest window you have. Pinch the growth tips for a bushy plant; overwinter on the dry side.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Zonal Geranium",
+    "scientificName": "Pelargonium zonale",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Prefers dry air.",
+    "careTips": "Let the soil dry between waterings and give the sunniest window you have. Pinch the growth tips for a bushy plant; overwinter on the dry side.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Scented Geranium",
+    "scientificName": "Pelargonium graveolens",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Prefers dry air.",
+    "careTips": "Let the soil dry between waterings and give the sunniest window you have. Pinch the growth tips for a bushy plant; overwinter on the dry side.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Gerbera",
+    "scientificName": "Gerbera jamesonii",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Average — but keep the crown dry.",
+    "careTips": "Water at the base, never into the crown; bright light keeps it blooming. Remove spent flower stems at soil level.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Florist's Cyclamen",
+    "scientificName": "Cyclamen persicum",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Prefers cool, moist air — heat shortens flowering.",
+    "careTips": "Water when the pot feels light, from below or at the pot edge, never over the tuber. A cool room stretches the bloom; summer dormancy is normal.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Orchid",
+    "scientificName": "Orchidaceae",
+    "defaultWateringIntervalDays": 9,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Loves humidity around the leaves but dryness around the roots.",
+    "careTips": "Water when the bark is nearly dry and the roots turn silvery — about once a week. Bright, indirect light; soggy bark is the quickest way to rot.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Dendrobium Orchid",
+    "scientificName": "Dendrobium spp.",
+    "defaultWateringIntervalDays": 8,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Loves humidity around the leaves but dryness around the roots.",
+    "careTips": "Water when the bark is nearly dry and the roots turn silvery — about once a week. Bright, indirect light; soggy bark is the quickest way to rot.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Oncidium Orchid",
+    "scientificName": "Oncidium spp.",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Loves humidity around the leaves but dryness around the roots.",
+    "careTips": "Water when the bark is nearly dry and the roots turn silvery — about once a week. Bright, indirect light; soggy bark is the quickest way to rot.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Cymbidium Orchid",
+    "scientificName": "Cymbidium spp.",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Loves humidity around the leaves but dryness around the roots.",
+    "careTips": "Needs a cool autumn night drop (about 10 °C) to trigger flowering. Water when the mix nears dryness.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Jewel Orchid",
+    "scientificName": "Ludisia discolor",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Loves humidity; its velvet leaves hate drying out.",
+    "careTips": "Unlike most orchids, keep the mix evenly moist, in medium, indirect light; trailing stems root readily.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Venus Flytrap",
+    "scientificName": "Dionaea muscipula",
+    "defaultWateringIntervalDays": 3,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Needs high humidity — grow under a jar or on a tray of water.",
+    "careTips": "Needs a cool, bright winter dormancy (about 5-10 °C). Trap-closing costs energy — feed insects sparingly.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Nepenthes",
+    "scientificName": "Nepenthes spp.",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Needs high humidity — grow under a jar or on a tray of water.",
+    "careTips": "New pitchers form only in humid air; trim dried pitchers at the base. Warm, bright and never dry.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Sundew",
+    "scientificName": "Drosera spp.",
+    "defaultWateringIntervalDays": 3,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Needs high humidity — grow under a jar or on a tray of water.",
+    "careTips": "Water ONLY with rain, distilled or reverse-osmosis water — tap minerals kill them. Lean, nutrient-free mix; never feed meat to the traps.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Butterwort",
+    "scientificName": "Pinguicula spp.",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Needs high humidity — grow under a jar or on a tray of water.",
+    "careTips": "Water ONLY with rain, distilled or reverse-osmosis water — tap minerals kill them. Lean, nutrient-free mix; never feed meat to the traps.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Pitcher Plant",
+    "scientificName": "Sarracenia spp.",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Needs high humidity — grow under a jar or on a tray of water.",
+    "careTips": "Full sun and wet feet all summer; winter dormancy cool and barely moist. Pitchers from last season may brown — that is normal.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Cape Sundew",
+    "scientificName": "Drosera capensis",
+    "defaultWateringIntervalDays": 3,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Needs high humidity — grow under a jar or on a tray of water.",
+    "careTips": "The easiest carnivore to keep. Standing water in the tray is fine — it loves wet feet and full light.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Bromeliad",
+    "scientificName": "Bromeliaceae",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Prefers humidity around the leaves.",
+    "careTips": "During growth keep the central cup filled with fresh water and rinse it weekly; bright light and an airy mix. Separated offsets make new plants.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Pineapple Plant",
+    "scientificName": "Ananas comosus",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Prefers humidity around the leaves.",
+    "careTips": "During growth keep the central cup filled with fresh water and rinse it weekly; bright light and an airy mix. Separated offsets make new plants.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Urn Plant",
+    "scientificName": "Aechmea fasciata",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Prefers humidity around the leaves.",
+    "careTips": "During growth keep the central cup filled with fresh water and rinse it weekly; bright light and an airy mix. Separated offsets make new plants.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Guzmania",
+    "scientificName": "Guzmania lingulata",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Prefers humidity around the leaves.",
+    "careTips": "During growth keep the central cup filled with fresh water and rinse it weekly; bright light and an airy mix. Separated offsets make new plants.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Vriesea",
+    "scientificName": "Vriesea splendens",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Prefers humidity around the leaves.",
+    "careTips": "During growth keep the central cup filled with fresh water and rinse it weekly; bright light and an airy mix. Separated offsets make new plants.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Air Plant",
+    "scientificName": "Tillandsia spp.",
+    "defaultWateringIntervalDays": 3,
+    "lightRequirement": "Bright",
+    "humidityNotes": "An air plant — it lives on humidity, not soil.",
+    "careTips": "Soak or mist 1-2 times a week and let it dry fully in bright, indirect light with good airflow. No pot and no compost needed.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Pink Quill Plant",
+    "scientificName": "Wallisia cyanea",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Prefers humidity around the leaves.",
+    "careTips": "During growth keep the central cup filled with fresh water and rinse it weekly; bright light and an airy mix. Separated offsets make new plants.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "String of Nickels",
+    "scientificName": "Dischidia nummularia",
+    "defaultWateringIntervalDays": 10,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Average to slightly above; tolerant.",
+    "careTips": "Water only when the soil has dried out, in a chunky, airy mix. Give a trellis or let it trail; do not move it once flower buds appear.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Million Hearts",
+    "scientificName": "Dischidia ruscifolia",
+    "defaultWateringIntervalDays": 10,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Average to slightly above; tolerant.",
+    "careTips": "Water only when the soil has dried out, in a chunky, airy mix. Give a trellis or let it trail; do not move it once flower buds appear.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Ant Plant",
+    "scientificName": "Dischidia major",
+    "defaultWateringIntervalDays": 10,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Average to slightly above; tolerant.",
+    "careTips": "Water only when the soil has dried out, in a chunky, airy mix. Give a trellis or let it trail; do not move it once flower buds appear.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Sweetheart Hoya",
+    "scientificName": "Hoya kerrii",
+    "defaultWateringIntervalDays": 14,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Average to slightly above; tolerant.",
+    "careTips": "Water only when the soil has dried out, in a chunky, airy mix. Give a trellis or let it trail; do not move it once flower buds appear.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Waxflower",
+    "scientificName": "Chamelaucium uncinatum",
+    "defaultWateringIntervalDays": 8,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Wants humid air and a bright, cool spot — bud drop usually means dry air or a moved plant.",
+    "careTips": "Keep evenly moist with the brightest light you can give. Flowers set on stable conditions — resist moving or rotating.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Gardenia",
+    "scientificName": "Gardenia jasminoides",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Wants humid air and a bright, cool spot — bud drop usually means dry air or a moved plant.",
+    "careTips": "Keep evenly moist with the brightest light you can give. Flowers set on stable conditions — resist moving or rotating.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Jasmine",
+    "scientificName": "Jasminum spp.",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Wants humid air and a bright, cool spot — bud drop usually means dry air or a moved plant.",
+    "careTips": "Keep evenly moist with the brightest light you can give. Flowers set on stable conditions — resist moving or rotating.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Arabian Jasmine",
+    "scientificName": "Jasminum sambac",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Wants humid air and a bright, cool spot — bud drop usually means dry air or a moved plant.",
+    "careTips": "Keep evenly moist with the brightest light you can give. Flowers set on stable conditions — resist moving or rotating.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Stephanotis",
+    "scientificName": "Stephanotis floribunda",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Wants humid air and a bright, cool spot — bud drop usually means dry air or a moved plant.",
+    "careTips": "Keep evenly moist with the brightest light you can give. Flowers set on stable conditions — resist moving or rotating.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Mandevilla",
+    "scientificName": "Mandevilla spp.",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Wants humid air and a bright, cool spot — bud drop usually means dry air or a moved plant.",
+    "careTips": "Keep evenly moist with the brightest light you can give. Flowers set on stable conditions — resist moving or rotating.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Bougainvillea",
+    "scientificName": "Bougainvillea spp.",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Wants humid air and a bright, cool spot — bud drop usually means dry air or a moved plant.",
+    "careTips": "Keep evenly moist with the brightest light you can give. Flowers set on stable conditions — resist moving or rotating.",
+    "toxicToPets": false,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Citrus Tree",
+    "scientificName": "Citrus spp.",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Loves fresh air; mist in summer if the room is dry.",
+    "careTips": "Full sun, evenly moist soil and heavy feeding in growth. Fruiting needs a cool winter rest — hand-pollinate flowers indoors.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Calamondin",
+    "scientificName": "Citrus × microcarpa",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Loves fresh air; mist in summer if the room is dry.",
+    "careTips": "Full sun, evenly moist soil and heavy feeding in growth. Fruiting needs a cool winter rest — hand-pollinate flowers indoors.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Meyer Lemon",
+    "scientificName": "Citrus × meyeri",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Loves fresh air; mist in summer if the room is dry.",
+    "careTips": "Full sun, evenly moist soil and heavy feeding in growth. Fruiting needs a cool winter rest — hand-pollinate flowers indoors.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Dwarf Orange",
+    "scientificName": "Citrus sinensis",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Loves fresh air; mist in summer if the room is dry.",
+    "careTips": "Full sun, evenly moist soil and heavy feeding in growth. Fruiting needs a cool winter rest — hand-pollinate flowers indoors.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Olive Tree",
+    "scientificName": "Olea europaea",
+    "defaultWateringIntervalDays": 10,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Prefers dry air and good airflow.",
+    "careTips": "Direct sun and a light, gritty mix; water when the top few centimetres dry. Overwinter cool and water sparingly.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Bay Laurel",
+    "scientificName": "Laurus nobilis",
+    "defaultWateringIntervalDays": 8,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Prefers dry air and good airflow.",
+    "careTips": "Direct sun and a light, gritty mix; water when the top few centimetres dry. Overwinter cool and water sparingly.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Rosemary",
+    "scientificName": "Salvia rosmarinus",
+    "defaultWateringIntervalDays": 10,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Prefers dry air and good airflow.",
+    "careTips": "Direct sun and a light, gritty mix; water when the top few centimetres dry. Overwinter cool and water sparingly.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Basil",
+    "scientificName": "Ocimum basilicum",
+    "defaultWateringIntervalDays": 3,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Loves fresh air; stuffy rooms invite pests.",
+    "careTips": "At least six hours of sun, keep moist and harvest often for bushy growth.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Mint",
+    "scientificName": "Mentha spp.",
+    "defaultWateringIntervalDays": 3,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Loves fresh air; stuffy rooms invite pests.",
+    "careTips": "At least six hours of sun, keep moist and harvest often for bushy growth.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Thyme",
+    "scientificName": "Thymus vulgaris",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Loves fresh air; stuffy rooms invite pests.",
+    "careTips": "At least six hours of sun, keep moist and harvest often for bushy growth.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Oregano",
+    "scientificName": "Origanum vulgare",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Loves fresh air; stuffy rooms invite pests.",
+    "careTips": "At least six hours of sun, keep moist and harvest often for bushy growth.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Sage",
+    "scientificName": "Salvia officinalis",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Loves fresh air; stuffy rooms invite pests.",
+    "careTips": "At least six hours of sun, keep moist and harvest often for bushy growth.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Lemongrass",
+    "scientificName": "Cymbopogon citratus",
+    "defaultWateringIntervalDays": 2,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Loves fresh air; stuffy rooms invite pests.",
+    "careTips": "Thirsty and hungry: water daily in summer and keep it in full sun. Divide overgrown clumps in spring.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Ginger",
+    "scientificName": "Zingiber officinale",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Bright",
+    "humidityNotes": "High humidity and warmth.",
+    "careTips": "Keep moist in warmth and bright light; feed monthly. Leaves fold at night; tops may die back in winter — water less and wait for spring.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Turmeric",
+    "scientificName": "Curcuma longa",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Bright",
+    "humidityNotes": "High humidity and warmth.",
+    "careTips": "Keep moist in warmth and bright light; feed monthly. Leaves fold at night; tops may die back in winter — water less and wait for spring.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Coffee Plant",
+    "scientificName": "Coffea arabica",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Loves humidity around the leaves.",
+    "careTips": "Keep lightly moist in bright, indirect light with an acidic feed; warm rooms suit it.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Tea Plant",
+    "scientificName": "Camellia sinensis",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Loves humidity around the leaves.",
+    "careTips": "Keep lightly moist in bright, indirect light with an acidic feed; warm rooms suit it.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Pomegranate",
+    "scientificName": "Punica granatum",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Needs light and space; leaf tips dry out in hot, still rooms.",
+    "careTips": "Water heavily during growth and feed every few weeks. Give a bright, unobstructed window — fast growers reach for the light.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Avocado",
+    "scientificName": "Persea americana",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Needs light and space; leaf tips dry out in hot, still rooms.",
+    "careTips": "Water heavily during growth and feed every few weeks. Give a bright, unobstructed window — fast growers reach for the light.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Banana Plant",
+    "scientificName": "Musa spp.",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Needs light and space; leaf tips dry out in hot, still rooms.",
+    "careTips": "Water heavily during growth and feed every few weeks. Give a bright, unobstructed window — fast growers reach for the light.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Dwarf Banana",
+    "scientificName": "Musa acuminata",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Needs light and space; leaf tips dry out in hot, still rooms.",
+    "careTips": "Water heavily during growth and feed every few weeks. Give a bright, unobstructed window — fast growers reach for the light.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Papaya",
+    "scientificName": "Carica papaya",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Needs light and space; leaf tips dry out in hot, still rooms.",
+    "careTips": "Water heavily during growth and feed every few weeks. Give a bright, unobstructed window — fast growers reach for the light.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Passion Flower",
+    "scientificName": "Passiflora spp.",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Needs light and space; leaf tips dry out in hot, still rooms.",
+    "careTips": "Water heavily during growth and feed every few weeks. Give a bright, unobstructed window — fast growers reach for the light.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Passion Fruit Vine",
+    "scientificName": "Passiflora edulis",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Needs light and space; leaf tips dry out in hot, still rooms.",
+    "careTips": "Water heavily during growth and feed every few weeks. Give a bright, unobstructed window — fast growers reach for the light.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Sensitive Plant",
+    "scientificName": "Mimosa pudica",
+    "defaultWateringIntervalDays": 3,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Needs light and space; leaf tips dry out in hot, still rooms.",
+    "careTips": "Lives up to its name: folding leaves cost energy, so give strong light and warmth. Short-lived — take cuttings to keep it going.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Lucky Clover",
+    "scientificName": "Oxalis triangularis",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "No special needs.",
+    "careTips": "Let the soil nearly dry between waterings. The bulbs rest in summer: cut back, keep very dry, then resume watering to revive.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Wood Sorrel",
+    "scientificName": "Oxalis spp.",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "No special needs.",
+    "careTips": "Let the soil nearly dry between waterings. The bulbs rest in summer: cut back, keep very dry, then resume watering to revive.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Creeping Jenny",
+    "scientificName": "Lysimachia nummularia",
+    "defaultWateringIntervalDays": 3,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Loves moisture and humidity.",
+    "careTips": "Never let it dry out; trailing in bright, indirect light. Trim freely — it recompacts quickly.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Swiss Cheese Vine",
+    "scientificName": "Monstera adansonii",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Average room humidity is fine; appreciates occasional misting.",
+    "careTips": "Bright, indirect light. Let the top 2-3 cm of soil dry between waterings. Very forgiving — drooping leaves clearly signal thirst.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Monstera standleyana",
+    "scientificName": "Monstera standleyana",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Average room humidity is fine; appreciates occasional misting.",
+    "careTips": "Bright, indirect light. Let the top 2-3 cm of soil dry between waterings. Very forgiving — drooping leaves clearly signal thirst.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Philodendron 'Birkin'",
+    "scientificName": "Philodendron 'Birkin'",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Average room humidity is fine; appreciates occasional misting.",
+    "careTips": "Bright, indirect light. Let the top 2-3 cm of soil dry between waterings. Very forgiving — drooping leaves clearly signal thirst.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Philodendron gloriosum",
+    "scientificName": "Philodendron gloriosum",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Average room humidity is fine; appreciates occasional misting.",
+    "careTips": "Creeping habit — give it room to trail along the surface. High humidity keeps the velvet leaves pristine.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Alocasia 'Black Velvet'",
+    "scientificName": "Alocasia reginula",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Needs high humidity; ideal for a bright bathroom or terrarium corner.",
+    "careTips": "Bright, indirect light and consistently moist — never soggy — soil. Winter dormancy is normal: cut watering back hard.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Alocasia 'Silver Dragon'",
+    "scientificName": "Alocasia baginda",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Needs high humidity; ideal for a bright bathroom or terrarium corner.",
+    "careTips": "Bright, indirect light and consistently moist — never soggy — soil. Winter dormancy is normal: cut watering back hard.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Anthurium crystallinum",
+    "scientificName": "Anthurium crystallinum",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Loves higher humidity; mist often or keep near a humidifier.",
+    "careTips": "Bright, indirect light — direct sun scorches the leaves. Water when the top 2 cm of soil are dry and use a chunky, airy mix.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Anthurium clarinervium",
+    "scientificName": "Anthurium clarinervium",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Loves higher humidity; mist often or keep near a humidifier.",
+    "careTips": "Bright, indirect light — direct sun scorches the leaves. Water when the top 2 cm of soil are dry and use a chunky, airy mix.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Anthurium warocqueanum",
+    "scientificName": "Anthurium warocqueanum",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Loves higher humidity; mist often or keep near a humidifier.",
+    "careTips": "Bright, indirect light — direct sun scorches the leaves. Water when the top 2 cm of soil are dry and use a chunky, airy mix.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Dischidia ovata",
+    "scientificName": "Dischidia ovata",
+    "defaultWateringIntervalDays": 10,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Average to slightly above; tolerant.",
+    "careTips": "Water only when the soil has dried out, in a chunky, airy mix. Give a trellis or let it trail; do not move it once flower buds appear.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Hoya linearis",
+    "scientificName": "Hoya linearis",
+    "defaultWateringIntervalDays": 10,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Average to slightly above; tolerant.",
+    "careTips": "Water when the soil dries; the narrow, pendulous leaves love humidity and hate soggy roots.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Hoya pubicalyx",
+    "scientificName": "Hoya pubicalyx",
+    "defaultWateringIntervalDays": 12,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Average to slightly above; tolerant.",
+    "careTips": "Water only when the soil has dried out, in a chunky, airy mix. Give a trellis or let it trail; do not move it once flower buds appear.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Hoya australis",
+    "scientificName": "Hoya australis",
+    "defaultWateringIntervalDays": 12,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Average to slightly above; tolerant.",
+    "careTips": "Water only when the soil has dried out, in a chunky, airy mix. Give a trellis or let it trail; do not move it once flower buds appear.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Hoya bella",
+    "scientificName": "Hoya bella",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Average to slightly above; tolerant.",
+    "careTips": "Keep the mix slightly damper than other hoyas; bright, warm light and steady moisture while flowering.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Peperomia 'Hope'",
+    "scientificName": "Peperomia tetraphylla",
+    "defaultWateringIntervalDays": 8,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Fine in normal room air.",
+    "careTips": "Thick leaves store water — let the top half of the soil dry between waterings. Bright, indirect light keeps leaf colours vivid.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Peperomia graveolens",
+    "scientificName": "Peperomia graveolens",
+    "defaultWateringIntervalDays": 9,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Fine in normal room air.",
+    "careTips": "Thick leaves store water — let the top half of the soil dry between waterings. Bright, indirect light keeps leaf colours vivid.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Pilea glauca",
+    "scientificName": "Pilea glauca",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Average humidity is fine.",
+    "careTips": "Keep evenly moist but never wet, in bright indirect light. Trimmings root instantly in water.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Pilea depressa",
+    "scientificName": "Pilea depressa",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Average humidity is fine.",
+    "careTips": "Keep evenly moist but never wet, in bright indirect light. Trimmings root instantly in water.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Begonia masoniana",
+    "scientificName": "Begonia masoniana",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Loves humidity but never mist the leaves — use a pebble tray; wet crowns rot.",
+    "careTips": "Water at the base when the top centimetre dries. Bright, indirect light keeps the leaf pattern strong; protect from cold drafts.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Begonia ferox",
+    "scientificName": "Begonia ferox",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Loves humidity but never mist the leaves — use a pebble tray; wet crowns rot.",
+    "careTips": "Water at the base when the top centimetre dries. Bright, indirect light keeps the leaf pattern strong; protect from cold drafts.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Begonia amphioxus",
+    "scientificName": "Begonia amphioxus",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Loves humidity but never mist the leaves — use a pebble tray; wet crowns rot.",
+    "careTips": "Water at the base when the top centimetre dries. Bright, indirect light keeps the leaf pattern strong; protect from cold drafts.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Calathea roseopicta",
+    "scientificName": "Goeppertia roseopicta",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Demands high humidity and hates tap water — use rain or distilled water; crispy edges mean dry air.",
+    "careTips": "Bright, indirect light only. Keep the mix lightly moist at all times, group plants or mist for humidity; leaves fold up when thirsty.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Calathea ornata",
+    "scientificName": "Goeppertia ornata",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Demands high humidity and hates tap water — use rain or distilled water; crispy edges mean dry air.",
+    "careTips": "Bright, indirect light only. Keep the mix lightly moist at all times, group plants or mist for humidity; leaves fold up when thirsty.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Calathea warscewiczii",
+    "scientificName": "Goeppertia warszewiczii",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Demands high humidity and hates tap water — use rain or distilled water; crispy edges mean dry air.",
+    "careTips": "Bright, indirect light only. Keep the mix lightly moist at all times, group plants or mist for humidity; leaves fold up when thirsty.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Calathea 'White Fusion'",
+    "scientificName": "Goeppertia lietzei 'White Fusion'",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Demands high humidity and hates tap water — use rain or distilled water; crispy edges mean dry air.",
+    "careTips": "Bright, indirect light only. Keep the mix lightly moist at all times, group plants or mist for humidity; leaves fold up when thirsty.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Stromanthe 'Triostar'",
+    "scientificName": "Stromanthe sanguinea 'Triostar'",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Demands high humidity and hates tap water — use rain or distilled water; crispy edges mean dry air.",
+    "careTips": "Bright, indirect light only. Keep the mix lightly moist at all times, group plants or mist for humidity; leaves fold up when thirsty.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Ctenanthe burle-marxii",
+    "scientificName": "Ctenanthe burle-marxii",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Demands high humidity and hates tap water — use rain or distilled water; crispy edges mean dry air.",
+    "careTips": "Bright, indirect light only. Keep the mix lightly moist at all times, group plants or mist for humidity; leaves fold up when thirsty.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Ctenanthe setosa",
+    "scientificName": "Ctenanthe setosa",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Demands high humidity and hates tap water — use rain or distilled water; crispy edges mean dry air.",
+    "careTips": "Bright, indirect light only. Keep the mix lightly moist at all times, group plants or mist for humidity; leaves fold up when thirsty.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Tradescantia 'Nanouk'",
+    "scientificName": "Tradescantia 'Nanouk'",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Average humidity; misting keeps the leaves plump.",
+    "careTips": "More light means deeper colour. Water when the top layer dries; cut back leggy stems and root the trimmings in water.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Callisia repens",
+    "scientificName": "Callisia repens",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Average humidity; misting keeps the leaves plump.",
+    "careTips": "More light means deeper colour. Water when the top layer dries; cut back leggy stems and root the trimmings in water.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Peperomia 'Ruby Cascade'",
+    "scientificName": "Peperomia sp.",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Fine in normal room air.",
+    "careTips": "Thick leaves store water — let the top half of the soil dry between waterings. Bright, indirect light keeps leaf colours vivid.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Rhipsalis",
+    "scientificName": "Rhipsalis spp.",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Likes steady humidity around the leaves.",
+    "careTips": "Water when the top of the mix dries; a cool, drier rest after blooming (autumn for holiday cacti) sets next year's buds.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Mistletoe Cactus",
+    "scientificName": "Rhipsalis baccifera",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Likes steady humidity around the leaves.",
+    "careTips": "Water when the top of the mix dries; a cool, drier rest after blooming (autumn for holiday cacti) sets next year's buds.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Fishbone Cactus",
+    "scientificName": "Disocactus anguliger",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Likes steady humidity around the leaves.",
+    "careTips": "Water when the top of the mix dries; a cool, drier rest after blooming (autumn for holiday cacti) sets next year's buds.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Rat Tail Cactus",
+    "scientificName": "Disocactus flagelliformis",
+    "defaultWateringIntervalDays": 9,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Likes steady humidity around the leaves.",
+    "careTips": "Water when the top of the mix dries; a cool, drier rest after blooming (autumn for holiday cacti) sets next year's buds.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Moon Cactus",
+    "scientificName": "Gymnocalycium mihanovichii",
+    "defaultWateringIntervalDays": 18,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Keep dry and airy — root-zone humidity is the enemy.",
+    "careTips": "Water only during the growing season, letting the soil dry completely between drinks; nearly stop in winter. Give maximum sun.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Barrel Cactus",
+    "scientificName": "Echinocactus grusonii",
+    "defaultWateringIntervalDays": 21,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Keep dry and airy — root-zone humidity is the enemy.",
+    "careTips": "Water only during the growing season, letting the soil dry completely between drinks; nearly stop in winter. Give maximum sun.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Bunny Ears Cactus",
+    "scientificName": "Opuntia microdasys",
+    "defaultWateringIntervalDays": 18,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Keep dry and airy — root-zone humidity is the enemy.",
+    "careTips": "Water only during the growing season, letting the soil dry completely between drinks; nearly stop in winter. Give maximum sun.",
+    "toxicToPets": false,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Fairy Castle Cactus",
+    "scientificName": "Cereus hildmannianus",
+    "defaultWateringIntervalDays": 18,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Keep dry and airy — root-zone humidity is the enemy.",
+    "careTips": "Water only during the growing season, letting the soil dry completely between drinks; nearly stop in winter. Give maximum sun.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Old Man Cactus",
+    "scientificName": "Cephalocereus senilis",
+    "defaultWateringIntervalDays": 18,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Keep dry and airy — root-zone humidity is the enemy.",
+    "careTips": "Water only during the growing season, letting the soil dry completely between drinks; nearly stop in winter. Give maximum sun.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Star Cactus",
+    "scientificName": "Astrophytum asterias",
+    "defaultWateringIntervalDays": 21,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Keep dry and airy — root-zone humidity is the enemy.",
+    "careTips": "Water only during the growing season, letting the soil dry completely between drinks; nearly stop in winter. Give maximum sun.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Living Stones",
+    "scientificName": "Lithops spp.",
+    "defaultWateringIntervalDays": 25,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Keep dry and airy — root-zone humidity is the enemy.",
+    "careTips": "Water only between growth cycles — once in late winter and again after the old skins split. Mushy or split stones mean too much water.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Conophytum",
+    "scientificName": "Conophytum spp.",
+    "defaultWateringIntervalDays": 21,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Keep dry and airy — root-zone humidity is the enemy.",
+    "careTips": "Rests in summer: stop watering completely when the skins wrinkle, and resume in autumn.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "String of Dolphins",
+    "scientificName": "Curio × peregrinus",
+    "defaultWateringIntervalDays": 12,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Likes dry air — perfect for a heated room.",
+    "careTips": "Water only when the soil is bone dry and the leaves start to shrink; overwatering kills faster than anything else. Lots of light keeps the stems tight.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "String of Tears",
+    "scientificName": "Curio herreanus",
+    "defaultWateringIntervalDays": 12,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Likes dry air — perfect for a heated room.",
+    "careTips": "Water only when the soil is bone dry and the leaves start to shrink; overwatering kills faster than anything else. Lots of light keeps the stems tight.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Blue Chalk Sticks",
+    "scientificName": "Curio repens",
+    "defaultWateringIntervalDays": 14,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Likes dry air — perfect for a heated room.",
+    "careTips": "Water only when the soil is bone dry and the leaves start to shrink; overwatering kills faster than anything else. Lots of light keeps the stems tight.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Dwarf Jade Plant",
+    "scientificName": "Portulacaria afra",
+    "defaultWateringIntervalDays": 12,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Thrives in dry air.",
+    "careTips": "Water thoroughly only when the soil is completely dry, then empty the saucer. Maximum light and gritty soil keep the shape tight.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "African Milk Tree",
+    "scientificName": "Euphorbia trigona",
+    "defaultWateringIntervalDays": 12,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Loves dry air.",
+    "careTips": "The white sap is caustic — keep away from children and pets. Water sparingly in gritty soil and give the brightest window available.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Ocotillo",
+    "scientificName": "Fouquieria splendens",
+    "defaultWateringIntervalDays": 21,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Keep dry and airy — root-zone humidity is the enemy.",
+    "careTips": "Water only during the growing season, letting the soil dry completely between drinks; nearly stop in winter. Give maximum sun.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Desert Rose",
+    "scientificName": "Adenium obesum",
+    "defaultWateringIntervalDays": 14,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Keep dry and airy — root-zone humidity is the enemy.",
+    "careTips": "Water only during the growing season, letting the soil dry completely between drinks; nearly stop in winter. Give maximum sun.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Madagascar Palm",
+    "scientificName": "Pachypodium lamerei",
+    "defaultWateringIntervalDays": 14,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Keep dry and airy — root-zone humidity is the enemy.",
+    "careTips": "Water only during the growing season, letting the soil dry completely between drinks; nearly stop in winter. Give maximum sun.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Mother of Thousands",
+    "scientificName": "Kalanchoe daigremontiana",
+    "defaultWateringIntervalDays": 12,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Prefers dry air.",
+    "careTips": "A succulent — let the soil dry out fully between waterings. Bright light keeps it compact; remove spent flower stems.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Mother of Millions",
+    "scientificName": "Kalanchoe delagoensis",
+    "defaultWateringIntervalDays": 12,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Prefers dry air.",
+    "careTips": "A succulent — let the soil dry out fully between waterings. Bright light keeps it compact; remove spent flower stems.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Flaming Katy",
+    "scientificName": "Kalanchoe blossfeldiana",
+    "defaultWateringIntervalDays": 10,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Prefers dry air.",
+    "careTips": "A succulent — let the soil dry out fully between waterings. Bright light keeps it compact; remove spent flower stems.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Aloe aristata",
+    "scientificName": "Aristaloe aristata",
+    "defaultWateringIntervalDays": 14,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Fine in dry air.",
+    "careTips": "Water deeply, then let the soil dry completely. A bright, warm position intensifies the leaf colours.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Aloe juvenna",
+    "scientificName": "Aloe juvenna",
+    "defaultWateringIntervalDays": 14,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Fine in dry air.",
+    "careTips": "Water deeply, then let the soil dry completely. A bright, warm position intensifies the leaf colours.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Gasteria",
+    "scientificName": "Gasteria spp.",
+    "defaultWateringIntervalDays": 12,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Fine in dry air.",
+    "careTips": "Water deeply, then let the soil dry completely. A bright, warm position intensifies the leaf colours.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Gasteraloe",
+    "scientificName": "× Gasteraloe",
+    "defaultWateringIntervalDays": 12,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Fine in dry air.",
+    "careTips": "Water deeply, then let the soil dry completely. A bright, warm position intensifies the leaf colours.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Euphorbia obesa",
+    "scientificName": "Euphorbia obesa",
+    "defaultWateringIntervalDays": 18,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Loves dry air.",
+    "careTips": "The white sap is caustic — keep away from children and pets. Water sparingly in gritty soil and give the brightest window available.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Echeveria agavoides",
+    "scientificName": "Echeveria agavoides",
+    "defaultWateringIntervalDays": 14,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Thrives in dry air.",
+    "careTips": "Water thoroughly only when the soil is completely dry, then empty the saucer. Maximum light and gritty soil keep the shape tight.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Sempervivum",
+    "scientificName": "Sempervivum spp.",
+    "defaultWateringIntervalDays": 12,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Thrives in dry air.",
+    "careTips": "Water thoroughly only when the soil is completely dry, then empty the saucer. Maximum light and gritty soil keep the shape tight.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "String of Buttons",
+    "scientificName": "Crassula perforata",
+    "defaultWateringIntervalDays": 12,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Thrives in dry air.",
+    "careTips": "Water thoroughly only when the soil is completely dry, then empty the saucer. Maximum light and gritty soil keep the shape tight.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Zebra Plant",
+    "scientificName": "Aphelandra squarrosa",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Moderate humidity; never wet the fuzzy leaves.",
+    "careTips": "High humidity and warmth — a finicky classic. Never let it dry, use soft water, and cut back after flowering.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Cape Primrose",
+    "scientificName": "Streptocarpus spp.",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Moderate humidity; never wet the fuzzy leaves.",
+    "careTips": "Water at the base once the top layer dries. Bright, indirect light powers flowers and leaf colour; soft water is best.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Primrose",
+    "scientificName": "Primula spp.",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Moderate humidity; never wet the fuzzy leaves.",
+    "careTips": "Water at the base once the top layer dries. Bright, indirect light powers flowers and leaf colour; soft water is best.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Begonia",
+    "scientificName": "Begonia spp.",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Loves humidity but never mist the leaves — use a pebble tray; wet crowns rot.",
+    "careTips": "Water at the base when the top centimetre dries. Bright, indirect light keeps the leaf pattern strong; protect from cold drafts.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Spanish Moss",
+    "scientificName": "Tillandsia usneoides",
+    "defaultWateringIntervalDays": 2,
+    "lightRequirement": "Bright",
+    "humidityNotes": "An air plant — it lives on humidity, not soil.",
+    "careTips": "Drape it over wood or wire — it has no roots to speak of. Mist or soak weekly and let it dry fully.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Ball Moss",
+    "scientificName": "Tillandsia recurvata",
+    "defaultWateringIntervalDays": 3,
+    "lightRequirement": "Bright",
+    "humidityNotes": "An air plant — it lives on humidity, not soil.",
+    "careTips": "Soak or mist 1-2 times a week and let it dry fully in bright, indirect light with good airflow. No pot and no compost needed.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Lemon Button Fern",
+    "scientificName": "Nephrolepis cordifolia",
+    "defaultWateringIntervalDays": 3,
+    "lightRequirement": "Medium",
+    "humidityNotes": "High humidity essential — brown, crisp fronds mean the air is too dry.",
+    "careTips": "Keep evenly moist, never waterlogged. Medium, indirect light; cut old fronds at the base and feed lightly during growth.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Blue Star Fern",
+    "scientificName": "Phlebodium aureum",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Medium",
+    "humidityNotes": "High humidity essential — brown, crisp fronds mean the air is too dry.",
+    "careTips": "Keep evenly moist, never waterlogged. Medium, indirect light; cut old fronds at the base and feed lightly during growth.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Crocodile Fern",
+    "scientificName": "Microsorum musifolium",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Medium",
+    "humidityNotes": "High humidity essential — brown, crisp fronds mean the air is too dry.",
+    "careTips": "Keep evenly moist, never waterlogged. Medium, indirect light; cut old fronds at the base and feed lightly during growth.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Kangaroo Paw Fern",
+    "scientificName": "Microsorum diversifolium",
+    "defaultWateringIntervalDays": 4,
+    "lightRequirement": "Medium",
+    "humidityNotes": "High humidity essential — brown, crisp fronds mean the air is too dry.",
+    "careTips": "Keep evenly moist, never waterlogged. Medium, indirect light; cut old fronds at the base and feed lightly during growth.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "False Aralia",
+    "scientificName": "Plerandra elegantissima",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Loves humidity; crisp leaf edges mean the air is dry.",
+    "careTips": "Bright, indirect light, evenly moist soil and a stable position — it hates being moved.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Polyscias 'Fabian'",
+    "scientificName": "Polyscias scutellaria",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Prefers steady warmth and humidity; drops leaves when stressed.",
+    "careTips": "Bright light and even moisture — never fully dry, never soggy. Mist often; the fine foliage dislikes dust and drafts.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Polyscias balfouriana",
+    "scientificName": "Polyscias balfouriana",
+    "defaultWateringIntervalDays": 7,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Prefers steady warmth and humidity; drops leaves when stressed.",
+    "careTips": "Bright light and even moisture — never fully dry, never soggy. Mist often; the fine foliage dislikes dust and drafts.",
+    "toxicToPets": true,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Cocoa Tree",
+    "scientificName": "Theobroma cacao",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Loves humidity around the leaves.",
+    "careTips": "Keep lightly moist in bright, indirect light with an acidic feed; warm rooms suit it.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Vanilla Orchid",
+    "scientificName": "Vanilla planifolia",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Loves humidity around the leaves but dryness around the roots.",
+    "careTips": "Give the long vines a support; keep the mix barely moist — thirstier than typical orchids.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Papyrus",
+    "scientificName": "Cyperus papyrus",
+    "defaultWateringIntervalDays": 2,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Loves humid air — a bathroom is perfect.",
+    "careTips": "Never let it dry out; it happily stands in a saucer of water. Bright light; cut brown stems to keep the spray fresh.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Umbrella Papyrus",
+    "scientificName": "Cyperus alternifolius",
+    "defaultWateringIntervalDays": 2,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Loves humid air — a bathroom is perfect.",
+    "careTips": "Never let it dry out; it happily stands in a saucer of water. Bright light; cut brown stems to keep the spray fresh.",
+    "toxicToPets": false,
+    "toxicToChildren": false
+  },
+  {
+    "commonName": "Orange Bird of Paradise",
+    "scientificName": "Strelitzia reginae",
+    "defaultWateringIntervalDays": 8,
+    "lightRequirement": "DirectSun",
+    "humidityNotes": "Average; appreciates the occasional mist.",
+    "careTips": "Give it the sunniest window and space to grow. Water when the top 3-4 cm dry; split leaves are wind damage, not disease.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Alocasia",
+    "scientificName": "Alocasia spp.",
+    "defaultWateringIntervalDays": 6,
+    "lightRequirement": "Bright",
+    "humidityNotes": "Needs high humidity; ideal for a bright bathroom or terrarium corner.",
+    "careTips": "Bright, indirect light and consistently moist — never soggy — soil. Winter dormancy is normal: cut watering back hard.",
+    "toxicToPets": true,
+    "toxicToChildren": true
+  },
+  {
+    "commonName": "Tradescantia fluminensis",
+    "scientificName": "Tradescantia fluminensis",
+    "defaultWateringIntervalDays": 5,
+    "lightRequirement": "Medium",
+    "humidityNotes": "Average humidity; misting keeps the leaves plump.",
+    "careTips": "More light means deeper colour. Water when the top layer dries; cut back leggy stems and root the trimmings in water.",
+    "toxicToPets": true,
+    "toxicToChildren": false
   }
 ]

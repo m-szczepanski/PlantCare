@@ -32,7 +32,7 @@ export const sortOptions = SORT_OPTIONS;
 
 function matchesSearch(plant: Plant, query: string): boolean {
   if (query === "") return true;
-  const haystack = [plant.nickName, plant.roomName ?? "", plant.profileCommonName ?? ""]
+  const haystack = [plant.nickName, plant.roomName ?? "", plant.profileCommonName ?? "", plant.profileScientificName ?? ""]
     .join(" ")
     .toLowerCase();
   return haystack.includes(query);

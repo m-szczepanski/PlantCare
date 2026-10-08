@@ -537,6 +537,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             AcquiredDate = plant.AcquiredDate,
             PlantProfileId = plant.PlantProfileId,
             ProfileCommonName = ProfileTranslations.LocalizedCommonName(profile, translation) ?? plant.PlantProfile?.CommonName,
+            ProfileScientificName = profile?.ScientificName,
             ProfileToxicToPets = profile?.ToxicToPets ?? false,
             ProfileToxicToChildren = profile?.ToxicToChildren ?? false,
             CareTips = features.CareTipsEnabled && profile is { } p
