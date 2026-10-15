@@ -16,6 +16,7 @@ import {
 import { usePlantProfiles } from "@/hooks/usePlantProfiles";
 import { useSoilTypes } from "@/hooks/useSoilTypes";
 import { useCreateRoom, useRooms } from "@/hooks/useRooms";
+import { useDevices, useDevicesEnabled } from "@/hooks/useDevices";
 import { applySoilFactor } from "@/lib/soilTypes";
 import { touchButton, touchField } from "@/lib/ui";
 import type { Plant, PlantInput, SoilType } from "@/api/types";
@@ -44,9 +45,12 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
   const { data: soilTypes = [] } = useSoilTypes();
   const { data: rooms = [] } = useRooms();
   const createRoom = useCreateRoom();
+  const devicesEnabled = useDevicesEnabled();
+  const { data: devices = [] } = useDevices(devicesEnabled);
 
   const [nickName, setNickName] = useState(initial?.nickName ?? "");
   const [roomId, setRoomId] = useState<number | null>(initial?.roomId ?? null);
+  const [deviceId, setDeviceId] = useState<number | null>(initial?.deviceId ?? null);
   const [newRoomName, setNewRoomName] = useState("");
   const [photoUrl, setPhotoUrl] = useState(initial?.photoUrl ?? "");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -116,6 +120,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
       {
         nickName: nickName.trim(),
         roomId,
+        deviceId,
         photoUrl: photoUrl.trim() || null,
         potSizeCm: potSizeCm.trim() === "" ? null : Number(potSizeCm),
         soilType,
@@ -189,6 +194,28 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
         </div>
         <FieldError message={fieldErrors.roomId} />
       </div>
+
+      {devicesEnabled ? (
+        <div className="space-y-2">
+          <Label htmlFor="device">{t("form.device")}</Label>
+          <Select
+            value={deviceId == null ? "none" : String(deviceId)}
+            onValueChange={(value) => setDeviceId(value === "none" ? null : Number(value))}
+          >
+            <SelectTrigger id="device" className={touchField}>
+              <SelectValue placeholder={t("form.noDevice")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">{t("form.noDevice")}</SelectItem>
+              {devices.map((device) => (
+                <SelectItem key={device.id} value={String(device.id)}>
+                  {device.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      ) : null}
 
       <div className="space-y-2">
         <Label htmlFor="profile">{t("form.speciesProfile")}</Label>

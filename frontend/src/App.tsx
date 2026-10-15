@@ -6,6 +6,7 @@ import { DashboardPage } from "@/pages/DashboardPage";
 import { InsightsPage } from "@/pages/InsightsPage";
 import { PlantDetailPage } from "@/pages/PlantDetailPage";
 import { PlantFormPage } from "@/pages/PlantFormPage";
+import { DevicesPage } from "@/pages/DevicesPage";
 import { ProfilesPage } from "@/pages/ProfilesPage";
 import { StatusPage } from "@/pages/StatusPage";
 import { RoomsPage } from "@/pages/RoomsPage";
@@ -31,6 +32,7 @@ export function App() {
         <Route path="/calendar" element={<CalendarPage />} />
         <Route path="/insights" element={<InsightsPage />} />
         <Route path="/rooms" element={<RoomsPage />} />
+        <Route path="/devices" element={<DevicesPage />} />
         <Route path="/profiles" element={<ProfilesPage />} />
         <Route path="/status" element={<StatusPage />} />
         <Route path="/plants" element={<PlantsPage />} />

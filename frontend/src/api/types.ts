@@ -71,6 +71,33 @@ export interface RoomInput {
   temperatureCelsius?: number | null;
 }
 
+export type DeviceType = "Valve" | "Pump" | "Sensor";
+
+export type CommandStyle = "Pulse" | "OnOff" | "Tasmota";
+
+export type DeviceWaterLevel = "Ok" | "Low" | "Empty";
+
+export interface Device {
+  id: number;
+  name: string;
+  type: DeviceType;
+  commandStyle: CommandStyle;
+  commandTopic: string | null;
+  stateTopic: string | null;
+  lastMoisturePct: number | null;
+  waterLevel: DeviceWaterLevel | null;
+  lastSeenAt: string | null;
+  plantCount: number;
+}
+
+export interface DeviceInput {
+  name: string;
+  type?: DeviceType;
+  commandStyle?: CommandStyle;
+  commandTopic?: string | null;
+  stateTopic?: string | null;
+}
+
 export interface DiagnosisEntry {
   symptom: string;
   causes: string[];
@@ -96,6 +123,9 @@ export interface Plant {
   notifyEnabled: boolean;
   snoozedUntil: string | null;
   soilWetUntil: string | null;
+  deviceId?: number | null;
+  soilMoisturePct?: number | null;
+  soilMoistureAgeMinutes?: number | null;
   acquiredDate: string;
   plantProfileId: number | null;
   profileCommonName: string | null;
@@ -250,6 +280,7 @@ export interface StatusInfo {
   lastDigest: DigestStatus | null;
   ntfy: NtfyStatus;
   channels: string[];
+  devicesEnabled?: boolean;
 }
 
 export interface NotificationChannelResult {
@@ -288,6 +319,7 @@ export interface PlantNote {
 export interface PlantInput {
   nickName: string;
   roomId?: number | null;
+  deviceId?: number | null;
   photoUrl?: string | null;
   potSizeCm?: number | null;
   soilType?: SoilType | null;

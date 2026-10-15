@@ -12,7 +12,8 @@ public sealed record StatusInfo(
     JobRunStatus? LastJobRun,
     DigestStatus? LastDigest,
     NtfyStatus Ntfy,
-    IReadOnlyList<string> Channels);
+    IReadOnlyList<string> Channels,
+    bool DevicesEnabled);
 
 public sealed record JobRunStatus(DateTime RanAt, string Outcome, int SentDigests, int Failed);
 
@@ -31,7 +32,8 @@ public sealed class StatusService(
     NtfyOptions ntfy,
     IConfiguration configuration,
     IEnumerable<INotificationChannel> channels,
-    IHttpContextAccessor httpContextAccessor) : IStatusService
+    IHttpContextAccessor httpContextAccessor,
+    FeatureFlags features) : IStatusService
 {
     public async Task<StatusInfo> GetAsync(CancellationToken cancellationToken = default)
     {
@@ -53,7 +55,8 @@ public sealed class StatusService(
             lastRun is null ? null : new JobRunStatus(lastRun.RanAt, lastRun.Outcome, lastRun.SentDigests, lastRun.Failed),
             lastDigest is null ? null : new DigestStatus(lastDigest.SentAt, lastDigest.PlantCount, lastDigest.OverdueCount, lastDigest.Priority),
             ntfyStatus,
-            channels.Select(c => c.Name).Distinct().OrderBy(n => n, StringComparer.Ordinal).ToList());
+            channels.Select(c => c.Name).Distinct().OrderBy(n => n, StringComparer.Ordinal).ToList(),
+            features.DevicesEnabled);
     }
 
     private async Task<NtfyStatus> ProbeNtfyAsync(CancellationToken cancellationToken)
