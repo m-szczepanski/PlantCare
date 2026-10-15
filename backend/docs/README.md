@@ -68,6 +68,7 @@ POST   /api/devices                create device {name, type, commandStyle, comm
 GET    /api/devices/{id}           single device
 PUT    /api/devices/{id}           update device
 DELETE /api/devices/{id}           delete device (plants keep existing, DeviceId set null)
+POST   /api/plants/{id}/device-water   publish a "water now" command to the plant's linked device (202; 400 no-device, 502 publish-failed)
 ```
 
 > The device endpoints and the plant `deviceId`/`soilMoisturePct` fields are

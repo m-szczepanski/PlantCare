@@ -9,7 +9,7 @@ namespace PlantCare.Api.Services;
 public sealed record DeviceStateOptions(int WetThresholdPct, int DeferDays);
 
 /// <summary>Parsed state published by a device on <c>plantcare/{id}/state</c>.</summary>
-public sealed record DeviceStateMessage(int? MoisturePct, DeviceWaterLevel? WaterLevel, DateTime? Timestamp)
+public sealed record DeviceStateMessage(int? MoisturePct, DeviceWaterLevel? WaterLevel, DateTime? Timestamp, bool Watered)
 {
     /// <summary>Parses a device state payload; null when the payload is not a JSON object.</summary>
     public static DeviceStateMessage? TryParse(string payload)
@@ -42,7 +42,9 @@ public sealed record DeviceStateMessage(int? MoisturePct, DeviceWaterLevel? Wate
                 timestamp = tv;
             }
 
-            return new DeviceStateMessage(moisture, waterLevel, timestamp);
+            var watered = root.TryGetProperty("watered", out var wd) && wd.ValueKind == JsonValueKind.True;
+
+            return new DeviceStateMessage(moisture, waterLevel, timestamp, watered);
         }
         catch (JsonException)
         {
@@ -70,7 +72,7 @@ public interface IDeviceStateIngestor
     Task IngestAsync(string topic, string payload, CancellationToken cancellationToken = default);
 }
 
-public sealed class DeviceStateIngestor(AppDbContext db, DeviceStateOptions options, ILogger<DeviceStateIngestor> logger) : IDeviceStateIngestor
+public sealed class DeviceStateIngestor(AppDbContext db, DeviceStateOptions options, ILogger<DeviceStateIngestor> logger, IPlantService plantService, IAppLocalizer localizer) : IDeviceStateIngestor
 {
     public async Task IngestAsync(string topic, string payload, CancellationToken cancellationToken = default)
     {
@@ -104,12 +106,17 @@ public sealed class DeviceStateIngestor(AppDbContext db, DeviceStateOptions opti
         device.WaterLevel = state.WaterLevel;
         device.LastSeenAt = state.Timestamp ?? DateTime.UtcNow;
 
-        if (state.MoisturePct is { } moisture)
+        if (!state.Watered && state.MoisturePct is { } moisture)
         {
             await SyncSoilWetAsync(deviceId, moisture, cancellationToken);
         }
 
         await db.SaveChangesAsync(cancellationToken);
+
+        if (state.Watered)
+        {
+            await MarkWateredAsync(deviceId, cancellationToken);
+        }
     }
 
     private async Task SyncSoilWetAsync(int deviceId, int moisture, CancellationToken cancellationToken)
@@ -124,6 +131,29 @@ public sealed class DeviceStateIngestor(AppDbContext db, DeviceStateOptions opti
         foreach (var plant in plants)
         {
             plant.SoilWetUntil = until;
+        }
+    }
+
+    private const int WateredDedupMinutes = 5;
+
+    private async Task MarkWateredAsync(int deviceId, CancellationToken cancellationToken)
+    {
+        var plantIds = await db.Plants
+            .Where(p => p.DeviceId == deviceId)
+            .Select(p => p.Id)
+            .ToListAsync(cancellationToken);
+
+        var recentlyWateredBefore = DateTime.UtcNow.AddMinutes(-WateredDedupMinutes);
+        foreach (var plantId in plantIds)
+        {
+            var recent = await db.CareTasks.AnyAsync(t =>
+                t.PlantId == plantId && t.Type == CareTaskType.Watering && t.LastDoneAt >= recentlyWateredBefore, cancellationToken);
+            if (recent)
+            {
+                continue;
+            }
+
+            await plantService.WaterAsync(plantId, localizer.T("device.wateredNote"), cancellationToken: cancellationToken);
         }
     }
 }

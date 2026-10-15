@@ -57,18 +57,20 @@ builder.Services.AddSingleton(new MqttOptions(
     builder.Configuration["MQTT_PASSWORD"],
     builder.Configuration["MQTT_TOPIC_PREFIX"] ?? "plantcare"));
 
-// The MQTT bus only connects when the feature is on, so a disabled install
-// never reaches for a broker that is not there.
+// The bus and its consumers are registered unconditionally so controllers that
+// depend on them always resolve; the bus only *connects* (as a hosted service)
+// when the feature is enabled, so a disabled install never reaches for a broker.
+builder.Services.AddSingleton<MqttDeviceBus>();
+builder.Services.AddSingleton<IDeviceBus>(sp => sp.GetRequiredService<MqttDeviceBus>());
+builder.Services.AddSingleton(new DeviceStateOptions(
+    builder.Configuration.GetValue("MOISTURE_WET_THRESHOLD_PCT", 60),
+    builder.Configuration.GetValue("SOIL_WET_DEFER_DAYS", 1)));
+builder.Services.AddScoped<IDeviceStateIngestor, DeviceStateIngestor>();
+builder.Services.AddScoped<IDeviceCommandService, DeviceCommandService>();
+
 if (builder.Configuration.GetValue("ENABLE_DEVICES", false))
 {
-    builder.Services.AddSingleton<MqttDeviceBus>();
-    builder.Services.AddSingleton<IDeviceBus>(sp => sp.GetRequiredService<MqttDeviceBus>());
     builder.Services.AddHostedService(sp => sp.GetRequiredService<MqttDeviceBus>());
-
-    builder.Services.AddSingleton(new DeviceStateOptions(
-        builder.Configuration.GetValue("MOISTURE_WET_THRESHOLD_PCT", 60),
-        builder.Configuration.GetValue("SOIL_WET_DEFER_DAYS", 1)));
-    builder.Services.AddScoped<IDeviceStateIngestor, DeviceStateIngestor>();
     builder.Services.AddHostedService<DeviceStateService>();
 }
 
