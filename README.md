@@ -26,7 +26,7 @@ Built for personal use on a local network. Single-user by design — no accounts
 
 Anything that runs Docker on your home network will do: a NAS, a mini-PC, a Raspberry Pi or a spare machine. All you need is Docker with the Compose plugin.
 
-> **Keep it on your network.** Plant Care has no login screen. Don't expose it directly to the internet — for access from outside your home, put it behind a VPN (Tailscale, WireGuard, …) or a reverse proxy that handles authentication itself.
+> **Keep it on your network.** Plant Care has no login screen. Don't expose it directly to the internet - for access from outside your home, put it behind a VPN (Tailscale, WireGuard, …) or a reverse proxy that handles authentication itself.
 
 ### Option A: prebuilt images (recommended for a server)
 
@@ -90,7 +90,7 @@ Open `http://<server-ip>:3000`. The first launch shows a short setup wizard; aft
 Running your stacks from a NAS UI (Dockge, Portainer, Unraid, …) instead? Paste the same file there — it is an ordinary Compose stack.
 
 | Service | URL |
-|---------|-----|
+| --------- | ----- |
 | Web app | http://&lt;server-ip&gt;:3000 |
 | ntfy (notification UI) | http://&lt;server-ip&gt;:8080 |
 | API (optional, direct access) | http://&lt;server-ip&gt;:5001 |
@@ -137,7 +137,7 @@ Everything is stored in named volumes — the database in `plant-data`, uploaded
 Every setting is optional; sensible defaults are built in. Copy `.env.example` to `.env` and change what you need. The ones people usually touch:
 
 | Setting | Default | What it does |
-|---------|---------|--------------|
+| --------- | --------- | -------------- |
 | `TZ` | `UTC` | Time zone used for the daily check |
 | `WATERING_CHECK_CRON` | `0 8 * * *` | When the daily watering check runs (08:00 by default) |
 | `NTFY_TOPIC` | `plant-care` | Topic reminders are sent to |
