@@ -14,9 +14,18 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          markdown: ["react-markdown"],
-          vendor: ["react", "react-dom", "react-router-dom", "@tanstack/react-query"],
+        codeSplitting: {
+          groups: [
+            {
+              name: "markdown",
+              test: /node_modules[\\/]react-markdown/,
+              includeDependenciesRecursively: true,
+            },
+            {
+              name: "vendor",
+              test: /node_modules[\\/](react|react-dom|react-router-dom|@tanstack[\\/]react-query)[\\/]/,
+            },
+          ],
         },
       },
     },
