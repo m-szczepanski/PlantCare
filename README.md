@@ -20,6 +20,7 @@ Built for personal use on a local network. Single-user by design, no accounts, n
 - **Editable species library**: profiles are seeded from a JSON file and can be extended without touching code
 - **Bilingual**: English and Polish UI with a language switch, including species profiles, due messages and notifications
 - **Backup and restore**: JSON export/import, also available from the in-app Status page
+- **Self-watering hardware (optional)**: link ESP32-class pumps/sensors over MQTT, see live soil moisture, water on demand, and let a daily auto-water job run guarded by moisture and per-day caps (off by default)
 
 ## Quick Start
 
@@ -37,6 +38,7 @@ docker compose up -d --build
 | Web app | http://localhost:3000 |
 | API | http://localhost:5001 |
 | ntfy | http://localhost:8080 |
+| MQTT broker (optional) | `localhost:1883` |
 
 To receive notifications, subscribe to your topic (default `plant-care`) in the [ntfy](https://ntfy.sh) mobile or desktop app. In the app, first **add your own server** (it defaults to the public `ntfy.sh`) pointing at your ntfy host — e.g. `http://<your-nas-ip>:<port>` (the published port is `NTFY_PUBLIC_PORT`, `8080` by default; set it to whatever you map `ntfy` on, e.g. `7272`) — then subscribe to the `plant-care` topic. You can also open the browser UI at `http://localhost:8080/plant-care`. The in-app **Status page** shows the resolved subscribe link, a live ntfy reachability probe and the configured delivery channels, and has a **Send test notification** button (plus **Run watering check now**) to verify end-to-end delivery to your phone without waiting for the daily schedule.
 
@@ -51,6 +53,10 @@ All settings are read from `.env`. See [`.env.example`](.env.example) for the fu
 | `NTFY_URL` | `http://ntfy:80` | Container-network URL the API publishes to |
 | `NTFY_PUBLIC_PORT` | `8080` | Host port ntfy is published on — used to build the phone/browser subscribe link (set to e.g. `7272` if you map it there; must match the `ntfy` service `ports:` mapping) |
 | `ENABLE_CARE_TIPS` | `true` | Show species care tips in the plant detail view |
+| `ENABLE_DEVICES` | `false` | Enable the self-watering / sensor device surfaces (MQTT) |
+| `MQTT_HOST` / `MQTT_PORT` | `mqtt` / `1883` | Broker the API connects to for devices |
+| `MQTT_TOPIC_PREFIX` | `plantcare` | Topic namespace for device command/state |
+| `DEVICE_WATERING_CRON` | `0 8 * * *` | Cron for the scheduled auto-water job |
 | `DB_CONNECTIONSTRING` | `Data Source=/data/plantcare.db` | EF Core connection string |
 
 Use `docker-compose.override.yml` (copy from `docker-compose.override.yml.example`) for local tweaks such as changing ports.
@@ -74,6 +80,26 @@ SQLite is the default and needs no extra setup. To switch to PostgreSQL, change 
 3. For each plant not yet notified today, it publishes a message to the configured ntfy topic and records it in the notification log, which prevents duplicate reminders.
 4. A failed send is logged and skipped, so an ntfy outage never interrupts the run or blocks other plants.
 
+## Self-watering devices (optional)
+
+Off by default. With `ENABLE_DEVICES=true`, PlantCare can drive ESP32-class
+pumps/valves and read soil-moisture sensors over MQTT:
+
+1. Set `ENABLE_DEVICES=true` and `docker compose up -d --build` — the `mqtt`
+   Mosquitto sidecar comes up with it.
+2. Add the device on the **Devices** page (the app assigns it an id).
+3. Flash the matching firmware from [`docs/firmware/`](docs/firmware/README.md)
+   (ESPHome by default, or a Tasmota relay), pointed at your broker and that id.
+4. Link the device to a plant in the plant form. You then get live soil moisture,
+   a **Water now** button, and — via `DEVICE_WATERING_CRON` — automatic watering
+   for due plants, guarded by a moisture threshold, a duration cap and a per-day
+   cap.
+
+No hardware needed to try it: [`tools/stub-device.py`](tools/stub-device.py)
+simulates a device so the whole loop runs end to end. The full topic schema,
+config (`MOISTURE_*` / `WATER_*` / `MQTT_*`) and safety rules are in
+[`docs/hardware-integration.md`](docs/hardware-integration.md).
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -84,6 +110,7 @@ SQLite is the default and needs no extra setup. To switch to PostgreSQL, change 
 | Frontend | React, Vite, TypeScript, TanStack Query |
 | UI | shadcn/ui, Tailwind CSS |
 | Notifications | ntfy |
+| Devices | MQTT (Mosquitto) + ESPHome/Tasmota (optional) |
 | Deployment | Docker Compose, nginx |
 
 ## Project Structure
@@ -106,7 +133,9 @@ plant-care-app/
 │       ├── api/                # Typed API client
 │       ├── hooks/              # TanStack Query hooks
 │       └── lib/
-├── docs/                       # Project documentation
+├── mosquitto/                  # MQTT broker config (optional devices)
+├── tools/                      # stub-device.py simulator
+├── docs/                       # Project documentation (incl. firmware/)
 ├── docker-compose.yml
 ├── .env.example
 └── AGENTS.md                   # Contributor and agent guidelines
@@ -127,6 +156,11 @@ plant-care-app/
 | `POST` | `/api/plant-profiles` | Create a profile (`409` on duplicate name) |
 | `PUT` | `/api/plant-profiles/{id}` | Update a profile (`409` on duplicate name) |
 | `GET` | `/api/dashboard` | Due today, overdue and upcoming summary |
+| `GET` | `/api/devices` | List self-watering/monitoring devices (`ENABLE_DEVICES`) |
+| `POST` | `/api/devices` | Create a device |
+| `PUT` | `/api/devices/{id}` | Update a device |
+| `DELETE` | `/api/devices/{id}` | Delete a device |
+| `POST` | `/api/plants/{id}/device-water` | Publish a "water now" command to the plant's device |
 | `GET` | `/api/export` | Download a JSON backup |
 | `POST` | `/api/import` | Import a JSON backup |
 | `GET` | `/health` | Liveness probe |
@@ -178,6 +212,7 @@ Plant Care App is intentionally small. Multi-user authentication, a native mobil
 
 - [`docs/overview.md`](docs/overview.md): feature scope and data model
 - [`docs/architecture.md`](docs/architecture.md): system design and key decisions
+- [`docs/hardware-integration.md`](docs/hardware-integration.md): optional MQTT device integration and firmware
 - [`docs/implementation-plan.md`](docs/implementation-plan.md): build order, testing strategy and acceptance criteria
 
 ## Contributing

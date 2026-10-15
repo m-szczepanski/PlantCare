@@ -42,7 +42,45 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
-builder.Services.AddSingleton(new FeatureFlags(builder.Configuration.GetValue("ENABLE_CARE_TIPS", true)));
+builder.Services.AddSingleton(new FeatureFlags(
+    builder.Configuration.GetValue("ENABLE_CARE_TIPS", true),
+    builder.Configuration.GetValue("ENABLE_DEVICES", false)));
+
+var mqttHost = builder.Configuration["MQTT_HOST"] ?? "mqtt";
+var mqttPort = int.TryParse(builder.Configuration["MQTT_PORT"], out var parsedMqttPort) && parsedMqttPort is > 0 and < 65536
+    ? parsedMqttPort
+    : 1883;
+builder.Services.AddSingleton(new MqttOptions(
+    mqttHost,
+    mqttPort,
+    builder.Configuration["MQTT_USERNAME"],
+    builder.Configuration["MQTT_PASSWORD"],
+    builder.Configuration["MQTT_TOPIC_PREFIX"] ?? "plantcare"));
+
+// The bus and its consumers are registered unconditionally so controllers that
+// depend on them always resolve; the bus only *connects* (as a hosted service)
+// when the feature is enabled, so a disabled install never reaches for a broker.
+builder.Services.AddSingleton<MqttDeviceBus>();
+builder.Services.AddSingleton<IDeviceBus>(sp => sp.GetRequiredService<MqttDeviceBus>());
+builder.Services.AddSingleton(new DeviceStateOptions(
+    builder.Configuration.GetValue("MOISTURE_WET_THRESHOLD_PCT", 60),
+    builder.Configuration.GetValue("SOIL_WET_DEFER_DAYS", 1)));
+builder.Services.AddScoped<IDeviceStateIngestor, DeviceStateIngestor>();
+builder.Services.AddScoped<IDeviceCommandService, DeviceCommandService>();
+
+builder.Services.AddSingleton(new DeviceWateringOptions(
+    builder.Configuration.GetValue("WATER_MAX_DURATION_MS", 60_000),
+    builder.Configuration.GetValue("MOISTURE_AUTO_WATER_THRESHOLD_PCT", 40),
+    builder.Configuration.GetValue("ALLOW_AUTO_WATER_WITHOUT_READING", false),
+    builder.Configuration.GetValue("AUTO_WATER_MAX_PER_DAY", 1),
+    builder.Configuration.GetValue("WATER_FEEDBACK_TIMEOUT_MS", 30_000)));
+builder.Services.AddScoped<IDeviceWateringService, DeviceWateringService>();
+
+if (builder.Configuration.GetValue("ENABLE_DEVICES", false))
+{
+    builder.Services.AddHostedService(sp => sp.GetRequiredService<MqttDeviceBus>());
+    builder.Services.AddHostedService<DeviceStateService>();
+}
 
 var defaultLanguage = builder.Configuration["APP_LANGUAGE"] ?? "en";
 builder.Services.AddSingleton(new AppLanguageOptions(
@@ -57,6 +95,7 @@ builder.Services.AddScoped<IWateringScheduleService, WateringScheduleService>();
 builder.Services.AddScoped<IPlantService, PlantService>();
 builder.Services.AddScoped<IPlantProfileService, PlantProfileService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
+builder.Services.AddScoped<IDeviceService, DeviceService>();
 builder.Services.AddScoped<ICareTaskService, CareTaskService>();
 builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
 builder.Services.AddScoped<IJournalService, JournalService>();
@@ -91,6 +130,7 @@ if (!string.IsNullOrWhiteSpace(telegramToken) && !string.IsNullOrWhiteSpace(tele
 builder.Services.AddScheduler();
 builder.Services.AddScoped<IWateringCheckService, WateringCheckService>();
 builder.Services.AddTransient<WateringCheckJob>();
+builder.Services.AddTransient<DeviceWateringJob>();
 
 var app = builder.Build();
 
@@ -130,7 +170,14 @@ app.MapControllers();
 
 var schedulerLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Coravel.Scheduler");
 app.Services
-    .UseScheduler(scheduler => scheduler.Schedule<WateringCheckJob>().Cron(builder.Configuration["WATERING_CHECK_CRON"] ?? "0 8 * * *"))
+    .UseScheduler(scheduler =>
+    {
+        scheduler.Schedule<WateringCheckJob>().Cron(builder.Configuration["WATERING_CHECK_CRON"] ?? "0 8 * * *");
+        if (builder.Configuration.GetValue("ENABLE_DEVICES", false))
+        {
+            scheduler.Schedule<DeviceWateringJob>().Cron(builder.Configuration["DEVICE_WATERING_CRON"] ?? "0 8 * * *");
+        }
+    })
     .OnError(ex => schedulerLogger.LogError(ex, "A scheduled task threw an unhandled exception."));
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));

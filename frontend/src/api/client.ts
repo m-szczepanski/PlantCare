@@ -1,4 +1,4 @@
-import type { CareTask, CareTaskType, Dashboard, HealthCheckEntry, HealthStatus, ImportResult, Insights, JournalEntry, NotificationTestResult, Plant, PlantInput, PlantNote, PlantProfile, PlantProfileInput, Room, RoomInput, SoilTypeOption, StatusInfo, WaterDetails, WateringCheckResult, WateringLogEntry } from "./types";
+import type { CareTask, CareTaskType, Dashboard, Device, DeviceInput, HealthCheckEntry, HealthStatus, ImportResult, Insights, JournalEntry, NotificationTestResult, Plant, PlantInput, PlantNote, PlantProfile, PlantProfileInput, Room, RoomInput, SoilTypeOption, StatusInfo, WaterDetails, WateringCheckResult, WateringLogEntry } from "./types";
 import { apiHeaders } from "./headers";
 
 export interface HealthResponse {
@@ -129,6 +129,11 @@ export const plantsApi = {
   healthChecks: (id: number) => request<HealthCheckEntry[]>(`/plants/${id}/health-checks`),
   addHealthCheck: (id: number, input: { status: HealthStatus; note?: string }) =>
     request<Plant>(`/plants/${id}/health-checks`, { method: "POST", body: JSON.stringify(input) }),
+  deviceWater: (id: number, durationMs?: number) =>
+    request<unknown>(`/plants/${id}/device-water`, {
+      method: "POST",
+      body: JSON.stringify(durationMs ? { durationMs } : {}),
+    }),
 };
 
 export const plantProfilesApi = {
@@ -146,6 +151,15 @@ export const roomsApi = {
   update: (id: number, input: RoomInput) =>
     request<Room>(`/rooms/${id}`, { method: "PUT", body: JSON.stringify(input) }),
   remove: (id: number) => request<void>(`/rooms/${id}`, { method: "DELETE" }),
+};
+
+export const devicesApi = {
+  list: () => request<Device[]>("/devices"),
+  create: (input: DeviceInput) =>
+    request<Device>("/devices", { method: "POST", body: JSON.stringify(input) }),
+  update: (id: number, input: DeviceInput) =>
+    request<Device>(`/devices/${id}`, { method: "PUT", body: JSON.stringify(input) }),
+  remove: (id: number) => request<void>(`/devices/${id}`, { method: "DELETE" }),
 };
 
 export const referenceDataApi = {

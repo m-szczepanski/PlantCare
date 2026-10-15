@@ -75,6 +75,72 @@ namespace PlantCare.Api.Data.Migrations
                     b.ToTable("CareTaskLogs");
                 });
 
+            modelBuilder.Entity("PlantCare.Api.Models.Device", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CommandStyle")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CommandTopic")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("LastMoisturePct")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("LastSeenAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("StateTopic")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("WaterLevel")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Devices");
+                });
+
+            modelBuilder.Entity("PlantCare.Api.Models.DeviceWateringLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("ConfirmedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("DeviceId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PlantId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("ReportedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlantId", "SentAt");
+
+                    b.ToTable("DeviceWateringLogs");
+                });
+
             modelBuilder.Entity("PlantCare.Api.Models.JobRunLog", b =>
                 {
                     b.Property<int>("Id")
@@ -166,6 +232,9 @@ namespace PlantCare.Api.Data.Migrations
                     b.Property<DateTime?>("CheckupReminderSentAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("DeviceId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("HealthStatus")
                         .HasColumnType("TEXT");
 
@@ -204,6 +273,8 @@ namespace PlantCare.Api.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeviceId");
 
                     b.HasIndex("PlantProfileId");
 
@@ -394,6 +465,15 @@ namespace PlantCare.Api.Data.Migrations
                     b.Navigation("CareTask");
                 });
 
+            modelBuilder.Entity("PlantCare.Api.Models.DeviceWateringLog", b =>
+                {
+                    b.HasOne("PlantCare.Api.Models.Plant", null)
+                        .WithMany()
+                        .HasForeignKey("PlantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("PlantCare.Api.Models.JournalEntry", b =>
                 {
                     b.HasOne("PlantCare.Api.Models.Plant", "Plant")
@@ -407,6 +487,11 @@ namespace PlantCare.Api.Data.Migrations
 
             modelBuilder.Entity("PlantCare.Api.Models.Plant", b =>
                 {
+                    b.HasOne("PlantCare.Api.Models.Device", "Device")
+                        .WithMany("Plants")
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("PlantCare.Api.Models.PlantProfile", "PlantProfile")
                         .WithMany("Plants")
                         .HasForeignKey("PlantProfileId")
@@ -416,6 +501,8 @@ namespace PlantCare.Api.Data.Migrations
                         .WithMany("Plants")
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Device");
 
                     b.Navigation("PlantProfile");
 
@@ -458,6 +545,11 @@ namespace PlantCare.Api.Data.Migrations
             modelBuilder.Entity("PlantCare.Api.Models.CareTask", b =>
                 {
                     b.Navigation("Logs");
+                });
+
+            modelBuilder.Entity("PlantCare.Api.Models.Device", b =>
+                {
+                    b.Navigation("Plants");
                 });
 
             modelBuilder.Entity("PlantCare.Api.Models.Plant", b =>

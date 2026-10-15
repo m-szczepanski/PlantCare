@@ -18,6 +18,14 @@ A self-hosted, highly customizable web app for tracking owned plants, watering r
 
 **Explicit non-goals for v1:** multi-user auth, mobile app, cloud sync. The app stays single-user and local-network friendly.
 
+**Optional hardware integration (Epic 11, off by default):** ESP32-class
+self-watering / monitoring devices over MQTT, gated by `ENABLE_DEVICES`. Add
+devices, link them to plants, see live soil moisture, trigger **Water now**, and
+let the scheduled auto-water job run — guarded by a moisture threshold, a
+duration cap and a per-day cap. Reference firmware lives in
+[`docs/firmware/`](firmware/README.md) and no hardware is required to build or
+test it (a stub device stands in). See [`hardware-integration.md`](hardware-integration.md).
+
 ## Repository Structure
 
 **Decision: single repo (monorepo) for backend + frontend.** For a project of this size, run by one supervisor + an AI agent, a monorepo is the right call — one Docker Compose file, one set of issues/PRs, no version drift between API and UI. Split into separate repos only if this ever becomes a multi-team or publicly distributed product with independent release cadences.
@@ -54,7 +62,9 @@ plant-care-app/
 │   ├── index.html
 │   ├── vite.config.ts
 │   └── Dockerfile                   # for the web service (serves via nginx)
-└── docs/                            # project-level docs (this folder)
+├── mosquitto/                       # Mosquitto broker config (ENABLE_DEVICES)
+├── tools/                           # helper scripts (stub-device.py simulator)
+└── docs/                            # project-level docs (incl. firmware/ templates)
 ```
 
 > Note: the legacy `client/` folder and stray top-level `src/` were removed during Step 1 scaffolding; `frontend/` is the canonical SPA location.
@@ -69,7 +79,8 @@ plant-care-app/
 | Frontend | React + Vite + TypeScript | SPA, not Next.js |
 | UI kit | shadcn/ui + Tailwind CSS | Consistent, accessible components |
 | Notifications | ntfy (self-hosted container) | API POSTs to ntfy on due/overdue plants |
-| Containerization | Docker Compose | `api`, `web`, `ntfy`, optional `postgres` |
+| Devices | MQTT (Mosquitto sidecar) + ESPHome/Tasmota firmware | Optional, gated by `ENABLE_DEVICES`; ESP32-class, Home Assistant optional |
+| Containerization | Docker Compose | `api`, `web`, `ntfy`, optional `postgres`, optional `mqtt` |
 
 ## Data Model
 
@@ -94,6 +105,7 @@ Plant (user's owned instance)
 - CustomWateringIntervalDays (nullable — overrides profile default)
 - LastWateredAt
 - SoilWetUntil (nullable — "soil is still wet" deferral that pushes the watering due date out to this instant)
+- DeviceId (FK, nullable — links the plant to a self-watering/monitoring device; see Device)
 
 WateringLog
 - Id
@@ -118,6 +130,17 @@ NotificationLog (optional, for dedup/audit)
 - PlantId (FK)
 - SentAt
 - Type (e.g., WateringDue)
+
+Device (MQTT self-watering / monitoring appliance — optional, ENABLE_DEVICES)
+- Id (also the MQTT identifier)
+- Name
+- Type (enum: Valve/Pump/Sensor)
+- CommandStyle (enum: Pulse/OnOff/Tasmota)
+- CommandTopic / StateTopic (nullable overrides; default plantcare/{Id}/command|state)
+- LastMoisturePct / WaterLevel / LastSeenAt (latest-reading mirror)
+
+DeviceWateringLog (one row per auto-water command, for confirmation + dedup)
+- Id, PlantId (FK), DeviceId (FK), SentAt, ConfirmedAt (nullable), ReportedAt (nullable)
 ```
 
 `PlantProfile` data is seeded from a JSON file in `backend/PlantCare.Api/Seed/` so users can extend/edit species defaults without touching code — this is the main "customization" lever for care tips and default schedules.
@@ -138,6 +161,13 @@ POST   /api/plant-profiles
 PUT    /api/plant-profiles/{id}
 
 GET    /api/dashboard              due today / overdue / upcoming summary
+
+GET    /api/devices                list devices (+ latest reading) — ENABLE_DEVICES
+POST   /api/devices                create a device
+GET    /api/devices/{id}           single device
+PUT    /api/devices/{id}           update a device
+DELETE /api/devices/{id}           delete a device (linked plants keep existing)
+POST   /api/plants/{id}/device-water   publish a "water now" command to the plant's device
 ```
 
 ## Notification Flow
@@ -183,9 +213,18 @@ services:
     volumes:
       - ntfy-data:/var/lib/ntfy
 
+  mqtt:                       # optional; used only when ENABLE_DEVICES
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"           # LAN only
+    volumes:
+      - mqtt-data:/mosquitto/data
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+
 volumes:
   plant-data:
   ntfy-data:
+  mqtt-data:
 ```
 
 Add `postgres` as an optional service later if/when moving off SQLite.
@@ -221,5 +260,6 @@ Add `postgres` as an optional service later if/when moving off SQLite.
 | `docs/` (this folder) | Project overview, architecture, cross-cutting decisions |
 | `docs/ideas.md` | Post-v1 improvement ideas backlog (parking lot) |
 | `docs/improvement-plan.md` | Deliverable chunks derived from the ideas backlog, with proposed branches |
+| `docs/hardware-integration.md` + `docs/firmware/` | Device/MQTT design and flash-ready firmware templates |
 | `backend/docs/` | API design, data model & EF Core approach, scheduling/notifications, conventions |
 | `frontend/docs/` | SPA architecture, state & data fetching, UI kit/theming, API client approach |

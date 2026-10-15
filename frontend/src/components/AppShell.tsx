@@ -1,5 +1,5 @@
 import type { ComponentType, ReactNode } from "react";
-import { Activity, Armchair, BarChart3, BookOpen, CalendarDays, Leaf, LayoutDashboard, Plus, Sprout } from "lucide-react";
+import { Activity, Armchair, BarChart3, BookOpen, CalendarDays, Cpu, Leaf, LayoutDashboard, Plus, Sprout } from "lucide-react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
@@ -9,6 +9,7 @@ import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { ModeToggle } from "@/components/ModeToggle";
 import { ScrollRestoration } from "@/components/ScrollRestoration";
+import { useDevicesEnabled } from "@/hooks/useDevices";
 import {
   Sidebar,
   SidebarContent,
@@ -35,6 +36,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/calendar", labelKey: "nav.calendar", icon: CalendarDays, end: true },
   { to: "/insights", labelKey: "nav.insights", icon: BarChart3, end: true },
   { to: "/rooms", labelKey: "nav.rooms", icon: Armchair, end: true },
+  { to: "/devices", labelKey: "nav.devices", icon: Cpu, end: true },
   { to: "/profiles", labelKey: "nav.profiles", icon: BookOpen, end: true },
   { to: "/status", labelKey: "nav.status", icon: Activity, end: true },
   { to: "/plants", labelKey: "nav.plants", icon: Sprout, end: false },
@@ -49,6 +51,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const devicesEnabled = useDevicesEnabled();
+  const navItems = devicesEnabled ? NAV_ITEMS : NAV_ITEMS.filter((item) => item.to !== "/devices");
 
   useEffect(() => {
     const refetch = () => void queryClient.invalidateQueries();
@@ -79,7 +83,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <SidebarGroup>
             <SidebarGroupLabel>{t("nav.group")}</SidebarGroupLabel>
             <SidebarMenu>
-              {NAV_ITEMS.map((item) => (
+              {navItems.map((item) => (
                 <SidebarMenuItem key={item.to}>
                   <SidebarMenuButton
                     asChild

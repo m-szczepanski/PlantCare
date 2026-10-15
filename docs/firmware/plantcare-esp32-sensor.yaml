@@ -1,0 +1,69 @@
+# PlantCare soil-moisture sensor — ESPHome (ESP32) reference template.
+#
+# A read-only node (device type "Sensor" in the app): it publishes its moisture
+# reading to `plantcare/<device_id>/state` and never actuates. Use it to feed
+# the app's soil-wet deferral and the auto-water safety guard with no pump at
+# all.
+#
+# Setup: same as plantcare-esp32.yaml (copy, set `device_id`, fill secrets.yaml).
+# Requires ESPHome 2024.x+.
+
+substitutions:
+  device_name: plantcare-sensor-1
+  friendly_name: PlantCare Soil Sensor 1
+  # Numeric device id from the app (Devices page). Keep this in sync.
+  device_id: "2"
+  # Topic namespace — must match MQTT_TOPIC_PREFIX in the app.
+  mqtt_prefix: "plantcare"
+  # Analog pin for the soil-moisture probe.
+  moisture_pin: GPIO34
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+logger:
+
+# Optional: only needed if you also want the node to appear in Home Assistant.
+api:
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+mqtt:
+  broker: !secret mqtt_broker
+  username: !secret mqtt_username
+  password: !secret mqtt_password
+
+sensor:
+  - platform: adc
+    pin: ${moisture_pin}
+    id: soil_moisture
+    name: "${friendly_name} soil moisture"
+    attenuation: 11db
+    update_interval: 30s
+    unit_of_measurement: "%"
+    filters:
+      # Calibrate for your probe: raw voltage at 0% and 100% soil moisture.
+      - calibrate_linear:
+          - 2.6 -> 0.0
+          - 1.2 -> 100.0
+      - clamp:
+          min_value: 0.0
+          max_value: 100.0
+    on_value:
+      # Retained so a (re)connecting app shows the latest reading immediately.
+      - mqtt.publish:
+          topic: ${mqtt_prefix}/${device_id}/state
+          retain: true
+          payload: !lambda |-
+            return "{\"moisturePct\":" + std::to_string((int) id(soil_moisture).state) + ",\"waterLevel\":\"ok\"}";

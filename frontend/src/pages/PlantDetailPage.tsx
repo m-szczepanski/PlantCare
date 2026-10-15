@@ -53,6 +53,7 @@ import {
   useWaterPlant,
   useWateringLogs,
 } from "@/hooks/usePlants";
+import { useWaterNow } from "@/hooks/useDevices";
 import type { WaterDetails, WateringMethod } from "@/api/types";
 import { touchButton, touchField } from "@/lib/ui";
 import { formatInstant } from "@/lib/dates";
@@ -78,6 +79,7 @@ export function PlantDetailPage() {
   const unsnooze = useUnsnoozePlant(plantId);
   const setSoilWet = useSetSoilWet(plantId);
   const clearSoilWet = useClearSoilWet(plantId);
+  const deviceWater = useWaterNow(plantId);
   const [snoozeDays, setSnoozeDays] = useState("14");
   const [soilWetDays, setSoilWetDays] = useState("3");
   const [noteText, setNoteText] = useState("");
@@ -171,6 +173,11 @@ export function PlantDetailPage() {
           <Button onClick={waterNow} disabled={waterPlant.isPending} className={touchButton}>
             {waterPlant.isPending ? t("plant.watering") : t("detail.markWatered")}
           </Button>
+          {plant.deviceId != null ? (
+            <Button variant="secondary" onClick={() => deviceWater.mutate()} disabled={deviceWater.isPending} className={touchButton}>
+              {deviceWater.isPending ? t("detail.wateringDevice") : t("detail.waterNow")}
+            </Button>
+          ) : null}
           <Button variant="secondary" onClick={() => photoInputRef.current?.click()} disabled={uploadPhoto.isPending} className={touchButton}>
             {uploadPhoto.isPending ? t("detail.uploading") : plant.photoUrl ? t("detail.changePhoto") : t("detail.uploadPhoto")}
           </Button>
@@ -220,6 +227,12 @@ export function PlantDetailPage() {
               {plant.roomLightMatch ? <RoomLightBadge match={plant.roomLightMatch} /> : null}
             </dd>
           </div>
+          {plant.deviceId != null ? (
+            <Field
+              label={t("detail.soilMoisture")}
+              value={plant.soilMoisturePct == null ? t("detail.noReading") : `${plant.soilMoisturePct}%`}
+            />
+          ) : null}
           <Field label={t("form.speciesProfile")} value={plant.profileCommonName ?? t("detail.none")} />
           <Field label={t("detail.acquired")} value={formatDate(plant.acquiredDate, i18n.language)} />
           <Field label={t("form.lastWatered")} value={formatInstant(plant.lastWateredAt, false)} />

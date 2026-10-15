@@ -8,7 +8,7 @@ namespace PlantCare.Api.Controllers;
 [ApiController]
 [Route("api/plants")]
 [Produces("application/json")]
-public class PlantsController(IPlantService plants, ICareTaskService careTasks, IHealthCheckService healthChecks, IAppLocalizer localizer) : ControllerBase
+public class PlantsController(IPlantService plants, ICareTaskService careTasks, IHealthCheckService healthChecks, IAppLocalizer localizer, IDeviceCommandService deviceCommands, FeatureFlags features) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<PlantResponseDto>>> List(CancellationToken cancellationToken)
@@ -29,6 +29,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
         {
             PlantWriteStatus.InvalidProfile => BadRequest(new ProblemDetails { Title = localizer.T("error.unknownProfile.title"), Detail = localizer.Tf("error.unknownProfile.detail", dto.PlantProfileId!) }),
             PlantWriteStatus.InvalidRoom => BadRequest(new ProblemDetails { Title = localizer.T("error.unknownRoom.title"), Detail = localizer.Tf("error.unknownRoom.detail", dto.RoomId!) }),
+            PlantWriteStatus.InvalidDevice => BadRequest(new ProblemDetails { Title = localizer.T("error.unknownDevice.title"), Detail = localizer.Tf("error.unknownDevice.detail", dto.DeviceId!) }),
             _ => CreatedAtAction(nameof(Get), new { id = result.Plant!.Id }, result.Plant),
         };
     }
@@ -42,6 +43,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
             PlantWriteStatus.NotFound => NotFound(),
             PlantWriteStatus.InvalidProfile => BadRequest(new ProblemDetails { Title = localizer.T("error.unknownProfile.title"), Detail = localizer.Tf("error.unknownProfile.detail", dto.PlantProfileId!) }),
             PlantWriteStatus.InvalidRoom => BadRequest(new ProblemDetails { Title = localizer.T("error.unknownRoom.title"), Detail = localizer.Tf("error.unknownRoom.detail", dto.RoomId!) }),
+            PlantWriteStatus.InvalidDevice => BadRequest(new ProblemDetails { Title = localizer.T("error.unknownDevice.title"), Detail = localizer.Tf("error.unknownDevice.detail", dto.DeviceId!) }),
             _ => Ok(result.Plant),
         };
     }
@@ -74,6 +76,24 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
     {
         var plant = await plants.UndoWaterAsync(id, cancellationToken);
         return plant is null ? NotFound() : Ok(plant);
+    }
+
+    [HttpPost("{id:int}/device-water")]
+    public async Task<ActionResult> DeviceWater(int id, DeviceWaterRequestDto? dto, CancellationToken cancellationToken)
+    {
+        if (!features.DevicesEnabled)
+        {
+            return NotFound();
+        }
+
+        var result = await deviceCommands.WaterAsync(id, dto?.DurationMs, cancellationToken);
+        return result.Status switch
+        {
+            DeviceWaterStatus.PlantNotFound => NotFound(),
+            DeviceWaterStatus.NoDevice => BadRequest(new ProblemDetails { Title = localizer.T("error.noDevice.title"), Detail = localizer.T("error.noDevice.detail") }),
+            DeviceWaterStatus.PublishFailed => Problem(statusCode: 502, title: localizer.T("error.deviceOffline.title"), detail: localizer.T("error.deviceOffline.detail")),
+            _ => Accepted(),
+        };
     }
 
     [HttpPost("{id:int}/photo")]

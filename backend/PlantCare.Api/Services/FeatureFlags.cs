@@ -1,3 +1,3 @@
 namespace PlantCare.Api.Services;
 
-public sealed record FeatureFlags(bool CareTipsEnabled);
+public sealed record FeatureFlags(bool CareTipsEnabled, bool DevicesEnabled);
