@@ -1,8 +1,8 @@
 # Plant Care App
 
-A self-hosted, customizable web app for keeping track of your plants: what you own, when each one needs care, and what it needs to thrive. Deploy it with Docker on your home server or NAS and get a push notification when something needs watering.
+A self-hosted plant tracker: keep tabs on what you own, when each one needs care, and what it needs to thrive. Run it with Docker on your home server or NAS, open it from any device on your network, and get a push notification when something needs watering.
 
-Built for personal use on a local network. Single-user by design, no accounts, no cloud.
+Built for personal use on a local network. Single-user by design — no accounts, no cloud, and your data never leaves your house.
 
 ![status](https://img.shields.io/badge/status-late%20stage%20development-yellowgreen)
 ![platform](https://img.shields.io/badge/platform-all-blue)
@@ -17,196 +17,190 @@ Built for personal use on a local network. Single-user by design, no accounts, n
 - **Watering history**: one-click "mark as watered" with a per-plant log
 - **Push notifications**: a daily background check sends reminders through [ntfy](https://ntfy.sh)
 - **Care tips**: per-species light and humidity requirements plus Markdown care notes on temperature, fertilizing and more
-- **Editable species library**: profiles are seeded from a JSON file and can be extended without touching code
+- **Editable species library**: profiles ship as JSON and can be extended without touching code
 - **Bilingual**: English and Polish UI with a language switch, including species profiles, due messages and notifications
 - **Backup and restore**: JSON export/import, also available from the in-app Status page
 - **Self-watering hardware (optional)**: link ESP32-class pumps/sensors over MQTT, see live soil moisture, water on demand, and let a daily auto-water job run guarded by moisture and per-day caps (off by default)
 
-## Quick Start
+## Deploy on your own server
 
-**Requirements:** Docker with Docker Compose.
+Anything that runs Docker on your home network will do: a NAS, a mini-PC, a Raspberry Pi or a spare machine. All you need is Docker with the Compose plugin.
+
+> **Keep it on your network.** Plant Care has no login screen. Don't expose it directly to the internet - for access from outside your home, put it behind a VPN (Tailscale, WireGuard, …) or a reverse proxy that handles authentication itself.
+
+### Option A: prebuilt images (recommended for a server)
+
+Create a folder for the stack and save this as `docker-compose.yml` inside it:
+
+```yaml
+services:
+  web:
+    image: ghcr.io/m-szczepanski/plantcare-web:latest
+    ports:
+      - "3000:80"
+    volumes:
+      - plant-photos:/usr/share/nginx/html/uploads:ro
+    depends_on: [api]
+    restart: unless-stopped
+
+  api:
+    image: ghcr.io/m-szczepanski/plantcare-api:latest
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      TZ: ${TZ:-UTC}
+    volumes:
+      - plant-data:/data
+      - plant-photos:/data/uploads
+    ports:
+      - "5001:8080"
+    restart: unless-stopped
+
+  ntfy:
+    image: binwiederhier/ntfy
+    command: serve
+    ports:
+      - "${NTFY_PUBLIC_PORT:-8080}:80"
+    volumes:
+      - ntfy-data:/var/lib/ntfy
+    restart: unless-stopped
+
+volumes:
+  plant-data:
+  plant-photos:
+  ntfy-data:
+```
+
+The images are published under [`m-szczepanski`](https://github.com/m-szczepanski) on the GitHub Container Registry and are public, so no login is needed to pull them.
+
+> **Forking this repo to make it your own?** Publish your own images and change the account in both `image:` lines (e.g. `ghcr.io/<your-user>/plantcare-web:latest`). Otherwise your stack would keep pulling the upstream builds instead of the ones you changed.
+
+Then start it:
 
 ```bash
-git clone m-szczepanski/PlantCare
-cd plant-care-app
+docker compose up -d
+```
+
+The defaults work as-is. To change ports, time zone or topic, first copy [`.env.example`](.env.example) from the repository to `.env` alongside the compose file — the stack picks it up automatically.
+
+Open `http://<server-ip>:3000`. The first launch shows a short setup wizard; after that you land on the dashboard.
+
+Running your stacks from a NAS UI (Dockge, Portainer, Unraid, …) instead? Paste the same file there — it is an ordinary Compose stack.
+
+| Service | URL |
+| --------- | ----- |
+| Web app | http://&lt;server-ip&gt;:3000 |
+| ntfy (notification UI) | http://&lt;server-ip&gt;:8080 |
+| API (optional, direct access) | http://&lt;server-ip&gt;:5001 |
+
+### Option B: build from source
+
+Best for a quick look or if you want to change the code.
+
+```bash
+git clone https://github.com/m-szczepanski/PlantCare.git
+cd PlantCare
 cp .env.example .env
 docker compose up -d --build
 ```
 
-| Service | URL |
-|---------|-----|
-| Web app | http://localhost:3000 |
-| API | http://localhost:5001 |
-| ntfy | http://localhost:8080 |
-| MQTT broker (optional) | `localhost:1883` |
+### Notifications
 
-To receive notifications, subscribe to your topic (default `plant-care`) in the [ntfy](https://ntfy.sh) mobile or desktop app. In the app, first **add your own server** (it defaults to the public `ntfy.sh`) pointing at your ntfy host — e.g. `http://<your-nas-ip>:<port>` (the published port is `NTFY_PUBLIC_PORT`, `8080` by default; set it to whatever you map `ntfy` on, e.g. `7272`) — then subscribe to the `plant-care` topic. You can also open the browser UI at `http://localhost:8080/plant-care`. The in-app **Status page** shows the resolved subscribe link, a live ntfy reachability probe and the configured delivery channels, and has a **Send test notification** button (plus **Run watering check now**) to verify end-to-end delivery to your phone without waiting for the daily schedule.
+Watering reminders are delivered through [ntfy](https://ntfy.sh), which ships with the stack — nothing to sign up for.
+
+1. Install the ntfy app on your phone (or use its desktop/browser client).
+2. Add your own server, pointing at your host, e.g. `http://<server-ip>:8080`.
+3. Subscribe to the topic `plant-care`.
+4. In PlantCare, open the **Status** page and press **Send test notification** to confirm it arrives.
+
+If you map the `ntfy` service on a different host port, set `NTFY_PUBLIC_PORT` to match — the app uses it to build the subscribe link it shows you. You can also open the notification UI directly at `http://<server-ip>:8080/plant-care`.
+
+### Updating to a new version
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+Your data is untouched: it lives in named volumes, and any database changes are applied automatically when the app starts.
+
+### Where your data lives
+
+Everything is stored in named volumes — the database in `plant-data`, uploaded photos in `plant-photos`, notification history in `ntfy-data`. They survive restarts, updates and container recreation.
+
+> Never run `docker compose down -v` unless you intend to erase all of it — that flag deletes the volumes.
 
 ## Configuration
 
-All settings are read from `.env`. See [`.env.example`](.env.example) for the full list.
+Every setting is optional; sensible defaults are built in. Copy `.env.example` to `.env` and change what you need. The ones people usually touch:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `WATERING_CHECK_CRON` | `0 8 * * *` | Cron schedule for the daily due-plants check |
-| `NTFY_TOPIC` | `plant-care` | ntfy topic that notifications are published to |
-| `NTFY_URL` | `http://ntfy:80` | Container-network URL the API publishes to |
-| `NTFY_PUBLIC_PORT` | `8080` | Host port ntfy is published on — used to build the phone/browser subscribe link (set to e.g. `7272` if you map it there; must match the `ntfy` service `ports:` mapping) |
-| `ENABLE_CARE_TIPS` | `true` | Show species care tips in the plant detail view |
-| `ENABLE_DEVICES` | `false` | Enable the self-watering / sensor device surfaces (MQTT) |
-| `MQTT_HOST` / `MQTT_PORT` | `mqtt` / `1883` | Broker the API connects to for devices |
-| `MQTT_TOPIC_PREFIX` | `plantcare` | Topic namespace for device command/state |
-| `DEVICE_WATERING_CRON` | `0 8 * * *` | Cron for the scheduled auto-water job |
-| `DB_CONNECTIONSTRING` | `Data Source=/data/plantcare.db` | EF Core connection string |
+| Setting | Default | What it does |
+| --------- | --------- | -------------- |
+| `TZ` | `UTC` | Time zone used for the daily check |
+| `WATERING_CHECK_CRON` | `0 8 * * *` | When the daily watering check runs (08:00 by default) |
+| `NTFY_TOPIC` | `plant-care` | Topic reminders are sent to |
+| `NTFY_PUBLIC_PORT` | `8080` | Host port ntfy is published on (must match the `ports:` mapping) |
+| `APP_LANGUAGE` | `en` | Language for notifications — `en` or `pl` |
+| `ENABLE_CARE_TIPS` | `true` | Show the species care-tips section |
+| `ENABLE_DEVICES` | `false` | Turn on the optional self-watering hardware |
 
-Use `docker-compose.override.yml` (copy from `docker-compose.override.yml.example`) for local tweaks such as changing ports.
-
-### Customizing species and care tips
-
-Species defaults (watering interval, light requirement, humidity notes, care tips) live in JSON under [`backend/PlantCare.Api/Seed/`](backend/PlantCare.Api/Seed/). Edit or extend the file to add your own species. You can also create and edit profiles from the app.
-
-### Theming
-
-Styling is centralized in `frontend/tailwind.config.ts`, so you can restyle the app without touching component logic.
-
-### Using PostgreSQL
-
-SQLite is the default and needs no extra setup. To switch to PostgreSQL, change the EF Core provider and set `DB_CONNECTIONSTRING`; no application code changes are required.
-
-## How It Works
-
-1. A [Coravel](https://github.com/jamesmh/coravel) scheduled job runs on `WATERING_CHECK_CRON`.
-2. It selects plants whose care is due today or overdue, using the plant's custom interval if set and the species default otherwise.
-3. For each plant not yet notified today, it publishes a message to the configured ntfy topic and records it in the notification log, which prevents duplicate reminders.
-4. A failed send is logged and skipped, so an ntfy outage never interrupts the run or blocks other plants.
+The full list — including device, MQTT and PostgreSQL settings — is documented in [`.env.example`](.env.example). Local-only experiments can go in a `docker-compose.override.yml` (copy from `docker-compose.override.yml.example`), which Compose loads automatically.
 
 ## Self-watering devices (optional)
 
-Off by default. With `ENABLE_DEVICES=true`, PlantCare can drive ESP32-class
-pumps/valves and read soil-moisture sensors over MQTT:
+Off by default. If you have — or want to try — ESP32-class pumps and soil-moisture sensors, PlantCare can drive them over MQTT using the bundled Mosquitto broker.
 
-1. Set `ENABLE_DEVICES=true` and `docker compose up -d --build` — the `mqtt`
-   Mosquitto sidecar comes up with it.
-2. Add the device on the **Devices** page (the app assigns it an id).
-3. Flash the matching firmware from [`docs/firmware/`](docs/firmware/README.md)
-   (ESPHome by default, or a Tasmota relay), pointed at your broker and that id.
-4. Link the device to a plant in the plant form. You then get live soil moisture,
-   a **Water now** button, and — via `DEVICE_WATERING_CRON` — automatic watering
-   for due plants, guarded by a moisture threshold, a duration cap and a per-day
-   cap.
+1. **Add the broker to your stack.** Append this service to the `services:` block in your compose file (a sibling of `web` and `api`), and save the config file from [`mosquitto/mosquitto.conf`](mosquitto/mosquitto.conf) to `mosquitto/mosquitto.conf` next to that file:
 
-No hardware needed to try it: [`tools/stub-device.py`](tools/stub-device.py)
-simulates a device so the whole loop runs end to end. The full topic schema,
-config (`MOISTURE_*` / `WATER_*` / `MQTT_*`) and safety rules are in
-[`docs/hardware-integration.md`](docs/hardware-integration.md).
+   ```yaml
+   mqtt:
+     image: eclipse-mosquitto:2
+     restart: unless-stopped
+     ports:
+       - "1883:1883"
+     volumes:
+       - mqtt-data:/mosquitto/data
+       - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+   ```
 
-## Tech Stack
+   Then add one line — `mqtt-data:` — to your existing top-level `volumes:` block. Both halves are required: without the volume declaration Compose refuses to start, and the config must be a real file, not just a folder (Mosquitto 2 otherwise listens on localhost only and the app could never reach it).
 
-| Layer | Technology |
-|-------|------------|
-| Backend | ASP.NET Core Web API (.NET 10) |
-| Data | EF Core with SQLite (PostgreSQL supported via provider change) |
-| Scheduling | Coravel |
-| Frontend | React, Vite, TypeScript, TanStack Query |
-| UI | shadcn/ui, Tailwind CSS |
-| Notifications | ntfy |
-| Devices | MQTT (Mosquitto) + ESPHome/Tasmota (optional) |
-| Deployment | Docker Compose, nginx |
+2. **Set `ENABLE_DEVICES=true`** in `.env` and run `docker compose up -d`.
+3. **Add the device** on the **Devices** page — the app assigns it an id.
+4. **Flash the matching firmware** from [`docs/firmware/`](docs/firmware/README.md) (ESPHome by default, or a Tasmota relay), pointed at your broker and that id.
+5. **Link it to a plant.** You then get live soil moisture, a **Water now** button, and automatic watering for due plants — guarded by a moisture threshold, a duration cap and a per-day cap.
 
-## Project Structure
+No hardware yet? [`tools/stub-device.py`](tools/stub-device.py) stands in for a device so you can watch the whole loop work end to end.
 
-```text
-plant-care-app/
-├── backend/
-│   ├── PlantCare.Api/          # ASP.NET Core Web API
-│   │   ├── Controllers/        # REST endpoints
-│   │   ├── Models/             # EF Core entities
-│   │   ├── Dtos/               # Request/response contracts
-│   │   ├── Data/               # DbContext and migrations
-│   │   ├── Services/           # Scheduling, notifications, care logic
-│   │   └── Seed/               # Default species profiles (JSON)
-│   └── PlantCare.Api.Tests/    # xUnit tests
-├── frontend/                   # React + Vite SPA
-│   └── src/
-│       ├── components/
-│       ├── pages/
-│       ├── api/                # Typed API client
-│       ├── hooks/              # TanStack Query hooks
-│       └── lib/
-├── mosquitto/                  # MQTT broker config (optional devices)
-├── tools/                      # stub-device.py simulator
-├── docs/                       # Project documentation (incl. firmware/)
-├── docker-compose.yml
-├── .env.example
-└── AGENTS.md                   # Contributor and agent guidelines
-```
-
-## API Overview
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/plants` | List plants with due status |
-| `POST` | `/api/plants` | Create a plant |
-| `GET` | `/api/plants/{id}` | Plant detail, including care tips when available |
-| `PUT` | `/api/plants/{id}` | Update a plant |
-| `DELETE` | `/api/plants/{id}` | Delete a plant |
-| `POST` | `/api/plants/{id}/water` | Log a watering |
-| `GET` | `/api/plants/{id}/watering-logs` | Watering history, newest first |
-| `GET` | `/api/plant-profiles` | List species profiles |
-| `POST` | `/api/plant-profiles` | Create a profile (`409` on duplicate name) |
-| `PUT` | `/api/plant-profiles/{id}` | Update a profile (`409` on duplicate name) |
-| `GET` | `/api/dashboard` | Due today, overdue and upcoming summary |
-| `GET` | `/api/devices` | List self-watering/monitoring devices (`ENABLE_DEVICES`) |
-| `POST` | `/api/devices` | Create a device |
-| `PUT` | `/api/devices/{id}` | Update a device |
-| `DELETE` | `/api/devices/{id}` | Delete a device |
-| `POST` | `/api/plants/{id}/device-water` | Publish a "water now" command to the plant's device |
-| `GET` | `/api/export` | Download a JSON backup |
-| `POST` | `/api/import` | Import a JSON backup |
-| `GET` | `/health` | Liveness probe |
+The full topic schema, settings and safety rules are in [`docs/hardware-integration.md`](docs/hardware-integration.md).
 
 ## Backups
 
-**Export and import.** `GET /api/export` downloads a JSON snapshot of rooms, plant profiles, plants with care tasks, watering logs, notes and journal entries. The same action is available from the Status page in the app. `POST /api/import` accepts that document and merges it by natural key (room name, profile common name, plant nickname). Existing records are skipped, so importing the same backup twice is safe.
+**Export and import.** The **Status** page has buttons to download and restore a JSON snapshot of your rooms, species profiles, plants, care tasks, watering logs, notes and journal entries. Restoring merges by name, so importing the same backup twice is safe.
 
-**Volumes.** Uploaded photo files are not part of the JSON snapshot. To back up everything, also archive the `plant-data` and `plant-photos` volumes:
+**Photos.** Uploaded images are not part of that snapshot. To back up everything, also archive the volumes (this briefly stops the stack):
 
 ```bash
 docker compose down
-docker run --rm -v plantcare-app_plant-data:/data -v "$PWD:/backup" alpine \
+docker run --rm -v plantcare_plant-data:/data -v "$PWD:/backup" alpine \
   tar czf /backup/plant-data-backup.tgz /data
-docker run --rm -v plantcare-app_plant-photos:/data -v "$PWD:/backup" alpine \
+docker run --rm -v plantcare_plant-photos:/data -v "$PWD:/backup" alpine \
   tar czf /backup/plant-photos-backup.tgz /data
 ```
 
-Adjust the volume prefix to match your Compose project name. To restore, extract the archives into fresh volumes.
+Compose prefixes volume names with the project name (the folder name, here `plantcare`) — adjust if yours differs. To restore, extract the archives into fresh volumes.
 
-## Development
+## Customizing it
 
-**Backend**
+**Species and care tips.** Profiles ship as JSON ([`backend/PlantCare.Api/Seed/`](backend/PlantCare.Api/Seed/)) and can be added or edited from the app itself. You can also drop extra profile files into the `SEED_CUSTOM_PATH` folder inside the `plant-data` volume to extend the library without rebuilding anything.
 
-```bash
-cd backend/PlantCare.Api
-dotnet run
-
-# tests
-cd ../PlantCare.Api.Tests
-dotnet test
-```
-
-**Frontend**
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Every schema change must ship with an EF Core migration in the same commit.
+**Look and feel.** Colors, fonts and spacing are defined as design tokens in [`frontend/src/index.css`](frontend/src/index.css) (Tailwind CSS v4), so you can restyle the app without touching component logic.
 
 ## Scope
 
-Plant Care App is intentionally small. Multi-user authentication, a native mobile app and cloud sync are out of scope. It is meant to run on your own network as a personal template you can adapt.
+Plant Care App is intentionally small. Multi-user authentication, a native mobile app and cloud sync are out of scope. It is meant to run on your own network as a personal template you can adapt — if you fork it, publish your own images and update the `image:` names in the deploy guide above.
 
 ## Documentation
 
@@ -217,7 +211,8 @@ Plant Care App is intentionally small. Multi-user authentication, a native mobil
 
 ## Contributing
 
-Contributions are welcome. Keep changes small and scoped, one feature slice per pull request. See [`AGENTS.md`](AGENTS.md) for coding conventions and workflow.
+Contributions are welcome. Keep changes small and scoped — one feature slice per pull request. See [`AGENTS.md`](AGENTS.md) for coding conventions and workflow.
 
-- **Backend:** standard .NET naming, thin controllers, business logic in `Services/`, DTOs kept separate from EF entities
-- **Frontend:** functional components, TanStack Query for server state, a typed API client, shadcn/ui components composed rather than modified in place
+Developed with ASP.NET Core (.NET 10) and EF Core (SQLite, PostgreSQL optional) on the backend, React + Vite + TypeScript with shadcn/ui and Tailwind CSS on the frontend, Coravel for scheduling, and optional MQTT (Mosquitto with ESPHome/Tasmota firmware) for devices.
+
+Every schema change ships with an EF Core migration in the same commit.
