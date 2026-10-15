@@ -22,6 +22,13 @@ frontend/
 
 ## Approach
 
+### Build toolchain
+
+- Node 24.15+ (`engines` in `package.json`) — the Dockerfile builds on `node:24-alpine` and CI matches. Toolchain: Vite 8 (Rolldown), `@vitejs/plugin-react` 6, Vitest 5 + Testing Library, TypeScript 7, oxlint.
+- Bundle chunking uses Vite 8's `build.rollupOptions.output.codeSplitting.groups` (`markdown` = `react-markdown` + its deps, `vendor` = `react`/`react-dom`/`react-router-dom`/`@tanstack/react-query`) because Rolldown dropped Rollup's object-form `manualChunks`.
+- `overrides.postcss-selector-parser` forces `^7.1.6` for the version `@tailwindcss/typography` pins (`6.0.10`, advisory GHSA-rj75-hqrm-r3gf); the generated CSS is byte-identical under the override.
+- TypeScript 7 removed `baseUrl`; the `@/*` path alias resolves relative to `tsconfig.json` via `paths` alone.
+
 ### SPA, not SSR
 
 No Next.js / server-side rendering. This is a personal, self-hosted app on a local network — a static SPA behind nginx is the simplest deployment that still gives a full app experience.
