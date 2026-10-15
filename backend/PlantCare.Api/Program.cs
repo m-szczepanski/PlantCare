@@ -64,6 +64,12 @@ if (builder.Configuration.GetValue("ENABLE_DEVICES", false))
     builder.Services.AddSingleton<MqttDeviceBus>();
     builder.Services.AddSingleton<IDeviceBus>(sp => sp.GetRequiredService<MqttDeviceBus>());
     builder.Services.AddHostedService(sp => sp.GetRequiredService<MqttDeviceBus>());
+
+    builder.Services.AddSingleton(new DeviceStateOptions(
+        builder.Configuration.GetValue("MOISTURE_WET_THRESHOLD_PCT", 60),
+        builder.Configuration.GetValue("SOIL_WET_DEFER_DAYS", 1)));
+    builder.Services.AddScoped<IDeviceStateIngestor, DeviceStateIngestor>();
+    builder.Services.AddHostedService<DeviceStateService>();
 }
 
 var defaultLanguage = builder.Configuration["APP_LANGUAGE"] ?? "en";

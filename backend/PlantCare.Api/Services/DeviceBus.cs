@@ -10,6 +10,23 @@ public static class DeviceTopics
     public static string State(string prefix, int deviceId) => $"{prefix}/{deviceId}/state";
 
     public static string StatePattern(string prefix) => $"{prefix}/+/state";
+
+    /// <summary>
+    /// Extracts the device id from a state topic of the form
+    /// <c>{prefix}/{deviceId}/state</c>. Returns false for anything else
+    /// (custom per-device state topics are not subscribed yet).
+    /// </summary>
+    public static bool TryParseStateTopic(string topic, out int deviceId)
+    {
+        deviceId = 0;
+        var parts = topic.Split('/');
+        if (parts.Length < 3 || parts[^1] != "state" || !int.TryParse(parts[^2], out deviceId))
+        {
+            return false;
+        }
+
+        return true;
+    }
 }
 
 /// <summary>

@@ -142,6 +142,8 @@ All runtime knobs come from environment variables / `.env`:
 | `MQTT_HOST` / `MQTT_PORT` | Broker the MQTT device bus connects to (defaults `mqtt` / `1883`) |
 | `MQTT_USERNAME` / `MQTT_PASSWORD` | Optional broker auth (empty = anonymous, LAN default) |
 | `MQTT_TOPIC_PREFIX` | Topic namespace for device command/state topics (default `plantcare`) |
+| `MOISTURE_WET_THRESHOLD_PCT` | Moisture at/above which a reading defers the plant via soil-wet (default `60`) |
+| `SOIL_WET_DEFER_DAYS` | Days a wet reading pushes the watering due date out (default `1`) |
 
 ### Photo storage
 
