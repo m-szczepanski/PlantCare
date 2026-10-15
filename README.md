@@ -35,7 +35,7 @@ Create a folder for the stack and save this as `docker-compose.yml` inside it:
 ```yaml
 services:
   web:
-    image: ghcr.io/<owner>/plantcare-web:latest
+    image: ghcr.io/m-szczepanski/plantcare-web:latest
     ports:
       - "3000:80"
     volumes:
@@ -44,7 +44,7 @@ services:
     restart: unless-stopped
 
   api:
-    image: ghcr.io/<owner>/plantcare-api:latest
+    image: ghcr.io/m-szczepanski/plantcare-api:latest
     env_file:
       - path: .env
         required: false
@@ -73,7 +73,9 @@ volumes:
   ntfy-data:
 ```
 
-`<owner>` is the GitHub account publishing the images. The packages are public, so no login is needed to pull them.
+The images are published under [`m-szczepanski`](https://github.com/m-szczepanski) on the GitHub Container Registry and are public, so no login is needed to pull them.
+
+> **Forking this repo to make it your own?** Publish your own images and change the account in both `image:` lines (e.g. `ghcr.io/<your-user>/plantcare-web:latest`). Otherwise your stack would keep pulling the upstream builds instead of the ones you changed.
 
 Then start it:
 
@@ -198,7 +200,7 @@ Compose prefixes volume names with the project name (the folder name, here `plan
 
 ## Scope
 
-Plant Care App is intentionally small. Multi-user authentication, a native mobile app and cloud sync are out of scope. It is meant to run on your own network as a personal template you can adapt.
+Plant Care App is intentionally small. Multi-user authentication, a native mobile app and cloud sync are out of scope. It is meant to run on your own network as a personal template you can adapt — if you fork it, publish your own images and update the `image:` names in the deploy guide above.
 
 ## Documentation
 
