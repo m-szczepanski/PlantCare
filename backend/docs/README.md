@@ -139,6 +139,9 @@ All runtime knobs come from environment variables / `.env`:
 | `PHOTO_STORAGE_PATH` | Directory for uploaded plant photos (default `/data/uploads`, the `plant-photos` volume; override for bare local runs) |
 | `ENABLE_CARE_TIPS` | Set to `false` to hide the care tips section on plant detail (default on) |
 | `ENABLE_DEVICES` | Gates the self-watering / sensor device surfaces (device endpoints + plant `deviceId`/`soilMoisturePct`); default `false` |
+| `MQTT_HOST` / `MQTT_PORT` | Broker the MQTT device bus connects to (defaults `mqtt` / `1883`) |
+| `MQTT_USERNAME` / `MQTT_PASSWORD` | Optional broker auth (empty = anonymous, LAN default) |
+| `MQTT_TOPIC_PREFIX` | Topic namespace for device command/state topics (default `plantcare`) |
 
 ### Photo storage
 

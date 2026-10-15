@@ -1,12 +1,14 @@
 # Hardware Integration — Design & Implementation Plan
 
-> Status: **in progress** (Epic 11). Chunk 1 (`feature/device-model`) is
-> implemented — `Device` entity + `Plant.DeviceId` + device CRUD + plant DTO
-> fields, all gated by `ENABLE_DEVICES` (default off). MQTT (`feature/mqtt-bus`)
-> and the rest are still pending. The chunk breakdown and acceptance criteria
-> live in `improvement-plan.md` § Epic 11; this document is the design decision
-> record and the source of truth for the transport, topic schema, data model
-> and safety rules.
+> Status: **in progress** (Epic 11). Chunks 1–2 are implemented —
+> `feature/device-model` (`Device` entity + `Plant.DeviceId` + device CRUD + plant
+> DTO fields) and `feature/mqtt-bus` (MQTTnet bus + Mosquitto compose service +
+> `tools/stub-device.py`), all gated by `ENABLE_DEVICES` (default off). Monitoring
+> ingestion (`feature/soil-moisture-monitoring`), manual water and scheduled
+> auto-water are still pending. The chunk breakdown and acceptance criteria live
+> in `improvement-plan.md` § Epic 11; this document is the design decision record
+> and the source of truth for the transport, topic schema, data model and safety
+> rules.
 
 ## Goal
 

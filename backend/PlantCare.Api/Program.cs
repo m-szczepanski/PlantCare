@@ -46,6 +46,26 @@ builder.Services.AddSingleton(new FeatureFlags(
     builder.Configuration.GetValue("ENABLE_CARE_TIPS", true),
     builder.Configuration.GetValue("ENABLE_DEVICES", false)));
 
+var mqttHost = builder.Configuration["MQTT_HOST"] ?? "mqtt";
+var mqttPort = int.TryParse(builder.Configuration["MQTT_PORT"], out var parsedMqttPort) && parsedMqttPort is > 0 and < 65536
+    ? parsedMqttPort
+    : 1883;
+builder.Services.AddSingleton(new MqttOptions(
+    mqttHost,
+    mqttPort,
+    builder.Configuration["MQTT_USERNAME"],
+    builder.Configuration["MQTT_PASSWORD"],
+    builder.Configuration["MQTT_TOPIC_PREFIX"] ?? "plantcare"));
+
+// The MQTT bus only connects when the feature is on, so a disabled install
+// never reaches for a broker that is not there.
+if (builder.Configuration.GetValue("ENABLE_DEVICES", false))
+{
+    builder.Services.AddSingleton<MqttDeviceBus>();
+    builder.Services.AddSingleton<IDeviceBus>(sp => sp.GetRequiredService<MqttDeviceBus>());
+    builder.Services.AddHostedService(sp => sp.GetRequiredService<MqttDeviceBus>());
+}
+
 var defaultLanguage = builder.Configuration["APP_LANGUAGE"] ?? "en";
 builder.Services.AddSingleton(new AppLanguageOptions(
     PlantCare.Api.Services.Localization.Messages.IsSupported(defaultLanguage) ? defaultLanguage : "en"));

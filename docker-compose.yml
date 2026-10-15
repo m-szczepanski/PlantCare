@@ -50,8 +50,18 @@ services:
     volumes:
       - ntfy-data:/var/lib/ntfy
 
+  mqtt:
+    image: eclipse-mosquitto:2
+    restart: unless-stopped
+    ports:
+      - "1883:1883"          # LAN only; not exposed to the internet
+    volumes:
+      - mqtt-data:/mosquitto/data
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+
 volumes:
   plant-data:
   plant-photos:
   pg-data:
   ntfy-data:
+  mqtt-data:
