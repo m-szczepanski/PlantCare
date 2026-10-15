@@ -1,0 +1,137 @@
+# PlantCare self-watering device — ESPHome (ESP32) reference template.
+#
+# The default PlantCare device: an ESP32 driving a pump or solenoid valve
+# through a relay/MOSFET, with an analog soil-moisture probe. It listens for
+# water commands on `plantcare/<device_id>/command` and publishes its moisture
+# reading plus a one-shot `watered` confirmation on `plantcare/<device_id>/state`.
+#
+# Setup:
+#   1. Copy this file into your ESPHome config dir (e.g. plantcare-1.yaml).
+#   2. Set `device_id` to the numeric id the app shows for the device
+#      (Devices page -> command/state topic preview).
+#   3. Create/complete `secrets.yaml` with wifi_ssid, wifi_password, mqtt_broker
+#      and (if your broker needs them) mqtt_username / mqtt_password.
+#   4. `esphome run plantcare-1.yaml`
+#
+# Requires ESPHome 2024.x+ (ArduinoJson v7) and matches the contract in
+# docs/hardware-integration.md.
+
+substitutions:
+  device_name: plantcare-1
+  friendly_name: PlantCare Pump 1
+  # Numeric device id from the app (Devices page). Keep this in sync.
+  device_id: "1"
+  # Topic namespace — must match MQTT_TOPIC_PREFIX in the app.
+  mqtt_prefix: "plantcare"
+  # GPIO driving the relay / MOSFET gate.
+  pump_pin: GPIO4
+  # Analog pin for the soil-moisture probe (drop the `sensor:` block if unused).
+  moisture_pin: GPIO34
+  # Firmware-level hard cap on one watering, in seconds. Keep <= the app's
+  # WATER_MAX_DURATION_MS / 1000 so the firmware is the true backstop.
+  max_water_seconds: "60"
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+logger:
+
+# Optional: only needed if you also want the node to appear in Home Assistant.
+api:
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+mqtt:
+  broker: !secret mqtt_broker
+  username: !secret mqtt_username
+  password: !secret mqtt_password
+
+  # Pulse style: JSON carrying the requested duration.
+  on_json_message:
+    - topic: ${mqtt_prefix}/${device_id}/command
+      then:
+        - lambda: |-
+            id(water_duration_ms) = x["durationMs"] | (${max_water_seconds} * 1000UL);
+        - script.execute:
+            id: water_cycle
+            duration_ms: !lambda "return id(water_duration_ms);"
+
+  # OnOff / Tasmota style: a bare "ON" — self-time to the hard cap.
+  on_message:
+    - topic: ${mqtt_prefix}/${device_id}/command
+      then:
+        - if:
+            condition:
+              lambda: 'return x == "ON";'
+            then:
+              - script.execute:
+                  id: water_cycle
+                  duration_ms: !lambda "return ${max_water_seconds} * 1000UL;"
+
+globals:
+  - id: water_duration_ms
+    type: uint32_t
+
+output:
+  - platform: gpio
+    pin: ${pump_pin}
+    id: pump_relay
+
+switch:
+  - platform: output
+    output: pump_relay
+    id: pump
+    name: "${friendly_name} pump"
+    # The pump stopping is the confirmation the app waits for. Published
+    # non-retained: `watered` is a one-shot event, not a reading.
+    on_turn_off:
+      - mqtt.publish:
+          topic: ${mqtt_prefix}/${device_id}/state
+          payload: '{"watered":true}'
+          retain: false
+
+script:
+  - id: water_cycle
+    # restart: a new command while watering simply restarts the timer.
+    mode: restart
+    parameters:
+      duration_ms: uint32_t
+    then:
+      - switch.turn_on: pump
+      - delay: !lambda "return duration_ms;"
+      - switch.turn_off: pump
+
+sensor:
+  - platform: adc
+    pin: ${moisture_pin}
+    id: soil_moisture
+    name: "${friendly_name} soil moisture"
+    attenuation: 11db
+    update_interval: 30s
+    unit_of_measurement: "%"
+    filters:
+      # Calibrate for your probe: raw voltage at 0% and 100% soil moisture.
+      - calibrate_linear:
+          - 2.6 -> 0.0
+          - 1.2 -> 100.0
+      - clamp:
+          min_value: 0.0
+          max_value: 100.0
+    on_value:
+      # Retained so a (re)connecting app shows the latest reading immediately.
+      - mqtt.publish:
+          topic: ${mqtt_prefix}/${device_id}/state
+          retain: true
+          payload: !lambda |-
+            return "{\"moisturePct\":" + std::to_string((int) id(soil_moisture).state) + ",\"waterLevel\":\"ok\"}";

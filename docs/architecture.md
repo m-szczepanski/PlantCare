@@ -7,15 +7,20 @@
 │   frontend   │ ────────────────► │     api      │ ─────► │ SQLite  │
 │ React + Vite │                   │ ASP.NET Core │        │ (EF Core│
 │    (nginx)   │ ◄──────────────── │  (Kestrel)   │        │  file)  │
-└──────────────┘                   └──────┬───────┘        └─────────┘
-                                          │ POST (daily job)
-                                          ▼
-                                   ┌──────────────┐
-                                   │     ntfy     │ → phone/desktop push
-                                   └──────────────┘
+└──────────────┘                   └───┬──────┬───┘        └─────────┘
+                                       │      │ POST (daily job)
+                                       │      ▼
+                                       │  ┌──────────────┐
+                                       │  │     ntfy     │ → phone/desktop push
+                                       │  └──────────────┘
+                                       ▼
+                            ┌────────────────────┐   ESP32 device
+                            │        mqtt        │◄── (ESPHome / Tasmota)
+                            │     (Mosquitto)    │    optional: Home Assistant
+                            └────────────────────┘
 ```
 
-All services run side by side in a single Docker Compose project on the user's machine (local network).
+All services run side by side in a single Docker Compose project on the user's machine (local network). The `mqtt` sidecar is optional — it is only used when `ENABLE_DEVICES` is on.
 
 ## Layers & Responsibilities
 
@@ -24,6 +29,7 @@ All services run side by side in a single Docker Compose project on the user's m
 | `web` (frontend) | Static SPA served by nginx; talks only to the REST API |
 | `api` (backend) | REST endpoints, business rules, EF Core persistence, daily watering scheduler, ntfy publishing |
 | `ntfy` | Off-the-shelf self-hosted push notification relay; the API is just an HTTP client of it |
+| `mqtt` | Off-the-shelf Mosquitto broker (LAN-only sidecar) carrying device commands/state between the API and ESP32-class hardware; opt-in via `ENABLE_DEVICES` |
 
 ## Key Architectural Decisions
 
@@ -35,6 +41,7 @@ All services run side by side in a single Docker Compose project on the user's m
 6. **Thin controllers** — controllers only map HTTP ↔ DTOs; business logic (due-date computation, notification dedup) lives in `Services/`.
 7. **Photos on a shared volume, served by nginx** — uploads are written by the API to the `plant-photos` volume (`/data/uploads`) and served statically by the web container from the same volume under `/uploads/*` (read-only mount). The DB only stores the `/uploads/...` path in `Plant.PhotoUrl`. Chosen over API-served files (no image bandwidth through the app) and over mounting `plant-data` itself (would expose the SQLite DB through the web root).
 8. **UI language: EN + PL, catalog-driven** — the SPA owns all interface strings via i18next (`en`/`pl` JSON catalogs, toggle next to the theme picker, preference in `localStorage`, browser-language default). Server-generated text (due messages, digests, hints, ICS, ProblemDetails) comes from a static backend message catalog resolved from `Accept-Language` (or `APP_LANGUAGE` for background jobs). Species content is localized in the DB via a `PlantProfileTranslation` table (per-profile, per-language rows with per-field fallback to the canonical English profile), seeded from `Seed/plant-profiles.<lang>.json`. Enums deliberately stay stable English PascalCase keys on the wire — labels are a presentation concern.
+9. **MQTT for hardware, off by default** — self-watering and monitoring appliances are ESP32-class and speak MQTT natively (ESPHome/Tasmota), so the app gets an MQTTnet client and a self-hosted Mosquitto sidecar rather than bespoke firmware or a hard Home Assistant dependency (HA can peer on the same broker). The app stays the brain: `WateringScheduleService` is untouched and hardware is just another producer of "this plant was watered" and consumer of "is this plant due". Gated by `ENABLE_DEVICES` (default off), so v1 behaviour is identical without hardware. See `docs/hardware-integration.md`.
 
 ## Data Flow: Watering Notification
 
@@ -45,8 +52,28 @@ Coravel cron fires (WATERING_CHECK_CRON)
   → write NotificationLog row (dedup: max one per plant per day)
 ```
 
+## Data Flow: Device Watering (optional)
+
+```
+Coravel cron fires (DEVICE_WATERING_CRON)          [only when ENABLE_DEVICES]
+  → DeviceWateringService collects due plants that have a linked device
+  → safety guards: moisture threshold, duration cap, per-day cap, soil-wet deferral
+  → publish {"action":"water","durationMs":N} to plantcare/{deviceId}/command
+     (or a single ON for OnOff/Tasmota devices)
+  → device waters, self-times on its own auto-off, then publishes
+     {"watered":true} to plantcare/{deviceId}/state
+  → DeviceStateIngestor re-anchors the watering task via IPlantService.WaterAsync
+     (the exact same path as POST /api/plants/{id}/water)
+  → DeviceWateringLog marks the command confirmed; an unconfirmed command past
+     the timeout is reported once through the notification channels
+```
+
+A moisture reading also flows *in*: `{"moisturePct":N}` on the state topic updates
+the device's latest reading and, when wet, defers the linked plant via the
+existing `SoilWetUntil` logic.
+
 ## Boundaries
 
 - The frontend has **no direct DB access** and no server-side rendering; everything goes through `/api/*`.
-- The backend has **no outbound dependencies** other than ntfy (optional — app degrades gracefully if ntfy is unreachable, notifications just don't go out).
+- The backend's outbound dependencies are both optional and degrade gracefully: **ntfy** (notifications just don't go out if unreachable) and the **MQTT broker** (used only when `ENABLE_DEVICES`; a broker outage is logged and reconnected, never crashes the API).
 - Schema evolution only via EF Core migrations, committed with the code that needs them.

@@ -83,8 +83,8 @@ optional topic overrides):
 | Style | How a water command is emitted | Typical target |
 |-------|--------------------------------|----------------|
 | `Pulse` (default) | one message `{"action":"water","durationMs":N}`; device self-times | ESPHome script / smart pump |
-| `OnOff` | publish ON, wait `durationMs`, publish OFF | generic relay, Zigbee2MQTT, HA switch |
-| `Tasmota` | `POWER ON`, wait `durationMs`, `POWER OFF` | Tasmota `cmnd/<topic>/POWER` |
+| `OnOff` | publish a single `ON`; the device's own auto-off is the backstop | generic relay, Zigbee2MQTT, HA switch |
+| `Tasmota` | publish a single `ON` to `cmnd/<topic>/POWER`; Tasmota `PulseTime` auto-offs | Tasmota relay |
 
 `CommandTopic` / `StateTopic` overrides map an appliance that already owns its
 MQTT convention (e.g. `zigbee2mqtt/<name>/set`); left empty they default to
@@ -92,37 +92,12 @@ MQTT convention (e.g. `zigbee2mqtt/<name>/set`); left empty they default to
 not per-device free-form) so the backend stays "to the point".
 
 Reference firmware templates (ESPHome default, plus a Tasmota equivalent) ship
-with the feature under `docs/firmware/` and are written before any hardware is
-owned — they are the flash-ready "default device":
-
-```yaml
-# ESPHome sketch — PlantCare default device (illustrative; the shipped template
-# is the source of truth and adds duration parsing from the command message).
-output:
-  - platform: gpio
-    pin: GPIO4
-    id: pump_relay
-switch:
-  - platform: output
-    name: "Water"
-    output: pump_relay
-    id: water_valve
-    on_turn_on:
-      - delay: 15s          # firmware-level auto-off: the safety backstop
-      - switch.turn_off: water_valve
-    on_turn_off:
-      - mqtt.publish:
-          topic: plantcare/<device-id>/state
-          payload: '{"watered":true}'
-mqtt:
-  on_message:
-    - topic: plantcare/<device-id>/command
-      then:
-        - switch.turn_on: water_valve
-```
-
-The Tasmota equivalent is two commands on `cmnd/<topic>/POWER` (`ON` then, after
-the duration, `OFF`) — no custom firmware at all.
+under [`docs/firmware/`](firmware/README.md) — the flash-ready "default device",
+written before any hardware is owned. The ESPHome template drives a relay and
+parses `durationMs` from the command, with a firmware-level auto-off as the
+backstop; the Tasmota equivalent is a single `ON` on `cmnd/<topic>/POWER` with
+the board's `PulseTime` doing the auto-off — no custom firmware at all. Both
+publish readings retained and the `watered` event non-retained.
 
 ## Topic schema
 
@@ -131,31 +106,36 @@ which doubles as its MQTT identifier.
 
 | Topic | Direction | Payload (JSON) |
 |-------|-----------|----------------|
-| `plantcare/{deviceId}/command` | app → device | `{"action":"water","durationMs":15000,"plantId":"<guid>"}` |
-| `plantcare/{deviceId}/state` | device → app | `{"watered":true,"moisturePct":42,"waterLevel":"ok","ts":"2026-10-15T08:00:00Z"}` |
+| `plantcare/{deviceId}/command` | app → device | `{"action":"water","durationMs":15000,"plantId":12}` |
+| `plantcare/{deviceId}/state` | device → app | reading: `{"moisturePct":42,"waterLevel":"ok","ts":"2026-10-15T08:00:00Z"}` · event: `{"watered":true}` |
 
-- `state` is **retained** so a (re)connecting app immediately sees the latest
-  reading.
-- `waterLevel` is `ok` / `low` / `empty`.
-- The `command` payload above is the `Pulse` style; `OnOff`/`Tasmota` send plain
-  `ON`/`OFF` (or `POWER ON`/`OFF`) instead — see Interoperability.
+- Publish **readings retained** (so a reconnecting app immediately sees the
+  latest value) and the one-shot **`watered` event non-retained** (it is an event,
+  not a reading, and must not be replayed).
+- `waterLevel` is `ok` / `low` / `empty`; `ts` is optional (defaults to receipt
+  time).
+- The `command` payload above is the `Pulse` style; `OnOff`/`Tasmota` send a
+  single plain `ON` instead (the device self-times) — see Interoperability.
 - Unknown JSON fields are ignored on both sides (forward-compatible).
 
 ## Data model
 
 ```
 Device
-- Id (guid — the MQTT identifier)
+- Id (int — also the MQTT identifier)
 - Name
 - Type (enum: Valve / Pump / Sensor, stored as text)   // Sensor = read-only, no actuation
 - CommandStyle (enum: Pulse / OnOff / Tasmota, stored as text, default Pulse)
 - CommandTopic (string?, nullable)   // override; empty → plantcare/{id}/command
-- StateTopic (string?, nullable)     // override; empty → plantcare/{id}/state
+- StateTopic (string?, nullable)     // override; stored, but not subscribed yet
 - LastMoisturePct (int?, nullable)
 - WaterLevel (string, nullable: ok/low/empty)
 - LastSeenAt (instant, nullable)
 
-Plant.DeviceId (guid?, nullable FK → Device, SetNull on delete)
+DeviceWateringLog   // one row per auto-water command, for confirmation + dedup
+- Id, PlantId (FK), DeviceId (FK), SentAt, ConfirmedAt (nullable), ReportedAt (nullable)
+
+Plant.DeviceId (int?, nullable FK → Device, SetNull on delete)
 ```
 
 The latest reading is **mirrored on the `Device`** (same pattern as
@@ -163,22 +143,23 @@ The latest reading is **mirrored on the `Device`** (same pattern as
 touch a history table. A per-reading history log (`DeviceReading`) is a later
 optional add, not part of the MVP.
 
-Migration: `AddDevices` (new `Devices` table + `Plant.DeviceId` column),
-provider-portable, committed with `feature/device-model`.
+Migrations: `AddDevices` (new `Devices` table + `Plant.DeviceId` column) and
+`AddDeviceWateringLog`, provider-portable, committed with their chunks.
 
 ## API surface
 
 ```
-GET    /api/devices                list devices (+ latest reading)
-POST   /api/devices                create {name, type, topic?}
+GET    /api/devices                list devices (+ latest reading, plant count)
+POST   /api/devices                create {name, type, commandStyle, commandTopic?, stateTopic?}
+GET    /api/devices/{id}           single device
 PUT    /api/devices/{id}           update
 DELETE /api/devices/{id}           delete (plants keep DeviceId → set null)
-POST   /api/devices/{id}/water     manual "water now" — publish a command
+POST   /api/plants/{id}/device-water   manual "water now" — publish a command to the plant's device
 ```
 
 Plant create/update accepts `deviceId`; plant DTOs carry `deviceId`,
-`soilMoisturePct` and `soilMoistureAge` (age of the last reading, null when
-none). The device endpoints and the plant DTO fields are all behind
+`soilMoisturePct` and `soilMoistureAgeMinutes` (age of the last reading, null
+when none). The device endpoints and the plant DTO fields are all behind
 `ENABLE_DEVICES`.
 
 ## Safety rules (the actual work in slice 3)
@@ -191,10 +172,11 @@ none). The device endpoints and the plant DTO fields are all behind
   `WATER_MAX_DURATION_MS` (default 60 000).
 - **Per-day cap:** at most `AUTO_WATER_MAX_PER_DAY` (default 1) command per
   device per day.
-- **Respect existing deferrals:** `SnoozedUntil` (vacation) and `SoilWetUntil`
-  ("soil still wet") are honoured automatically because the due-plant
-  collection reuses `WateringScheduleService`; a wet sensor reading additionally
-  maps onto the soil-wet deferral.
+- **Respect soil-wet deferrals:** `SoilWetUntil` ("soil still wet") is honoured
+  because the due-plant collection reuses `WateringScheduleService`, and a wet
+  sensor reading maps onto the same deferral. Vacation snooze does **not** block
+  auto-watering — `SnoozedUntil` is a notification-only mute and watering while
+  away is the point; the moisture and per-day guards are the real safety net.
 - **Feedback timeout:** if a device does not report `watered: true` within
   `WATER_FEEDBACK_TIMEOUT_MS`, the run logs the failure, surfaces it in the
   digest, and does **not** auto-retry the same day.
@@ -209,6 +191,8 @@ none). The device endpoints and the plant DTO fields are all behind
 | `MQTT_HOST` / `MQTT_PORT` | Broker address (container name in compose) | `mqtt` / `1883` |
 | `MQTT_USERNAME` / `MQTT_PASSWORD` | Optional broker auth (LAN default: none) | empty |
 | `MQTT_TOPIC_PREFIX` | Topic namespace | `plantcare` |
+| `MOISTURE_WET_THRESHOLD_PCT` | Reading at/above this defers the plant (soil-wet) | `60` |
+| `SOIL_WET_DEFER_DAYS` | Days a wet reading pushes the due date out | `1` |
 | `DEVICE_WATERING_CRON` | Cron for the auto-water job | `0 8 * * *` |
 | `WATER_MAX_DURATION_MS` | Hard cap on command duration | `60000` |
 | `MOISTURE_AUTO_WATER_THRESHOLD_PCT` | Wet threshold for auto-water | `40` |
@@ -226,7 +210,7 @@ mqtt:
     - "1883:1883"        # LAN only; not exposed to the internet
   volumes:
     - mqtt-data:/mosquitto/data
-    - ./mosquitto/config:/mosquitto/config
+    - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
 ```
 
 Auth is optional for a LAN-only install; the ESP32 and the API connect on the
@@ -264,12 +248,12 @@ they own a device.
 
 ## When implemented, update
 
-- `docs/architecture.md` — add the `mqtt` service and the MQTT data flow.
-- `docs/overview.md` — list devices in the data model, API surface and compose.
-- `backend/docs/README.md` — device endpoints + `MQTT_*`/`WATER_*` config table.
-- `frontend/docs/README.md` — devices page, "Water now" button, moisture display.
-- `.env.example` — the new variables above.
-- Root `README.md` — hardware section (wiring guide, topic table).
+- `docs/architecture.md` — add the `mqtt` service and the MQTT data flow. ✅
+- `docs/overview.md` — list devices in the data model, API surface and compose. ✅
+- `backend/docs/README.md` — device endpoints + `MQTT_*`/`WATER_*` config table. ✅
+- `frontend/docs/README.md` — devices page, "Water now" button, moisture display. ✅
+- `.env.example` — the new variables above. ✅
+- Root `README.md` — hardware section (wiring guide, topic table). ✅
 - `docs/firmware/` — ship the ESPHome (default) + Tasmota reference templates and
   the `tools/stub-device` simulator, so the feature is runnable and flashable
-  without owned hardware.
+  without owned hardware. ✅
