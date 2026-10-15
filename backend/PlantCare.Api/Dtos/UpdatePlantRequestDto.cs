@@ -11,6 +11,8 @@ public class UpdatePlantRequestDto
 
     public int? RoomId { get; set; }
 
+    public int? DeviceId { get; set; }
+
     [StringLength(500)]
     public string? PhotoUrl { get; set; }
 

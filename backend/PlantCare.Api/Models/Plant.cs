@@ -14,6 +14,10 @@ public class Plant
 
     public Room? Room { get; set; }
 
+    public int? DeviceId { get; set; }
+
+    public Device? Device { get; set; }
+
     public string? PhotoUrl { get; set; }
 
     public int? PotSizeCm { get; set; }

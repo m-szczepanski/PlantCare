@@ -29,6 +29,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
         {
             PlantWriteStatus.InvalidProfile => BadRequest(new ProblemDetails { Title = localizer.T("error.unknownProfile.title"), Detail = localizer.Tf("error.unknownProfile.detail", dto.PlantProfileId!) }),
             PlantWriteStatus.InvalidRoom => BadRequest(new ProblemDetails { Title = localizer.T("error.unknownRoom.title"), Detail = localizer.Tf("error.unknownRoom.detail", dto.RoomId!) }),
+            PlantWriteStatus.InvalidDevice => BadRequest(new ProblemDetails { Title = localizer.T("error.unknownDevice.title"), Detail = localizer.Tf("error.unknownDevice.detail", dto.DeviceId!) }),
             _ => CreatedAtAction(nameof(Get), new { id = result.Plant!.Id }, result.Plant),
         };
     }
@@ -42,6 +43,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
             PlantWriteStatus.NotFound => NotFound(),
             PlantWriteStatus.InvalidProfile => BadRequest(new ProblemDetails { Title = localizer.T("error.unknownProfile.title"), Detail = localizer.Tf("error.unknownProfile.detail", dto.PlantProfileId!) }),
             PlantWriteStatus.InvalidRoom => BadRequest(new ProblemDetails { Title = localizer.T("error.unknownRoom.title"), Detail = localizer.Tf("error.unknownRoom.detail", dto.RoomId!) }),
+            PlantWriteStatus.InvalidDevice => BadRequest(new ProblemDetails { Title = localizer.T("error.unknownDevice.title"), Detail = localizer.Tf("error.unknownDevice.detail", dto.DeviceId!) }),
             _ => Ok(result.Plant),
         };
     }

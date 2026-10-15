@@ -11,6 +11,7 @@ public enum PlantWriteStatus
     NotFound,
     InvalidProfile,
     InvalidRoom,
+    InvalidDevice,
 }
 
 public sealed record PlantWriteResult(PlantWriteStatus Status, PlantResponseDto? Plant = null);
@@ -70,6 +71,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         var plants = await db.Plants
             .Include(p => p.PlantProfile!.Translations)
             .Include(p => p.Room)
+            .Include(p => p.Device)
             .Include(p => p.CareTasks)
             .OrderBy(p => p.NickName)
             .ToListAsync(cancellationToken);
@@ -82,6 +84,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         var plant = await db.Plants
             .Include(p => p.PlantProfile!.Translations)
             .Include(p => p.Room)
+            .Include(p => p.Device)
             .Include(p => p.CareTasks)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
@@ -100,10 +103,16 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             return new PlantWriteResult(PlantWriteStatus.InvalidRoom);
         }
 
+        if (features.DevicesEnabled && dto.DeviceId is not null && !await DeviceExistsAsync(dto.DeviceId.Value, cancellationToken))
+        {
+            return new PlantWriteResult(PlantWriteStatus.InvalidDevice);
+        }
+
         var plant = new Plant
         {
             NickName = dto.NickName.Trim(),
             RoomId = dto.RoomId,
+            DeviceId = features.DevicesEnabled ? dto.DeviceId : null,
             PhotoUrl = dto.PhotoUrl,
             PotSizeCm = dto.PotSizeCm,
             SoilType = dto.SoilType,
@@ -147,8 +156,14 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             return new PlantWriteResult(PlantWriteStatus.InvalidRoom);
         }
 
+        if (features.DevicesEnabled && dto.DeviceId is not null && !await DeviceExistsAsync(dto.DeviceId.Value, cancellationToken))
+        {
+            return new PlantWriteResult(PlantWriteStatus.InvalidDevice);
+        }
+
         plant.NickName = dto.NickName.Trim();
         plant.RoomId = dto.RoomId;
+        plant.DeviceId = features.DevicesEnabled ? dto.DeviceId : null;
         plant.PhotoUrl = dto.PhotoUrl;
         plant.PotSizeCm = dto.PotSizeCm;
         plant.SoilType = dto.SoilType;
@@ -191,6 +206,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         var plant = await db.Plants
             .Include(p => p.PlantProfile!.Translations)
             .Include(p => p.Room)
+            .Include(p => p.Device)
             .Include(p => p.CareTasks)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
@@ -228,6 +244,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         var plant = await db.Plants
             .Include(p => p.PlantProfile!.Translations)
             .Include(p => p.Room)
+            .Include(p => p.Device)
             .Include(p => p.CareTasks)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
@@ -350,6 +367,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         var plant = await db.Plants
             .Include(p => p.PlantProfile!.Translations)
             .Include(p => p.Room)
+            .Include(p => p.Device)
             .Include(p => p.CareTasks)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
         if (plant is null)
@@ -370,6 +388,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         var plant = await db.Plants
             .Include(p => p.PlantProfile!.Translations)
             .Include(p => p.Room)
+            .Include(p => p.Device)
             .Include(p => p.CareTasks)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
         if (plant is null)
@@ -403,6 +422,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         var plant = await db.Plants
             .Include(p => p.PlantProfile!.Translations)
             .Include(p => p.Room)
+            .Include(p => p.Device)
             .Include(p => p.CareTasks)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
         if (plant is null)
@@ -423,6 +443,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         var plant = await db.Plants
             .Include(p => p.PlantProfile!.Translations)
             .Include(p => p.Room)
+            .Include(p => p.Device)
             .Include(p => p.CareTasks)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
         if (plant is null)
@@ -488,6 +509,9 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
     private async Task<bool> RoomExistsAsync(int roomId, CancellationToken cancellationToken)
         => await db.Rooms.AnyAsync(r => r.Id == roomId, cancellationToken);
 
+    private async Task<bool> DeviceExistsAsync(int deviceId, CancellationToken cancellationToken)
+        => await db.Devices.AnyAsync(d => d.Id == deviceId, cancellationToken);
+
     private static CareTask? WateringTask(Plant plant)
         => plant.CareTasks.FirstOrDefault(t => t.Type == CareTaskType.Watering);
 
@@ -507,6 +531,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             .AsNoTracking()
             .Include(p => p.PlantProfile!.Translations)
             .Include(p => p.Room)
+            .Include(p => p.Device)
             .Include(p => p.CareTasks)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
@@ -534,6 +559,11 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
             NotifyEnabled = plant.NotifyEnabled,
             SnoozedUntil = plant.SnoozedUntil,
             SoilWetUntil = plant.SoilWetUntil,
+            DeviceId = features.DevicesEnabled ? plant.DeviceId : null,
+            SoilMoisturePct = features.DevicesEnabled ? plant.Device?.LastMoisturePct : null,
+            SoilMoistureAgeMinutes = features.DevicesEnabled && plant.Device?.LastSeenAt is { } seen
+                ? (int)(DateTime.UtcNow - seen).TotalMinutes
+                : null,
             AcquiredDate = plant.AcquiredDate,
             PlantProfileId = plant.PlantProfileId,
             ProfileCommonName = ProfileTranslations.LocalizedCommonName(profile, translation) ?? plant.PlantProfile?.CommonName,

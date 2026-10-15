@@ -62,7 +62,16 @@ GET    /api/reference-data/soil-types   pickable soil types with their watering-
 GET    /api/status                 scheduler cron, last job run, last digest, live ntfy probe (reachable/latency + browser-facing subscribe URL) and the list of configured delivery channels
 POST   /api/notifications/test     sends an ad-hoc test push through every configured `INotificationChannel`; body `{ message? }` (blank -> localized default); returns per-channel `delivered`/`error` results and never fails a channel aborts the rest
 POST   /api/notifications/run-check runs the daily watering check immediately (same path as the Coravel job; honors the once-per-day digest dedup)
+
+GET    /api/devices                list devices (+ latest reading, plant count)
+POST   /api/devices                create device {name, type, commandStyle, commandTopic?, stateTopic?}
+GET    /api/devices/{id}           single device
+PUT    /api/devices/{id}           update device
+DELETE /api/devices/{id}           delete device (plants keep existing, DeviceId set null)
 ```
+
+> The device endpoints and the plant `deviceId`/`soilMoisturePct` fields are
+> gated by `ENABLE_DEVICES` (default `false` — every route returns 404 when off).
 
 Profile data: `DiagnosisChecklist` is a validated JSON array (`[{symptom, causes[]}]`, `DiagnosisChecklist.TryValidate`) served inside `PlantProfile` responses and the embedded care tips; `ToxicToPets`/`ToxicToChildren` flags surface on cards, the detail page and the watering digest. `SeedLoader` also scans `SEED_CUSTOM_PATH` (default `/data/seed-custom`, on the plant-data volume) at startup for drop-in `*.json` user species — existing names skipped, malformed files logged and ignored. (single source of truth). ICS output uses CRLF line endings with 74-char folding and text escaping; adherence counts logs in the last 30 days against `window / interval` expectations; a streak is consecutive recent waterings whose gaps stay within `interval + 2` days.
 
@@ -71,6 +80,7 @@ Profile data: `DiagnosisChecklist` is a validated JSON array (`[{symptom, causes
 - **`PlantProfile`** — species-level defaults (common/scientific name, `DefaultWateringIntervalDays`, `LightRequirement` enum Low/Medium/Bright/DirectSun, humidity notes, care tips text/markdown). Seeded from JSON in `Seed/`.
 - **`PlantProfileTranslation`** — per-language localized profile content (`Language` two-letter code, nullable `CommonName`/`HumidityNotes`/`CareTips`/`DiagnosisChecklist`), FK-cascaded with a unique `(PlantProfileId, Language)` index. The English row on `PlantProfile` stays canonical; reads fall back field-by-field (`ProfileTranslations`). Shipped languages come from `Seed/plant-profiles.<lang>.json` (keyed by the English `commonName`, upserted at startup); PUT `/api/plant-profiles/{id}` in a non-English request language upserts that language's translation row (structural fields stay on the canonical row).
 - **`Room`** — a physical room: `Name` (unique), optional `Orientation` (North/East/South/West) and environment params (`LightExposure` reusing the `LightRequirement` scale, `Humidity` Low/Medium/High, `TemperatureCelsius`). Replaced the old free-text `Plant.Location` (migration copies distinct values into rooms and rewires the FK).
+- **`Device`** — a self-watering / monitoring appliance (ESP32-class, MQTT-backed): `Name`, `Type` (Valve/Pump/Sensor, stored as text), `CommandStyle` (Pulse/OnOff/Tasmota), optional `CommandTopic`/`StateTopic` overrides, and a latest-reading mirror (`LastMoisturePct`, `WaterLevel` Ok/Low/Empty, `LastSeenAt`). `Plant.DeviceId` references it (SetNull on delete). Reading ingestion over MQTT arrives in a later chunk; the device CRUD + plant link are live behind `ENABLE_DEVICES`.
 - **`CareTask`** — one recurring activity per plant+type (`Watering`, `Fertilizing`, `Repotting`, `TopUpWatering`): `IntervalDays` (null = profile default for watering; for `TopUpWatering` null means the derived half-cycle, see "Top-up watering" below), `LastDoneAt`, `ReduceInWinter` (null = profile's `DefaultReduceInWinter`). `CareTaskLog` rows record completions (note + watering-only `AmountMilliliters`/`Method`). This replaced the old `WateringLog` table and the `CustomWateringIntervalDays`/`LastWateredAt` columns (data migrated in `AddCareTasks`); the `/water` and `/watering-logs` endpoints kept their contracts via the task layer.
 
 ### Top-up watering (`feature/top-up-water`)
@@ -128,6 +138,7 @@ All runtime knobs come from environment variables / `.env`:
 | `POSTGRES_PASSWORD` | Password for the optional `db` service under the `postgres` compose profile |
 | `PHOTO_STORAGE_PATH` | Directory for uploaded plant photos (default `/data/uploads`, the `plant-photos` volume; override for bare local runs) |
 | `ENABLE_CARE_TIPS` | Set to `false` to hide the care tips section on plant detail (default on) |
+| `ENABLE_DEVICES` | Gates the self-watering / sensor device surfaces (device endpoints + plant `deviceId`/`soilMoisturePct`); default `false` |
 
 ### Photo storage
 

@@ -42,7 +42,9 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
-builder.Services.AddSingleton(new FeatureFlags(builder.Configuration.GetValue("ENABLE_CARE_TIPS", true)));
+builder.Services.AddSingleton(new FeatureFlags(
+    builder.Configuration.GetValue("ENABLE_CARE_TIPS", true),
+    builder.Configuration.GetValue("ENABLE_DEVICES", false)));
 
 var defaultLanguage = builder.Configuration["APP_LANGUAGE"] ?? "en";
 builder.Services.AddSingleton(new AppLanguageOptions(
@@ -57,6 +59,7 @@ builder.Services.AddScoped<IWateringScheduleService, WateringScheduleService>();
 builder.Services.AddScoped<IPlantService, PlantService>();
 builder.Services.AddScoped<IPlantProfileService, PlantProfileService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
+builder.Services.AddScoped<IDeviceService, DeviceService>();
 builder.Services.AddScoped<ICareTaskService, CareTaskService>();
 builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
 builder.Services.AddScoped<IJournalService, JournalService>();

@@ -109,6 +109,28 @@ Acceptance criteria:
 - `feature/health-checkup-ui`: a plant older than 30 days with no (or ≥30-day-old) checkup shows a prompt on the dashboard banner and the card; answering takes one tap (+optional note); the badge shows the current status with icon+text (not color alone); all strings EN/PL.
 - `feature/health-checkup-reminders`: the daily job includes a checkup-due section; per-plant reminders are stamped and re-sent at most every 30 days; a run with no due waterings but pending checkups still sends one digest; muted/snoozed plants are skipped; channel failure never crashes the run.
 
+## Epic 11 — Hardware & Self-Watering Devices
+
+> Design decisions (transport, topic schema, data model, safety rules) live in
+> `hardware-integration.md`. Ships as one PR: `feature/esp32-integration`. No
+> physical hardware is required to build or verify any chunk — a simulated
+> device (`tools/stub-device`) stands in until real hardware exists.
+
+| Branch | Deliverable | Depends on | Covers idea |
+|--------|-------------|------------|-------------|
+| `feature/device-model` | `Device` entity (`Name`, `Type` Valve/Pump/Sensor, `CommandStyle` Pulse/OnOff/Tasmota + optional `CommandTopic`/`StateTopic` overrides, latest-reading mirror `LastMoisturePct`/`WaterLevel`/`LastSeenAt`), `Plant.DeviceId` FK (SetNull), `AddDevices` migration, device CRUD endpoints, `deviceId`/`soilMoisturePct`/`soilMoistureAge` on plant DTOs, `ENABLE_DEVICES` flag | — | Func: device registry |
+| `feature/mqtt-bus` | Mosquitto compose service + `MQTTnet` client behind `IDeviceBus` (`IHostedService`), topic schema, `MQTT_*` env config, reconnect-without-crash behaviour, `tools/stub-device` simulator (no hardware needed) | device-model | Func: MQTT transport |
+| `feature/soil-moisture-monitoring` | Subscribe to `plantcare/{deviceId}/state`, mirror latest moisture/water-level on the device, surface soil moisture on plant card/detail; a "wet" reading defers the plant via the existing soil-wet logic | mqtt-bus | Func: sensor-fed plant values |
+| `feature/manual-water` | "Water now" button publishing a command; device `watered:true` feedback re-anchors the watering task via the existing mark-done logic | mqtt-bus | Func: human-in-the-loop actuation |
+| `feature/scheduled-auto-water` | `DeviceWateringJob` (Coravel) emits water commands for due plants with linked devices, guarded by moisture threshold, duration cap, per-day cap, snooze/soil-wet respect and feedback timeout | manual-water, soil-moisture-monitoring | Func: automatic watering |
+
+Acceptance criteria:
+- `feature/device-model`: a device can be created, linked to a plant, and its latest reading surfaced on the plant DTO; unlinking/deleting a device sets the plant's `DeviceId` null; migration committed and provider-portable; all strings EN/PL; `ENABLE_DEVICES=false` hides every hardware surface without code changes.
+- `feature/mqtt-bus`: the API connects to Mosquitto from a clean `docker compose up`; publish/subscribe round-trips against a stub device; a lost broker connection degrades gracefully (logged, reconnects, never crashes the API).
+- `feature/soil-moisture-monitoring`: a `state` message with `moisturePct` updates the plant's displayed moisture; a "wet" reading defers the plant via the existing soil-wet logic; no actuation occurs in this chunk.
+- `feature/manual-water`: "Water now" publishes a command to the correct topic; a `watered:true` feedback message marks the task done (re-anchors the schedule) with no duplicate log row; absent/failed feedback leaves the schedule unchanged and surfaces a toast.
+- `feature/scheduled-auto-water`: the job waters only due plants with a linked device; respects the moisture threshold, duration cap, per-day cap, snooze and soil-wet; reports feedback failures in the digest without auto-retrying; at most one command per plant per day; disabled by default and env-gated.
+
 ## Progress
 
 - `feature/theme-toggle` — done. `ThemeProvider` + `useTheme` (light/dark/system, persisted in `localStorage`, system-following), `ModeToggle` dropdown in the header, pre-paint FOUC script in `index.html`, Vitest coverage; dark tokens unchanged in `index.css`.
@@ -137,7 +159,7 @@ Acceptance criteria:
 - **Epic 5 ships as one PR: `epic/rooms-environment`** — two of three chunks done:
   - `feature/room-entity` — `Room` (name unique, orientation) + EF migration that copies distinct `Plants.Location` values into rooms and rewires `Plant.RoomId` (free-text column dropped); rooms CRUD (`/api/rooms`, 409 on duplicate, SetNull on delete); room picker + inline "quickly add a room" in the plant form; `/rooms` admin page with per-room plant list; dashboard `?group=room` view. ntfy text now uses the room name.
   - `feature/room-environment` — optional room params (light exposure, humidity, temperature °C) with a second migration; `RoomLightMatch` computed server-side (profile `LightRequirement` vs room exposure, `Good/Slightly*/MuchToo*`), surfaced as `RoomLightBadge` on detail and in the rooms view ("wrong room" flag at ≥2 levels).
-  - `feature/room-sensors` — **deferred: the plan itself flags this as needing a design decision first** (which smart-home source: MQTT/HA, read-only sync model, secrets). No code was invented for it; revisit as its own epic-6-style slice once the source is chosen.
+  - `feature/room-sensors` — **deferred: the plan itself flags this as needing a design decision first** (which smart-home source: MQTT/HA, read-only sync model, secrets). No code was invented for it. The source decision is now made — MQTT (Mosquitto + ESPHome/Tasmota, Home Assistant optional) — and is recorded in `hardware-integration.md`; Epic 11 ships that MQTT bus for per-plant soil moisture + actuation, and a room-level feed can later reuse the same bus.
 - **Epic 6 ships as one PR: `epic/care-tasks`** — all six chunks done (this was the deliberate invasive-migration window; the API surface stayed compatible throughout):
   - `feature/care-task-model` — typed `CareTask` (`Watering`/`Fertilizing`/`Repotting`) + `CareTaskLog` replace `WateringLog` + the plant's interval/last-watered columns (`AddCareTasks` migration moves all data); `/water` and `/watering-logs` kept working unchanged; generic `GET/POST/DELETE /api/plants/{id}/care-tasks*` with "mark as done" per type; insights/adherence/streaks now computed from tasks.
   - `feature/fertilizing-schedule` — Fertilizing task type with add/remove/mark-done UI in `CareTasksCard` + server hints: winter rest (Dec–Feb) and flush-soil reminder at ~120 days (`CareTaskHints`).
@@ -191,12 +213,19 @@ Acceptance criteria:
   - Deviation: `feature/soil-type-schedule` originally *shortened* watering for permeable mixes; per the "top up instead of shortening" decision the fast-draining factors now act as 1.0 — existing plants keep their schedule length and gain the top-up prompt (`CareTaskHints` hint + `hint.topUpWatering` explain it). Acceptance: unit (`WateringScheduleServiceTests`, `CareTaskHintsTests`) + integration (`TopUpWateringApiTests`, `SoilTypeApiTests`) cover the derivation, sync, absorption, digest and DTO fields; frontend `PlantCard`/`PlantForm` tests cover the surfaces.
 
 
+- **Hardware device registry ships as `feature/device-model`** (Epic 11, chunk 1 of 5) — done. Backend-only foundation for self-watering/monitoring appliances; no MQTT wiring yet (that is `feature/mqtt-bus`).
+  - `Device` entity (`Name`, `Type` Valve/Pump/Sensor, `CommandStyle` Pulse/OnOff/Tasmota, optional `CommandTopic`/`StateTopic` overrides, latest-reading mirror `LastMoisturePct`/`WaterLevel`/`LastSeenAt`) + `Plant.DeviceId` FK (SetNull); `AddDevices` migration (provider-portable: no hard-coded column types, Npgsql identity annotation on the id).
+  - `GET/POST/PUT/DELETE /api/devices` behind `IDeviceService`; plant create/update accept `deviceId` (validated as existing — 400 with `error.unknownDevice.*` EN/PL when not); plant DTOs carry `deviceId`/`soilMoisturePct`/`soilMoistureAgeMinutes`.
+  - Gated by `ENABLE_DEVICES` (default false): when off, every `/api/devices` route returns 404, plant `deviceId` is ignored on write and null on read — v1 behaviour is unchanged without the flag.
+  - Deviations: the plan's `soilMoistureAge` is implemented as `soilMoistureAgeMinutes` (explicit units); device `Name` is not unique (unlike `Room`); plant↔device links are not yet in export/import (deferred). Tests: `DeviceApiTests` + `DeviceDisabledApiTests`.
+
 ## Suggested sequencing
 
 1. Epics 1 and 3 first — they change how the app feels with zero schema risk.
 2. Epic 5 (rooms) before Epic 9's bulk-water and before room-dependent views.
 3. Epic 6's `care-task-model` is the one invasive migration — schedule a deliberate window, keep watering behavior intact.
 4. Epics 7 and 8 can interleave with 2 and 4 based on interest.
+5. Epic 11 (hardware) is independent of the others and can land whenever hardware is wanted — build monitoring (slice 1) before actuation (slices 2–3) so the MQTT path is proven read-only first.
 
 ## Explicitly deferred / not planned
 

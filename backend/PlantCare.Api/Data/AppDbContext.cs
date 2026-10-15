@@ -27,6 +27,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<PlantHealthCheck> PlantHealthChecks => Set<PlantHealthCheck>();
 
+    public DbSet<Device> Devices => Set<Device>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<PlantProfile>(entity =>
@@ -67,6 +69,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .WithMany(r => r.Plants)
                 .HasForeignKey(p => p.RoomId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(p => p.Device)
+                .WithMany(d => d.Plants)
+                .HasForeignKey(p => p.DeviceId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<Device>(entity =>
+        {
+            entity.Property(d => d.Type).HasConversion<string>();
+            entity.Property(d => d.CommandStyle).HasConversion<string>();
+            entity.Property(d => d.WaterLevel).HasConversion<string>();
         });
 
         modelBuilder.Entity<PlantHealthCheck>(entity =>
