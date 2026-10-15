@@ -145,6 +145,12 @@ All runtime knobs come from environment variables / `.env`:
 | `MQTT_TOPIC_PREFIX` | Topic namespace for device command/state topics (default `plantcare`) |
 | `MOISTURE_WET_THRESHOLD_PCT` | Moisture at/above which a reading defers the plant via soil-wet (default `60`) |
 | `SOIL_WET_DEFER_DAYS` | Days a wet reading pushes the watering due date out (default `1`) |
+| `DEVICE_WATERING_CRON` | Cron for the scheduled auto-water job (default `0 8 * * *`) |
+| `WATER_MAX_DURATION_MS` | Hard cap on a water command duration (default `60000`) |
+| `MOISTURE_AUTO_WATER_THRESHOLD_PCT` | Auto-water only below this moisture (default `40`) |
+| `ALLOW_AUTO_WATER_WITHOUT_READING` | Auto-water when there is no reading yet (default `false`) |
+| `AUTO_WATER_MAX_PER_DAY` | Max commands per plant per day (default `1`) |
+| `WATER_FEEDBACK_TIMEOUT_MS` | Report a command the device never confirmed (default `30000`) |
 
 ### Photo storage
 

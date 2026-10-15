@@ -29,6 +29,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<Device> Devices => Set<Device>();
 
+    public DbSet<DeviceWateringLog> DeviceWateringLogs => Set<DeviceWateringLog>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<PlantProfile>(entity =>
@@ -81,6 +83,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(d => d.Type).HasConversion<string>();
             entity.Property(d => d.CommandStyle).HasConversion<string>();
             entity.Property(d => d.WaterLevel).HasConversion<string>();
+        });
+
+        modelBuilder.Entity<DeviceWateringLog>(entity =>
+        {
+            entity.HasOne<Plant>()
+                .WithMany()
+                .HasForeignKey(l => l.PlantId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(l => new { l.PlantId, l.SentAt });
         });
 
         modelBuilder.Entity<PlantHealthCheck>(entity =>

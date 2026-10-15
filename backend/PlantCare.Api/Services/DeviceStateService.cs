@@ -143,6 +143,15 @@ public sealed class DeviceStateIngestor(AppDbContext db, DeviceStateOptions opti
             .Select(p => p.Id)
             .ToListAsync(cancellationToken);
 
+        // Confirm any pending auto-water command for these plants.
+        var pending = await db.DeviceWateringLogs
+            .Where(l => plantIds.Contains(l.PlantId) && l.ConfirmedAt == null)
+            .ToListAsync(cancellationToken);
+        foreach (var log in pending)
+        {
+            log.ConfirmedAt = DateTime.UtcNow;
+        }
+
         var recentlyWateredBefore = DateTime.UtcNow.AddMinutes(-WateredDedupMinutes);
         foreach (var plantId in plantIds)
         {
@@ -155,6 +164,8 @@ public sealed class DeviceStateIngestor(AppDbContext db, DeviceStateOptions opti
 
             await plantService.WaterAsync(plantId, localizer.T("device.wateredNote"), cancellationToken: cancellationToken);
         }
+
+        await db.SaveChangesAsync(cancellationToken);
     }
 }
 

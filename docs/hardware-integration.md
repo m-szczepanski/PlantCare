@@ -1,16 +1,16 @@
 # Hardware Integration — Design & Implementation Plan
 
-> Status: **in progress** (Epic 11). Chunks 1–4 are implemented —
-> `feature/device-model` (`Device` entity + `Plant.DeviceId` + device CRUD + plant
-> DTO fields), `feature/mqtt-bus` (MQTTnet bus + Mosquitto compose service +
-> `tools/stub-device.py`), `feature/soil-moisture-monitoring` (state ingestion +
-> wet-reading soil-wet deferral) and `feature/manual-water` (`POST
-> /api/plants/{id}/device-water` + `watered:true` feedback → mark-done), all gated
-> by `ENABLE_DEVICES` (default off). Scheduled auto-water (`feature/scheduled-auto-water`)
-> and the frontend devices UI are still pending. The chunk breakdown and acceptance
-> criteria live in `improvement-plan.md` § Epic 11; this document is the design
-> decision record and the source of truth for the transport, topic schema, data
-> model and safety rules.
+> Status: **backend complete** (Epic 11, chunks 1–5). Everything through
+> `feature/scheduled-auto-water` is implemented and gated by `ENABLE_DEVICES`
+> (default off): `Device` registry + plant link, MQTTnet bus + Mosquitto +
+> `tools/stub-device.py`, state ingestion + wet-reading soil-wet deferral, manual
+> `POST /api/plants/{id}/device-water` + `watered:true` feedback, and the
+> scheduled auto-water job with its safety guards. Remaining: the frontend
+> devices UI (Devices page, plant-form device picker, "Water now" button,
+> moisture readout). The chunk breakdown and acceptance criteria live in
+> `improvement-plan.md` § Epic 11; this document is the design decision record
+> and the source of truth for the transport, topic schema, data model and safety
+> rules.
 
 ## Goal
 

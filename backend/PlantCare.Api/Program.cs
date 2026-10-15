@@ -68,6 +68,14 @@ builder.Services.AddSingleton(new DeviceStateOptions(
 builder.Services.AddScoped<IDeviceStateIngestor, DeviceStateIngestor>();
 builder.Services.AddScoped<IDeviceCommandService, DeviceCommandService>();
 
+builder.Services.AddSingleton(new DeviceWateringOptions(
+    builder.Configuration.GetValue("WATER_MAX_DURATION_MS", 60_000),
+    builder.Configuration.GetValue("MOISTURE_AUTO_WATER_THRESHOLD_PCT", 40),
+    builder.Configuration.GetValue("ALLOW_AUTO_WATER_WITHOUT_READING", false),
+    builder.Configuration.GetValue("AUTO_WATER_MAX_PER_DAY", 1),
+    builder.Configuration.GetValue("WATER_FEEDBACK_TIMEOUT_MS", 30_000)));
+builder.Services.AddScoped<IDeviceWateringService, DeviceWateringService>();
+
 if (builder.Configuration.GetValue("ENABLE_DEVICES", false))
 {
     builder.Services.AddHostedService(sp => sp.GetRequiredService<MqttDeviceBus>());
@@ -122,6 +130,7 @@ if (!string.IsNullOrWhiteSpace(telegramToken) && !string.IsNullOrWhiteSpace(tele
 builder.Services.AddScheduler();
 builder.Services.AddScoped<IWateringCheckService, WateringCheckService>();
 builder.Services.AddTransient<WateringCheckJob>();
+builder.Services.AddTransient<DeviceWateringJob>();
 
 var app = builder.Build();
 
@@ -161,7 +170,14 @@ app.MapControllers();
 
 var schedulerLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Coravel.Scheduler");
 app.Services
-    .UseScheduler(scheduler => scheduler.Schedule<WateringCheckJob>().Cron(builder.Configuration["WATERING_CHECK_CRON"] ?? "0 8 * * *"))
+    .UseScheduler(scheduler =>
+    {
+        scheduler.Schedule<WateringCheckJob>().Cron(builder.Configuration["WATERING_CHECK_CRON"] ?? "0 8 * * *");
+        if (builder.Configuration.GetValue("ENABLE_DEVICES", false))
+        {
+            scheduler.Schedule<DeviceWateringJob>().Cron(builder.Configuration["DEVICE_WATERING_CRON"] ?? "0 8 * * *");
+        }
+    })
     .OnError(ex => schedulerLogger.LogError(ex, "A scheduled task threw an unhandled exception."));
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));

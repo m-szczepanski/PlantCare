@@ -113,6 +113,34 @@ namespace PlantCare.Api.Data.Migrations
                     b.ToTable("Devices");
                 });
 
+            modelBuilder.Entity("PlantCare.Api.Models.DeviceWateringLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("ConfirmedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("DeviceId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PlantId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("ReportedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlantId", "SentAt");
+
+                    b.ToTable("DeviceWateringLogs");
+                });
+
             modelBuilder.Entity("PlantCare.Api.Models.JobRunLog", b =>
                 {
                     b.Property<int>("Id")
@@ -435,6 +463,15 @@ namespace PlantCare.Api.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("CareTask");
+                });
+
+            modelBuilder.Entity("PlantCare.Api.Models.DeviceWateringLog", b =>
+                {
+                    b.HasOne("PlantCare.Api.Models.Plant", null)
+                        .WithMany()
+                        .HasForeignKey("PlantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PlantCare.Api.Models.JournalEntry", b =>
