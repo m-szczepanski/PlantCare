@@ -1,11 +1,14 @@
 # OS / editor noise
 .DS_Store
 *~
+.idea/
+.vs/
 
 # .NET build output
 bin/
 obj/
 *.user
+TestResults/
 
 # SQLite local databases (dev/test artifacts)
 *.db
