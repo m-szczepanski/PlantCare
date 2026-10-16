@@ -4,6 +4,7 @@ import { roomsApi } from "@/api/client";
 import type { RoomInput } from "@/api/types";
 import { toastError } from "@/lib/toast";
 import { dashboardKeys } from "@/hooks/useDashboard";
+import { plantKeys } from "@/hooks/usePlants";
 import i18n from "@/i18n";
 
 export const roomKeys = {
@@ -35,7 +36,7 @@ export function useUpdateRoom() {
     mutationFn: ({ id, input }: { id: number; input: RoomInput }) => roomsApi.update(id, input),
     onSuccess: (room) => {
       queryClient.invalidateQueries({ queryKey: roomKeys.all });
-      queryClient.invalidateQueries({ queryKey: ["plants"] });
+      queryClient.invalidateQueries({ queryKey: plantKeys.all });
       queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       toast.success(i18n.t("toasts.roomUpdated"), { description: i18n.t("toasts.roomSavedDesc", { name: room.name }) });
     },
@@ -49,7 +50,7 @@ export function useDeleteRoom() {
     mutationFn: (id: number) => roomsApi.remove(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: roomKeys.all });
-      queryClient.invalidateQueries({ queryKey: ["plants"] });
+      queryClient.invalidateQueries({ queryKey: plantKeys.all });
       queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       toast.success(i18n.t("toasts.roomDeleted"), { description: i18n.t("toasts.roomDeletedDesc") });
     },

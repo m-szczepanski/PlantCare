@@ -330,7 +330,8 @@ export function useSnoozeAllPlants() {
   return useMutation({
     mutationFn: (days: number) => plantsApi.snoozeAll(days),
     onSuccess: (result) => {
-      invalidatePlantCaches(queryClient, -1);
+      queryClient.invalidateQueries({ queryKey: plantKeys.all });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       toast.success(i18n.t("toasts.snoozedAll"), { description: i18n.t("toasts.snoozedAllDesc", { count: result.snoozedPlants }) });
     },
     onError: (error) => toastError(i18n.t("toasts.snoozeAllFailed"), error),
