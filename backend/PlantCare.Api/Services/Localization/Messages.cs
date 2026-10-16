@@ -84,6 +84,7 @@ public static class Messages
             ["error.invalidChecklist.detail"] = "Provide a JSON array of { symptom, causes[] } entries with non-empty values.",
             ["error.journalEmpty.title"] = "A journal entry needs a photo, a note, or both.",
             ["error.importFailed.title"] = "Import failed.",
+            ["error.importFailed.detail"] = "The document conflicts with existing data or is otherwise invalid.",
         },
         ["pl"] = new(StringComparer.Ordinal)
         {
@@ -162,6 +163,7 @@ public static class Messages
             ["error.invalidChecklist.detail"] = "Podaj tablicę JSON z wpisami { symptom, causes[] } o niepustych wartościach.",
             ["error.journalEmpty.title"] = "Wpis dziennika wymaga zdjęcia, notatki lub obu.",
             ["error.importFailed.title"] = "Import nie powiódł się.",
+            ["error.importFailed.detail"] = "Dokument jest sprzeczny z istniejącymi danymi lub jest nieprawidłowy.",
         },
     };
 
