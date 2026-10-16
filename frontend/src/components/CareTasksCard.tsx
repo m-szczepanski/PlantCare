@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Sprout } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,16 +8,18 @@ import { Label } from "@/components/ui/label";
 import { useCareTaskMutations, useCareTasks } from "@/hooks/usePlants";
 import { cn } from "@/lib/utils";
 import { touchButton, touchField } from "@/lib/ui";
-import type { CareTask } from "@/api/types";
 
 export function CareTasksCard({ plantId }: { plantId: number }) {
   const { t } = useTranslation();
-  const labels: Record<CareTask["type"], string> = {
-    Watering: t("careTask.types.Watering"),
-    Fertilizing: t("careTask.types.Fertilizing"),
-    Repotting: t("careTask.types.Repotting"),
-    TopUpWatering: t("careTask.types.TopUpWatering"),
-  };
+  const labels = useMemo<Record<string, string>>(
+    () => ({
+      Watering: t("careTask.types.Watering"),
+      Fertilizing: t("careTask.types.Fertilizing"),
+      Repotting: t("careTask.types.Repotting"),
+      TopUpWatering: t("careTask.types.TopUpWatering"),
+    }),
+    [t],
+  );
   const { data: tasks = [] } = useCareTasks(plantId);
   const { add, remove, markDone } = useCareTaskMutations(plantId);
   const [interval, setInterval] = useState("30");

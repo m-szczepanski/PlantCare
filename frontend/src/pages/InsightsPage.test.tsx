@@ -11,6 +11,11 @@ vi.mock("@/api/client", () => ({
 }));
 
 const currentMonth = new Date().toISOString().slice(0, 7);
+const currentMonthLabel = new Date(
+  Number(currentMonth.slice(0, 4)),
+  Number(currentMonth.slice(5, 7)) - 1,
+  1,
+).toLocaleDateString("en", { month: "short", year: "numeric" });
 
 const insights: Insights = {
   totalPlants: 4,
@@ -68,7 +73,7 @@ describe("InsightsPage", () => {
     expect(await screen.findByText("Waterings per month")).toBeInTheDocument();
     const rows = screen.getAllByRole("row");
     expect(rows).toHaveLength(4);
-    expect(rows[3]).toHaveTextContent(currentMonth);
+    expect(rows[3]).toHaveTextContent(currentMonthLabel);
     expect(rows[3]).toHaveTextContent("6");
   });
 });
