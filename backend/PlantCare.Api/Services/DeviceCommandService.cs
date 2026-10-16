@@ -20,10 +20,14 @@ public interface IDeviceCommandService
     Task<DeviceWaterResult> WaterAsync(int plantId, int? durationMs, CancellationToken cancellationToken = default);
 }
 
-public sealed class DeviceCommandService(AppDbContext db, IDeviceBus bus, MqttOptions options, ILogger<DeviceCommandService> logger) : IDeviceCommandService
+public sealed class DeviceCommandService(
+    AppDbContext db,
+    IDeviceBus bus,
+    MqttOptions options,
+    DeviceWateringOptions wateringOptions,
+    ILogger<DeviceCommandService> logger) : IDeviceCommandService
 {
     private const int DefaultDurationMs = 15_000;
-    private const int MaxDurationMs = 60_000;
 
     public async Task<DeviceWaterResult> WaterAsync(int plantId, int? durationMs, CancellationToken cancellationToken = default)
     {
@@ -44,7 +48,7 @@ public sealed class DeviceCommandService(AppDbContext db, IDeviceBus bus, MqttOp
             return new DeviceWaterResult(DeviceWaterStatus.NoDevice);
         }
 
-        var duration = Math.Clamp(durationMs ?? DefaultDurationMs, 1, MaxDurationMs);
+        var duration = Math.Clamp(durationMs ?? DefaultDurationMs, 1, wateringOptions.MaxDurationMs);
         var topic = string.IsNullOrWhiteSpace(device.CommandTopic)
             ? DeviceTopics.Command(options.TopicPrefix, device.Id)
             : device.CommandTopic;
