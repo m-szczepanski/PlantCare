@@ -149,8 +149,9 @@ export function useWaterPlant() {
         );
       }
       if (target) {
-        queryClient.setQueryData(plantKeys.detail(id), optimisticWatered(target));
-        patchDashboard(queryClient, optimisticWatered(target));
+        const optimistic = optimisticWatered(target);
+        queryClient.setQueryData(plantKeys.detail(id), optimistic);
+        patchDashboard(queryClient, optimistic);
       }
 
       return { previousList, previousDetail, previousDashboard };

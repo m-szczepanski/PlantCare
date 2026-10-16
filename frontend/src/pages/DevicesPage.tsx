@@ -33,6 +33,7 @@ import {
   useUpdateDevice,
 } from "@/hooks/useDevices";
 import type { CommandStyle, Device, DeviceType } from "@/api/types";
+import { cn } from "@/lib/utils";
 import { touchButton, touchField } from "@/lib/ui";
 
 const DEVICE_TYPES: DeviceType[] = ["Valve", "Pump", "Sensor"];
@@ -251,7 +252,7 @@ function DeviceCard({ device }: { device: Device }) {
             </div>
           </div>
         )}
-        <div className={`${editing ? "" : "mt-auto "}flex flex-wrap gap-2${editing ? "" : " border-t pt-3"}`}>
+        <div className={cn("flex flex-wrap gap-2", !editing && "mt-auto border-t pt-3")}>
           {editing ? (
             <>
               <Button size="sm" disabled={update.isPending || name.trim() === ""} onClick={save}>
