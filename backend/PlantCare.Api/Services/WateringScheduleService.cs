@@ -192,7 +192,7 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
         }
 
         var reduceInWinter = wateringTask?.ReduceInWinter ?? plant.PlantProfile?.DefaultReduceInWinter ?? false;
-        var winter = isWinter(today);
+        var winter = CareTaskService.IsWinter(today);
         effectiveInterval = reduceInWinter && winter ? effectiveInterval * 2 : effectiveInterval;
 
         var anchor = DateOnly.FromDateTime((wateringTask?.LastDoneAt ?? plant.AcquiredDate).Date);
@@ -219,7 +219,4 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
 
         return (status, message);
     }
-
-    /// <summary>Winter months for the (northern-hemisphere) seasonal reduction. Northern users only for v1.</summary>
-    private static bool isWinter(DateOnly today) => today.Month is 12 or 1 or 2;
 }

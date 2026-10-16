@@ -33,6 +33,7 @@ public sealed class CareTaskService(AppDbContext db, IWateringScheduleService sc
 {
     public static readonly HashSet<int> WinterMonths = [12, 1, 2];
 
+    /// <summary>Single source of truth for the (northern-hemisphere) winter window.</summary>
     internal static bool IsWinter(DateOnly today) => WinterMonths.Contains(today.Month);
 
     public async Task<IReadOnlyList<CareTaskResponseDto>?> ListForPlantAsync(int plantId, CancellationToken cancellationToken = default)
@@ -74,8 +75,11 @@ public sealed class CareTaskService(AppDbContext db, IWateringScheduleService sc
         }
         else if (type == CareTaskType.TopUpWatering)
         {
-            // A top-up drink absorbs an already-due full watering (see TopUpWatering).
-            TopUpWatering.AbsorbDueWatering(plant, task, doneAt);
+            // A top-up drink absorbs an already-due full watering (see TopUpWatering);
+            // the watering's due info comes from the shared schedule service.
+            var watering = plant.CareTasks.FirstOrDefault(t => t.Type == CareTaskType.Watering);
+            var wateringDue = schedule.GetDueInfo(watering, plant, DateOnly.FromDateTime(doneAt));
+            TopUpWatering.AbsorbDueWatering(plant, doneAt, wateringDue);
         }
         task.Logs.Add(new CareTaskLog
         {
