@@ -71,9 +71,16 @@ public sealed class PlantPhotoStorage(PlantPhotoOptions options) : IPlantPhotoSt
 
         var fileName = $"{Guid.NewGuid():N}{extension}";
         var fullPath = Path.Combine(directory, fileName);
-        await using (var target = File.Create(fullPath))
+        try
         {
-            await content.CopyToAsync(target, cancellationToken);
+            await using var target = File.Create(fullPath);
+            await CopyWithLimitAsync(content, target, cancellationToken);
+        }
+        catch
+        {
+            // A rejected/partial upload must not leave a file behind.
+            TryDelete(() => File.Delete(fullPath));
+            throw;
         }
 
         var publicPath = subdirectory is null
@@ -105,6 +112,27 @@ public sealed class PlantPhotoStorage(PlantPhotoOptions options) : IPlantPhotoSt
     {
         var directory = Path.GetFullPath(Path.Combine(options.RootPath, "plants", plantId.ToString()));
         TryDelete(() => Directory.Delete(directory, recursive: true));
+    }
+
+    /// <summary>
+    /// Copies the source through the 5 MB cap so a non-seekable stream (where
+    /// <see cref="Stream.Length"/> is unavailable) can't bypass the limit.
+    /// </summary>
+    private static async Task CopyWithLimitAsync(Stream source, Stream destination, CancellationToken cancellationToken)
+    {
+        var buffer = new byte[81920];
+        long total = 0;
+        int read;
+        while ((read = await source.ReadAsync(buffer, cancellationToken)) > 0)
+        {
+            total += read;
+            if (total > MaxBytes)
+            {
+                throw new PhotoStorageException("error.photo.tooLarge");
+            }
+
+            await destination.WriteAsync(buffer.AsMemory(0, read), cancellationToken);
+        }
     }
 
     private static void TryDelete(Action delete)
