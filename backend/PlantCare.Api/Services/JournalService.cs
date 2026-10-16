@@ -10,9 +10,14 @@ public enum JournalWriteStatus
     Success,
     PlantNotFound,
     Empty,
+    InvalidPhoto,
 }
 
-public sealed record JournalWriteResult(JournalWriteStatus Status, JournalEntryResponseDto? Entry = null);
+public sealed record JournalWriteResult(
+    JournalWriteStatus Status,
+    JournalEntryResponseDto? Entry = null,
+    string? ErrorKey = null,
+    object[]? ErrorArgs = null);
 
 public interface IJournalService
 {
@@ -84,9 +89,15 @@ public sealed class JournalService(AppDbContext db, IPlantPhotoStorage photos) :
             {
                 photoUrl = await photos.SaveAsync(plantId, photo, photoContentType ?? string.Empty, "journal", cancellationToken);
             }
-            catch (Exception ex) when (ex is InvalidDataException or PhotoStorageException)
+            catch (PhotoStorageException ex)
             {
-                return new JournalWriteResult(JournalWriteStatus.Empty);
+                // Rejection carries a catalog key so the 400 says what was wrong
+                // (unsupported type / too large) instead of "the entry is empty".
+                return new JournalWriteResult(JournalWriteStatus.InvalidPhoto, ErrorKey: ex.MessageKey, ErrorArgs: ex.Args);
+            }
+            catch (InvalidDataException)
+            {
+                return new JournalWriteResult(JournalWriteStatus.InvalidPhoto, ErrorKey: "error.photo.unsupportedType", ErrorArgs: [photoContentType ?? string.Empty]);
             }
         }
 

@@ -37,7 +37,7 @@ public class JournalApiTests : IDisposable
         return (await created.Content.ReadFromJsonAsync<PlantResponseDto>(Options))!.Id;
     }
 
-    private async Task<HttpResponseMessage> PostEntry(int plantId, string? date = null, string? text = null, byte[]? photo = null)
+    private async Task<HttpResponseMessage> PostEntry(int plantId, string? date = null, string? text = null, byte[]? photo = null, string contentType = "image/png")
     {
         var form = new MultipartFormDataContent();
         if (date is not null)
@@ -53,7 +53,7 @@ public class JournalApiTests : IDisposable
         if (photo is not null)
         {
             var content = new ByteArrayContent(photo);
-            content.Headers.ContentType = new MediaTypeHeaderValue("image/png");
+            content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
             form.Add(content, "file", "entry.png");
         }
 
@@ -89,6 +89,20 @@ public class JournalApiTests : IDisposable
         var response = await PostEntry(plantId);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task CreateWithUnsupportedPhoto_ReportsPhotoProblem()
+    {
+        var plantId = await CreatePlant();
+
+        var response = await PostEntry(plantId, text: "note", photo: Png, contentType: "application/pdf");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var body = await response.Content.ReadAsStringAsync();
+        // The 400 describes the photo problem, not "the entry is empty".
+        Assert.Contains("Unsupported photo", body);
+        Assert.DoesNotContain("needs a photo", body);
     }
 
     [Fact]
