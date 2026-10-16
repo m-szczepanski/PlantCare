@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ interface ProfileComboboxProps {
 export function ProfileCombobox({ profiles, value, onChange, id }: ProfileComboboxProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const listId = useId();
   const selected = profiles.find((profile) => profile.id === value);
 
   return (
@@ -35,6 +36,8 @@ export function ProfileCombobox({ profiles, value, onChange, id }: ProfileCombob
           variant="outline"
           role="combobox"
           aria-expanded={open}
+          aria-haspopup="listbox"
+          aria-controls={listId}
           className={cn("w-full justify-between", touchField)}
         >
           {selected ? (
@@ -47,10 +50,10 @@ export function ProfileCombobox({ profiles, value, onChange, id }: ProfileCombob
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+      <PopoverContent className="w-(--radix-popover-trigger-width) p-0" align="start">
         <Command>
           <CommandInput placeholder={t("profile.searchPlaceholder")} />
-          <CommandList>
+          <CommandList id={listId}>
             <CommandEmpty>{t("profile.noFound")}</CommandEmpty>
             <CommandGroup>
               <CommandItem

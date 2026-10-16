@@ -96,6 +96,7 @@ export function DashboardPage() {
         <Button
           size="sm"
           variant={group === "room" ? "outline" : "default"}
+          aria-pressed={group !== "room"}
           onClick={() => setParams(new URLSearchParams(), { replace: true })}
         >
           {t("dashboard.byDueDate")}
@@ -103,6 +104,7 @@ export function DashboardPage() {
         <Button
           size="sm"
           variant={group === "room" ? "default" : "outline"}
+          aria-pressed={group === "room"}
           onClick={() => setParams(new URLSearchParams({ group: "room" }), { replace: true })}
         >
           {t("dashboard.byRoom")}

@@ -214,7 +214,8 @@ export function PlantDetailPage() {
           <CardHeader>
             <CardTitle>{t("detail.title")}</CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
+          <CardContent>
+          <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
           <div>
             <dt className="text-muted-foreground">{t("form.room")}</dt>
             <dd className="flex flex-wrap items-center gap-2 font-medium">
@@ -320,6 +321,7 @@ export function PlantDetailPage() {
               )}
             </dd>
           </div>
+          </dl>
           </CardContent>
         </Card>
 

@@ -24,8 +24,9 @@ export function PlantCard({ plant, onWater, isWatering }: PlantCardProps) {
   return (
     <Card
       data-plant-card={plant.id}
-      tabIndex={0}
-      className="flex h-full flex-col overflow-hidden transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      role="group"
+      aria-label={plant.nickName}
+      className="flex h-full flex-col overflow-hidden transition-shadow hover:shadow-md"
     >
       <PlantPhoto
         photoUrl={plant.photoUrl}
