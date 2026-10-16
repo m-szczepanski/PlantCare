@@ -3,6 +3,17 @@ import { useTranslation } from "react-i18next";
 import { ArrowLeft, ArrowRight, Check, Leaf, Languages, Moon, Sun, X } from "lucide-react";
 import { PlantForm } from "@/components/PlantForm";
 import { useTheme, type Theme } from "@/components/ThemeProvider";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,7 +27,7 @@ import { useCreatePlant, usePlants, useUploadPlantPhotoToId } from "@/hooks/useP
 import { useCreateRoom, useDeleteRoom, useRooms } from "@/hooks/useRooms";
 import { splitApiError } from "@/lib/validation";
 import { touchButton, touchField } from "@/lib/ui";
-import type { PlantInput } from "@/api/types";
+import type { PlantInput, Room } from "@/api/types";
 
 const STEPS = ["welcome", "rooms", "plants", "preferences", "finish"] as const;
 
@@ -111,7 +122,7 @@ function WelcomeStep() {
   );
 }
 
-function RoomsStep({ rooms }: { rooms: { id: number; name: string }[] }) {
+function RoomsStep({ rooms }: { rooms: Room[] }) {
   const { t } = useTranslation();
   const createRoom = useCreateRoom();
   const deleteRoom = useDeleteRoom();
@@ -146,15 +157,35 @@ function RoomsStep({ rooms }: { rooms: { id: number; name: string }[] }) {
           {rooms.map((room) => (
             <li key={room.id} className="flex items-center justify-between rounded-md border px-3 py-2 text-sm">
               {room.name}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                aria-label={t("setup.rooms.removeAria", { name: room.name })}
-                onClick={() => deleteRoom.mutate(room.id)}
-              >
-                <X className="h-4 w-4" aria-hidden="true" />
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    aria-label={t("setup.rooms.removeAria", { name: room.name })}
+                  >
+                    <X className="h-4 w-4" aria-hidden="true" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t("rooms.deleteTitle", { name: room.name })}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {t("rooms.deleteDescription", { count: room.plantCount })}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      onClick={() => deleteRoom.mutate(room.id)}
+                    >
+                      {t("common.delete")}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </li>
           ))}
         </ul>

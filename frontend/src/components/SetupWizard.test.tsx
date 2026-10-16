@@ -122,6 +122,7 @@ describe(
       expect(kitchen).toBeInTheDocument();
 
       fireEvent.click(screen.getByRole("button", { name: "Remove Kitchen" }));
+      fireEvent.click(await screen.findByRole("button", { name: "Delete" }));
       await waitFor(() => expect(roomsApi.remove).toHaveBeenCalledWith(1));
       await waitFor(() => expect(screen.queryByText("Kitchen")).not.toBeInTheDocument());
     });
