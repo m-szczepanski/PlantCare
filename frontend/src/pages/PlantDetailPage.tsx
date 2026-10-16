@@ -56,12 +56,7 @@ import {
 import { useWaterNow } from "@/hooks/useDevices";
 import type { WaterDetails, WateringMethod } from "@/api/types";
 import { touchButton, touchField } from "@/lib/ui";
-import { formatInstant } from "@/lib/dates";
-
-function formatDate(value: string | null, locale: string): string {
-  if (!value) return "-";
-  return new Date(value).toLocaleDateString(locale);
-}
+import { formatDate, formatInstant, parseInstant } from "@/lib/dates";
 
 export function PlantDetailPage() {
   const { t, i18n } = useTranslation();
@@ -245,10 +240,10 @@ export function PlantDetailPage() {
           <div>
             <dt className="text-muted-foreground">{t("detail.snooze")}</dt>
             <dd className="flex flex-wrap items-center gap-2">
-              {plant.snoozedUntil && new Date(plant.snoozedUntil) > new Date() ? (
+              {plant.snoozedUntil && parseInstant(plant.snoozedUntil) > new Date() ? (
                 <>
                   <span className="text-muted-foreground">
-                    {t("detail.onHoldUntil", { date: new Date(plant.snoozedUntil).toLocaleDateString(i18n.language) })}
+                    {t("detail.onHoldUntil", { date: formatInstant(plant.snoozedUntil, false) })}
                   </span>
                   <Button
                     size="sm"
@@ -287,10 +282,10 @@ export function PlantDetailPage() {
           <div>
             <dt className="text-muted-foreground">{t("detail.soilWet")}</dt>
             <dd className="flex flex-wrap items-center gap-2">
-              {plant.soilWetUntil && new Date(plant.soilWetUntil) > new Date() ? (
+              {plant.soilWetUntil && parseInstant(plant.soilWetUntil) > new Date() ? (
                 <>
                   <span className="text-muted-foreground">
-                    {t("detail.soilWetUntil", { date: new Date(plant.soilWetUntil).toLocaleDateString(i18n.language) })}
+                    {t("detail.soilWetUntil", { date: formatInstant(plant.soilWetUntil, false) })}
                   </span>
                   <Button
                     size="sm"

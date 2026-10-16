@@ -5,6 +5,7 @@ import i18n from "@/i18n";
 import type { Dashboard, HealthStatus, Plant, PlantInput, WaterDetails } from "@/api/types";
 import { toastError } from "@/lib/toast";
 import { dashboardKeys } from "@/hooks/useDashboard";
+import { dateKey } from "@/lib/dates";
 
 export const plantKeys = {
   all: ["plants"] as const,
@@ -19,14 +20,14 @@ export const plantKeys = {
 function optimisticWatered(plant: Plant): Plant {
   const now = new Date();
   const interval = plant.wateringIntervalDays;
-  const nextDueDate = interval ? new Date(now.getTime() + interval * 86_400_000) : null;
+  const nextDue = interval ? new Date(now.getTime() + interval * 86_400_000) : null;
 
   return {
     ...plant,
     lastWateredAt: now.toISOString(),
     dueStatus: interval ? "Upcoming" : "NotScheduled",
     daysUntilDue: interval,
-    nextDueDate: nextDueDate ? nextDueDate.toISOString() : null,
+    nextDueDate: nextDue ? `${dateKey(nextDue)}T00:00:00` : null,
     dueMessage: interval ? i18n.t("due.until", { count: interval }) : i18n.t("due.notScheduledLabel"),
   };
 }

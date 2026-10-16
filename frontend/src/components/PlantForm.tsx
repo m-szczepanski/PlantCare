@@ -18,6 +18,7 @@ import { useSoilTypes } from "@/hooks/useSoilTypes";
 import { useCreateRoom, useRooms } from "@/hooks/useRooms";
 import { useDevices, useDevicesEnabled } from "@/hooks/useDevices";
 import { applySoilFactor } from "@/lib/soilTypes";
+import { dateKey } from "@/lib/dates";
 import { touchButton, touchField } from "@/lib/ui";
 import type { Plant, PlantInput, SoilType } from "@/api/types";
 
@@ -62,7 +63,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
   const [customInterval, setCustomInterval] = useState<string>(
     initial?.customWateringIntervalDays?.toString() ?? "",
   );
-  const [acquiredDate, setAcquiredDate] = useState<string>(toDateValue(initial?.acquiredDate) || toDateValue(new Date().toISOString()));
+  const [acquiredDate, setAcquiredDate] = useState<string>(toDateValue(initial?.acquiredDate) || dateKey(new Date()));
   const [lastWateredAt, setLastWateredAt] = useState<string>(toDateValue(initial?.lastWateredAt));
   const [reduceInWinter, setReduceInWinter] = useState<boolean>(initial?.reduceInWinter ?? false);
 

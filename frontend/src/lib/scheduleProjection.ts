@@ -1,15 +1,7 @@
 import type { Plant } from "@/api/types";
+import { dateKey, parseDateOnly } from "@/lib/dates";
 
-export function dateKey(date: Date): string {
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${date.getFullYear()}-${month}-${day}`;
-}
-
-function fromKey(key: string): Date {
-  const [year, month, day] = key.slice(0, 10).split("-").map(Number);
-  return new Date(year, month - 1, day);
-}
+export { dateKey };
 
 function addDays(date: Date, days: number): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
@@ -31,7 +23,7 @@ export function projectOccurrences(
     const interval = plant.wateringIntervalDays;
     if (!plant.nextDueDate || !interval || interval < 1) continue;
 
-    const dueDate = fromKey(plant.nextDueDate);
+    const dueDate = parseDateOnly(plant.nextDueDate);
     let cursor = dueDate < from ? from : dueDate;
     cursor = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate());
 

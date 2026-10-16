@@ -8,17 +8,13 @@ import { Label } from "@/components/ui/label";
 import { PlantPhoto } from "@/components/PlantPhoto";
 import { useJournalEntries, useJournalMutations } from "@/hooks/usePlants";
 import { touchButton, touchField } from "@/lib/ui";
-import { formatInstant } from "@/lib/dates";
-
-function today(): string {
-  return new Date().toISOString().slice(0, 10);
-}
+import { dateKey, formatInstant } from "@/lib/dates";
 
 export function JournalCard({ plantId, nickName }: { plantId: number; nickName: string }) {
   const { t } = useTranslation();
   const { data: entries = [] } = useJournalEntries(plantId);
   const { add, remove } = useJournalMutations(plantId);
-  const [date, setDate] = useState(today);
+  const [date, setDate] = useState<string>(() => dateKey(new Date()));
   const [text, setText] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [fromId, setFromId] = useState<number | null>(null);
