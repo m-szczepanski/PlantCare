@@ -48,7 +48,6 @@ public class Device
 
     public DeviceWaterLevel? WaterLevel { get; set; }
 
-    /// <summary>When the device last reported a reading.</summary>
     public DateTime? LastSeenAt { get; set; }
 
     public List<Plant> Plants { get; set; } = [];

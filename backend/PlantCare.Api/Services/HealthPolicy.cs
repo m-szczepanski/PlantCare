@@ -12,7 +12,6 @@ namespace PlantCare.Api.Services;
 /// </summary>
 public static class HealthPolicy
 {
-    /// <summary>How often a plant should get a health checkup.</summary>
     public const int CheckupIntervalDays = 30;
 
     private static readonly Dictionary<HealthStatus, double> WateringFactors = new()
@@ -28,26 +27,22 @@ public static class HealthPolicy
     private static double WateringFactor(HealthStatus? status)
         => status is { } s ? WateringFactors[s] : 1.0;
 
-    /// <summary>Applies the health factor to a base watering interval, never below one day.</summary>
     public static int AdjustWateringInterval(HealthStatus? status, int baseIntervalDays)
         => Math.Max(1, (int)Math.Round(baseIntervalDays * WateringFactor(status), MidpointRounding.AwayFromZero));
 
-    /// <summary>A thriving plant is in active growth and eats a bit sooner; others keep the interval.</summary>
     public static int AdjustFertilizingInterval(HealthStatus? status, int baseIntervalDays)
         => status == HealthStatus.Excellent
             ? Math.Max(1, (int)Math.Round(baseIntervalDays * ExcellentFertilizingFactor, MidpointRounding.AwayFromZero))
             : baseIntervalDays;
 
-    /// <summary>Never fertilize a plant that is doing badly — feeding can burn damaged roots.</summary>
+    // Feeding can burn damaged roots.
     public static bool PausesFertilizing(HealthStatus? status) => status is HealthStatus.Sick or HealthStatus.Bad;
 
-    /// <summary>The day the current checkup answer goes stale and the next prompt starts.</summary>
     public static DateOnly? NextCheckupDue(Plant plant)
         => plant.LastCheckupAt is { } checkedAt
             ? DateOnly.FromDateTime(checkedAt.Date).AddDays(CheckupIntervalDays)
             : null;
 
-    /// <summary>Due when the plant has outlived the grace period and has no fresh checkup answer.</summary>
     public static bool IsCheckupDue(Plant plant, DateOnly today)
     {
         if (today.DayNumber - DateOnly.FromDateTime(plant.AcquiredDate.Date).DayNumber < CheckupIntervalDays)
@@ -59,7 +54,6 @@ public static class HealthPolicy
             || today.DayNumber - DateOnly.FromDateTime(last.Date).DayNumber >= CheckupIntervalDays;
     }
 
-    /// <summary>Whether the ntfy checkup reminder may fire again (at most once per period per plant).</summary>
     public static bool IsReminderStale(DateTime? lastReminderSentAt, DateTime now)
         => lastReminderSentAt is null || lastReminderSentAt <= now.AddDays(-CheckupIntervalDays);
 }

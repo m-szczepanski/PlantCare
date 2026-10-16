@@ -120,10 +120,8 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
             throw new InvalidOperationException($"Unsupported export schema version {document.SchemaVersion}.");
         }
 
-        // The whole merge runs in one transaction: rooms and profiles are saved
-        // first (to get ids before plants reference them) but a later failure
-        // rolls everything back, so a retry re-imports cleanly instead of
-        // leaving the newly created rooms/profiles behind.
+        // One transaction: rooms/profiles are saved first for their ids; a later
+        // failure rolls everything back, so a retry re-imports cleanly.
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
 
         var roomsCreated = 0;

@@ -181,7 +181,6 @@ public static class Messages
     public static string Get(string language, string key, params object[] args)
         => string.Format(Get(language, key), args);
 
-    /// <summary>Resolves a plural key (base + .one/.few/.many/.other) for the language's cardinal rules.</summary>
     public static string GetPlural(string language, string key, int count)
     {
         var category = PluralCategory(language, count);

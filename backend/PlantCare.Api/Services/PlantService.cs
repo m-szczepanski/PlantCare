@@ -219,8 +219,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         var wateredAt = DateTime.UtcNow;
         var watering = WateringTask(plant) ?? NewWateringTask(plant);
         watering.LastDoneAt = wateredAt;
-        // Watering resolves a "soil still wet" deferral and re-anchors the
-        // derived top-up cycle (the full watering absorbs any pending top-up).
+        // Watering clears a soil-wet deferral and re-anchors the derived top-up cycle.
         plant.SoilWetUntil = null;
         TopUpWatering.SyncTask(plant);
         watering.Logs.Add(new CareTaskLog

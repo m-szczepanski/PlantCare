@@ -48,7 +48,6 @@ public sealed class WateringCheckService(
             .Where(p => p.TopUpWateringEnabled && p.TopUpWateringStatus is PlantDueStatus.Overdue or PlantDueStatus.DueToday)
             .ToList();
 
-        // Checkup-due plants whose per-plant reminder stamp is missing or stale.
         var checkupCandidateIds = notified.Where(p => p.CheckupDue).Select(p => p.Id).ToList();
         var reminderDates = await db.Plants
             .Where(p => checkupCandidateIds.Contains(p.Id))
@@ -148,8 +147,7 @@ public sealed class WateringCheckService(
             Priority = priority,
         });
 
-        // The checkup section was delivered — silence the per-plant reminders
-        // for a full period (a total delivery failure leaves the stamps alone).
+        // Stamps are written only after a delivery, so a total failure retries next run.
         if (checkups.Count > 0)
         {
             var checkupIds = checkups.Select(c => c.Id).ToList();

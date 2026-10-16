@@ -11,7 +11,6 @@ public sealed record DeviceStateOptions(int WetThresholdPct, int DeferDays);
 /// <summary>Parsed state published by a device on <c>plantcare/{id}/state</c>.</summary>
 public sealed record DeviceStateMessage(int? MoisturePct, DeviceWaterLevel? WaterLevel, DateTime? Timestamp, bool Watered)
 {
-    /// <summary>Parses a device state payload; null when the payload is not a JSON object.</summary>
     public static DeviceStateMessage? TryParse(string payload)
     {
         try
@@ -143,7 +142,6 @@ public sealed class DeviceStateIngestor(AppDbContext db, DeviceStateOptions opti
             .Select(p => p.Id)
             .ToListAsync(cancellationToken);
 
-        // Confirm any pending auto-water command for these plants.
         var pending = await db.DeviceWateringLogs
             .Where(l => plantIds.Contains(l.PlantId) && l.ConfirmedAt == null)
             .ToListAsync(cancellationToken);

@@ -14,7 +14,6 @@ public enum DeviceWaterStatus
 
 public sealed record DeviceWaterResult(DeviceWaterStatus Status);
 
-/// <summary>Publishes a "water now" command to a plant's linked device over MQTT.</summary>
 public interface IDeviceCommandService
 {
     Task<DeviceWaterResult> WaterAsync(int plantId, int? durationMs, CancellationToken cancellationToken = default);
