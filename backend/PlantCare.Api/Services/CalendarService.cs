@@ -51,7 +51,12 @@ public sealed class CalendarService(IPlantService plants, IAppLocalizer localize
     }
 
     private static string EscapeText(string text)
-        => text.Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,");
+        => text.Replace("\\", "\\\\")
+            .Replace("\r\n", "\\n")
+            .Replace("\r", "\\n")
+            .Replace("\n", "\\n")
+            .Replace(";", "\\;")
+            .Replace(",", "\\,");
 
     // RFC 5545 requires CRLF line endings and line folding for long lines.
     private static void AppendLine(StringBuilder sb, string line)
