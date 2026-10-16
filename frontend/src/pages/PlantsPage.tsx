@@ -32,8 +32,14 @@ export function PlantsPage() {
   const water = useWaterPlant();
   const [params, setParams] = useSearchParams();
   const search = params.get("q") ?? "";
-  const due = (params.get("due") as DueFilter) ?? "all";
-  const sort = (params.get("sort") as SortKey) ?? "name";
+  const dueParam = params.get("due");
+  const due: DueFilter = dueFilterOptions.some((option) => option.value === dueParam)
+    ? (dueParam as DueFilter)
+    : "all";
+  const sortParam = params.get("sort");
+  const sort: SortKey = sortOptions.some((option) => option.value === sortParam)
+    ? (sortParam as SortKey)
+    : "name";
 
   if (isPending) {
     return (
