@@ -198,8 +198,9 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
     }
 
     /// <summary>
-    /// Logs a watering event and updates <see cref="Plant.LastWateredAt"/> atomically:
-    /// both changes go out in the single implicit transaction of one SaveChanges call.
+    /// Logs a watering event, updates the plant's Watering <see cref="CareTask"/>
+    /// anchor, and records a watering log atomically: everything goes out in the
+    /// single implicit transaction of one SaveChanges call.
     /// </summary>
     public async Task<PlantResponseDto?> WaterAsync(int id, string? note, int? amountMilliliters = null, WateringMethod? method = null, CancellationToken cancellationToken = default)
     {

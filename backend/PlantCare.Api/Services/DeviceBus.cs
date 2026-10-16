@@ -14,7 +14,9 @@ public static class DeviceTopics
     /// <summary>
     /// Extracts the device id from a state topic of the form
     /// <c>{prefix}/{deviceId}/state</c>. Returns false for anything else
-    /// (custom per-device state topics are not subscribed yet).
+    /// (custom per-device state topics are not subscribed yet). The prefix is
+    /// deliberately not validated: the bus only subscribes to
+    /// <see cref="StatePattern"/>, so foreign topics are never delivered.
     /// </summary>
     public static bool TryParseStateTopic(string topic, out int deviceId)
     {

@@ -14,9 +14,10 @@ public interface IWateringCheckService
 
 /// <summary>
 /// Daily watering check: collects due/overdue plants (skipping muted ones),
-/// publishes ONE digest message to ntfy — escalated to high priority when
-/// anything is overdue — and records it in <see cref="NotificationDigest"/>.
-/// At most one digest per day; a failed send is logged, never thrown.
+/// publishes ONE digest message through every <see cref="INotificationChannel"/>
+/// — escalated to high priority when anything is overdue — and records it in
+/// <see cref="NotificationDigest"/>. At most one digest per day; a failed send
+/// is logged, never thrown.
 /// Monthly health-checkup prompts ride the same digest: plants whose last
 /// checkup answer is stale get a "checkups due" section, reminded at most
 /// once per checkup period per plant (stamped on the plant). Mid-cycle
