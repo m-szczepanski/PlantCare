@@ -132,6 +132,7 @@ public class PlantApiTests : IDisposable
             nickName = "Repot Rita",
             potSizeCm = 18,
             propagatedFrom = null as string,
+            acquiredDate = Today,
         });
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var updated = await response.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
@@ -177,6 +178,7 @@ public class PlantApiTests : IDisposable
             roomId = roomBody.Id,
             customWateringIntervalDays = 5,
             lastWateredAt = Today,
+            acquiredDate = Today,
         });
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -191,11 +193,25 @@ public class PlantApiTests : IDisposable
     }
 
     [Fact]
+    public async Task Update_MissingAcquiredDate_Returns400()
+    {
+        var created = await PostCreate(new { nickName = "Needs date" });
+        var body = await created.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
+
+        // PUT is a full replace: the acquired date can't be omitted (it would
+        // otherwise silently move to "now").
+        var response = await _client.PutAsJsonAsync($"/api/plants/{body!.Id}", new { nickName = "Needs date" });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
     public async Task Update_UnknownId_Returns404()
     {
         var response = await _client.PutAsJsonAsync("/api/plants/654321", new
         {
             nickName = "Nope",
+            acquiredDate = Today,
         });
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);

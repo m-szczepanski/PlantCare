@@ -249,6 +249,7 @@ public class TopUpWateringApiTests : IDisposable
             customWateringIntervalDays = 10,
             lastWateredAt = Today.AddDays(-5),
             notifyEnabled = false,
+            acquiredDate = muted.AcquiredDate,
         }, Options);
         update.EnsureSuccessStatusCode();
         var snooze = await _client.PostAsJsonAsync($"/api/plants/{holiday.Id}/snooze", new { days = 3 }, Options);

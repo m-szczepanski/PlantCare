@@ -169,7 +169,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         plant.SoilType = dto.SoilType;
         plant.PropagatedFrom = string.IsNullOrWhiteSpace(dto.PropagatedFrom) ? null : dto.PropagatedFrom.Trim();
         plant.NotifyEnabled = dto.NotifyEnabled;
-        plant.AcquiredDate = dto.AcquiredDate;
+        plant.AcquiredDate = dto.AcquiredDate!.Value;
         plant.PlantProfileId = dto.PlantProfileId;
 
         var watering = WateringTask(plant) ?? NewWateringTask(plant);

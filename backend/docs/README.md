@@ -26,7 +26,7 @@ backend/
 GET    /api/plants                 list owned plants (+ due status)
 POST   /api/plants
 GET    /api/plants/{id}
-PUT    /api/plants/{id}
+PUT    /api/plants/{id}            full replace — send every field; `acquiredDate` is required (400 if omitted), `lastWateredAt: null` clears the watering anchor
 DELETE /api/plants/{id}
 POST   /api/plants/{id}/water      logs a watering event (note + optional `amountMilliliters`, `method`: Tap/Filtered/Rainwater) — marks the Watering care task
 POST   /api/plants/{id}/photo      multipart upload (field `file`) — stores the photo, sets PhotoUrl to its /uploads/ path

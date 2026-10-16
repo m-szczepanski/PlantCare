@@ -93,6 +93,7 @@ public class SoilTypeApiTests : IDisposable
             soilType = SoilType.ChunkyBark,
             customWateringIntervalDays = 10,
             lastWateredAt = Today,
+            acquiredDate = Today,
         }, Options);
         var changed = await update.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
         Assert.Equal(SoilType.ChunkyBark, changed!.SoilType);
@@ -107,6 +108,7 @@ public class SoilTypeApiTests : IDisposable
             soilType = null as SoilType?,
             customWateringIntervalDays = 10,
             lastWateredAt = Today,
+            acquiredDate = Today,
         }, Options);
         var clearedBody = await cleared.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
         Assert.Null(clearedBody!.SoilType);

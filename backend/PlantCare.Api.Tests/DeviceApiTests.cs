@@ -155,7 +155,7 @@ public class DeviceApiTests : IDisposable
         var created = await _client.PostAsJsonAsync("/api/plants", new { nickName = "Ivy", deviceId = device.Id }, Options);
         var plant = await created.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
 
-        var update = await _client.PutAsJsonAsync($"/api/plants/{plant!.Id}", new { nickName = "Ivy", deviceId = (int?)null }, Options);
+        var update = await _client.PutAsJsonAsync($"/api/plants/{plant!.Id}", new { nickName = "Ivy", deviceId = (int?)null, acquiredDate = plant.AcquiredDate }, Options);
         Assert.Equal(HttpStatusCode.OK, update.StatusCode);
         var updated = await update.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
 
