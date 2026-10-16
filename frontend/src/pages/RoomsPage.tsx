@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Armchair, Droplets, Sprout, Sun, Thermometer } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -37,6 +37,7 @@ import {
 import { usePlants } from "@/hooks/usePlants";
 import { RoomLightBadge } from "@/components/RoomLightBadge";
 import type { HumidityLevel, LightRequirement, Plant, Room, RoomOrientation } from "@/api/types";
+import { cn } from "@/lib/utils";
 import { touchButton, touchField } from "@/lib/ui";
 
 const ORIENTATIONS: { value: RoomOrientation | "none"; labelKey: string }[] = [
@@ -53,6 +54,17 @@ export function RoomsPage() {
   const { data: plants = [] } = usePlants();
   const [name, setName] = useState("");
   const create = useCreateRoom();
+
+  const plantsByRoom = useMemo(() => {
+    const grouped = new Map<number, Plant[]>();
+    for (const plant of plants) {
+      if (plant.roomId === null) continue;
+      const bucket = grouped.get(plant.roomId);
+      if (bucket) bucket.push(plant);
+      else grouped.set(plant.roomId, [plant]);
+    }
+    return grouped;
+  }, [plants]);
 
   function handleCreate() {
     const trimmed = name.trim();
@@ -102,7 +114,7 @@ export function RoomsPage() {
             <RoomCard
               key={room.id}
               room={room}
-              plants={plants.filter((plant) => plant.roomId === room.id)}
+              plants={plantsByRoom.get(room.id) ?? []}
             />
           ))}
         </div>
@@ -347,7 +359,7 @@ function RoomCard({ room, plants }: { room: Room; plants: Plant[] }) {
             </div>
           </div>
         ) : null}
-        <div className={`${editing ? "" : "mt-auto "}flex flex-wrap gap-2${editing ? "" : " border-t pt-3"}`}>
+        <div className={cn("flex flex-wrap gap-2", !editing && "mt-auto border-t pt-3")}>
           {editing ? (
             <>
               <Button

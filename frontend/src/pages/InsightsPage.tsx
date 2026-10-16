@@ -1,13 +1,13 @@
 import { useTranslation } from "react-i18next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { MonthlyBarChart } from "@/components/MonthlyBarChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlantCardSkeletonGrid } from "@/components/PlantCardSkeleton";
 import { useInsights } from "@/hooks/useInsights";
-import { cn } from "@/lib/utils";
 
-function monthLabel(key: string, locale: string): string {
+function monthLabel(key: string, locale: string, options: Intl.DateTimeFormatOptions): string {
   const [year, month] = key.split("-").map(Number);
-  return new Date(year, month - 1, 1).toLocaleDateString(locale, { month: "short" });
+  return new Date(year, month - 1, 1).toLocaleDateString(locale, options);
 }
 
 function Tile({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
@@ -45,7 +45,12 @@ export function InsightsPage() {
     );
   }
 
-  const maxMonthly = Math.max(...insights.monthlyWaterings.map((m) => m.count), 1);
+  const monthlyData = insights.monthlyWaterings.map((month) => ({
+    key: month.month,
+    label: monthLabel(month.month, i18n.language, { month: "short", year: "numeric" }),
+    shortLabel: monthLabel(month.month, i18n.language, { month: "short" }),
+    count: month.count,
+  }));
 
   return (
     <div className="space-y-4">
@@ -84,42 +89,11 @@ export function InsightsPage() {
           <CardTitle>{t("insights.monthlyTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex h-32 items-end gap-1.5" aria-hidden="true">
-            {insights.monthlyWaterings.map((month) => (
-              <div
-                key={month.month}
-                className="flex flex-1 flex-col items-center justify-end gap-1"
-              >
-                <div
-                  className={cn(
-                    "w-full rounded",
-                    month.count === 0 ? "h-px bg-border" : "bg-chart-1",
-                  )}
-                  style={{
-                    height: month.count === 0 ? 1 : `${Math.max(8, (month.count / maxMonthly) * 100)}%`,
-                  }}
-                  title={`${month.month}: ${month.count}`}
-                />
-                <span className="text-[10px] text-muted-foreground">{monthLabel(month.month, i18n.language)}</span>
-              </div>
-            ))}
-          </div>
-          <table className="sr-only">
-            <thead>
-              <tr>
-                <th scope="col">{t("chart.month")}</th>
-                <th scope="col">{t("chart.waterings")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {insights.monthlyWaterings.map((month) => (
-                <tr key={month.month}>
-                  <td>{month.month}</td>
-                  <td>{month.count}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <MonthlyBarChart
+            data={monthlyData}
+            ariaLabel={t("insights.monthlyTitle")}
+            className="h-32"
+          />
         </CardContent>
       </Card>
 

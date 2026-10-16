@@ -45,7 +45,7 @@ export function PlantFormPage() {
   );
 }
 
-function CreatePlant({ onDone }: { onDone: (id: number) => void }) {
+function CreatePlant({ onDone }: { onDone: () => void }) {
   const { t } = useTranslation();
   const create = useCreatePlant();
   const upload = useUploadPlantPhotoToId();
@@ -55,7 +55,7 @@ function CreatePlant({ onDone }: { onDone: (id: number) => void }) {
     create.mutate(input, {
       onSuccess: (plant) => {
         if (photoFile) upload.mutate({ id: plant.id, file: photoFile });
-        onDone(plant.id);
+        onDone();
       },
     });
   }
@@ -67,7 +67,7 @@ function CreatePlant({ onDone }: { onDone: (id: number) => void }) {
       fieldErrors={split.fields}
       submitLabel={t("form.createPlant")}
       onSubmit={handleSubmit}
-      onCancel={() => onDone(-1)}
+      onCancel={onDone}
     />
   );
 }

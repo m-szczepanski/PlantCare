@@ -130,4 +130,38 @@ describe("ThemeProvider", () => {
     expect(screen.getByTestId("theme")).toHaveTextContent("system");
     expect(document.documentElement.classList.contains("dark")).toBe(false);
   });
+
+  it("falls back to system when reading storage throws", () => {
+    mockMatchMedia(false);
+    const spy = vi.spyOn(window.localStorage, "getItem").mockImplementation(() => {
+      throw new Error("storage blocked");
+    });
+
+    render(
+      <ThemeProvider>
+        <Probe />
+      </ThemeProvider>,
+    );
+
+    expect(screen.getByTestId("theme")).toHaveTextContent("system");
+    spy.mockRestore();
+  });
+
+  it("still applies the theme when writing storage throws", () => {
+    mockMatchMedia(false);
+    const spy = vi.spyOn(window.localStorage, "setItem").mockImplementation(() => {
+      throw new Error("storage blocked");
+    });
+
+    render(
+      <ThemeProvider>
+        <Probe />
+      </ThemeProvider>,
+    );
+    fireEvent.click(screen.getByText("set dark"));
+
+    expect(screen.getByTestId("theme")).toHaveTextContent("dark");
+    expect(document.documentElement.classList.contains("dark")).toBe(true);
+    spy.mockRestore();
+  });
 });

@@ -29,7 +29,7 @@ public sealed class DashboardService(IPlantService plants) : IDashboardService
             .OrderBy(p => p.NickName, StringComparer.Ordinal)
             .ToList();
 
-        // Catch-all bucket: everything not due yet, plus unscheduled plants (sorted last).
+        // Upcoming includes unscheduled plants (sorted last).
         var upcoming = all
             .Where(p => p.DueStatus is not (PlantDueStatus.Overdue or PlantDueStatus.DueToday))
             .OrderBy(p => p.DaysUntilDue ?? int.MaxValue)

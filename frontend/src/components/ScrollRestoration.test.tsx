@@ -42,7 +42,7 @@ describe("ScrollRestoration", () => {
     expect(window.scrollTo).toHaveBeenCalledWith(0, 240);
   });
 
-  it("does not scroll on a first visit", () => {
+  it("scrolls to the top on a first visit", () => {
     render(
       <MemoryRouter initialEntries={["/b"]}>
         <ScrollRestoration />
@@ -52,6 +52,6 @@ describe("ScrollRestoration", () => {
       </MemoryRouter>,
     );
 
-    expect(window.scrollTo).not.toHaveBeenCalled();
+    expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
   });
 });

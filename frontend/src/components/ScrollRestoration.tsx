@@ -9,9 +9,8 @@ export function ScrollRestoration() {
   const { key } = useLocation();
 
   useEffect(() => {
-    const saved = scrollPositions.get(key);
-    if (saved && typeof window.scrollTo === "function") {
-      window.scrollTo(0, saved);
+    if (typeof window.scrollTo === "function") {
+      window.scrollTo(0, scrollPositions.get(key) ?? 0);
     }
 
     return () => {

@@ -1,0 +1,7 @@
+root = true
+
+[*.cs]
+# Integration tests are short-lived; threading TestContext.Current.CancellationToken
+# through every HttpClient/JSON helper call would add a lot of noise for no real
+# benefit. Suppress the analyzer for the test project only.
+dotnet_diagnostic.xUnit1051.severity = none

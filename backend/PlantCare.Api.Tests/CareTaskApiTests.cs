@@ -105,6 +105,7 @@ public class CareTaskApiTests : IDisposable
             nickName = plant.NickName,
             customWateringIntervalDays = 7,
             reduceInWinter = true,
+            acquiredDate = plant.AcquiredDate,
         }, Options);
         response.EnsureSuccessStatusCode();
         var updated = await response.Content.ReadFromJsonAsync<PlantResponseDto>(Options);

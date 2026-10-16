@@ -14,9 +14,10 @@ public interface IWateringCheckService
 
 /// <summary>
 /// Daily watering check: collects due/overdue plants (skipping muted ones),
-/// publishes ONE digest message to ntfy — escalated to high priority when
-/// anything is overdue — and records it in <see cref="NotificationDigest"/>.
-/// At most one digest per day; a failed send is logged, never thrown.
+/// publishes ONE digest message through every <see cref="INotificationChannel"/>
+/// — escalated to high priority when anything is overdue — and records it in
+/// <see cref="NotificationDigest"/>. At most one digest per day; a failed send
+/// is logged, never thrown.
 /// Monthly health-checkup prompts ride the same digest: plants whose last
 /// checkup answer is stale get a "checkups due" section, reminded at most
 /// once per checkup period per plant (stamped on the plant). Mid-cycle
@@ -47,7 +48,6 @@ public sealed class WateringCheckService(
             .Where(p => p.TopUpWateringEnabled && p.TopUpWateringStatus is PlantDueStatus.Overdue or PlantDueStatus.DueToday)
             .ToList();
 
-        // Checkup-due plants whose per-plant reminder stamp is missing or stale.
         var checkupCandidateIds = notified.Where(p => p.CheckupDue).Select(p => p.Id).ToList();
         var reminderDates = await db.Plants
             .Where(p => checkupCandidateIds.Contains(p.Id))
@@ -147,8 +147,7 @@ public sealed class WateringCheckService(
             Priority = priority,
         });
 
-        // The checkup section was delivered — silence the per-plant reminders
-        // for a full period (a total delivery failure leaves the stamps alone).
+        // Stamps are written only after a delivery, so a total failure retries next run.
         if (checkups.Count > 0)
         {
             var checkupIds = checkups.Select(c => c.Id).ToList();

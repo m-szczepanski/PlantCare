@@ -14,10 +14,9 @@ public static class DiagnosisChecklist
         PropertyNameCaseInsensitive = true,
     };
 
-    public static bool TryValidate(string? json, out IReadOnlyList<DiagnosisEntry> entries, out string? error)
+    public static bool TryValidate(string? json, out IReadOnlyList<DiagnosisEntry> entries)
     {
         entries = [];
-        error = null;
 
         if (string.IsNullOrWhiteSpace(json))
         {
@@ -29,7 +28,6 @@ public static class DiagnosisChecklist
             var parsed = JsonSerializer.Deserialize<List<DiagnosisEntry>>(json, JsonOptions);
             if (parsed is null)
             {
-                error = "The diagnosis checklist must be a JSON array.";
                 return false;
             }
 
@@ -38,7 +36,6 @@ public static class DiagnosisChecklist
                 if (string.IsNullOrWhiteSpace(entry.Symptom) || entry.Causes is null ||
                     entry.Causes.Count == 0 || entry.Causes.Any(string.IsNullOrWhiteSpace))
                 {
-                    error = "Every checklist entry needs a symptom and at least one cause.";
                     return false;
                 }
             }
@@ -46,9 +43,8 @@ public static class DiagnosisChecklist
             entries = parsed;
             return true;
         }
-        catch (JsonException ex)
+        catch (JsonException)
         {
-            error = $"The diagnosis checklist is not valid JSON: {ex.Message}";
             return false;
         }
     }

@@ -17,6 +17,8 @@ public interface IDeviceService
 {
     Task<IReadOnlyList<DeviceResponseDto>> ListAsync(CancellationToken cancellationToken = default);
 
+    Task<DeviceResponseDto?> GetAsync(int id, CancellationToken cancellationToken = default);
+
     Task<DeviceWriteResult> CreateAsync(DeviceRequestDto dto, CancellationToken cancellationToken = default);
 
     Task<DeviceWriteResult> UpdateAsync(int id, DeviceRequestDto dto, CancellationToken cancellationToken = default);
@@ -36,6 +38,16 @@ public sealed class DeviceService(AppDbContext db) : IDeviceService
         return devices.Select(ToResponse).ToList();
     }
 
+    public async Task<DeviceResponseDto?> GetAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var device = await db.Devices
+            .Include(d => d.Plants)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
+
+        return device is null ? null : ToResponse(device);
+    }
+
     public async Task<DeviceWriteResult> CreateAsync(DeviceRequestDto dto, CancellationToken cancellationToken = default)
     {
         var device = new Device
@@ -49,7 +61,7 @@ public sealed class DeviceService(AppDbContext db) : IDeviceService
         db.Devices.Add(device);
         await db.SaveChangesAsync(cancellationToken);
 
-        return new DeviceWriteResult(DeviceWriteStatus.Success, await ReloadAsync(device.Id, cancellationToken));
+        return new DeviceWriteResult(DeviceWriteStatus.Success, await GetAsync(device.Id, cancellationToken));
     }
 
     public async Task<DeviceWriteResult> UpdateAsync(int id, DeviceRequestDto dto, CancellationToken cancellationToken = default)
@@ -67,7 +79,7 @@ public sealed class DeviceService(AppDbContext db) : IDeviceService
         device.StateTopic = Normalize(dto.StateTopic);
         await db.SaveChangesAsync(cancellationToken);
 
-        return new DeviceWriteResult(DeviceWriteStatus.Success, await ReloadAsync(device.Id, cancellationToken));
+        return new DeviceWriteResult(DeviceWriteStatus.Success, await GetAsync(device.Id, cancellationToken));
     }
 
     public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
@@ -81,16 +93,6 @@ public sealed class DeviceService(AppDbContext db) : IDeviceService
         db.Devices.Remove(device);
         await db.SaveChangesAsync(cancellationToken);
         return true;
-    }
-
-    private async Task<DeviceResponseDto?> ReloadAsync(int id, CancellationToken cancellationToken)
-    {
-        var device = await db.Devices
-            .Include(d => d.Plants)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
-
-        return device is null ? null : ToResponse(device);
     }
 
     private static string? Normalize(string? topic)

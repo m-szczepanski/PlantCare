@@ -16,10 +16,8 @@ public enum WateringMethod
 }
 
 /// <summary>
-/// A recurring care activity for a plant (one row per plant+type). The
-/// watering task replaces the old custom-interval/last-watered columns on
-/// <see cref="Plant"/>; <see cref="IntervalDays"/> null falls back to the
-/// plant profile's default for watering.
+/// A recurring care activity for a plant (one row per plant+type).
+/// <see cref="IntervalDays"/> null falls back to the plant profile's default for watering.
 /// </summary>
 public class CareTask
 {
@@ -36,7 +34,7 @@ public class CareTask
     public DateTime? LastDoneAt { get; set; }
 
     /// <summary>
-    /// Doubles the interval during winter months (Dec-Feb, northern hemisphere)
+    /// Doubles the interval during winter months (Dec–Feb, northern hemisphere)
     /// when true; null falls back to the plant profile's default, then false.
     /// </summary>
     public bool? ReduceInWinter { get; set; }
@@ -56,9 +54,7 @@ public class CareTaskLog
 
     public string? Note { get; set; }
 
-    /// <summary>Watering-only detail: amount in millilitres.</summary>
     public int? AmountMilliliters { get; set; }
 
-    /// <summary>Watering-only detail: tap / filtered / rainwater.</summary>
     public WateringMethod? Method { get; set; }
 }

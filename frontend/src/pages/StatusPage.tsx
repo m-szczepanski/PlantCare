@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CircleCheck, CircleX, Send, Play } from "lucide-react";
 import { toast } from "sonner";
@@ -29,12 +29,15 @@ function readText(file: File): Promise<string> {
 
 export function StatusPage() {
   const { t } = useTranslation();
-  const outcomeLabels: Record<string, string> = {
-    "digest-sent": t("status.outcome.digestSent"),
-    "nothing-due": t("status.outcome.nothingDue"),
-    "already-sent-today": t("status.outcome.alreadySent"),
-    "delivery-failed": t("status.outcome.deliveryFailed"),
-  };
+  const outcomeLabels = useMemo<Record<string, string>>(
+    () => ({
+      "digest-sent": t("status.outcome.digestSent"),
+      "nothing-due": t("status.outcome.nothingDue"),
+      "already-sent-today": t("status.outcome.alreadySent"),
+      "delivery-failed": t("status.outcome.deliveryFailed"),
+    }),
+    [t],
+  );
   const { data: status, isPending, isError, error } = useStatus(30_000);
   const [importing, setImporting] = useState(false);
   const importInputRef = useRef<HTMLInputElement>(null);

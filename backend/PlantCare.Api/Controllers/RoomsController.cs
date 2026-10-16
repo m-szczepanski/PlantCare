@@ -27,8 +27,7 @@ public class RoomsController(IRoomService rooms, IAppLocalizer localizer) : Cont
     [HttpGet("{id:int}")]
     public async Task<ActionResult<RoomResponseDto>> Get(int id, CancellationToken cancellationToken)
     {
-        var all = await rooms.ListAsync(cancellationToken);
-        var room = all.FirstOrDefault(r => r.Id == id);
+        var room = await rooms.GetAsync(id, cancellationToken);
         return room is null ? NotFound() : Ok(room);
     }
 

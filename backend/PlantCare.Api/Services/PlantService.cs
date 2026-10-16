@@ -169,7 +169,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         plant.SoilType = dto.SoilType;
         plant.PropagatedFrom = string.IsNullOrWhiteSpace(dto.PropagatedFrom) ? null : dto.PropagatedFrom.Trim();
         plant.NotifyEnabled = dto.NotifyEnabled;
-        plant.AcquiredDate = dto.AcquiredDate;
+        plant.AcquiredDate = dto.AcquiredDate!.Value;
         plant.PlantProfileId = dto.PlantProfileId;
 
         var watering = WateringTask(plant) ?? NewWateringTask(plant);
@@ -198,8 +198,9 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
     }
 
     /// <summary>
-    /// Logs a watering event and updates <see cref="Plant.LastWateredAt"/> atomically:
-    /// both changes go out in the single implicit transaction of one SaveChanges call.
+    /// Logs a watering event, updates the plant's Watering <see cref="CareTask"/>
+    /// anchor, and records a watering log atomically: everything goes out in the
+    /// single implicit transaction of one SaveChanges call.
     /// </summary>
     public async Task<PlantResponseDto?> WaterAsync(int id, string? note, int? amountMilliliters = null, WateringMethod? method = null, CancellationToken cancellationToken = default)
     {
@@ -218,8 +219,7 @@ public sealed class PlantService(AppDbContext db, IWateringScheduleService sched
         var wateredAt = DateTime.UtcNow;
         var watering = WateringTask(plant) ?? NewWateringTask(plant);
         watering.LastDoneAt = wateredAt;
-        // Watering resolves a "soil still wet" deferral and re-anchors the
-        // derived top-up cycle (the full watering absorbs any pending top-up).
+        // Watering clears a soil-wet deferral and re-anchors the derived top-up cycle.
         plant.SoilWetUntil = null;
         TopUpWatering.SyncTask(plant);
         watering.Logs.Add(new CareTaskLog

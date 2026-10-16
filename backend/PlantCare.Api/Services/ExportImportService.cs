@@ -120,6 +120,10 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
             throw new InvalidOperationException($"Unsupported export schema version {document.SchemaVersion}.");
         }
 
+        // One transaction: rooms/profiles are saved first for their ids; a later
+        // failure rolls everything back, so a retry re-imports cleanly.
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+
         var roomsCreated = 0;
         var roomByName = await db.Rooms.ToDictionaryAsync(r => r.Name, StringComparer.OrdinalIgnoreCase, cancellationToken);
         foreach (var room in document.Rooms)
@@ -138,10 +142,10 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
                 TemperatureCelsius = room.TemperatureCelsius,
             };
             db.Rooms.Add(entity);
-            await db.SaveChangesAsync(cancellationToken);
             roomByName[room.Name] = entity;
             roomsCreated++;
         }
+        await db.SaveChangesAsync(cancellationToken);
 
         var profilesCreated = 0;
         var profileByName = await db.PlantProfiles.ToDictionaryAsync(p => p.CommonName, StringComparer.OrdinalIgnoreCase, cancellationToken);
@@ -166,10 +170,10 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
                 DiagnosisChecklist = profile.DiagnosisChecklist,
             };
             db.PlantProfiles.Add(entity);
-            await db.SaveChangesAsync(cancellationToken);
             profileByName[profile.CommonName] = entity;
             profilesCreated++;
         }
+        await db.SaveChangesAsync(cancellationToken);
 
         var existingNicknames = (await db.Plants.Select(p => p.NickName).ToListAsync(cancellationToken))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -244,6 +248,7 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
         }
 
         await db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
 
         return new ImportResultDto
         {

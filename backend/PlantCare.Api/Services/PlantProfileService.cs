@@ -47,7 +47,7 @@ public sealed class PlantProfileService(AppDbContext db, IAppLocalizer localizer
             return new PlantProfileWriteResult(PlantProfileWriteStatus.DuplicateName);
         }
 
-        if (!DiagnosisChecklist.TryValidate(dto.DiagnosisChecklist, out _, out _))
+        if (!DiagnosisChecklist.TryValidate(dto.DiagnosisChecklist, out _))
         {
             return new PlantProfileWriteResult(PlantProfileWriteStatus.InvalidChecklist);
         }
@@ -81,7 +81,7 @@ public sealed class PlantProfileService(AppDbContext db, IAppLocalizer localizer
             return new PlantProfileWriteResult(PlantProfileWriteStatus.NotFound);
         }
 
-        if (!DiagnosisChecklist.TryValidate(dto.DiagnosisChecklist, out _, out _))
+        if (!DiagnosisChecklist.TryValidate(dto.DiagnosisChecklist, out _))
         {
             return new PlantProfileWriteResult(PlantProfileWriteStatus.InvalidChecklist);
         }

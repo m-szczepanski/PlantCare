@@ -61,15 +61,12 @@ public static class SoilTypes
         => soil is { } s && !PermeableSoils.Contains(s) ? Drainage[s] : 1.0;
 
     /// <summary>
-    /// Highly permeable mixes drain so fast that between two full waterings the
-    /// top layer dries out; those soils opt the plant into the mid-cycle
-    /// "top up water" prompt (see <see cref="TopUpWatering"/> and
-    /// <see cref="WateringScheduleService.GetTopUpDueInfo"/>). Anything as slow
-    /// as or slower than the all-purpose baseline does not need top-ups.
+    /// Highly permeable mixes opt the plant into the mid-cycle "top up water"
+    /// prompt (see <see cref="TopUpWatering"/>); anything as slow as or slower
+    /// than the all-purpose baseline does not need top-ups.
     /// </summary>
     public static bool IsHighlyPermeable(SoilType? soil) => soil is { } s && PermeableSoils.Contains(s);
 
-    /// <summary>Applies the substrate factor to a base interval, never below one day.</summary>
     public static int AdjustInterval(SoilType? soil, int baseIntervalDays)
         => Math.Max(1, (int)Math.Round(baseIntervalDays * Factor(soil), MidpointRounding.AwayFromZero));
 }

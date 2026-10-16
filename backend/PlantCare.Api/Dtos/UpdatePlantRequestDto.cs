@@ -24,7 +24,10 @@ public class UpdatePlantRequestDto
     [StringLength(200)]
     public string? PropagatedFrom { get; set; }
 
-    public DateTime AcquiredDate { get; set; } = DateTime.UtcNow;
+    // PUT is a full replace: the calendar date is required so an omitted value
+    // cannot silently move the acquired date (and the checkup grace) to "now".
+    [Required]
+    public DateTime? AcquiredDate { get; set; }
 
     [Range(1, 3650)]
     public int? CustomWateringIntervalDays { get; set; }

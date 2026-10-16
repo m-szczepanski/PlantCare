@@ -16,7 +16,6 @@ public class NotificationsController(
     INotificationTestService testService,
     IWateringCheckService checkService) : ControllerBase
 {
-    /// <summary>Sends a test notification to every configured channel and reports per-channel results.</summary>
     [HttpPost("test")]
     public async Task<ActionResult<NotificationTestResult>> Test(
         [FromBody] TestNotificationRequestDto? request,

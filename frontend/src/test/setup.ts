@@ -37,6 +37,7 @@ if (!("ResizeObserver" in globalThis)) {
 }
 
 Element.prototype.scrollIntoView = () => {};
+window.scrollTo = () => {};
 
 if (typeof URL.createObjectURL !== "function") {
   URL.createObjectURL = () => "blob:mock-preview";

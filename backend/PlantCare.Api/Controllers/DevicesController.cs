@@ -28,8 +28,7 @@ public class DevicesController(IDeviceService devices, FeatureFlags features) : 
             return NotFound();
         }
 
-        var all = await devices.ListAsync(cancellationToken);
-        var device = all.FirstOrDefault(d => d.Id == id);
+        var device = await devices.GetAsync(id, cancellationToken);
         return device is null ? NotFound() : Ok(device);
     }
 

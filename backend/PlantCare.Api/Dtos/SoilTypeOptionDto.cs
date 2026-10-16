@@ -16,6 +16,5 @@ public class SoilTypeOptionDto
 
     public required IReadOnlyList<string> Mixes { get; set; }
 
-    /// <summary>True for highly permeable mixes that get the mid-cycle "top up water" prompt.</summary>
     public required bool TopUpWateringEligible { get; set; }
 }

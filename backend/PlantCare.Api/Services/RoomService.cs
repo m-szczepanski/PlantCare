@@ -18,6 +18,8 @@ public interface IRoomService
 {
     Task<IReadOnlyList<RoomResponseDto>> ListAsync(CancellationToken cancellationToken = default);
 
+    Task<RoomResponseDto?> GetAsync(int id, CancellationToken cancellationToken = default);
+
     Task<RoomWriteResult> CreateAsync(RoomRequestDto dto, CancellationToken cancellationToken = default);
 
     Task<RoomWriteResult> UpdateAsync(int id, RoomRequestDto dto, CancellationToken cancellationToken = default);
@@ -35,6 +37,16 @@ public sealed class RoomService(AppDbContext db) : IRoomService
             .ToListAsync(cancellationToken);
 
         return rooms.Select(ToResponse).ToList();
+    }
+
+    public async Task<RoomResponseDto?> GetAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var room = await db.Rooms
+            .Include(r => r.Plants)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
+
+        return room is null ? null : ToResponse(room);
     }
 
     public async Task<RoomWriteResult> CreateAsync(RoomRequestDto dto, CancellationToken cancellationToken = default)
@@ -56,7 +68,7 @@ public sealed class RoomService(AppDbContext db) : IRoomService
         db.Rooms.Add(room);
         await db.SaveChangesAsync(cancellationToken);
 
-        return new RoomWriteResult(RoomWriteStatus.Success, await ReloadAsync(room.Id, cancellationToken));
+        return new RoomWriteResult(RoomWriteStatus.Success, await GetAsync(room.Id, cancellationToken));
     }
 
     public async Task<RoomWriteResult> UpdateAsync(int id, RoomRequestDto dto, CancellationToken cancellationToken = default)
@@ -80,7 +92,7 @@ public sealed class RoomService(AppDbContext db) : IRoomService
         room.TemperatureCelsius = dto.TemperatureCelsius;
         await db.SaveChangesAsync(cancellationToken);
 
-        return new RoomWriteResult(RoomWriteStatus.Success, await ReloadAsync(room.Id, cancellationToken));
+        return new RoomWriteResult(RoomWriteStatus.Success, await GetAsync(room.Id, cancellationToken));
     }
 
     public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
@@ -94,16 +106,6 @@ public sealed class RoomService(AppDbContext db) : IRoomService
         db.Rooms.Remove(room);
         await db.SaveChangesAsync(cancellationToken);
         return true;
-    }
-
-    private async Task<RoomResponseDto?> ReloadAsync(int id, CancellationToken cancellationToken)
-    {
-        var room = await db.Rooms
-            .Include(r => r.Plants)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
-
-        return room is null ? null : ToResponse(room);
     }
 
     private static RoomResponseDto ToResponse(Room room) => new()

@@ -5,6 +5,7 @@ import i18n from "@/i18n";
 import type { Dashboard, HealthStatus, Plant, PlantInput, WaterDetails } from "@/api/types";
 import { toastError } from "@/lib/toast";
 import { dashboardKeys } from "@/hooks/useDashboard";
+import { dateKey } from "@/lib/dates";
 
 export const plantKeys = {
   all: ["plants"] as const,
@@ -19,14 +20,14 @@ export const plantKeys = {
 function optimisticWatered(plant: Plant): Plant {
   const now = new Date();
   const interval = plant.wateringIntervalDays;
-  const nextDueDate = interval ? new Date(now.getTime() + interval * 86_400_000) : null;
+  const nextDue = interval ? new Date(now.getTime() + interval * 86_400_000) : null;
 
   return {
     ...plant,
     lastWateredAt: now.toISOString(),
     dueStatus: interval ? "Upcoming" : "NotScheduled",
     daysUntilDue: interval,
-    nextDueDate: nextDueDate ? nextDueDate.toISOString() : null,
+    nextDueDate: nextDue ? `${dateKey(nextDue)}T00:00:00` : null,
     dueMessage: interval ? i18n.t("due.until", { count: interval }) : i18n.t("due.notScheduledLabel"),
   };
 }
@@ -38,11 +39,11 @@ function dashboardSectionFor(plant: Plant): keyof Dashboard {
 }
 
 function sortDashboardBucket(bucket: Plant[], section: keyof Dashboard): Plant[] {
-  if (section === "dueToday") return [...bucket].sort((a, b) => a.nickName.localeCompare(b.nickName));
+  if (section === "dueToday") return [...bucket].sort((a, b) => a.nickName.localeCompare(b.nickName, i18n.language));
   return [...bucket].sort(
     (a, b) =>
       (a.daysUntilDue ?? Number.MAX_SAFE_INTEGER) - (b.daysUntilDue ?? Number.MAX_SAFE_INTEGER) ||
-      a.nickName.localeCompare(b.nickName),
+      a.nickName.localeCompare(b.nickName, i18n.language),
   );
 }
 
@@ -148,8 +149,9 @@ export function useWaterPlant() {
         );
       }
       if (target) {
-        queryClient.setQueryData(plantKeys.detail(id), optimisticWatered(target));
-        patchDashboard(queryClient, optimisticWatered(target));
+        const optimistic = optimisticWatered(target);
+        queryClient.setQueryData(plantKeys.detail(id), optimistic);
+        patchDashboard(queryClient, optimistic);
       }
 
       return { previousList, previousDetail, previousDashboard };
@@ -329,7 +331,8 @@ export function useSnoozeAllPlants() {
   return useMutation({
     mutationFn: (days: number) => plantsApi.snoozeAll(days),
     onSuccess: (result) => {
-      invalidatePlantCaches(queryClient, -1);
+      queryClient.invalidateQueries({ queryKey: plantKeys.all });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       toast.success(i18n.t("toasts.snoozedAll"), { description: i18n.t("toasts.snoozedAllDesc", { count: result.snoozedPlants }) });
     },
     onError: (error) => toastError(i18n.t("toasts.snoozeAllFailed"), error),

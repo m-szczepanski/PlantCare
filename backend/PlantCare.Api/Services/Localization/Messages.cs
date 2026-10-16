@@ -73,7 +73,8 @@ public static class Messages
             ["error.unsupportedPhoto.title"] = "Unsupported photo.",
             ["error.photo.unsupportedType"] = "Unsupported photo type '{0}'.",
             ["error.photo.tooLarge"] = "Photo exceeds the 5 MB limit.",
-            ["error.daysRange.title"] = "Days must be between 1 and 365.",
+            ["error.validation.title"] = "Validation failed.",
+            ["error.validation.detail"] = "Correct the invalid fields and try again.",
             ["error.duplicateCareTask.title"] = "This plant already has that care task.",
             ["error.unknownCareTaskType.title"] = "Unknown care task type.",
             ["error.unknownCareTaskType.detail"] = "'{0}' is not a known care task type.",
@@ -84,6 +85,7 @@ public static class Messages
             ["error.invalidChecklist.detail"] = "Provide a JSON array of { symptom, causes[] } entries with non-empty values.",
             ["error.journalEmpty.title"] = "A journal entry needs a photo, a note, or both.",
             ["error.importFailed.title"] = "Import failed.",
+            ["error.importFailed.detail"] = "The document conflicts with existing data or is otherwise invalid.",
         },
         ["pl"] = new(StringComparer.Ordinal)
         {
@@ -151,7 +153,8 @@ public static class Messages
             ["error.unsupportedPhoto.title"] = "Nieobsługiwane zdjęcie.",
             ["error.photo.unsupportedType"] = "Nieobsługiwany typ zdjęcia „{0}”.",
             ["error.photo.tooLarge"] = "Zdjęcie przekracza limit 5 MB.",
-            ["error.daysRange.title"] = "Liczba dni musi mieścić się w zakresie 1–365.",
+            ["error.validation.title"] = "Walidacja nie powiodła się.",
+            ["error.validation.detail"] = "Popraw nieprawidłowe pola i spróbuj ponownie.",
             ["error.duplicateCareTask.title"] = "Ta roślina ma już takie zadanie pielęgnacyjne.",
             ["error.unknownCareTaskType.title"] = "Nieznany typ zadania.",
             ["error.unknownCareTaskType.detail"] = "„{0}” to nieznany typ zadania pielęgnacyjnego.",
@@ -162,6 +165,7 @@ public static class Messages
             ["error.invalidChecklist.detail"] = "Podaj tablicę JSON z wpisami { symptom, causes[] } o niepustych wartościach.",
             ["error.journalEmpty.title"] = "Wpis dziennika wymaga zdjęcia, notatki lub obu.",
             ["error.importFailed.title"] = "Import nie powiódł się.",
+            ["error.importFailed.detail"] = "Dokument jest sprzeczny z istniejącymi danymi lub jest nieprawidłowy.",
         },
     };
 
@@ -177,16 +181,34 @@ public static class Messages
     public static string Get(string language, string key, params object[] args)
         => string.Format(Get(language, key), args);
 
-    /// <summary>Resolves a plural key (base + .one/.few/.many/.other) for the language's cardinal rules.</summary>
     public static string GetPlural(string language, string key, int count)
     {
         var category = PluralCategory(language, count);
-        var resolved = Get(language, $"{key}.{category}");
-        if (resolved == $"{key}.{category}")
+        if (TryGet(language, $"{key}.{category}", out var resolved))
         {
-            resolved = Get(language, $"{key}.other");
+            return string.Format(resolved, count);
         }
-        return string.Format(resolved, count);
+
+        return string.Format(TryGet(language, $"{key}.other", out var other) ? other : $"{key}.other", count);
+    }
+
+    /// <summary>Looks a key up in the language (falling back to the default) without returning the key itself on a miss.</summary>
+    private static bool TryGet(string language, string key, out string value)
+    {
+        if (Catalog.TryGetValue(language, out var messages) && messages.TryGetValue(key, out var localized))
+        {
+            value = localized;
+            return true;
+        }
+
+        if (Catalog[DefaultLanguage].TryGetValue(key, out var fallback))
+        {
+            value = fallback;
+            return true;
+        }
+
+        value = key;
+        return false;
     }
 
     private static string PluralCategory(string language, int count)

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PlantCare.Api.Dtos;
 using PlantCare.Api.Services;
 
@@ -37,6 +38,17 @@ public class ExportImportController(IExportImportService exportImport, IAppLocal
         catch (InvalidOperationException ex)
         {
             return BadRequest(new ProblemDetails { Title = localizer.T("error.importFailed.title"), Detail = ex.Message });
+        }
+        catch (DbUpdateException)
+        {
+            // A hand-edited document can violate a unique index (duplicate care
+            // task type, name race). The import transaction rolls back, so report
+            // it as a client error rather than an unhandled 500.
+            return BadRequest(new ProblemDetails
+            {
+                Title = localizer.T("error.importFailed.title"),
+                Detail = localizer.T("error.importFailed.detail"),
+            });
         }
     }
 }

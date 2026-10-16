@@ -119,11 +119,6 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
     [HttpPost("{id:int}/snooze")]
     public async Task<ActionResult<PlantResponseDto>> Snooze(int id, SnoozeRequestDto dto, CancellationToken cancellationToken)
     {
-        if (dto.Days is < 1 or > 365)
-        {
-            return BadRequest(new ProblemDetails { Title = localizer.T("error.daysRange.title") });
-        }
-
         var plant = await plants.SetSnoozeAsync(id, dto.Days, cancellationToken);
         return plant is null ? NotFound() : Ok(plant);
     }
@@ -138,11 +133,6 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
     [HttpPost("snooze-all")]
     public async Task<ActionResult<SnoozeAllResponseDto>> SnoozeAll(SnoozeRequestDto dto, CancellationToken cancellationToken)
     {
-        if (dto.Days is < 1 or > 365)
-        {
-            return BadRequest(new ProblemDetails { Title = localizer.T("error.daysRange.title") });
-        }
-
         var count = await plants.SnoozeAllAsync(dto.Days, cancellationToken);
         return Ok(new SnoozeAllResponseDto { SnoozedPlants = count });
     }

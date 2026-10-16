@@ -26,9 +26,22 @@ export function wateredRelative(value: string | null): string {
   return i18n.t("dates.wateredDaysAgo", { count: days });
 }
 
+// Calendar-day values (DateOnly on the server) carry no timezone; read the
+// yyyy-mm-dd prefix as a local day so it never shifts across time zones.
+export function parseDateOnly(value: string): Date {
+  const [year, month, day] = value.slice(0, 10).split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+export function dateKey(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
 export function formatDate(value: string | null | undefined, locale: string): string {
   if (!value) return "-";
-  return new Date(value).toLocaleDateString(locale);
+  return parseDateOnly(value).toLocaleDateString(locale);
 }
 
 export function formatInstant(value: string | null | undefined, withTime = true): string {

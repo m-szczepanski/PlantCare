@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.Testing;
 using PlantCare.Api.Dtos;
+using PlantCare.Api.Models;
 using Xunit;
 
 namespace PlantCare.Api.Tests;
@@ -89,6 +90,45 @@ public class ExportImportApiTests : IDisposable
         }, Options);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Import_Conflict_RollsBackAndReturns400()
+    {
+        using var factory = _target.CreateFactory();
+        var client = factory.CreateClient();
+
+        // Two care tasks of the same type for one plant violate the (PlantId, Type)
+        // unique index; the whole import must roll back (no room left behind).
+        var document = new ExportDocumentDto
+        {
+            SchemaVersion = 1,
+            ExportedAt = DateTime.UtcNow,
+            Rooms = [new ExportRoomDto { Name = "Rollback Room" }],
+            PlantProfiles = [],
+            Plants =
+            [
+                new ExportPlantDto
+                {
+                    NickName = "Duplicate tasks",
+                    RoomName = "Rollback Room",
+                    AcquiredDate = DateTime.UtcNow.Date,
+                    CareTasks =
+                    [
+                        new ExportCareTaskDto { Type = CareTaskType.Watering, IntervalDays = 7, Logs = [] },
+                        new ExportCareTaskDto { Type = CareTaskType.Watering, IntervalDays = 7, Logs = [] },
+                    ],
+                    Notes = [],
+                    Journal = [],
+                },
+            ],
+        };
+
+        var response = await client.PostAsJsonAsync("/api/import", document, Options);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var rooms = await client.GetFromJsonAsync<List<RoomResponseDto>>("/api/rooms", Options);
+        Assert.DoesNotContain(rooms!, r => r.Name == "Rollback Room");
     }
 
     public void Dispose()

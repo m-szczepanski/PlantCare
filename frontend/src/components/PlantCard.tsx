@@ -7,7 +7,7 @@ import { PlantPhoto } from "@/components/PlantPhoto";
 import { RoomLightBadge } from "@/components/RoomLightBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { formatDate, wateredRelative } from "@/lib/dates";
+import { formatDate, formatInstant, parseInstant, wateredRelative } from "@/lib/dates";
 import { touchButton } from "@/lib/ui";
 import type { Plant } from "@/api/types";
 
@@ -20,17 +20,18 @@ interface PlantCardProps {
 export function PlantCard({ plant, onWater, isWatering }: PlantCardProps) {
   const { t, i18n } = useTranslation();
   const soilWetActive =
-    !!plant.soilWetUntil && new Date(plant.soilWetUntil).getTime() > Date.now();
+    !!plant.soilWetUntil && parseInstant(plant.soilWetUntil).getTime() > Date.now();
   return (
     <Card
       data-plant-card={plant.id}
-      tabIndex={0}
-      className="flex h-full flex-col overflow-hidden transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      role="group"
+      aria-label={plant.nickName}
+      className="flex h-full flex-col overflow-hidden transition-shadow hover:shadow-md"
     >
       <PlantPhoto
         photoUrl={plant.photoUrl}
         nickName={plant.nickName}
-        className="aspect-[16/7] w-full shrink-0 rounded-none"
+        className="aspect-16/7 w-full shrink-0 rounded-none"
       />
       <CardContent className="flex flex-1 flex-col gap-3 p-6">
         <div className="flex items-start justify-between gap-3">
@@ -83,7 +84,7 @@ export function PlantCard({ plant, onWater, isWatering }: PlantCardProps) {
             {soilWetActive ? (
               <span className="text-xs" role="status">
                 · {t("plant.soilWetUntil", {
-                  date: new Date(plant.soilWetUntil as string).toLocaleDateString(i18n.language),
+                  date: formatInstant(plant.soilWetUntil as string, false),
                 })}
               </span>
             ) : null}

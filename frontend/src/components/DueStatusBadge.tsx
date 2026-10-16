@@ -17,9 +17,15 @@ const metaByStatus: Record<PlantDueStatus, StatusMeta> = {
   NotScheduled: { labelKey: "due.notScheduled", variant: "outline", icon: CircleDashed },
 };
 
+const FALLBACK_STATUS: StatusMeta = {
+  labelKey: "common.unknown",
+  variant: "outline",
+  icon: CircleDashed,
+};
+
 export function DueStatusBadge({ plant }: { plant: Plant }) {
   const { t } = useTranslation();
-  const { labelKey, variant, icon: Icon } = metaByStatus[plant.dueStatus];
+  const { labelKey, variant, icon: Icon } = metaByStatus[plant.dueStatus] ?? FALLBACK_STATUS;
 
   return (
     <Badge variant={variant} className="gap-1">

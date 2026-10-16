@@ -8,17 +8,13 @@ import { Label } from "@/components/ui/label";
 import { PlantPhoto } from "@/components/PlantPhoto";
 import { useJournalEntries, useJournalMutations } from "@/hooks/usePlants";
 import { touchButton, touchField } from "@/lib/ui";
-import { formatInstant } from "@/lib/dates";
-
-function today(): string {
-  return new Date().toISOString().slice(0, 10);
-}
+import { dateKey, formatDate } from "@/lib/dates";
 
 export function JournalCard({ plantId, nickName }: { plantId: number; nickName: string }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: entries = [] } = useJournalEntries(plantId);
   const { add, remove } = useJournalMutations(plantId);
-  const [date, setDate] = useState(today);
+  const [date, setDate] = useState<string>(() => dateKey(new Date()));
   const [text, setText] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [fromId, setFromId] = useState<number | null>(null);
@@ -105,7 +101,7 @@ export function JournalCard({ plantId, nickName }: { plantId: number; nickName: 
                   />
                   <figcaption className="text-xs text-muted-foreground">
                     {index === 0 ? t("journal.before") : t("journal.after")} ·{" "}
-                    {formatInstant(entry.entryDate, false)}
+                    {formatDate(entry.entryDate, i18n.language)}
                     {entry.text ? ` — ${entry.text}` : ""}
                   </figcaption>
                 </figure>
@@ -125,7 +121,7 @@ export function JournalCard({ plantId, nickName }: { plantId: number; nickName: 
                 <PlantPhoto photoUrl={entry.photoUrl} nickName={nickName} className="h-10 w-10 shrink-0" />
                 <div className="min-w-0 flex-1">
                   <span className="font-medium">
-                    {formatInstant(entry.entryDate, false)}
+                    {formatDate(entry.entryDate, i18n.language)}
                   </span>
                   {entry.text ? (
                     <span className="ml-2 text-muted-foreground">{entry.text}</span>
@@ -155,7 +151,7 @@ export function JournalCard({ plantId, nickName }: { plantId: number; nickName: 
             >
               {sortedForSelect.map((entry) => (
                 <option key={entry.id} value={String(entry.id)}>
-                  {formatInstant(entry.entryDate, false)}
+                  {formatDate(entry.entryDate, i18n.language)}
                 </option>
               ))}
             </select>
@@ -168,7 +164,7 @@ export function JournalCard({ plantId, nickName }: { plantId: number; nickName: 
             >
               {sortedForSelect.map((entry) => (
                 <option key={entry.id} value={String(entry.id)}>
-                  {formatInstant(entry.entryDate, false)}
+                  {formatDate(entry.entryDate, i18n.language)}
                 </option>
               ))}
             </select>

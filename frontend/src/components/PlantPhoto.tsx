@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Sprout } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,8 @@ interface PlantPhotoProps {
 export function PlantPhoto({ photoUrl, nickName, className }: PlantPhotoProps) {
   const { t } = useTranslation();
   const [failed, setFailed] = useState(false);
+
+  useEffect(() => setFailed(false), [photoUrl]);
 
   if (photoUrl && !failed) {
     return (

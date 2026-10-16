@@ -24,7 +24,6 @@ public class CareTaskResponseDto
 
     public required bool InWinterNow { get; set; }
 
-    /// <summary>Seasonal or flush reminder for this task, if any.</summary>
     public string? Hint { get; set; }
 }
 

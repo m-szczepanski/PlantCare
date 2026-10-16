@@ -33,6 +33,7 @@ public sealed class CareTaskService(AppDbContext db, IWateringScheduleService sc
 {
     public static readonly HashSet<int> WinterMonths = [12, 1, 2];
 
+    /// <summary>Single source of truth for the (northern-hemisphere) winter window.</summary>
     internal static bool IsWinter(DateOnly today) => WinterMonths.Contains(today.Month);
 
     public async Task<IReadOnlyList<CareTaskResponseDto>?> ListForPlantAsync(int plantId, CancellationToken cancellationToken = default)
@@ -67,15 +68,16 @@ public sealed class CareTaskService(AppDbContext db, IWateringScheduleService sc
         task.LastDoneAt = doneAt;
         if (type == CareTaskType.Watering)
         {
-            // Completing the watering resolves any "soil still wet" deferral and
-            // re-anchors (or re-syncs) the derived top-up cycle.
+            // Completing the watering clears a soil-wet deferral and re-anchors the top-up cycle.
             plant.SoilWetUntil = null;
             TopUpWatering.SyncTask(plant);
         }
         else if (type == CareTaskType.TopUpWatering)
         {
-            // A top-up drink absorbs an already-due full watering (see TopUpWatering).
-            TopUpWatering.AbsorbDueWatering(plant, task, doneAt);
+            // A top-up absorbs an already-due full watering; due info from the schedule service.
+            var watering = plant.CareTasks.FirstOrDefault(t => t.Type == CareTaskType.Watering);
+            var wateringDue = schedule.GetDueInfo(watering, plant, DateOnly.FromDateTime(doneAt));
+            TopUpWatering.AbsorbDueWatering(plant, doneAt, wateringDue);
         }
         task.Logs.Add(new CareTaskLog
         {

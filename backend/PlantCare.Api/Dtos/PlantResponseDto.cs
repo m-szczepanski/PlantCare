@@ -28,10 +28,8 @@ public class PlantResponseDto
 
     public int? DeviceId { get; set; }
 
-    /// <summary>Latest soil-moisture reading from the linked device (null when none or no device).</summary>
     public int? SoilMoisturePct { get; set; }
 
-    /// <summary>Minutes since the linked device last reported a reading; null when none.</summary>
     public int? SoilMoistureAgeMinutes { get; set; }
 
     public DateTime AcquiredDate { get; set; }
@@ -70,7 +68,6 @@ public class PlantResponseDto
     /// </summary>
     public RoomLightMatch? RoomLightMatch { get; set; }
 
-    /// <summary>Health status from the latest monthly checkup (null = never checked).</summary>
     public HealthStatus? HealthStatus { get; set; }
 
     public DateTime? LastCheckupAt { get; set; }

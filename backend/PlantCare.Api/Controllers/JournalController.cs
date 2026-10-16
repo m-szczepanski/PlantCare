@@ -38,6 +38,11 @@ public class JournalController(IJournalService journal, IAppLocalizer localizer)
         {
             JournalWriteStatus.PlantNotFound => NotFound(),
             JournalWriteStatus.Empty => BadRequest(new ProblemDetails { Title = localizer.T("error.journalEmpty.title") }),
+            JournalWriteStatus.InvalidPhoto => BadRequest(new ProblemDetails
+            {
+                Title = localizer.T("error.unsupportedPhoto.title"),
+                Detail = result.ErrorKey is null ? null : localizer.Tf(result.ErrorKey, result.ErrorArgs ?? []),
+            }),
             _ => Created($"/api/plants/{plantId}/journal", result.Entry),
         };
     }

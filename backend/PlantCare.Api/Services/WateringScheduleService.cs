@@ -31,10 +31,8 @@ public interface IWateringScheduleService
 /// <summary>Single source of truth for watering (and watering-derived top-up) due-date/status logic.</summary>
 public sealed class WateringScheduleService(IAppLocalizer localizer) : IWateringScheduleService
 {
-    /// <summary>Cycles shorter than this are too tight to slip a top-up into.</summary>
     public const int MinWateringCycleForTopUp = 3;
 
-    /// <summary>Highly permeable soils get a small "top up" drink at this fraction of the watering cycle.</summary>
     public const int TopUpCycleDivisor = 2;
 
     public PlantDueInfo GetDueInfo(CareTask? wateringTask, Plant plant)
@@ -65,10 +63,9 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
         var (anchor, effectiveInterval) = WateringCycle(wateringTask, plant, today, isWatering);
         var nextDue = anchor.AddDays(effectiveInterval);
 
-        // A "soil still wet" deferral pushes the watering due date out to the recheck
-        // day (never earlier; watering only). The plant leaves the overdue/due buckets
-        // and shows as upcoming, and the daily digest skips it in turn. On the recheck
-        // day the deferral has lapsed and the plant becomes due again.
+        // A soil-wet deferral pushes the due date out to the recheck day (never
+        // earlier; watering only) so the plant leaves the due/overdue buckets
+        // until the deferral lapses.
         if (isWatering && plant.SoilWetUntil is { } wetUntil)
         {
             var recheck = DateOnly.FromDateTime(wetUntil.Date);
@@ -78,9 +75,8 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
             }
         }
 
-        // A sick/bad checkup answer pauses fertilizing until the next checkup day
-        // (the same clamp pattern as the soil-wet deferral): the plant drops out of
-        // the due buckets and resurfaces when the answer goes stale and is re-asked.
+        // A sick/bad checkup answer pauses fertilizing: clamp the due date out to
+        // the next checkup day (the soil-wet clamp pattern).
         if (!isWatering && wateringTask?.Type == CareTaskType.Fertilizing
             && HealthPolicy.PausesFertilizing(plant.HealthStatus)
             && HealthPolicy.NextCheckupDue(plant) is { } resume
@@ -116,13 +112,11 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
     }
 
     /// <summary>
-    /// The mid-cycle top-up derived from the watering schedule: due at half of the
-    /// plant's (unadjusted) watering interval after the last watering — or after
-    /// the previous top-up — never on/after the next full watering, which both
-    /// re-anchors the cycle and absorbs any pending top-up. Cycles below
-    /// <see cref="MinWateringCycleForTopUp"/> days have no room between waterings
-    /// and report "not scheduled". A manual <see cref="CareTask.IntervalDays"/> on
-    /// the top-up task replaces the derived half-cycle with its own clock.
+    /// The mid-cycle top-up: half of the plant's unadjusted watering interval after
+    /// the last watering (or the previous top-up), never on/after the next full
+    /// watering — the full watering re-anchors and absorbs the pending top-up.
+    /// Cycles below <see cref="MinWateringCycleForTopUp"/> days have no room; a
+    /// manual <see cref="CareTask.IntervalDays"/> runs its own clock.
     /// </summary>
     private (DateOnly NextDue, int Interval)? ComputeTopUp(CareTask topUpTask, Plant plant, DateOnly today)
         => ComputeTopUp(plant.CareTasks.FirstOrDefault(t => t.Type == CareTaskType.Watering), topUpTask, plant, today);
@@ -139,9 +133,8 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
             return null;
         }
 
-        // The substrate factor is deliberately NOT applied here: the top-up is the
-        // permeable-soil answer to the *full, unadjusted* watering cycle (the mix's
-        // fast drainage is exactly why the drink in between exists).
+        // The substrate factor is deliberately not applied: the top-up is the
+        // permeable-soil answer to the full, unadjusted watering cycle.
         var (wateringAnchor, wateringInterval) = WateringCycle(wateringTask, plant, today, isWatering: true, applySoil: false);
         if (wateringInterval < MinWateringCycleForTopUp)
         {
@@ -154,7 +147,6 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
 
         if (topUpTask.IntervalDays is { } manual)
         {
-            // A manual cadence runs on its own clock; it is kept as-is.
             return manual <= 0 ? null : (anchor.AddDays(manual), manual);
         }
 
@@ -162,9 +154,7 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
         var nextWateringDue = wateringAnchor.AddDays(wateringInterval);
         if (anchor.AddDays(derived) >= nextWateringDue)
         {
-            // No room left strictly between waterings (slow, retentive mixes, or
-            // the cycle's top-up already taken). The full watering absorbs it —
-            // report "not scheduled".
+            // No room strictly between waterings: the full watering absorbs the prompt.
             return null;
         }
 
@@ -177,11 +167,10 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
             ?? (isWatering ? plant.PlantProfile?.DefaultWateringIntervalDays : null);
 
         var baseInterval = intervalDays ?? 0;
-        // Substrate permeability only scales the watering schedule (not fertilizing/repotting).
+        // Substrate permeability scales only the watering schedule.
         var effectiveInterval = isWatering && applySoil ? SoilTypes.AdjustInterval(plant.SoilType, baseInterval) : baseInterval;
 
-        // The latest health checkup answer scales intervals on top of the soil
-        // factor (watering every status; fertilizing only the thriving plants).
+        // The health answer scales on top of the soil factor.
         if (isWatering)
         {
             effectiveInterval = HealthPolicy.AdjustWateringInterval(plant.HealthStatus, effectiveInterval);
@@ -192,7 +181,7 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
         }
 
         var reduceInWinter = wateringTask?.ReduceInWinter ?? plant.PlantProfile?.DefaultReduceInWinter ?? false;
-        var winter = isWinter(today);
+        var winter = CareTaskService.IsWinter(today);
         effectiveInterval = reduceInWinter && winter ? effectiveInterval * 2 : effectiveInterval;
 
         var anchor = DateOnly.FromDateTime((wateringTask?.LastDoneAt ?? plant.AcquiredDate).Date);
@@ -219,7 +208,4 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
 
         return (status, message);
     }
-
-    /// <summary>Winter months for the (northern-hemisphere) seasonal reduction. Northern users only for v1.</summary>
-    private static bool isWinter(DateOnly today) => today.Month is 12 or 1 or 2;
 }

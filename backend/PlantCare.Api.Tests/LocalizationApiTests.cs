@@ -132,6 +132,18 @@ public class LocalizationApiTests : IDisposable
     }
 
     [Fact]
+    public async Task ModelValidationProblems_Localize()
+    {
+        var plant = await CreatePlantAsync(_client, "Zlokalizowana", 7, 1);
+
+        var response = await PolishClient().PutAsJsonAsync($"/api/plants/{plant.Id}", new { nickName = "Zlokalizowana" });
+
+        Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.Contains("Walidacja nie powiodła się.", body);
+    }
+
+    [Fact]
     public async Task Digest_WithPolishDefaultLanguage_LocalizesTitleBodyAndButton()
     {
         var publisher = new RecordingPublisher();

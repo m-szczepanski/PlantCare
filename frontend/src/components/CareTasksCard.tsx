@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Sprout } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,16 +8,18 @@ import { Label } from "@/components/ui/label";
 import { useCareTaskMutations, useCareTasks } from "@/hooks/usePlants";
 import { cn } from "@/lib/utils";
 import { touchButton, touchField } from "@/lib/ui";
-import type { CareTask } from "@/api/types";
 
 export function CareTasksCard({ plantId }: { plantId: number }) {
   const { t } = useTranslation();
-  const labels: Record<CareTask["type"], string> = {
-    Watering: t("careTask.types.Watering"),
-    Fertilizing: t("careTask.types.Fertilizing"),
-    Repotting: t("careTask.types.Repotting"),
-    TopUpWatering: t("careTask.types.TopUpWatering"),
-  };
+  const labels = useMemo<Record<string, string>>(
+    () => ({
+      Watering: t("careTask.types.Watering"),
+      Fertilizing: t("careTask.types.Fertilizing"),
+      Repotting: t("careTask.types.Repotting"),
+      TopUpWatering: t("careTask.types.TopUpWatering"),
+    }),
+    [t],
+  );
   const { data: tasks = [] } = useCareTasks(plantId);
   const { add, remove, markDone } = useCareTaskMutations(plantId);
   const [interval, setInterval] = useState("30");
@@ -38,7 +40,7 @@ export function CareTasksCard({ plantId }: { plantId: number }) {
             key={task.id}
             className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border p-3 text-sm"
           >
-            <span className="font-medium">{labels[task.type]}</span>
+            <span className="font-medium">{labels[task.type] ?? t("common.unknown")}</span>
             <span
               className={cn(
                 task.dueStatus === "Overdue" && "text-destructive",
@@ -61,7 +63,7 @@ export function CareTasksCard({ plantId }: { plantId: number }) {
                 <Button
                   size="sm"
                   variant="ghost"
-                  aria-label={t("careTask.removeAria", { task: labels[task.type] })}
+                  aria-label={t("careTask.removeAria", { task: labels[task.type] ?? t("common.unknown") })}
                   disabled={remove.isPending}
                   onClick={() => remove.mutate(task.id)}
                 >
