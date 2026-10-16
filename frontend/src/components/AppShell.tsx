@@ -33,13 +33,13 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { to: "/", labelKey: "nav.dashboard", icon: LayoutDashboard, end: true },
+  { to: "/plants", labelKey: "nav.plants", icon: Sprout, end: false },
+  { to: "/rooms", labelKey: "nav.rooms", icon: Armchair, end: true },
   { to: "/calendar", labelKey: "nav.calendar", icon: CalendarDays, end: true },
   { to: "/insights", labelKey: "nav.insights", icon: BarChart3, end: true },
-  { to: "/rooms", labelKey: "nav.rooms", icon: Armchair, end: true },
   { to: "/devices", labelKey: "nav.devices", icon: Cpu, end: true },
   { to: "/profiles", labelKey: "nav.profiles", icon: BookOpen, end: true },
   { to: "/status", labelKey: "nav.status", icon: Activity, end: true },
-  { to: "/plants", labelKey: "nav.plants", icon: Sprout, end: false },
   { to: "/plants/new", labelKey: "nav.addPlant", icon: Plus, end: true },
 ];
 
