@@ -92,6 +92,18 @@ public class JournalApiTests : IDisposable
     }
 
     [Fact]
+    public async Task CreateWithExplicitDateTime_StoresCalendarDay()
+    {
+        var plantId = await CreatePlant();
+
+        var response = await PostEntry(plantId, "2026-03-05T15:30:00", "noon entry");
+
+        response.EnsureSuccessStatusCode();
+        var entries = await _client.GetFromJsonAsync<List<JournalEntryResponseDto>>($"/api/plants/{plantId}/journal", Options);
+        Assert.Equal(new DateTime(2026, 3, 5), entries![0].EntryDate);
+    }
+
+    [Fact]
     public async Task CreateWithUnsupportedPhoto_ReportsPhotoProblem()
     {
         var plantId = await CreatePlant();

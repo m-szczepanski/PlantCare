@@ -104,9 +104,8 @@ public sealed class JournalService(AppDbContext db, IPlantPhotoStorage photos) :
         var entry = new JournalEntry
         {
             PlantId = plantId,
-            // An explicit date is stored at midnight (date-only contract); the
-            // fallback "now" keeps its time of day.
-            EntryDate = entryDate ?? DateTime.UtcNow,
+            // Date-only contract: an explicit entryDate normalizes to midnight; the fallback "now" keeps its time.
+            EntryDate = entryDate?.Date ?? DateTime.UtcNow,
             PhotoUrl = photoUrl,
             Text = string.IsNullOrEmpty(trimmed) ? null : trimmed,
         };
