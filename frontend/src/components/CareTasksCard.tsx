@@ -40,7 +40,7 @@ export function CareTasksCard({ plantId }: { plantId: number }) {
             key={task.id}
             className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border p-3 text-sm"
           >
-            <span className="font-medium">{labels[task.type]}</span>
+            <span className="font-medium">{labels[task.type] ?? t("common.unknown")}</span>
             <span
               className={cn(
                 task.dueStatus === "Overdue" && "text-destructive",
@@ -63,7 +63,7 @@ export function CareTasksCard({ plantId }: { plantId: number }) {
                 <Button
                   size="sm"
                   variant="ghost"
-                  aria-label={t("careTask.removeAria", { task: labels[task.type] })}
+                  aria-label={t("careTask.removeAria", { task: labels[task.type] ?? t("common.unknown") })}
                   disabled={remove.isPending}
                   onClick={() => remove.mutate(task.id)}
                 >
