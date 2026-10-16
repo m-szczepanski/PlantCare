@@ -158,7 +158,7 @@ public class WateringCheckApiTests : IDisposable
         var retried = await RunCheckAsync();
 
         Assert.Equal(1, retried.SentDigests);
-        Assert.Equal(1, _publisher.Published.Count);
+        Assert.Single(_publisher.Published);
     }
 
     [Fact]

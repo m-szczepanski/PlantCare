@@ -34,8 +34,8 @@ public class WateringScheduleServiceTests
         return plant;
     }
 
-    private static CareTask? Watering(Plant plant)
-        => plant.CareTasks.FirstOrDefault(t => t.Type == CareTaskType.Watering);
+    private static CareTask Watering(Plant plant)
+        => plant.CareTasks.First(t => t.Type == CareTaskType.Watering);
 
     [Fact]
     public void NoInterval_ReturnsNotScheduled()
