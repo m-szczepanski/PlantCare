@@ -23,5 +23,8 @@ dist/
 .env
 docker-compose.override.yml
 
+# Local-only deploy helper (may embed machine-specific values)
+tools/deploy-nas.sh
+
 __pycache__/
 *.pyc
