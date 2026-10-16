@@ -183,12 +183,31 @@ public static class Messages
     public static string GetPlural(string language, string key, int count)
     {
         var category = PluralCategory(language, count);
-        var resolved = Get(language, $"{key}.{category}");
-        if (resolved == $"{key}.{category}")
+        if (TryGet(language, $"{key}.{category}", out var resolved))
         {
-            resolved = Get(language, $"{key}.other");
+            return string.Format(resolved, count);
         }
-        return string.Format(resolved, count);
+
+        return string.Format(TryGet(language, $"{key}.other", out var other) ? other : $"{key}.other", count);
+    }
+
+    /// <summary>Looks a key up in the language (falling back to the default) without returning the key itself on a miss.</summary>
+    private static bool TryGet(string language, string key, out string value)
+    {
+        if (Catalog.TryGetValue(language, out var messages) && messages.TryGetValue(key, out var localized))
+        {
+            value = localized;
+            return true;
+        }
+
+        if (Catalog[DefaultLanguage].TryGetValue(key, out var fallback))
+        {
+            value = fallback;
+            return true;
+        }
+
+        value = key;
+        return false;
     }
 
     private static string PluralCategory(string language, int count)
