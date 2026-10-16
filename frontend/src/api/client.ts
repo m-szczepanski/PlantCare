@@ -1,11 +1,9 @@
 import type { CareTask, CareTaskType, Dashboard, Device, DeviceInput, HealthCheckEntry, HealthStatus, ImportResult, Insights, JournalEntry, NotificationTestResult, Plant, PlantInput, PlantNote, PlantProfile, PlantProfileInput, Room, RoomInput, SoilTypeOption, StatusInfo, WaterDetails, WateringCheckResult, WateringLogEntry } from "./types";
-import { apiHeaders } from "./headers";
+import { apiHeaders, API_BASE_URL } from "./headers";
 
 export interface HealthResponse {
   status: string;
 }
-
-const BASE_URL = "/api";
 
 export class ApiError extends Error {
   readonly status: number;
@@ -27,9 +25,13 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${BASE_URL}${path}`, {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
-    headers: { ...apiHeaders(), "Content-Type": "application/json", ...(init?.headers) },
+    headers: {
+      ...apiHeaders(),
+      ...(typeof init?.body === "string" ? { "Content-Type": "application/json" } : {}),
+      ...init?.headers,
+    },
   });
   return unwrap<T>(response, path);
 }
@@ -93,7 +95,7 @@ export const plantsApi = {
   uploadPhoto: async (id: number, file: File): Promise<Plant> => {
     const form = new FormData();
     form.append("file", file);
-    const response = await fetch(`${BASE_URL}/plants/${id}/photo`, { method: "POST", body: form, headers: apiHeaders() });
+    const response = await fetch(`${API_BASE_URL}/plants/${id}/photo`, { method: "POST", body: form, headers: apiHeaders() });
     return unwrap<Plant>(response, `/plants/${id}/photo`);
   },
   wateringLogs: (id: number) => request<WateringLogEntry[]>(`/plants/${id}/watering-logs`),
@@ -118,7 +120,7 @@ export const plantsApi = {
     if (input.entryDate) form.append("entryDate", input.entryDate);
     if (input.text) form.append("text", input.text);
     if (input.file) form.append("file", input.file);
-    const response = await fetch(`${BASE_URL}/plants/${id}/journal`, { method: "POST", body: form, headers: apiHeaders() });
+    const response = await fetch(`${API_BASE_URL}/plants/${id}/journal`, { method: "POST", body: form, headers: apiHeaders() });
     return unwrap<JournalEntry>(response, `/plants/${id}/journal`);
   },
   deleteJournalEntry: (id: number, entryId: number) =>
@@ -189,7 +191,7 @@ export const notificationsApi = {
 };
 
 export const backupApi = {
-  exportUrl: `${BASE_URL}/export`,
+  exportUrl: `${API_BASE_URL}/export`,
   importDocument: (document: unknown) =>
     request<ImportResult>("/import", { method: "POST", body: JSON.stringify(document) }),
 };
