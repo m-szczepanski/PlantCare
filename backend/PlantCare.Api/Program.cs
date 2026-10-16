@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Coravel;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PlantCare.Api.Data;
 using PlantCare.Api.Seed;
@@ -40,6 +41,22 @@ builder.Services.AddOpenApi();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
+
+// [ApiController]'s automatic 400s localize like every other ProblemDetails; the
+// per-field errors dictionary passes through unchanged so the SPA can map it onto
+// form fields.
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var localizer = context.HttpContext.RequestServices.GetRequiredService<IAppLocalizer>();
+        return new BadRequestObjectResult(new ValidationProblemDetails(context.ModelState)
+        {
+            Title = localizer.T("error.validation.title"),
+            Detail = localizer.T("error.validation.detail"),
+        });
+    };
 });
 
 builder.Services.AddSingleton(new FeatureFlags(
