@@ -92,15 +92,20 @@ public class QuickActionApiTests : IDisposable
     {
         var plant = await CreateDuePlant();
 
+        // Only rejected attempts spend a limiter slot, so ten bad tries are allowed.
         for (var i = 0; i < 10; i += 1)
         {
-            var ok = await _client.PostAsync($"/api/plants/{plant.Id}/quick-water?key=nope", null);
-            Assert.Equal(HttpStatusCode.Forbidden, ok.StatusCode);
+            var rejected = await _client.PostAsync($"/api/plants/{plant.Id}/quick-water?key=nope", null);
+            Assert.Equal(HttpStatusCode.Forbidden, rejected.StatusCode);
         }
 
-        var limited = await _client.PostAsync($"/api/plants/{plant.Id}/quick-water?key={Secret}", null);
-
+        var limited = await _client.PostAsync($"/api/plants/{plant.Id}/quick-water?key=nope", null);
         Assert.Equal(HttpStatusCode.TooManyRequests, limited.StatusCode);
+
+        // A correct key never spends a slot, so brute-force attempts from the same
+        // origin don't lock out the legitimate notification button.
+        var valid = await _client.PostAsync($"/api/plants/{plant.Id}/quick-water?key={Secret}", null);
+        Assert.Equal(HttpStatusCode.OK, valid.StatusCode);
     }
 
     [Fact]

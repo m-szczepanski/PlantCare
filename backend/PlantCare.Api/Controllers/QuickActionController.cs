@@ -28,14 +28,17 @@ public class QuickActionController(
         }
 
         var remoteIp = httpContext.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-        if (!limiter.TryAllow($"{id}:{remoteIp}"))
-        {
-            logger.LogWarning("Quick action for plant {PlantId} rate limited ({RemoteIp}).", id, remoteIp);
-            return StatusCode(StatusCodes.Status429TooManyRequests, localizer.T("quick.rateLimited"));
-        }
 
+        // The secret is validated first so a correct key never spends a rate-limit
+        // slot; only rejected attempts are counted (that is what blunts brute force).
         if (!QuickActionRateLimiter.SecretMatches(key, options.Secret!))
         {
+            if (!limiter.TryAllow($"{id}:{remoteIp}"))
+            {
+                logger.LogWarning("Quick action for plant {PlantId} rate limited ({RemoteIp}).", id, remoteIp);
+                return StatusCode(StatusCodes.Status429TooManyRequests, localizer.T("quick.rateLimited"));
+            }
+
             logger.LogWarning("Quick action for plant {PlantId} rejected: bad secret ({RemoteIp}).", id, remoteIp);
             return StatusCode(StatusCodes.Status403Forbidden, localizer.T("quick.invalidKey"));
         }
