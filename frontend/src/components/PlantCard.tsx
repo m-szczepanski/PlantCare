@@ -31,7 +31,7 @@ export function PlantCard({ plant, onWater, isWatering }: PlantCardProps) {
       <PlantPhoto
         photoUrl={plant.photoUrl}
         nickName={plant.nickName}
-        className="aspect-[16/7] w-full shrink-0 rounded-none"
+        className="aspect-16/7 w-full shrink-0 rounded-none"
       />
       <CardContent className="flex flex-1 flex-col gap-3 p-6">
         <div className="flex items-start justify-between gap-3">

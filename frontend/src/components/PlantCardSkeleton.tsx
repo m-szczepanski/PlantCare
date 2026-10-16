@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function PlantCardSkeleton() {
   return (
     <Card className="flex h-full flex-col overflow-hidden">
-      <Skeleton className="aspect-[16/7] w-full shrink-0 rounded-none" />
+      <Skeleton className="aspect-16/7 w-full shrink-0 rounded-none" />
       <CardContent className="flex flex-1 flex-col gap-3 p-6">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1 space-y-2">

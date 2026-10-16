@@ -325,7 +325,7 @@ export function PlantDetailPage() {
           </CardContent>
         </Card>
 
-        <div className="relative order-1 aspect-[3/4] w-full max-w-xs self-center overflow-hidden rounded-lg shadow-sm sm:w-64 lg:order-2 lg:w-80 lg:max-w-none lg:aspect-auto lg:self-stretch xl:w-96">
+        <div className="relative order-1 aspect-3/4 w-full max-w-xs self-center overflow-hidden rounded-lg shadow-sm sm:w-64 lg:order-2 lg:w-80 lg:max-w-none lg:aspect-auto lg:self-stretch xl:w-96">
           <PlantPhoto
             photoUrl={plant.photoUrl}
             nickName={plant.nickName}
