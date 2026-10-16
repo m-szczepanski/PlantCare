@@ -39,11 +39,11 @@ function dashboardSectionFor(plant: Plant): keyof Dashboard {
 }
 
 function sortDashboardBucket(bucket: Plant[], section: keyof Dashboard): Plant[] {
-  if (section === "dueToday") return [...bucket].sort((a, b) => a.nickName.localeCompare(b.nickName));
+  if (section === "dueToday") return [...bucket].sort((a, b) => a.nickName.localeCompare(b.nickName, i18n.language));
   return [...bucket].sort(
     (a, b) =>
       (a.daysUntilDue ?? Number.MAX_SAFE_INTEGER) - (b.daysUntilDue ?? Number.MAX_SAFE_INTEGER) ||
-      a.nickName.localeCompare(b.nickName),
+      a.nickName.localeCompare(b.nickName, i18n.language),
   );
 }
 
