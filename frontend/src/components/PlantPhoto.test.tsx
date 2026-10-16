@@ -25,4 +25,19 @@ describe("PlantPhoto", () => {
     expect(screen.queryByRole("img", { name: "Pothos" })).not.toBeInTheDocument();
     expect(screen.getByRole("img", { name: "No photo of Pothos" })).toBeInTheDocument();
   });
+
+  it("clears the failed state when the photo URL changes", () => {
+    const { rerender } = render(
+      <PlantPhoto photoUrl="https://example.com/broken.jpg" nickName="Pothos" />,
+    );
+    fireEvent.error(screen.getByRole("img", { name: "Pothos" }));
+    expect(screen.queryByRole("img", { name: "Pothos" })).not.toBeInTheDocument();
+
+    rerender(<PlantPhoto photoUrl="https://example.com/fresh.jpg" nickName="Pothos" />);
+
+    expect(screen.getByRole("img", { name: "Pothos" })).toHaveAttribute(
+      "src",
+      "https://example.com/fresh.jpg",
+    );
+  });
 });
