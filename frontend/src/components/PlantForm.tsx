@@ -70,6 +70,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
   const selectedProfile = profiles.find((profile) => profile.id === profileId);
 
   const customDays = customInterval.trim() === "" ? null : Number(customInterval);
+  const intervalInvalid = customDays !== null && (!Number.isInteger(customDays) || customDays < 1);
   const baseInterval =
     customDays !== null && Number.isFinite(customDays)
       ? customDays
@@ -113,6 +114,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
+    if (intervalInvalid) return;
 
     const trimmedInterval = customInterval.trim();
     const intervalDays = trimmedInterval === "" ? null : Number(trimmedInterval);
@@ -234,10 +236,10 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
             value={customInterval}
             onChange={(e) => setCustomInterval(e.target.value)}
             placeholder={selectedProfile ? t("form.profileDefault", { days: selectedProfile.defaultWateringIntervalDays }) : t("form.overridesProfile")}
-            aria-invalid={fieldErrors.customWateringIntervalDays ? true : undefined}
+            aria-invalid={fieldErrors.customWateringIntervalDays || intervalInvalid ? true : undefined}
             className={touchField}
           />
-          <FieldError message={fieldErrors.customWateringIntervalDays} />
+          <FieldError message={fieldErrors.customWateringIntervalDays ?? (intervalInvalid ? t("form.intervalInvalid") : undefined)} />
         </div>
 
         <div className="space-y-2">
@@ -386,7 +388,7 @@ export function PlantForm({ initial, submitting, error, fieldErrors = {}, submit
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
       <div className="flex flex-wrap gap-2 pt-2">
-        <Button type="submit" disabled={submitting} className={touchButton}>
+        <Button type="submit" disabled={submitting || intervalInvalid} className={touchButton}>
           {submitting ? t("common.saving") : submitLabel}
         </Button>
         <Button type="button" variant="ghost" onClick={onCancel} disabled={submitting} className={touchButton}>

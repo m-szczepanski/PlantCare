@@ -195,6 +195,7 @@
     "quickAddRoom": "Quickly add a room",
     "speciesProfile": "Species profile",
     "customInterval": "Custom interval (days)",
+    "intervalInvalid": "Enter a whole number of days (1 or more).",
     "profileDefault": "Profile default: {{days}}",
     "overridesProfile": "Overrides profile",
     "acquiredDate": "Acquired date",

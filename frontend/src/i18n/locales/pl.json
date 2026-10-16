@@ -235,6 +235,7 @@
     "quickAddRoom": "Dodaj pomieszczenie",
     "speciesProfile": "Profil gatunkowy",
     "customInterval": "Własny odstęp między podlewaniami (dni)",
+    "intervalInvalid": "Podaj liczbę całkowitą dni (co najmniej 1).",
     "profileDefault": "Domyślnie według profilu: {{days}}",
     "overridesProfile": "Zastępuje ustawienia profilu",
     "acquiredDate": "Data nabycia rośliny",
