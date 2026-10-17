@@ -168,3 +168,13 @@ All runtime knobs come from environment variables / `.env`:
 - RCS0056 does not flag a line that starts with a string literal (e.g. a `Message = "..."` attribute
   argument), so long messages keep under the cap by splitting the literal with `+` concatenation.
 - Logging uses source-generated `[LoggerMessage]` partial methods (`private static partial void LogX(ILogger logger, …)`).
+- Warnings are errors and code style runs during the build (`backend/Directory.Build.props` sets
+  `EnforceCodeStyleInBuild` + `TreatWarningsAsErrors`; the Roslynator analyzer is referenced there, not per project).
+  The SDK is pinned in `global.json` and line endings are LF (`.gitattributes`); CI also runs
+  `dotnet format --verify-no-changes` (migrations excluded).
+- `LineLengthTests` source-scans both projects for over-length lines RCS0056 skips (string-literal and comment
+  lines); `LocalizationCatalogTests` guards `en`/`pl` key parity in `Messages`.
+- `PlantCare.Api` generates an XML documentation file; CS1591 is suppressed (requiring a comment on every public
+  member is a separate effort).
+- `Program.cs` is a composition root: services register in `PlantCareServiceCollectionExtensions.AddPlantCare`
+  (`Configuration/`), and a malformed port env var fails fast at startup rather than silently falling back.
