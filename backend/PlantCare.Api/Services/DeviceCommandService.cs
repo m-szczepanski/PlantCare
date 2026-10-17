@@ -19,7 +19,7 @@ public interface IDeviceCommandService
     Task<DeviceWaterResult> WaterAsync(int plantId, int? durationMs, CancellationToken cancellationToken = default);
 }
 
-public sealed class DeviceCommandService(
+public sealed partial class DeviceCommandService(
     AppDbContext db,
     IDeviceBus bus,
     MqttOptions options,
@@ -28,7 +28,10 @@ public sealed class DeviceCommandService(
 {
     private const int DefaultDurationMs = 15_000;
 
-    public async Task<DeviceWaterResult> WaterAsync(int plantId, int? durationMs, CancellationToken cancellationToken = default)
+    public async Task<DeviceWaterResult> WaterAsync(
+        int plantId,
+        int? durationMs,
+        CancellationToken cancellationToken = default)
     {
         var plant = await db.Plants.FirstOrDefaultAsync(p => p.Id == plantId, cancellationToken);
         if (plant is null)
@@ -62,7 +65,7 @@ public sealed class DeviceCommandService(
         {
             // A publish failure (broker down, device offline) is a failed command,
             // not a crash — the caller maps it to a 502 and the schedule is untouched.
-            logger.LogWarning(ex, "Failed to publish water command for plant {PlantId}.", plantId);
+            LogPublishFailed(logger, ex, plantId);
             return new DeviceWaterResult(DeviceWaterStatus.PublishFailed);
         }
     }
@@ -75,4 +78,7 @@ public sealed class DeviceCommandService(
         // (firmware PulseTime / ESPHome auto-off) is the safety backstop.
         _ => "ON",
     };
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to publish water command for plant {PlantId}.")]
+    private static partial void LogPublishFailed(ILogger logger, Exception exception, int plantId);
 }

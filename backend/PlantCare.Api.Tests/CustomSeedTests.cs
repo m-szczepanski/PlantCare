@@ -66,5 +66,6 @@ public class CustomSeedTests : IDisposable
         catch (IOException)
         {
         }
+        GC.SuppressFinalize(this);
     }
 }

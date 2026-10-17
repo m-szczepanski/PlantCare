@@ -1,0 +1,11 @@
+root = true
+
+[*.cs]
+# dotnet format has no line-length rule, so Roslynator's RCS0056 enforces it in the build.
+max_line_length = 120
+roslynator_max_line_length = 120
+dotnet_diagnostic.RCS0056.severity = error
+
+# EF Core migrations are generated scaffolding and are regenerated on schema changes.
+[**/Data/Migrations/*.cs]
+dotnet_diagnostic.RCS0056.severity = none

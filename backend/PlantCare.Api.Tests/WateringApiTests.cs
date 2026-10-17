@@ -58,7 +58,9 @@ public class WateringApiTests : IDisposable
         Assert.Equal(HttpStatusCode.OK, first.StatusCode);
         await _client.PostAsJsonAsync($"/api/plants/{plant.Id}/water", new { });
 
-        var logs = await _client.GetFromJsonAsync<List<WateringLogResponseDto>>($"/api/plants/{plant.Id}/watering-logs", Options);
+        var logs = await _client.GetFromJsonAsync<List<WateringLogResponseDto>>(
+            $"/api/plants/{plant.Id}/watering-logs",
+            Options);
         Assert.NotNull(logs);
         Assert.Equal(2, logs.Count);
         Assert.Equal("Soaked thoroughly", logs[1].Note);
@@ -114,7 +116,9 @@ public class WateringApiTests : IDisposable
             Options);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var logs = await _client.GetFromJsonAsync<List<WateringLogResponseDto>>($"/api/plants/{plant.Id}/watering-logs", Options);
+        var logs = await _client.GetFromJsonAsync<List<WateringLogResponseDto>>(
+            $"/api/plants/{plant.Id}/watering-logs",
+            Options);
         var log = Assert.Single(logs!);
         Assert.Equal(300, log.AmountMilliliters);
         Assert.Equal(PlantCare.Api.Models.WateringMethod.Rainwater, log.Method);
@@ -125,7 +129,9 @@ public class WateringApiTests : IDisposable
     {
         var plant = await CreatePlant(customWateringIntervalDays: 7);
 
-        var response = await _client.PostAsJsonAsync($"/api/plants/{plant.Id}/water", new { note = new string('x', 501) });
+        var response = await _client.PostAsJsonAsync(
+            $"/api/plants/{plant.Id}/water",
+            new { note = new string('x', 501) });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -142,7 +148,9 @@ public class WateringApiTests : IDisposable
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var undone = await response.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
         Assert.NotNull(undone);
-        var logs = await _client.GetFromJsonAsync<List<WateringLogResponseDto>>($"/api/plants/{plant.Id}/watering-logs", Options);
+        var logs = await _client.GetFromJsonAsync<List<WateringLogResponseDto>>(
+            $"/api/plants/{plant.Id}/watering-logs",
+            Options);
         Assert.NotNull(logs);
         Assert.Single(logs);
         Assert.Equal("first", logs[0].Note);
@@ -161,7 +169,9 @@ public class WateringApiTests : IDisposable
         var undone = await response.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
         Assert.Null(undone!.LastWateredAt);
 
-        var logs = await _client.GetFromJsonAsync<List<WateringLogResponseDto>>($"/api/plants/{plant.Id}/watering-logs", Options);
+        var logs = await _client.GetFromJsonAsync<List<WateringLogResponseDto>>(
+            $"/api/plants/{plant.Id}/watering-logs",
+            Options);
         Assert.Empty(logs!);
     }
 
@@ -185,7 +195,9 @@ public class WateringApiTests : IDisposable
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
-    private async Task<PlantResponseDto> CreatePlant(int? customWateringIntervalDays = null, DateTime? lastWateredAt = null)
+    private async Task<PlantResponseDto> CreatePlant(
+        int? customWateringIntervalDays = null,
+        DateTime? lastWateredAt = null)
     {
         var created = await _client.PostAsJsonAsync("/api/plants", new
         {
@@ -212,5 +224,6 @@ public class WateringApiTests : IDisposable
         _client.Dispose();
         _factory.Dispose();
         _database.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

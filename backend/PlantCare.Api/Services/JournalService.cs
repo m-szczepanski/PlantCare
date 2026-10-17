@@ -40,7 +40,9 @@ public interface IJournalService
 /// </summary>
 public sealed class JournalService(AppDbContext db, IPlantPhotoStorage photos) : IJournalService
 {
-    public async Task<IReadOnlyList<JournalEntryResponseDto>?> ListAsync(int plantId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<JournalEntryResponseDto>?> ListAsync(
+        int plantId,
+        CancellationToken cancellationToken = default)
     {
         if (!await db.Plants.AnyAsync(p => p.Id == plantId, cancellationToken))
         {
@@ -87,17 +89,28 @@ public sealed class JournalService(AppDbContext db, IPlantPhotoStorage photos) :
         {
             try
             {
-                photoUrl = await photos.SaveAsync(plantId, photo, photoContentType ?? string.Empty, "journal", cancellationToken);
+                photoUrl = await photos.SaveAsync(
+                    plantId,
+                    photo,
+                    photoContentType ?? string.Empty,
+                    "journal",
+                    cancellationToken);
             }
             catch (PhotoStorageException ex)
             {
                 // Rejection carries a catalog key so the 400 says what was wrong
                 // (unsupported type / too large) instead of "the entry is empty".
-                return new JournalWriteResult(JournalWriteStatus.InvalidPhoto, ErrorKey: ex.MessageKey, ErrorArgs: ex.Args);
+                return new JournalWriteResult(
+                    JournalWriteStatus.InvalidPhoto,
+                    ErrorKey: ex.MessageKey,
+                    ErrorArgs: ex.Args);
             }
             catch (InvalidDataException)
             {
-                return new JournalWriteResult(JournalWriteStatus.InvalidPhoto, ErrorKey: "error.photo.unsupportedType", ErrorArgs: [photoContentType ?? string.Empty]);
+                return new JournalWriteResult(
+                    JournalWriteStatus.InvalidPhoto,
+                    ErrorKey: "error.photo.unsupportedType",
+                    ErrorArgs: [photoContentType ?? string.Empty]);
             }
         }
 

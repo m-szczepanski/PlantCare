@@ -24,7 +24,8 @@ public class PlantPhotoUploadApiTests : IDisposable
 
     public PlantPhotoUploadApiTests()
     {
-        var factory = _database.CreateFactory(configureBuilder: builder => builder.UseSetting("PHOTO_STORAGE_PATH", _storagePath));
+        var factory = _database.CreateFactory(
+            configureBuilder: builder => builder.UseSetting("PHOTO_STORAGE_PATH", _storagePath));
         _client = factory.CreateClient();
     }
 

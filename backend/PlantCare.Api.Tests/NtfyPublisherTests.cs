@@ -15,7 +15,9 @@ public class NtfyPublisherTests
 
         public HttpStatusCode Status { get; set; } = HttpStatusCode.OK;
 
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
         {
             Request = request;
             Body = request.Content is null ? null : await request.Content.ReadAsStringAsync(cancellationToken);

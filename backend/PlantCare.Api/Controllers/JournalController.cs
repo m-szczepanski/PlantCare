@@ -10,7 +10,8 @@ namespace PlantCare.Api.Controllers;
 public class JournalController(IJournalService journal, IAppLocalizer localizer) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<JournalEntryResponseDto>>> List(int plantId, CancellationToken cancellationToken)
+    public async Task<ActionResult<IReadOnlyList<JournalEntryResponseDto>>> List(int plantId,
+        CancellationToken cancellationToken)
     {
         var entries = await journal.ListAsync(plantId, cancellationToken);
         return entries is null ? NotFound() : Ok(entries);
@@ -37,7 +38,10 @@ public class JournalController(IJournalService journal, IAppLocalizer localizer)
         return result.Status switch
         {
             JournalWriteStatus.PlantNotFound => NotFound(),
-            JournalWriteStatus.Empty => BadRequest(new ProblemDetails { Title = localizer.T("error.journalEmpty.title") }),
+            JournalWriteStatus.Empty => BadRequest(new ProblemDetails
+            {
+                Title = localizer.T("error.journalEmpty.title")
+            }),
             JournalWriteStatus.InvalidPhoto => BadRequest(new ProblemDetails
             {
                 Title = localizer.T("error.unsupportedPhoto.title"),

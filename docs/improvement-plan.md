@@ -131,6 +131,26 @@ Acceptance criteria:
 - `feature/manual-water`: "Water now" publishes a command to the correct topic; a `watered:true` feedback message marks the task done (re-anchors the schedule) with no duplicate log row; absent/failed feedback leaves the schedule unchanged and surfaces a toast.
 - `feature/scheduled-auto-water`: the job waters only due plants with a linked device; respects the moisture threshold, duration cap, per-day cap, snooze and soil-wet; reports feedback failures in the digest without auto-retrying; at most one command per plant per day; disabled by default and env-gated.
 
+## Epic 12 — Hardware Diagnostics & Test Bench
+
+> Setup-time tooling on top of Epic 11: let a user who just wired up a pump/sensor
+> verify the MQTT path end to end — broker reachable, command published, device
+> acked, reading ingested — without waiting for the cron, forcing plant state, or
+> reading server logs. Gated by `ENABLE_DEVICES`; **no schema change** (recent
+> traffic is an in-memory ring buffer). Design notes in `hardware-integration.md`
+> § Diagnostics & test bench.
+
+| Branch | Deliverable | Depends on | Covers idea |
+|--------|-------------|------------|-------------|
+| `feature/device-connection-status` | Surface broker connectivity + traffic: a bounded in-memory ring buffer fed by the bus's `MessageReceived` (incoming) and by publishes (outgoing); `GET /api/devices/{id}/diagnostics` (broker connected, host/port/prefix, resolved command/state topics, an example payload for the device's `CommandStyle`, last-seen reading, recent messages); broker state exposed on `GET /api/status` | scheduled-auto-water | Func: hardware diagnostics |
+| `feature/device-test-commands` | `POST /api/devices/{id}/test-command` (publish, then wait for the device's `watered:true` within a timeout → `{published, acked, elapsedMs}`; explicit broker-down result); `POST /api/devices/{id}/test-reading` (publish a synthetic `{moisturePct, waterLevel}` to the state topic); `POST /api/devices/{id}/run-auto-water` (invoke the auto-water pass now) | device-connection-status | Func: hardware test bench |
+| `feature/device-diagnostics-ui` | Per-device diagnostics panel on `/devices` (connection indicator, resolved topics + example payload, send test command with duration, send test reading, run auto-water, last-seen, recent-traffic list) + a shell broker indicator; typed client + hooks + EN/PL | device-test-commands | UI: hardware test bench |
+
+Acceptance criteria:
+- `feature/device-connection-status`: `GET /api/devices/{id}/diagnostics` reports broker `connected` and the device's resolved command/state topics and a ready-to-inspect example payload for its command style; it lists the last N (bounded) MQTT messages with direction, topic, payload and timestamp for both incoming state and outgoing commands; `GET /api/status` reports broker connectivity; with the flag off every route is 404; tests reuse the existing `IDeviceBus` fake.
+- `feature/device-test-commands`: a test command publishes to the device's resolved command topic and reports `acked` + elapsed time when the `watered:true` echo arrives within the timeout, or `acked:false` on timeout; a publish while the broker is down returns a distinct, localized result rather than a generic failure; a test command is **not** recorded in `DeviceWateringLog` and does **not** count against `AUTO_WATER_MAX_PER_DAY`; a test reading updates the linked plant's displayed moisture through the normal ingestion path; `run-auto-water` returns the same summary as the scheduled pass; no migration.
+- `feature/device-diagnostics-ui`: the panel is reachable per device behind `ENABLE_DEVICES`, shows live broker/device state and the resolved topics, lets the user trigger a command/reading/auto-water pass and see sent-vs-acked plus recent traffic, warns before watering a linked (real) plant, and is fully EN/PL; a broker outage renders as an explicit "not connected" state instead of a silent failure.
+
 ## Progress
 
 - `feature/theme-toggle` — done. `ThemeProvider` + `useTheme` (light/dark/system, persisted in `localStorage`, system-following), `ModeToggle` dropdown in the header, pre-paint FOUC script in `index.html`, Vitest coverage; dark tokens unchanged in `index.css`.
@@ -227,6 +247,12 @@ Acceptance criteria:
   - Backend: `POST /api/import` runs in one transaction and reports conflicts as localized 400s instead of half-applied merges or unhandled 500s; the 5 MB photo cap is enforced by a streaming copy for non-seekable streams (rejected/partial uploads leave no file behind); journal photo failures return a distinct localized 400 (`error.unsupportedPhoto.*`) instead of "the entry is empty"; `GET /api/calendar.ics` escapes newlines per RFC 5545; the manual water-now command honors `WATER_MAX_DURATION_MS` like the auto-water job; quick actions validate the secret before spending a rate-limit slot (only rejected attempts count; the key map is bounded); `PUT /api/plants/{id}` requires `acquiredDate` (400 when omitted — PUT is a full replace), journal `entryDate` is normalized to midnight (date-only contract), top-up absorption and the winter window reuse the schedule service's due info (single source of truth), and automatic model-validation 400s localize their ProblemDetails title/detail like every other server message (per-field `errors` pass through for the SPA's field mapping; the dead `error.daysRange.*` catalog keys were removed).
   - Frontend: journal entry dates are calendar-day values end to end (rendered via `formatDate`, not `formatInstant`, so negative-UTC-offset visitors see the picked day); server calendar-day vs. instant parsing is centralized (`parseDateOnly`/`parseInstant`/`dateKey`); mutations keep plant/dashboard/room/device caches in sync through the shared query-key factories; `MonthlyBarChart` is shared by watering history and Insights (localized sr-only labels); setup-wizard room removal confirms via `alert-dialog`; plants-page `?due=`/`?sort=` params validate against the known options; theme storage access is guarded for private mode; `ScrollRestoration` scrolls to top on new history entries; `localeCompare` sorting follows the UI language; assorted a11y (combobox `aria-controls`, `aria-pressed` toggles, `<dl>` details, `common.unknown` fallbacks for unknown enum values) and Tailwind-token cleanups.
   - Housekeeping: code comments pruned to the non-obvious logic only — behavioral documentation lives in the `docs/` READMEs, not in the code.
+- **Backend .NET 10 modernization pass** — done. Mechanical conventions only; no behavior, schema, or API change: every logging call is now source-generated (`[LoggerMessage]` static partial methods — no `params object[]` boxing, and the CA1873 "potentially expensive logging" noise is gone); `MqttDeviceBus` takes a primary constructor; DTO projections use collection expressions (`[ … ]` / `[.. …]`) instead of `new[] { … }` / `.ToList()`; `QuickActionRateLimiter` locks a `System.Threading.Lock`; the localizer reads `Request.Headers.AcceptLanguage`; the export `JsonSerializerOptions` is cached; members that never touch instance state are `static`; the redundant `public partial class Program;` (ASP0027) is gone; test fixtures call `GC.SuppressFinalize(this)` in `Dispose` and deconstruct `Assert.Single` tuples into camelCase locals. Verified with `dotnet format --severity info` (clean, migrations excluded), a docs-enabled build (0 warnings) and all 277 tests. EF `IQueryable` predicates keep `== null` on purpose — expression trees reject the `is null` pattern.
+- **Backend build hygiene & tooling pass** — done. No behavior or API change:
+  - CI runs `dotnet format --verify-no-changes --exclude '**/Data/Migrations/**'` alongside build and test, so style drift RCS0056 does not cover can no longer land.
+  - `backend/Directory.Build.props` centralizes the `Roslynator.Formatting.Analyzers` reference and sets `EnforceCodeStyleInBuild` + `TreatWarningsAsErrors` (the build is 0-warning, so this is free). The SDK is pinned in `global.json`, line endings are normalized to LF (`.gitattributes`), and `PlantCare.Api` emits an XML documentation file (CS1591 suppressed).
+  - `LineLengthTests` source-scans both projects to close RCS0056's blind spots (lines that start with a string literal and pure comment lines); `LocalizationCatalogTests` fails when an `en`/`pl` message key drifts.
+  - `Program.cs` is now a thin composition root: registration moved to `AddPlantCare` (`Configuration/`), the `Log` class moved to `Services/Logging/`, and malformed `MQTT_PORT`/`NTFY_PUBLIC_PORT` values fail fast at startup. Deviation: validation is eager at startup rather than `IOptions.ValidateOnStart()`, because the option records are immutable and consumed directly.
 
 ## Suggested sequencing
 
@@ -234,7 +260,7 @@ Acceptance criteria:
 2. Epic 5 (rooms) before Epic 9's bulk-water and before room-dependent views.
 3. Epic 6's `care-task-model` is the one invasive migration — schedule a deliberate window, keep watering behavior intact.
 4. Epics 7 and 8 can interleave with 2 and 4 based on interest.
-5. Epic 11 (hardware) is independent of the others and can land whenever hardware is wanted — build monitoring (slice 1) before actuation (slices 2–3) so the MQTT path is proven read-only first.
+5. Epic 11 (hardware) is independent of the others and can land whenever hardware is wanted — build monitoring (slice 1) before actuation (slices 2–3) so the MQTT path is proven read-only first. Epic 12 (hardware diagnostics) is a setup-time aid on top of Epic 11 and lands after it.
 
 ## Explicitly deferred / not planned
 

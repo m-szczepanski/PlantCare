@@ -13,9 +13,11 @@ backend/
 │   ├── Models/         # EF Core entities
 │   ├── Dtos/           # Request/response DTOs (separate from entities)
 │   ├── Data/           # DbContext, EF Core migrations
+│   ├── Configuration/  # AddPlantCare registration + config reading/validation
 │   ├── Services/       # Business logic: scheduling, notification, care tips
+│   │   └── Logging/    # source-generated [LoggerMessage] partial methods
 │   ├── Seed/           # Default species/profile seed data (JSON)
-│   ├── Program.cs      # Composition root / DI registration
+│   ├── Program.cs      # Thin composition root
 │   └── Dockerfile      # API service image
 └── PlantCare.Api.Tests/   # unit/integration tests
 ```
@@ -75,6 +77,10 @@ POST   /api/plants/{id}/device-water   publish a "water now" command to the plan
 > gated by `ENABLE_DEVICES` (default `false` — every route returns 404 when off).
 
 Profile data: `DiagnosisChecklist` is a validated JSON array (`[{symptom, causes[]}]`, `DiagnosisChecklist.TryValidate`) served inside `PlantProfile` responses and the embedded care tips; `ToxicToPets`/`ToxicToChildren` flags surface on cards, the detail page and the watering digest. `SeedLoader` also scans `SEED_CUSTOM_PATH` (default `/data/seed-custom`, on the plant-data volume) at startup for drop-in `*.json` user species — existing names skipped, malformed files logged and ignored. (single source of truth). ICS output uses CRLF line endings with 74-char folding and text escaping; adherence counts logs in the last 30 days against `window / interval` expectations; a streak is consecutive recent waterings whose gaps stay within `interval + 2` days.
+
+## API Documentation
+
+`GET /openapi/v1.json` serves the OpenAPI 3.1 document (`Microsoft.AspNetCore.OpenApi`); XML doc comments on controllers/DTOs are included. The interactive Swagger UI is served at `/swagger` and points at that document, so endpoints can be browsed and tried out from the browser. Both `/openapi` and `/swagger` are proxied by nginx, and the API is also reachable directly on `5001` in the compose stack.
 
 ## Data Model
 
@@ -162,3 +168,19 @@ All runtime knobs come from environment variables / `.env`:
 - Controllers stay thin; business logic belongs in `Services/`.
 - DTOs are separate from EF Core entities — never expose entities directly.
 - Tests live in `PlantCare.Api.Tests/` (unit + integration).
+- Lines are capped at 120 characters. `dotnet format` has no line-length rule, so the cap is
+  enforced by `Roslynator.Formatting.Analyzers` (RCS0056, error severity), configured in
+  `backend/.editorconfig`. EF migrations are excluded.
+- RCS0056 does not flag a line that starts with a string literal (e.g. a `Message = "..."` attribute
+  argument), so long messages keep under the cap by splitting the literal with `+` concatenation.
+- Logging uses source-generated `[LoggerMessage]` partial methods (`private static partial void LogX(ILogger logger, …)`).
+- Warnings are errors and code style runs during the build (`backend/Directory.Build.props` sets
+  `EnforceCodeStyleInBuild` + `TreatWarningsAsErrors`; the Roslynator analyzer is referenced there, not per project).
+  The SDK is pinned in `global.json` and line endings are LF (`.gitattributes`); CI also runs
+  `dotnet format --verify-no-changes` (migrations excluded).
+- `LineLengthTests` source-scans both projects for over-length lines RCS0056 skips (string-literal and comment
+  lines); `LocalizationCatalogTests` guards `en`/`pl` key parity in `Messages`.
+- `PlantCare.Api` generates an XML documentation file; CS1591 is suppressed (requiring a comment on every public
+  member is a separate effort).
+- `Program.cs` is a composition root: services register in `PlantCareServiceCollectionExtensions.AddPlantCare`
+  (`Configuration/`), and a malformed port env var fails fast at startup rather than silently falling back.

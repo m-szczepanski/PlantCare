@@ -58,9 +58,14 @@ public class DeviceWaterApiTests : IDisposable
         _client = _factory.CreateClient();
     }
 
-    private async Task<DeviceResponseDto> CreateDevice(DeviceType type = DeviceType.Valve, CommandStyle style = CommandStyle.Pulse)
+    private async Task<DeviceResponseDto> CreateDevice(
+        DeviceType type = DeviceType.Valve,
+        CommandStyle style = CommandStyle.Pulse)
     {
-        var response = await _client.PostAsJsonAsync("/api/devices", new { name = "Pump", type, commandStyle = style }, Options);
+        var response = await _client.PostAsJsonAsync(
+            "/api/devices",
+            new { name = "Pump", type, commandStyle = style },
+            Options);
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         return (await response.Content.ReadFromJsonAsync<DeviceResponseDto>(Options))!;
     }
@@ -78,12 +83,15 @@ public class DeviceWaterApiTests : IDisposable
         var device = await CreateDevice();
         var plant = await CreatePlant(device.Id);
 
-        var response = await _client.PostAsJsonAsync($"/api/plants/{plant.Id}/device-water", new { durationMs = 20000 }, Options);
+        var response = await _client.PostAsJsonAsync(
+            $"/api/plants/{plant.Id}/device-water",
+            new { durationMs = 20000 },
+            Options);
 
         Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
-        var published = Assert.Single(_bus.Published);
-        Assert.Equal($"plantcare/{device.Id}/command", published.Topic);
-        Assert.Equal($"{{\"action\":\"water\",\"durationMs\":20000,\"plantId\":{plant.Id}}}", published.Payload);
+        var (topic, payload) = Assert.Single(_bus.Published);
+        Assert.Equal($"plantcare/{device.Id}/command", topic);
+        Assert.Equal($"{{\"action\":\"water\",\"durationMs\":20000,\"plantId\":{plant.Id}}}", payload);
     }
 
     [Fact]
@@ -93,9 +101,8 @@ public class DeviceWaterApiTests : IDisposable
         var plant = await CreatePlant(device.Id);
 
         await _client.PostAsync($"/api/plants/{plant.Id}/device-water", null);
-
-        var published = Assert.Single(_bus.Published);
-        Assert.Equal("ON", published.Payload);
+        var (_, payload) = Assert.Single(_bus.Published);
+        Assert.Equal("ON", payload);
     }
 
     [Fact]
@@ -120,12 +127,14 @@ public class DeviceWaterApiTests : IDisposable
         var fetched = await _client.GetFromJsonAsync<PlantResponseDto>($"/api/plants/{plant.Id}", Options);
         Assert.NotNull(fetched!.LastWateredAt);
 
-        var logs = await _client.GetFromJsonAsync<List<WateringLogResponseDto>>($"/api/plants/{plant.Id}/watering-logs", Options);
+        var logs = await _client.GetFromJsonAsync<List<WateringLogResponseDto>>(
+        $"/api/plants/{plant.Id}/watering-logs", Options);
         Assert.Single(logs!);
 
         // A duplicate watered:true inside the dedup window must not add a second log.
         await _bus.RaiseAsync($"plantcare/{device.Id}/state", "{\"watered\":true,\"moisturePct\":70}");
-        var logsAfter = await _client.GetFromJsonAsync<List<WateringLogResponseDto>>($"/api/plants/{plant.Id}/watering-logs", Options);
+        var logsAfter = await _client.GetFromJsonAsync<List<WateringLogResponseDto>>(
+        $"/api/plants/{plant.Id}/watering-logs", Options);
         Assert.Single(logsAfter!);
     }
 
@@ -150,5 +159,6 @@ public class DeviceWaterApiTests : IDisposable
         _client.Dispose();
         _factory.Dispose();
         _database.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

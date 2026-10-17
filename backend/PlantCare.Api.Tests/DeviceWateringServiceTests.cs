@@ -92,8 +92,8 @@ public class DeviceWateringServiceTests : IDisposable
         var result = await RunWateringAsync();
 
         Assert.Equal(1, result.Watered);
-        var published = Assert.Single(_bus.Published);
-        Assert.Equal($"plantcare/{device.Id}/command", published.Topic);
+        var (topic, _) = Assert.Single(_bus.Published);
+        Assert.Equal($"plantcare/{device.Id}/command", topic);
 
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -158,5 +158,6 @@ public class DeviceWateringServiceTests : IDisposable
         _client.Dispose();
         _factory.Dispose();
         _database.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

@@ -58,7 +58,14 @@ public class CareTaskHintsTests
     public void Watering_UsesProfileDefaultReduction()
     {
         var task = new CareTask { Type = CareTaskType.Watering, IntervalDays = 7 };
-        var profile = new PlantProfile { CommonName = "X", DefaultWateringIntervalDays = 7, DefaultReduceInWinter = true, HumidityNotes = "", CareTips = "" };
+        var profile = new PlantProfile
+        {
+            CommonName = "X",
+            DefaultWateringIntervalDays = 7,
+            DefaultReduceInWinter = true,
+            HumidityNotes = "",
+            CareTips = ""
+        };
 
         Assert.Contains("doubled", CareTaskHints.For(task, PlantWith(task, profile), Winter, Localizer));
     }

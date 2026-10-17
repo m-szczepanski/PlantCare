@@ -39,7 +39,7 @@ public sealed record TelegramOptions(string BotToken, string ChatId);
 /// TELEGRAM_CHAT_ID are configured. Sends are plain HTTP POSTs to the Bot API;
 /// failures throw like the ntfy publisher and the check handles them per channel.
 /// </summary>
-public sealed class TelegramChannel(
+public sealed partial class TelegramChannel(
     HttpClient http,
     TelegramOptions options,
     ILogger<TelegramChannel> logger) : INotificationChannel
@@ -67,6 +67,9 @@ public sealed class TelegramChannel(
 
         var response = await http.SendAsync(request, cancellationToken);
         response.EnsureSuccessStatusCode();
-        logger.LogInformation("Published Telegram message to chat {ChatId}.", options.ChatId);
+        LogPublished(logger, options.ChatId);
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Published Telegram message to chat {ChatId}.")]
+    private static partial void LogPublished(ILogger logger, string chatId);
 }

@@ -19,9 +19,14 @@ public interface IPlantProfileService
 {
     Task<IReadOnlyList<PlantProfileResponseDto>> ListAsync(CancellationToken cancellationToken = default);
 
-    Task<PlantProfileWriteResult> CreateAsync(PlantProfileRequestDto dto, CancellationToken cancellationToken = default);
+    Task<PlantProfileWriteResult> CreateAsync(
+        PlantProfileRequestDto dto,
+        CancellationToken cancellationToken = default);
 
-    Task<PlantProfileWriteResult> UpdateAsync(int id, PlantProfileRequestDto dto, CancellationToken cancellationToken = default);
+    Task<PlantProfileWriteResult> UpdateAsync(
+        int id,
+        PlantProfileRequestDto dto,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class PlantProfileService(AppDbContext db, IAppLocalizer localizer) : IPlantProfileService
@@ -34,12 +39,12 @@ public sealed class PlantProfileService(AppDbContext db, IAppLocalizer localizer
             .OrderBy(p => p.CommonName)
             .ToListAsync(cancellationToken);
 
-        return profiles
-            .Select(ToResponse)
-            .ToList();
+        return [.. profiles.Select(ToResponse)];
     }
 
-    public async Task<PlantProfileWriteResult> CreateAsync(PlantProfileRequestDto dto, CancellationToken cancellationToken = default)
+    public async Task<PlantProfileWriteResult> CreateAsync(
+        PlantProfileRequestDto dto,
+        CancellationToken cancellationToken = default)
     {
         var commonName = dto.CommonName.Trim();
         if (await NameTakenAsync(commonName, null, cancellationToken))
@@ -68,10 +73,15 @@ public sealed class PlantProfileService(AppDbContext db, IAppLocalizer localizer
         db.PlantProfiles.Add(profile);
         await db.SaveChangesAsync(cancellationToken);
 
-        return new PlantProfileWriteResult(PlantProfileWriteStatus.Success, await ReloadAsync(profile.Id, cancellationToken));
+        return new PlantProfileWriteResult(
+            PlantProfileWriteStatus.Success,
+            await ReloadAsync(profile.Id, cancellationToken));
     }
 
-    public async Task<PlantProfileWriteResult> UpdateAsync(int id, PlantProfileRequestDto dto, CancellationToken cancellationToken = default)
+    public async Task<PlantProfileWriteResult> UpdateAsync(
+        int id,
+        PlantProfileRequestDto dto,
+        CancellationToken cancellationToken = default)
     {
         var profile = await db.PlantProfiles
             .Include(p => p.Translations)
@@ -132,7 +142,9 @@ public sealed class PlantProfileService(AppDbContext db, IAppLocalizer localizer
 
         await db.SaveChangesAsync(cancellationToken);
 
-        return new PlantProfileWriteResult(PlantProfileWriteStatus.Success, await ReloadAsync(profile.Id, cancellationToken));
+        return new PlantProfileWriteResult(
+            PlantProfileWriteStatus.Success,
+            await ReloadAsync(profile.Id, cancellationToken));
     }
 
     private bool IsCanonicalLanguage =>

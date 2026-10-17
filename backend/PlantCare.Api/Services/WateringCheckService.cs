@@ -22,9 +22,10 @@ public interface IWateringCheckService
 /// checkup answer is stale get a "checkups due" section, reminded at most
 /// once per checkup period per plant (stamped on the plant). Mid-cycle
 /// "top up water" prompts for highly permeable soils ride it as their own
-/// section (derived schedule, see <see cref="IWateringScheduleService.GetTopUpDueInfo"/>).
+/// section (derived schedule, see
+/// <see cref="IWateringScheduleService.GetTopUpDueInfo(CareTask?, CareTask?, Plant)"/>).
 /// </summary>
-public sealed class WateringCheckService(
+public sealed partial class WateringCheckService(
     AppDbContext db,
     IPlantService plants,
     IEnumerable<INotificationChannel> channels,
@@ -45,7 +46,8 @@ public sealed class WateringCheckService(
             .ToList();
 
         var topUps = notified
-            .Where(p => p.TopUpWateringEnabled && p.TopUpWateringStatus is PlantDueStatus.Overdue or PlantDueStatus.DueToday)
+            .Where(p => p.TopUpWateringEnabled
+                && p.TopUpWateringStatus is PlantDueStatus.Overdue or PlantDueStatus.DueToday)
             .ToList();
 
         var checkupCandidateIds = notified.Where(p => p.CheckupDue).Select(p => p.Id).ToList();
@@ -117,7 +119,13 @@ public sealed class WateringCheckService(
             ? quickActions.QuickWaterUrl(due[0].Id)
             : null;
 
-        var digest = new NotificationMessage(title, message, priority, clickUrl, buttonUrl, localizer.T("digest.button"));
+        var digest = new NotificationMessage(
+            title,
+            message,
+            priority,
+            clickUrl,
+            buttonUrl,
+            localizer.T("digest.button"));
         var delivered = false;
         foreach (var channel in channels)
         {
@@ -128,12 +136,12 @@ public sealed class WateringCheckService(
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                logger.LogError(ex, "Notification channel {Channel} failed to deliver the watering digest.", channel.Name);
+                LogChannelFailed(logger, ex, channel.Name);
             }
         }
 
         if (!delivered)
-{
+        {
             var failure = new WateringCheckResult(0, 0, Math.Max(1, channels.Count()), due.Count);
             await LogRunAsync(failure, "delivery-failed", cancellationToken);
             return failure;
@@ -162,7 +170,7 @@ public sealed class WateringCheckService(
 
         await db.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation("Watering digest sent for {PlantCount} plant(s) at priority {Priority} ({CheckupCount} checkup reminder(s)).", due.Count, priority, checkups.Count);
+        LogDigestSent(logger, due.Count, priority, checkups.Count);
         await LogRunAsync(new WateringCheckResult(1, 0, 0, due.Count), "digest-sent", cancellationToken);
         return new WateringCheckResult(1, 0, 0, due.Count);
     }
@@ -179,4 +187,15 @@ public sealed class WateringCheckService(
         });
         await db.SaveChangesAsync(cancellationToken);
     }
+
+    [LoggerMessage(
+        Level = LogLevel.Error,
+        Message = "Notification channel {Channel} failed to deliver the watering digest.")]
+    private static partial void LogChannelFailed(ILogger logger, Exception exception, string channel);
+
+    [LoggerMessage(
+        Level = LogLevel.Information,
+        Message = "Watering digest sent for {PlantCount} plant(s) at priority {Priority} "
+            + "({CheckupCount} checkup reminder(s)).")]
+    private static partial void LogDigestSent(ILogger logger, int plantCount, int priority, int checkupCount);
 }

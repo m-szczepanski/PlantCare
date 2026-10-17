@@ -89,9 +89,15 @@ public class RoomEnvironmentApiTests : IDisposable
     {
         var profileId = await CreateProfile("Matcho " + Guid.NewGuid().ToString("N")[..8], LightRequirement.Bright);
 
-        var darkRoom = (await _client.PostAsJsonAsync("/api/rooms", new { name = "Dark " + Guid.NewGuid().ToString("N")[..8], lightExposure = "Low" }, Options)).Content;
+        var darkRoom = (await _client.PostAsJsonAsync(
+            "/api/rooms",
+            new { name = "Dark " + Guid.NewGuid().ToString("N")[..8], lightExposure = "Low" },
+            Options)).Content;
         var dark = await darkRoom.ReadFromJsonAsync<RoomResponseDto>(Options);
-        var brightRoom = (await _client.PostAsJsonAsync("/api/rooms", new { name = "Bright " + Guid.NewGuid().ToString("N")[..8], lightExposure = "Bright" }, Options)).Content;
+        var brightRoom = (await _client.PostAsJsonAsync(
+            "/api/rooms",
+            new { name = "Bright " + Guid.NewGuid().ToString("N")[..8], lightExposure = "Bright" },
+            Options)).Content;
         var bright = await brightRoom.ReadFromJsonAsync<RoomResponseDto>(Options);
 
         var struggling = await CreatePlant("Struggling Steve", dark!.Id, profileId);
@@ -107,5 +113,6 @@ public class RoomEnvironmentApiTests : IDisposable
     {
         _client.Dispose();
         _database.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

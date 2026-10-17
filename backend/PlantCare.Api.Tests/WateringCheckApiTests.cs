@@ -25,7 +25,14 @@ public class WateringCheckApiTests : IDisposable
 
         public bool FailNext { get; set; }
 
-        public Task PublishAsync(string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
+        public Task PublishAsync(
+            string title,
+            string message,
+            int priority = 3,
+            string? clickUrl = null,
+            string? buttonLabel = null,
+            string? buttonUrl = null,
+            CancellationToken cancellationToken = default)
         {
             if (FailNext)
             {
@@ -68,10 +75,22 @@ public class WateringCheckApiTests : IDisposable
         return await scope.ServiceProvider.GetRequiredService<IWateringCheckService>().RunAsync();
     }
 
-    private async Task<PlantResponseDto> CreatePlant(string nickName, int? intervalDays, int? daysSinceWatered, bool notifyEnabled = true)
-        => await CreatePlant(nickName, intervalDays, daysSinceWatered is null ? null : Today.AddDays(-daysSinceWatered.Value), notifyEnabled);
+    private async Task<PlantResponseDto> CreatePlant(
+        string nickName,
+        int? intervalDays,
+        int? daysSinceWatered,
+        bool notifyEnabled = true)
+        => await CreatePlant(
+            nickName,
+            intervalDays,
+            daysSinceWatered is null ? null : Today.AddDays(-daysSinceWatered.Value),
+            notifyEnabled);
 
-    private async Task<PlantResponseDto> CreatePlant(string nickName, int? intervalDays, DateTime? lastWateredAt, bool notifyEnabled = true)
+    private async Task<PlantResponseDto> CreatePlant(
+        string nickName,
+        int? intervalDays,
+        DateTime? lastWateredAt,
+        bool notifyEnabled = true)
     {
         var created = await _client.PostAsJsonAsync("/api/plants", new
         {
@@ -96,13 +115,13 @@ public class WateringCheckApiTests : IDisposable
         var result = await RunCheckAsync();
 
         Assert.Equal(1, result.SentDigests);
-        var digest = Assert.Single(_publisher.Published);
-        Assert.Equal("2 plants need water", digest.Title);
-        Assert.Contains("• Due one", digest.Message);
-        Assert.Contains("• Due two", digest.Message);
-        Assert.DoesNotContain("Fresh", digest.Message);
-        Assert.DoesNotContain("Wildcard", digest.Message);
-        Assert.Equal(3, digest.Priority);
+        var (title, message, priority) = Assert.Single(_publisher.Published);
+        Assert.Equal("2 plants need water", title);
+        Assert.Contains("• Due one", message);
+        Assert.Contains("• Due two", message);
+        Assert.DoesNotContain("Fresh", message);
+        Assert.DoesNotContain("Wildcard", message);
+        Assert.Equal(3, priority);
     }
 
     [Fact]
@@ -112,10 +131,9 @@ public class WateringCheckApiTests : IDisposable
         await CreatePlant("Due", 7, 7);
 
         await RunCheckAsync();
-
-        var digest = Assert.Single(_publisher.Published);
-        Assert.Equal("2 plants need water (1 overdue)", digest.Title);
-        Assert.Equal(5, digest.Priority);
+        var (title, _, priority) = Assert.Single(_publisher.Published);
+        Assert.Equal("2 plants need water (1 overdue)", title);
+        Assert.Equal(5, priority);
     }
 
     [Fact]
@@ -127,8 +145,8 @@ public class WateringCheckApiTests : IDisposable
         var result = await RunCheckAsync();
 
         Assert.Equal(1, result.PlantsInDigest);
-        var digest = Assert.Single(_publisher.Published);
-        Assert.DoesNotContain("Quiet Carol", digest.Message);
+        var (_, message, _) = Assert.Single(_publisher.Published);
+        Assert.DoesNotContain("Quiet Carol", message);
     }
 
     [Fact]
@@ -198,9 +216,8 @@ public class WateringCheckApiTests : IDisposable
         }, Options);
 
         await RunCheckAsync();
-
-        var digest = Assert.Single(_publisher.Published);
-        Assert.Contains("[toxic to pets]", digest.Message);
+        var (_, message, _) = Assert.Single(_publisher.Published);
+        Assert.Contains("[toxic to pets]", message);
     }
 
     [Fact]
@@ -264,5 +281,6 @@ public class WateringCheckApiTests : IDisposable
         _client.Dispose();
         _factory.Dispose();
         _database.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

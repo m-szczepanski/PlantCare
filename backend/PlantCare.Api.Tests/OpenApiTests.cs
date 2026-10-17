@@ -29,9 +29,22 @@ public class OpenApiTests : IDisposable
         Assert.Contains("/api/calendar.ics", body);
     }
 
+    [Fact]
+    public async Task SwaggerUi_IsServedAgainstTheDocument()
+    {
+        var response = await _client.GetAsync("/swagger/index.html");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("swagger-ui", await response.Content.ReadAsStringAsync());
+
+        var initializer = await _client.GetStringAsync("/swagger/index.js");
+        Assert.Contains("/openapi/v1.json", initializer);
+    }
+
     public void Dispose()
     {
         _client.Dispose();
         _database.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

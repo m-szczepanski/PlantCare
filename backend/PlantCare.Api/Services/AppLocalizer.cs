@@ -51,7 +51,7 @@ public sealed class RequestAppLocalizer(IHttpContextAccessor httpContext, AppLan
             return options.DefaultLanguage;
         }
 
-        var header = http.Request.Headers["Accept-Language"].ToString();
+        var header = http.Request.Headers.AcceptLanguage.ToString();
         if (string.IsNullOrWhiteSpace(header))
         {
             return options.DefaultLanguage;

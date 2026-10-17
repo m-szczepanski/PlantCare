@@ -1,0 +1,2 @@
+# Normalize line endings to LF so the Linux Docker build matches macOS/Windows checkouts.
+* text=auto eol=lf

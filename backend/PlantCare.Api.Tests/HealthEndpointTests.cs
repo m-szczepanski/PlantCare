@@ -18,5 +18,9 @@ public class HealthEndpointTests : IDisposable
         Assert.Equal(StatusCodes.Status200OK, (int)response.StatusCode);
     }
 
-    public void Dispose() => _database.Dispose();
+    public void Dispose()
+    {
+        _database.Dispose();
+        GC.SuppressFinalize(this);
+    }
 }

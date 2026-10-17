@@ -246,6 +246,52 @@ they own a device.
 3. **Scheduled auto-water** (`scheduled-auto-water`) — the safety rules above,
    gated behind `ENABLE_DEVICES` and the cron.
 
+## Diagnostics & test bench (Epic 12, planned)
+
+Setup-time tooling so a user who just wired a pump/sensor can verify the MQTT
+path end to end without waiting for the cron, forcing plant state, or reading
+server logs. Gated by `ENABLE_DEVICES`; **no schema change** — recent traffic is
+a bounded in-memory ring buffer, not a table. Chunks + acceptance criteria live
+in `improvement-plan.md` § Epic 12.
+
+```
+GET  /api/devices/{id}/diagnostics    broker/device state + resolved topics + recent messages
+GET  /api/status                      (extended) broker connectivity
+POST /api/devices/{id}/test-command   publish a command, wait for the watered ack
+POST /api/devices/{id}/test-reading   publish a synthetic reading to the state topic
+POST /api/devices/{id}/run-auto-water run the scheduled auto-water pass now
+```
+
+Decisions:
+
+- **Round-trip through the broker.** Test readings are published to the real
+  state topic so the whole transport *and* ingestion path is exercised; when the
+  broker is down the panel reports an explicit "not connected" state rather than
+  a silent no-op.
+- **Guard isolation.** Test commands are never written to `DeviceWateringLog` and
+  never count against `AUTO_WATER_MAX_PER_DAY` — probing must not consume the
+  auto-water budget. Only a device's own `watered:true` echo re-anchors the
+  schedule (unchanged behaviour).
+- **Real-plant side effect.** A test command sent to a device linked to a plant
+  will actually water it and re-anchor its schedule; the UI confirms before
+  sending and recommends an unlinked test device.
+- **Ack correlation.** `test-command` listens on the bus's `MessageReceived` for
+  the matching `watered:true` and reports `{published, acked, elapsedMs}`; a
+  timeout is a valid, non-error outcome. A publish while disconnected returns a
+  distinct result instead of the generic `PublishFailed`.
+- **Recent-traffic budget.** The ring buffer is bounded (e.g. the last 50
+  messages) and reset on restart — a diagnostic, not an audit log.
+- **Known gap surfaced.** Custom per-device `StateTopic` overrides are stored but
+  not yet subscribed (only `{prefix}/+/state` is); the panel shows the resolved
+  state topic so a mismatch reads as configuration, not broken hardware. A fix
+  can ride this epic.
+
+When implemented, update:
+
+- `backend/docs/README.md` / `frontend/docs/README.md` — diagnostics endpoints +
+  test panel.
+- Root `README.md` — a "test your device" step pointing at the panel.
+
 ## When implemented, update
 
 - `docs/architecture.md` — add the `mqtt` service and the MQTT data flow. ✅

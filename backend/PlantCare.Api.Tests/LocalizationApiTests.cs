@@ -22,7 +22,14 @@ public class LocalizationApiTests : IDisposable
     {
         public List<(string Title, string Message)> Published { get; } = [];
 
-        public Task PublishAsync(string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
+        public Task PublishAsync(
+            string title,
+            string message,
+            int priority = 3,
+            string? clickUrl = null,
+            string? buttonLabel = null,
+            string? buttonUrl = null,
+            CancellationToken cancellationToken = default)
         {
             Published.Add((title, message));
             LastButtonLabel = buttonLabel;
@@ -51,7 +58,11 @@ public class LocalizationApiTests : IDisposable
         return client;
     }
 
-    private async Task<PlantResponseDto> CreatePlantAsync(HttpClient client, string nickName, int intervalDays, int daysSinceWatered)
+    private static async Task<PlantResponseDto> CreatePlantAsync(
+        HttpClient client,
+        string nickName,
+        int intervalDays,
+        int daysSinceWatered)
     {
         var created = await client.PostAsJsonAsync("/api/plants", new
         {
@@ -109,7 +120,9 @@ public class LocalizationApiTests : IDisposable
     [Fact]
     public async Task PlantProfiles_PolishRequest_ServesSeededTranslations_EnglishStaysCanonical()
     {
-        var polish = await PolishClient().GetFromJsonAsync<List<PlantProfileResponseDto>>("/api/plant-profiles", Options);
+        var polish = await PolishClient().GetFromJsonAsync<List<PlantProfileResponseDto>>(
+            "/api/plant-profiles",
+            Options);
         var english = await _client.GetFromJsonAsync<List<PlantProfileResponseDto>>("/api/plant-profiles", Options);
 
         Assert.Contains("Sansewieria", polish!.Select(p => p.CommonName));
@@ -136,7 +149,9 @@ public class LocalizationApiTests : IDisposable
     {
         var plant = await CreatePlantAsync(_client, "Zlokalizowana", 7, 1);
 
-        var response = await PolishClient().PutAsJsonAsync($"/api/plants/{plant.Id}", new { nickName = "Zlokalizowana" });
+        var response = await PolishClient().PutAsJsonAsync(
+            $"/api/plants/{plant.Id}",
+            new { nickName = "Zlokalizowana" });
 
         Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
         var body = await response.Content.ReadAsStringAsync();
@@ -161,10 +176,10 @@ public class LocalizationApiTests : IDisposable
         await using var scope = plFactory.Services.CreateAsyncScope();
         await scope.ServiceProvider.GetRequiredService<IWateringCheckService>().RunAsync();
 
-        var digest = Assert.Single(publisher.Published);
-        Assert.Equal("1 roślina potrzebuje podlania (zalega 1)", digest.Title);
-        Assert.Contains("• Bazylia", digest.Message);
-        Assert.Contains("Zaległe o 23 dni", digest.Message);
+        var (title, message) = Assert.Single(publisher.Published);
+        Assert.Equal("1 roślina potrzebuje podlania (zalega 1)", title);
+        Assert.Contains("• Bazylia", message);
+        Assert.Contains("Zaległe o 23 dni", message);
         Assert.Equal("Podlej teraz", publisher.LastButtonLabel);
     }
 
@@ -185,5 +200,6 @@ public class LocalizationApiTests : IDisposable
         _client.Dispose();
         _factory.Dispose();
         _database.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

@@ -35,7 +35,7 @@ public sealed class DeviceService(AppDbContext db) : IDeviceService
             .OrderBy(d => d.Name)
             .ToListAsync(cancellationToken);
 
-        return devices.Select(ToResponse).ToList();
+        return [.. devices.Select(ToResponse)];
     }
 
     public async Task<DeviceResponseDto?> GetAsync(int id, CancellationToken cancellationToken = default)
@@ -48,7 +48,9 @@ public sealed class DeviceService(AppDbContext db) : IDeviceService
         return device is null ? null : ToResponse(device);
     }
 
-    public async Task<DeviceWriteResult> CreateAsync(DeviceRequestDto dto, CancellationToken cancellationToken = default)
+    public async Task<DeviceWriteResult> CreateAsync(
+        DeviceRequestDto dto,
+        CancellationToken cancellationToken = default)
     {
         var device = new Device
         {
@@ -64,7 +66,10 @@ public sealed class DeviceService(AppDbContext db) : IDeviceService
         return new DeviceWriteResult(DeviceWriteStatus.Success, await GetAsync(device.Id, cancellationToken));
     }
 
-    public async Task<DeviceWriteResult> UpdateAsync(int id, DeviceRequestDto dto, CancellationToken cancellationToken = default)
+    public async Task<DeviceWriteResult> UpdateAsync(
+        int id,
+        DeviceRequestDto dto,
+        CancellationToken cancellationToken = default)
     {
         var device = await db.Devices.FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
         if (device is null)

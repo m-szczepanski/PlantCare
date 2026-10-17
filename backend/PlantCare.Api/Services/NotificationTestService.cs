@@ -20,12 +20,14 @@ public interface INotificationTestService
     Task<NotificationTestResult> SendTestAsync(string? customMessage, CancellationToken cancellationToken = default);
 }
 
-public sealed class NotificationTestService(
+public sealed partial class NotificationTestService(
     IEnumerable<INotificationChannel> channels,
     IAppLocalizer localizer,
     ILogger<NotificationTestService> logger) : INotificationTestService
 {
-    public async Task<NotificationTestResult> SendTestAsync(string? customMessage, CancellationToken cancellationToken = default)
+    public async Task<NotificationTestResult> SendTestAsync(
+        string? customMessage,
+        CancellationToken cancellationToken = default)
     {
         var title = localizer.T("test.title");
         var body = string.IsNullOrWhiteSpace(customMessage) ? localizer.T("test.body") : customMessage.Trim();
@@ -37,16 +39,22 @@ public sealed class NotificationTestService(
             try
             {
                 await channel.SendAsync(message, cancellationToken);
-                logger.LogInformation("Test notification delivered via channel {Channel}.", channel.Name);
+                LogDelivered(logger, channel.Name);
                 results.Add(new NotificationChannelResult(channel.Name, true, null));
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                logger.LogWarning(ex, "Test notification failed on channel {Channel}.", channel.Name);
+                LogFailed(logger, ex, channel.Name);
                 results.Add(new NotificationChannelResult(channel.Name, false, ex.Message));
             }
         }
 
         return new NotificationTestResult(results, results.Any(r => r.Delivered));
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Test notification delivered via channel {Channel}.")]
+    private static partial void LogDelivered(ILogger logger, string channel);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Test notification failed on channel {Channel}.")]
+    private static partial void LogFailed(ILogger logger, Exception exception, string channel);
 }

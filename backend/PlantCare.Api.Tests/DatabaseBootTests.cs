@@ -84,5 +84,9 @@ public class DatabaseBootTests : IDisposable
         return names;
     }
 
-    public void Dispose() => _database.Dispose();
+    public void Dispose()
+    {
+        _database.Dispose();
+        GC.SuppressFinalize(this);
+    }
 }

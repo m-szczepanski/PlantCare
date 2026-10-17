@@ -1,6 +1,7 @@
 namespace PlantCare.Api.Models;
 
-/// <summary>Monthly checkup answer, ordered worst → best; drives the schedule factors in <c>HealthPolicy</c>.</summary>
+/// <summary>Monthly checkup answer, ordered worst → best; drives the schedule factors in
+/// <c>HealthPolicy</c>.</summary>
 public enum HealthStatus
 {
     Sick,

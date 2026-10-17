@@ -14,25 +14,40 @@ public class DashboardServiceTests
         public Task<PlantResponseDto?> GetAsync(int id, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
-        public Task<PlantWriteResult> CreateAsync(CreatePlantRequestDto dto, CancellationToken cancellationToken = default)
+        public Task<PlantWriteResult> CreateAsync(
+            CreatePlantRequestDto dto,
+            CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
-        public Task<PlantWriteResult> UpdateAsync(int id, UpdatePlantRequestDto dto, CancellationToken cancellationToken = default)
+        public Task<PlantWriteResult> UpdateAsync(
+            int id,
+            UpdatePlantRequestDto dto,
+            CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
         public Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
-        public Task<PlantResponseDto?> WaterAsync(int id, string? note, int? amountMilliliters = null, PlantCare.Api.Models.WateringMethod? method = null, CancellationToken cancellationToken = default)
+        public Task<PlantResponseDto?> WaterAsync(
+            int id,
+            string? note,
+            int? amountMilliliters = null,
+            PlantCare.Api.Models.WateringMethod? method = null,
+            CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
         public Task<PlantResponseDto?> UndoWaterAsync(int id, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
-        public Task<IReadOnlyList<PlantCare.Api.Dtos.PlantNoteResponseDto>?> GetNotesAsync(int id, CancellationToken cancellationToken = default)
+        public Task<IReadOnlyList<PlantCare.Api.Dtos.PlantNoteResponseDto>?> GetNotesAsync(
+            int id,
+            CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
-        public Task<PlantCare.Api.Dtos.PlantNoteResponseDto?> AddNoteAsync(int id, string text, CancellationToken cancellationToken = default)
+        public Task<PlantCare.Api.Dtos.PlantNoteResponseDto?> AddNoteAsync(
+            int id,
+            string text,
+            CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
         public Task<PlantResponseDto?> SetSnoozeAsync(int id, int days, CancellationToken cancellationToken = default)
@@ -50,13 +65,21 @@ public class DashboardServiceTests
         public Task<PlantResponseDto?> ClearSoilWetAsync(int id, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
-        public Task<PlantCare.Api.Services.BulkWaterResult> BulkWaterAsync(IReadOnlyList<int> ids, CancellationToken cancellationToken = default)
+        public Task<PlantCare.Api.Services.BulkWaterResult> BulkWaterAsync(
+            IReadOnlyList<int> ids,
+            CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
-        public Task<IReadOnlyList<WateringLogResponseDto>?> GetWateringHistoryAsync(int id, CancellationToken cancellationToken = default)
+        public Task<IReadOnlyList<WateringLogResponseDto>?> GetWateringHistoryAsync(
+            int id,
+            CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
-        public Task<PlantPhotoResult> UploadPhotoAsync(int id, Stream content, string? contentType, CancellationToken cancellationToken = default)
+        public Task<PlantPhotoResult> UploadPhotoAsync(
+            int id,
+            Stream content,
+            string? contentType,
+            CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
     }
 

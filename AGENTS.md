@@ -63,6 +63,7 @@ Verify builds and tests pass before finishing any task.
 - DTOs separate from EF entities — never expose entities over HTTP.
 - Due-date/status logic lives in exactly one service (single source of truth).
 - Test new behavior in `PlantCare.Api.Tests/` (xUnit; integration tests via `WebApplicationFactory`).
+- Lines are capped at 120 characters (enforced by Roslynator RCS0056 via `backend/.editorconfig`; migrations excluded).
 
 ### Frontend
 - Functional components only; typed API client in `src/api/`, hooks in `src/hooks/` (TanStack Query), pages in `src/pages/`.

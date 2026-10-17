@@ -12,12 +12,7 @@ public class DevicesController(IDeviceService devices, FeatureFlags features) : 
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<DeviceResponseDto>>> List(CancellationToken cancellationToken)
     {
-        if (!features.DevicesEnabled)
-        {
-            return NotFound();
-        }
-
-        return Ok(await devices.ListAsync(cancellationToken));
+        return !features.DevicesEnabled ? NotFound() : Ok(await devices.ListAsync(cancellationToken));
     }
 
     [HttpGet("{id:int}")]
@@ -27,9 +22,9 @@ public class DevicesController(IDeviceService devices, FeatureFlags features) : 
         {
             return NotFound();
         }
-
         var device = await devices.GetAsync(id, cancellationToken);
         return device is null ? NotFound() : Ok(device);
+
     }
 
     [HttpPost]
@@ -39,35 +34,31 @@ public class DevicesController(IDeviceService devices, FeatureFlags features) : 
         {
             return NotFound();
         }
-
         var result = await devices.CreateAsync(dto, cancellationToken);
         return CreatedAtAction(nameof(Get), new { id = result.Device!.Id }, result.Device);
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult<DeviceResponseDto>> Update(int id, DeviceRequestDto dto, CancellationToken cancellationToken)
+    public async Task<ActionResult<DeviceResponseDto>> Update(int id, DeviceRequestDto dto,
+        CancellationToken cancellationToken)
     {
         if (!features.DevicesEnabled)
         {
             return NotFound();
         }
-
         var result = await devices.UpdateAsync(id, dto, cancellationToken);
         return result.Status switch
         {
             DeviceWriteStatus.NotFound => NotFound(),
             _ => Ok(result.Device),
         };
+
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        if (!features.DevicesEnabled)
-        {
-            return NotFound();
-        }
-
-        return await devices.DeleteAsync(id, cancellationToken) ? NoContent() : NotFound();
+        return !features.DevicesEnabled ? NotFound() :
+            await devices.DeleteAsync(id, cancellationToken) ? NoContent() : NotFound();
     }
 }

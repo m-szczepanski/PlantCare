@@ -26,7 +26,7 @@ public interface IDeviceWateringService
     Task<DeviceWateringResult> RunAsync(CancellationToken cancellationToken = default);
 }
 
-public sealed class DeviceWateringService(
+public sealed partial class DeviceWateringService(
     AppDbContext db,
     IPlantService plants,
     IDeviceCommandService commands,
@@ -99,9 +99,7 @@ public sealed class DeviceWateringService(
 
         var feedbackFailures = await ReportFeedbackFailuresAsync(now, cancellationToken);
 
-        logger.LogInformation(
-            "Auto-water run: {Watered} command(s), {Skipped} skipped, {Failed} failed, {FeedbackFailures} feedback failure(s).",
-            watered, skipped, failed, feedbackFailures);
+        LogAutoWaterRun(logger, watered, skipped, failed, feedbackFailures);
 
         return new DeviceWateringResult(watered, skipped, failed, feedbackFailures);
     }
@@ -125,7 +123,9 @@ public sealed class DeviceWateringService(
 
         var message = new NotificationMessage(
             localizer.T("device.feedback.title"),
-            localizer.Tf("device.feedback.body", string.Join(", ", stale.Select(l => names.GetValueOrDefault(l.PlantId, l.PlantId.ToString())))),
+            localizer.Tf(
+                "device.feedback.body",
+                string.Join(", ", stale.Select(l => names.GetValueOrDefault(l.PlantId, l.PlantId.ToString())))),
             4);
 
         foreach (var channel in channels)
@@ -136,7 +136,7 @@ public sealed class DeviceWateringService(
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                logger.LogError(ex, "Notification channel {Channel} failed to deliver the device watering feedback.", channel.Name);
+                LogChannelFailed(logger, ex, channel.Name);
             }
         }
 
@@ -148,4 +148,20 @@ public sealed class DeviceWateringService(
         await db.SaveChangesAsync(cancellationToken);
         return stale.Count;
     }
+
+    [LoggerMessage(
+        Level = LogLevel.Information,
+        Message = "Auto-water run: {Watered} command(s), {Skipped} skipped, {Failed} failed, "
+            + "{FeedbackFailures} feedback failure(s).")]
+    private static partial void LogAutoWaterRun(
+        ILogger logger,
+        int watered,
+        int skipped,
+        int failed,
+        int feedbackFailures);
+
+    [LoggerMessage(
+        Level = LogLevel.Error,
+        Message = "Notification channel {Channel} failed to deliver the device watering feedback.")]
+    private static partial void LogChannelFailed(ILogger logger, Exception exception, string channel);
 }

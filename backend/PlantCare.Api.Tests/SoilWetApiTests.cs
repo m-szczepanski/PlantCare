@@ -21,7 +21,14 @@ public class SoilWetApiTests : IDisposable
     {
         public List<string> Messages { get; } = [];
 
-        public Task PublishAsync(string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
+        public Task PublishAsync(
+            string title,
+            string message,
+            int priority = 3,
+            string? clickUrl = null,
+            string? buttonLabel = null,
+            string? buttonUrl = null,
+            CancellationToken cancellationToken = default)
         {
             Messages.Add(message);
             return Task.CompletedTask;
@@ -148,5 +155,6 @@ public class SoilWetApiTests : IDisposable
         _client.Dispose();
         _factory.Dispose();
         _database.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
