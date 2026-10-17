@@ -1,0 +1,16 @@
+<Project>
+
+  <PropertyGroup>
+    <!-- Style drift becomes a build error instead of an invisible `dotnet format` diff. -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- RCS0056 enforces the 120-char line cap; shared by both projects. -->
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="5.0.1">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>
