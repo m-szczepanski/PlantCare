@@ -16,6 +16,8 @@ jobs:
           dotnet-version: 10.0.x
       - name: Build
         run: dotnet build backend/PlantCare.Api
+      - name: Format
+        run: dotnet format backend/PlantCare.sln --verify-no-changes --exclude '**/Data/Migrations/**'
       - name: Test
         run: dotnet test backend/PlantCare.Api.Tests
 
