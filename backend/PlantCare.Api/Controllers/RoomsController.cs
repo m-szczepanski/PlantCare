@@ -19,7 +19,10 @@ public class RoomsController(IRoomService rooms, IAppLocalizer localizer) : Cont
         var result = await rooms.CreateAsync(dto, cancellationToken);
         return result.Status switch
         {
-            RoomWriteStatus.DuplicateName => Conflict(new ProblemDetails { Title = localizer.T("error.duplicateRoom.title") }),
+            RoomWriteStatus.DuplicateName => Conflict(new ProblemDetails
+            {
+                Title = localizer.T("error.duplicateRoom.title")
+            }),
             _ => CreatedAtAction(nameof(Get), new { id = result.Room!.Id }, result.Room),
         };
     }
@@ -32,13 +35,17 @@ public class RoomsController(IRoomService rooms, IAppLocalizer localizer) : Cont
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult<RoomResponseDto>> Update(int id, RoomRequestDto dto, CancellationToken cancellationToken)
+    public async Task<ActionResult<RoomResponseDto>> Update(int id, RoomRequestDto dto, 
+        CancellationToken cancellationToken)
     {
         var result = await rooms.UpdateAsync(id, dto, cancellationToken);
         return result.Status switch
         {
             RoomWriteStatus.NotFound => NotFound(),
-            RoomWriteStatus.DuplicateName => Conflict(new ProblemDetails { Title = localizer.T("error.duplicateRoom.title") }),
+            RoomWriteStatus.DuplicateName => Conflict(new ProblemDetails
+            {
+                Title = localizer.T("error.duplicateRoom.title")
+            }),
             _ => Ok(result.Room),
         };
     }

@@ -8,9 +8,10 @@ using PlantCare.Api.Services;
 namespace PlantCare.Api.Controllers;
 
 [ApiController]
+[Route("api")]
 public class ExportImportController(IExportImportService exportImport, IAppLocalizer localizer) : ControllerBase
 {
-    [HttpGet("api/export")]
+    [HttpGet("export")]
     public async Task<IActionResult> Export(CancellationToken cancellationToken)
     {
         var document = await exportImport.ExportAsync(cancellationToken);
@@ -27,7 +28,7 @@ public class ExportImportController(IExportImportService exportImport, IAppLocal
         };
     }
 
-    [HttpPost("api/import")]
+    [HttpPost("import")]
     public async Task<ActionResult<ImportResultDto>> Import(ExportDocumentDto document, CancellationToken cancellationToken)
     {
         try

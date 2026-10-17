@@ -43,7 +43,8 @@ public class QuickActionController(
             return StatusCode(StatusCodes.Status403Forbidden, localizer.T("quick.invalidKey"));
         }
 
-        var plant = await plants.WaterAsync(id, localizer.T("quick.note"), cancellationToken: cancellationToken);
+        var plant = await plants.WaterAsync(id, localizer.T(
+            "quick.note"), cancellationToken: cancellationToken);
         if (plant is null)
         {
             logger.LogWarning("Quick action hit unknown plant {PlantId} ({RemoteIp}).", id, remoteIp);

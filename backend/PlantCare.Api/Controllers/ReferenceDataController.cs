@@ -12,6 +12,10 @@ public class ReferenceDataController : ControllerBase
     [HttpGet("soil-types")]
     public ActionResult<IReadOnlyList<SoilTypeOptionDto>> GetSoilTypes()
         => Ok(SoilTypes.All
-            .Select(s => new SoilTypeOptionDto { Type = s.Type, WateringIntervalFactor = s.WateringIntervalFactor, Mixes = s.Mixes, TopUpWateringEligible = s.TopUpEligible })
+            .Select(s => new SoilTypeOptionDto
+            {
+                Type = s.Type, WateringIntervalFactor = s.WateringIntervalFactor, Mixes = s.Mixes, 
+                TopUpWateringEligible = s.TopUpEligible
+            })
             .ToList());
 }
