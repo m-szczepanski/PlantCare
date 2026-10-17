@@ -181,6 +181,10 @@ public static class Messages
 
     public static bool IsSupported(string language) => Catalog.ContainsKey(language);
 
+    internal static IReadOnlyCollection<string> Languages => Catalog.Keys;
+
+    internal static IReadOnlyCollection<string> Keys(string language) => Catalog[language].Keys;
+
     public static string Get(string language, string key)
         => Catalog.TryGetValue(language, out var messages) && messages.TryGetValue(key, out var value)
             ? value
