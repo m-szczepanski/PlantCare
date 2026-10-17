@@ -29,7 +29,10 @@ public class HealthCheckApiTests : IDisposable
     }
 
     private async Task<PlantResponseDto> CreatePlant(
-        string nickName, int intervalDays = 7, int daysSinceWatered = 0, int daysSinceAcquired = 60)
+        string nickName,
+        int intervalDays = 7,
+        int daysSinceWatered = 0,
+        int daysSinceAcquired = 60)
     {
         var created = await _client.PostAsJsonAsync("/api/plants", new
         {

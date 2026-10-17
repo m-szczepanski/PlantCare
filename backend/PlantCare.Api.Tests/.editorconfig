@@ -1,5 +1,3 @@
-root = true
-
 [*.cs]
 # Integration tests are short-lived; threading TestContext.Current.CancellationToken
 # through every HttpClient/JSON helper call would add a lot of noise for no real

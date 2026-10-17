@@ -14,7 +14,9 @@ public class ReferenceDataController : ControllerBase
         => Ok(SoilTypes.All
             .Select(s => new SoilTypeOptionDto
             {
-                Type = s.Type, WateringIntervalFactor = s.WateringIntervalFactor, Mixes = s.Mixes, 
+                Type = s.Type,
+                WateringIntervalFactor = s.WateringIntervalFactor,
+                Mixes = s.Mixes,
                 TopUpWateringEligible = s.TopUpEligible
             })
             .ToList());

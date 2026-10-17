@@ -49,7 +49,8 @@ public sealed class DeviceService(AppDbContext db) : IDeviceService
     }
 
     public async Task<DeviceWriteResult> CreateAsync(
-        DeviceRequestDto dto, CancellationToken cancellationToken = default)
+        DeviceRequestDto dto,
+        CancellationToken cancellationToken = default)
     {
         var device = new Device
         {
@@ -66,7 +67,9 @@ public sealed class DeviceService(AppDbContext db) : IDeviceService
     }
 
     public async Task<DeviceWriteResult> UpdateAsync(
-        int id, DeviceRequestDto dto, CancellationToken cancellationToken = default)
+        int id,
+        DeviceRequestDto dto,
+        CancellationToken cancellationToken = default)
     {
         var device = await db.Devices.FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
         if (device is null)

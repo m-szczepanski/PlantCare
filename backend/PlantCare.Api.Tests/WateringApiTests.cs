@@ -196,7 +196,8 @@ public class WateringApiTests : IDisposable
     }
 
     private async Task<PlantResponseDto> CreatePlant(
-        int? customWateringIntervalDays = null, DateTime? lastWateredAt = null)
+        int? customWateringIntervalDays = null,
+        DateTime? lastWateredAt = null)
     {
         var created = await _client.PostAsJsonAsync("/api/plants", new
         {

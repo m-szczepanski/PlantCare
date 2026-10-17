@@ -20,10 +20,13 @@ public interface IPlantProfileService
     Task<IReadOnlyList<PlantProfileResponseDto>> ListAsync(CancellationToken cancellationToken = default);
 
     Task<PlantProfileWriteResult> CreateAsync(
-        PlantProfileRequestDto dto, CancellationToken cancellationToken = default);
+        PlantProfileRequestDto dto,
+        CancellationToken cancellationToken = default);
 
     Task<PlantProfileWriteResult> UpdateAsync(
-        int id, PlantProfileRequestDto dto, CancellationToken cancellationToken = default);
+        int id,
+        PlantProfileRequestDto dto,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class PlantProfileService(AppDbContext db, IAppLocalizer localizer) : IPlantProfileService
@@ -40,7 +43,8 @@ public sealed class PlantProfileService(AppDbContext db, IAppLocalizer localizer
     }
 
     public async Task<PlantProfileWriteResult> CreateAsync(
-        PlantProfileRequestDto dto, CancellationToken cancellationToken = default)
+        PlantProfileRequestDto dto,
+        CancellationToken cancellationToken = default)
     {
         var commonName = dto.CommonName.Trim();
         if (await NameTakenAsync(commonName, null, cancellationToken))
@@ -75,7 +79,9 @@ public sealed class PlantProfileService(AppDbContext db, IAppLocalizer localizer
     }
 
     public async Task<PlantProfileWriteResult> UpdateAsync(
-        int id, PlantProfileRequestDto dto, CancellationToken cancellationToken = default)
+        int id,
+        PlantProfileRequestDto dto,
+        CancellationToken cancellationToken = default)
     {
         var profile = await db.PlantProfiles
             .Include(p => p.Translations)

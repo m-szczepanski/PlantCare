@@ -23,7 +23,13 @@ public class LocalizationApiTests : IDisposable
         public List<(string Title, string Message)> Published { get; } = [];
 
         public Task PublishAsync(
-            string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
+            string title,
+            string message,
+            int priority = 3,
+            string? clickUrl = null,
+            string? buttonLabel = null,
+            string? buttonUrl = null,
+            CancellationToken cancellationToken = default)
         {
             Published.Add((title, message));
             LastButtonLabel = buttonLabel;
@@ -53,7 +59,10 @@ public class LocalizationApiTests : IDisposable
     }
 
     private static async Task<PlantResponseDto> CreatePlantAsync(
-        HttpClient client, string nickName, int intervalDays, int daysSinceWatered)
+        HttpClient client,
+        string nickName,
+        int intervalDays,
+        int daysSinceWatered)
     {
         var created = await client.PostAsJsonAsync("/api/plants", new
         {

@@ -26,7 +26,13 @@ public class WateringCheckApiTests : IDisposable
         public bool FailNext { get; set; }
 
         public Task PublishAsync(
-            string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
+            string title,
+            string message,
+            int priority = 3,
+            string? clickUrl = null,
+            string? buttonLabel = null,
+            string? buttonUrl = null,
+            CancellationToken cancellationToken = default)
         {
             if (FailNext)
             {
@@ -70,13 +76,21 @@ public class WateringCheckApiTests : IDisposable
     }
 
     private async Task<PlantResponseDto> CreatePlant(
-        string nickName, int? intervalDays, int? daysSinceWatered, bool notifyEnabled = true)
+        string nickName,
+        int? intervalDays,
+        int? daysSinceWatered,
+        bool notifyEnabled = true)
         => await CreatePlant(
             nickName,
-            intervalDays, daysSinceWatered is null ? null : Today.AddDays(-daysSinceWatered.Value), notifyEnabled);
+            intervalDays,
+            daysSinceWatered is null ? null : Today.AddDays(-daysSinceWatered.Value),
+            notifyEnabled);
 
     private async Task<PlantResponseDto> CreatePlant(
-        string nickName, int? intervalDays, DateTime? lastWateredAt, bool notifyEnabled = true)
+        string nickName,
+        int? intervalDays,
+        DateTime? lastWateredAt,
+        bool notifyEnabled = true)
     {
         var created = await _client.PostAsJsonAsync("/api/plants", new
         {
@@ -117,7 +131,6 @@ public class WateringCheckApiTests : IDisposable
         await CreatePlant("Due", 7, 7);
 
         await RunCheckAsync();
-
         var (title, _, priority) = Assert.Single(_publisher.Published);
         Assert.Equal("2 plants need water (1 overdue)", title);
         Assert.Equal(5, priority);
@@ -203,7 +216,6 @@ public class WateringCheckApiTests : IDisposable
         }, Options);
 
         await RunCheckAsync();
-
         var (_, message, _) = Assert.Single(_publisher.Published);
         Assert.Contains("[toxic to pets]", message);
     }

@@ -65,7 +65,8 @@ builder.Services.AddSingleton(new FeatureFlags(
     builder.Configuration.GetValue("ENABLE_DEVICES", false)));
 
 var mqttHost = builder.Configuration["MQTT_HOST"] ?? "mqtt";
-var mqttPort = int.TryParse(builder.Configuration["MQTT_PORT"], out var parsedMqttPort) && parsedMqttPort is > 0 and < 65536
+var mqttPort = int.TryParse(builder.Configuration["MQTT_PORT"], out var parsedMqttPort)
+    && parsedMqttPort is > 0 and < 65536
     ? parsedMqttPort
     : 1883;
 builder.Services.AddSingleton(new MqttOptions(
@@ -126,7 +127,8 @@ builder.Services.AddScoped<IInsightsService, InsightsService>();
 
 var ntfyBaseUrl = builder.Configuration["NTFY_URL"] ?? "http://ntfy:80";
 var ntfyTopic = builder.Configuration["NTFY_TOPIC"] ?? "plant-care";
-var ntfyPublicPort = int.TryParse(builder.Configuration["NTFY_PUBLIC_PORT"], out var parsedNtfyPort) && parsedNtfyPort is > 0 and < 65536
+var ntfyPublicPort = int.TryParse(builder.Configuration["NTFY_PUBLIC_PORT"], out var parsedNtfyPort)
+    && parsedNtfyPort is > 0 and < 65536
     ? parsedNtfyPort
     : (int?)null;
 builder.Services.AddSingleton(new NtfyOptions(ntfyBaseUrl, ntfyTopic, ntfyPublicPort));

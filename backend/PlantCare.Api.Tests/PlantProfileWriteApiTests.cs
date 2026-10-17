@@ -190,7 +190,8 @@ public class PlantProfileWriteApiTests : IDisposable
 
         var response = await _client.PutAsJsonAsync(
             $"/api/plant-profiles/{profile.Id}",
-            Payload(profile.CommonName), Options);
+            Payload(profile.CommonName),
+            Options);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
@@ -199,7 +200,8 @@ public class PlantProfileWriteApiTests : IDisposable
     {
         var created = await _client.PostAsJsonAsync(
             "/api/plant-profiles",
-            Payload(commonName ?? "String of Diamonds"), Options);
+            Payload(commonName ?? "String of Diamonds"),
+            Options);
         created.EnsureSuccessStatusCode();
         return (await created.Content.ReadFromJsonAsync<PlantProfileResponseDto>(Options))!;
     }

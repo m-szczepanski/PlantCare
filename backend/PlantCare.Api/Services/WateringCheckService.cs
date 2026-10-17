@@ -46,7 +46,8 @@ public sealed partial class WateringCheckService(
             .ToList();
 
         var topUps = notified
-            .Where(p => p.TopUpWateringEnabled && p.TopUpWateringStatus is PlantDueStatus.Overdue or PlantDueStatus.DueToday)
+            .Where(p => p.TopUpWateringEnabled
+                && p.TopUpWateringStatus is PlantDueStatus.Overdue or PlantDueStatus.DueToday)
             .ToList();
 
         var checkupCandidateIds = notified.Where(p => p.CheckupDue).Select(p => p.Id).ToList();
@@ -120,7 +121,11 @@ public sealed partial class WateringCheckService(
 
         var digest = new NotificationMessage(
             title,
-            message, priority, clickUrl, buttonUrl, localizer.T("digest.button"));
+            message,
+            priority,
+            clickUrl,
+            buttonUrl,
+            localizer.T("digest.button"));
         var delivered = false;
         foreach (var channel in channels)
         {
@@ -136,7 +141,7 @@ public sealed partial class WateringCheckService(
         }
 
         if (!delivered)
-{
+        {
             var failure = new WateringCheckResult(0, 0, Math.Max(1, channels.Count()), due.Count);
             await LogRunAsync(failure, "delivery-failed", cancellationToken);
             return failure;

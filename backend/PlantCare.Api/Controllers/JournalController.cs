@@ -10,7 +10,7 @@ namespace PlantCare.Api.Controllers;
 public class JournalController(IJournalService journal, IAppLocalizer localizer) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<JournalEntryResponseDto>>> List(int plantId, 
+    public async Task<ActionResult<IReadOnlyList<JournalEntryResponseDto>>> List(int plantId,
         CancellationToken cancellationToken)
     {
         var entries = await journal.ListAsync(plantId, cancellationToken);

@@ -14,7 +14,7 @@ public class PlantProfilesController(IPlantProfileService profiles, IAppLocalize
         => Ok(await profiles.ListAsync(cancellationToken));
 
     [HttpPost]
-    public async Task<ActionResult<PlantProfileResponseDto>> Create(PlantProfileRequestDto dto, 
+    public async Task<ActionResult<PlantProfileResponseDto>> Create(PlantProfileRequestDto dto,
         CancellationToken cancellationToken)
     {
         var result = await profiles.CreateAsync(dto, cancellationToken);
@@ -22,12 +22,12 @@ public class PlantProfilesController(IPlantProfileService profiles, IAppLocalize
         {
             PlantProfileWriteStatus.DuplicateName => Conflict(new ProblemDetails
             {
-                Title = localizer.T("error.duplicateProfile.title"), 
+                Title = localizer.T("error.duplicateProfile.title"),
                 Detail = localizer.Tf("error.duplicateProfile.detail", dto.CommonName)
             }),
             PlantProfileWriteStatus.InvalidChecklist => BadRequest(new ProblemDetails
             {
-                Title = localizer.T("error.invalidChecklist.title"), 
+                Title = localizer.T("error.invalidChecklist.title"),
                 Detail = localizer.T("error.invalidChecklist.detail")
             }),
             _ => StatusCode(StatusCodes.Status201Created, result.Profile),
@@ -35,7 +35,7 @@ public class PlantProfilesController(IPlantProfileService profiles, IAppLocalize
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult<PlantProfileResponseDto>> Update(int id, PlantProfileRequestDto dto, 
+    public async Task<ActionResult<PlantProfileResponseDto>> Update(int id, PlantProfileRequestDto dto,
         CancellationToken cancellationToken)
     {
         var result = await profiles.UpdateAsync(id, dto, cancellationToken);
@@ -44,12 +44,12 @@ public class PlantProfilesController(IPlantProfileService profiles, IAppLocalize
             PlantProfileWriteStatus.NotFound => NotFound(),
             PlantProfileWriteStatus.DuplicateName => Conflict(new ProblemDetails
             {
-                Title = localizer.T("error.duplicateProfile.title"), 
+                Title = localizer.T("error.duplicateProfile.title"),
                 Detail = localizer.Tf("error.duplicateProfile.detail", dto.CommonName)
             }),
             PlantProfileWriteStatus.InvalidChecklist => BadRequest(new ProblemDetails
             {
-                Title = localizer.T("error.invalidChecklist.title"), 
+                Title = localizer.T("error.invalidChecklist.title"),
                 Detail = localizer.T("error.invalidChecklist.detail")
             }),
             _ => Ok(result.Profile),

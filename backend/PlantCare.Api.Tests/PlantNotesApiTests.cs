@@ -42,11 +42,13 @@ public class PlantNotesApiTests : IDisposable
 
         var first = await _client.PostAsJsonAsync(
             $"/api/plants/{id}/notes",
-            new { text = "New leaf spotted!" }, Options);
+            new { text = "New leaf spotted!" },
+            Options);
         Assert.Equal(HttpStatusCode.Created, first.StatusCode);
         var second = await _client.PostAsJsonAsync(
             $"/api/plants/{id}/notes",
-            new { text = "Slight yellowing" }, Options);
+            new { text = "Slight yellowing" },
+            Options);
         Assert.Equal(HttpStatusCode.Created, second.StatusCode);
 
         var notes = await _client.GetFromJsonAsync<List<PlantNoteResponseDto>>($"/api/plants/{id}/notes", Options);

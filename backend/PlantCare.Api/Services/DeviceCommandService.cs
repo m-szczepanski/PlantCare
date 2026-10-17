@@ -29,7 +29,9 @@ public sealed partial class DeviceCommandService(
     private const int DefaultDurationMs = 15_000;
 
     public async Task<DeviceWaterResult> WaterAsync(
-        int plantId, int? durationMs, CancellationToken cancellationToken = default)
+        int plantId,
+        int? durationMs,
+        CancellationToken cancellationToken = default)
     {
         var plant = await db.Plants.FirstOrDefaultAsync(p => p.Id == plantId, cancellationToken);
         if (plant is null)

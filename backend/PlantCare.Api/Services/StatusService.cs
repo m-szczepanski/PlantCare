@@ -20,7 +20,13 @@ public sealed record JobRunStatus(DateTime RanAt, string Outcome, int SentDigest
 public sealed record DigestStatus(DateTime SentAt, int PlantCount, int OverdueCount, int Priority);
 
 public sealed record NtfyStatus(
-    string BaseUrl, string PublicBaseUrl, string Topic, string SubscribeUrl, bool Reachable, int? LatencyMs, string? Error);
+    string BaseUrl,
+    string PublicBaseUrl,
+    string Topic,
+    string SubscribeUrl,
+    bool Reachable,
+    int? LatencyMs,
+    string? Error);
 
 public interface IStatusService
 {
@@ -53,10 +59,14 @@ public sealed class StatusService(
             DateTime.UtcNow,
             TimeZoneInfo.Local.Id,
             configuration["WATERING_CHECK_CRON"] ?? "0 8 * * *",
-            lastRun is null ? null : new JobRunStatus(lastRun.RanAt, lastRun.Outcome, lastRun.SentDigests, lastRun.Failed),
+            lastRun is null
+                ? null
+                : new JobRunStatus(lastRun.RanAt, lastRun.Outcome, lastRun.SentDigests, lastRun.Failed),
             lastDigest is null ? null : new DigestStatus(
                 lastDigest.SentAt,
-                lastDigest.PlantCount, lastDigest.OverdueCount, lastDigest.Priority),
+                lastDigest.PlantCount,
+                lastDigest.OverdueCount,
+                lastDigest.Priority),
             ntfyStatus,
             [.. channels.Select(c => c.Name).Distinct().OrderBy(n => n, StringComparer.Ordinal)],
             features.DevicesEnabled);
@@ -74,11 +84,17 @@ public sealed class StatusService(
             http.Timeout = TimeSpan.FromSeconds(2);
             using var response = await http.GetAsync(
                 baseUrl,
-                HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                HttpCompletionOption.ResponseHeadersRead,
+                cancellationToken);
             stopwatch.Stop();
             return new NtfyStatus(
                 baseUrl,
-                publicBaseUrl, ntfy.Topic, subscribeUrl, response.IsSuccessStatusCode, (int)stopwatch.ElapsedMilliseconds, null);
+                publicBaseUrl,
+                ntfy.Topic,
+                subscribeUrl,
+                response.IsSuccessStatusCode,
+                (int)stopwatch.ElapsedMilliseconds,
+                null);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

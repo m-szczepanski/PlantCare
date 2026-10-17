@@ -70,7 +70,8 @@ public static partial class SeedLoader
         await using var stream = File.OpenRead(path);
         var seedProfiles = await JsonSerializer.DeserializeAsync<List<SeedPlantProfile>>(
             stream,
-            JsonOptions, cancellationToken)
+            JsonOptions,
+            cancellationToken)
             ?? [];
 
         var existingNames = await db.PlantProfiles
@@ -161,7 +162,8 @@ public static partial class SeedLoader
         await using var stream = File.OpenRead(path);
         var entries = await JsonSerializer.DeserializeAsync<List<SeedProfileTranslation>>(
             stream,
-            JsonOptions, cancellationToken)
+            JsonOptions,
+            cancellationToken)
             ?? [];
 
         var profiles = await db.PlantProfiles

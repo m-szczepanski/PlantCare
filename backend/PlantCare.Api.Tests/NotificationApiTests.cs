@@ -21,7 +21,13 @@ public class NotificationApiTests : IDisposable
         public int Count { get; private set; }
 
         public Task PublishAsync(
-            string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
+            string title,
+            string message,
+            int priority = 3,
+            string? clickUrl = null,
+            string? buttonLabel = null,
+            string? buttonUrl = null,
+            CancellationToken cancellationToken = default)
         {
             Last = (title, message, priority);
             Count += 1;
@@ -64,7 +70,8 @@ public class NotificationApiTests : IDisposable
 
         var response = await client.PostAsJsonAsync(
             "/api/notifications/test",
-            new { message = (string?)null }, Options);
+            new { message = (string?)null },
+            Options);
 
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<NotificationTestResult>(Options);

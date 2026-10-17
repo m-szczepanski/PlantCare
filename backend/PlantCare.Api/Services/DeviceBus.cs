@@ -46,7 +46,9 @@ public interface IDeviceBus
     Task PublishAsync(string topic, string payload, CancellationToken cancellationToken = default);
 }
 
-public sealed partial class MqttDeviceBus(MqttOptions options, ILogger<MqttDeviceBus> logger) : BackgroundService, IDeviceBus
+public sealed partial class MqttDeviceBus(MqttOptions options, ILogger<MqttDeviceBus> logger) :
+    BackgroundService,
+    IDeviceBus
 {
     private const int ReconnectDelayMs = 5000;
 

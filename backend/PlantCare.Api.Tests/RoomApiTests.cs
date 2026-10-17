@@ -65,7 +65,8 @@ public class RoomApiTests : IDisposable
 
         var update = await _client.PutAsJsonAsync(
             $"/api/rooms/{room.Id}",
-            new { name = "Library", orientation = (RoomOrientation?)null }, Options);
+            new { name = "Library", orientation = (RoomOrientation?)null },
+            Options);
         Assert.Equal(HttpStatusCode.OK, update.StatusCode);
         var renamed = await update.Content.ReadFromJsonAsync<RoomResponseDto>(Options);
         Assert.Equal("Library", renamed!.Name);
@@ -78,7 +79,8 @@ public class RoomApiTests : IDisposable
         var room = await CreateRoom("Attic");
         var created = await _client.PostAsJsonAsync(
             "/api/plants",
-            new { nickName = "Attic Andy", roomId = room.Id }, Options);
+            new { nickName = "Attic Andy", roomId = room.Id },
+            Options);
         var plant = await created.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
 
         var delete = await _client.DeleteAsync($"/api/rooms/{room.Id}");
@@ -103,7 +105,8 @@ public class RoomApiTests : IDisposable
         var room = await CreateRoom("Balcony");
         var created = await _client.PostAsJsonAsync(
             "/api/plants",
-            new { nickName = "Figgy", roomId = room.Id }, Options);
+            new { nickName = "Figgy", roomId = room.Id },
+            Options);
         var plant = await created.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
 
         Assert.Equal(room.Id, plant!.RoomId);

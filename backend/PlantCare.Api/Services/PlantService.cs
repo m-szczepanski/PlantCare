@@ -24,7 +24,10 @@ public enum PlantPhotoStatus
 }
 
 public sealed record PlantPhotoResult(
-    PlantPhotoStatus Status, PlantResponseDto? Plant = null, string? ErrorKey = null, object[]? ErrorArgs = null);
+    PlantPhotoStatus Status,
+    PlantResponseDto? Plant = null,
+    string? ErrorKey = null,
+    object[]? ErrorArgs = null);
 
 public sealed record BulkWaterResult(int Requested, int Watered, IReadOnlyList<int> SkippedIds);
 
@@ -37,22 +40,32 @@ public interface IPlantService
     Task<PlantWriteResult> CreateAsync(CreatePlantRequestDto dto, CancellationToken cancellationToken = default);
 
     Task<PlantWriteResult> UpdateAsync(
-        int id, UpdatePlantRequestDto dto, CancellationToken cancellationToken = default);
+        int id,
+        UpdatePlantRequestDto dto,
+        CancellationToken cancellationToken = default);
 
     Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default);
 
     Task<PlantResponseDto?> WaterAsync(
-        int id, string? note, int? amountMilliliters = null, WateringMethod? method = null, CancellationToken cancellationToken = default);
+        int id,
+        string? note,
+        int? amountMilliliters = null,
+        WateringMethod? method = null,
+        CancellationToken cancellationToken = default);
 
     Task<PlantResponseDto?> UndoWaterAsync(int id, CancellationToken cancellationToken = default);
 
     Task<BulkWaterResult> BulkWaterAsync(IReadOnlyList<int> ids, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<WateringLogResponseDto>?> GetWateringHistoryAsync(
-        int id, CancellationToken cancellationToken = default);
+        int id,
+        CancellationToken cancellationToken = default);
 
     Task<PlantPhotoResult> UploadPhotoAsync(
-        int id, Stream content, string? contentType, CancellationToken cancellationToken = default);
+        int id,
+        Stream content,
+        string? contentType,
+        CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<PlantNoteResponseDto>?> GetNotesAsync(int id, CancellationToken cancellationToken = default);
 
@@ -70,7 +83,11 @@ public interface IPlantService
 }
 
 public sealed class PlantService(
-    AppDbContext db, IWateringScheduleService schedule, FeatureFlags features, IPlantPhotoStorage photos, IAppLocalizer localizer) : IPlantService
+    AppDbContext db,
+    IWateringScheduleService schedule,
+    FeatureFlags features,
+    IPlantPhotoStorage photos,
+    IAppLocalizer localizer) : IPlantService
 {
     public async Task<IReadOnlyList<PlantResponseDto>> ListAsync(CancellationToken cancellationToken = default)
     {
@@ -98,7 +115,8 @@ public sealed class PlantService(
     }
 
     public async Task<PlantWriteResult> CreateAsync(
-        CreatePlantRequestDto dto, CancellationToken cancellationToken = default)
+        CreatePlantRequestDto dto,
+        CancellationToken cancellationToken = default)
     {
         if (dto.PlantProfileId is not null && !await ProfileExistsAsync(dto.PlantProfileId.Value, cancellationToken))
         {
@@ -110,7 +128,8 @@ public sealed class PlantService(
             return new PlantWriteResult(PlantWriteStatus.InvalidRoom);
         }
 
-        if (features.DevicesEnabled && dto.DeviceId is not null && !await DeviceExistsAsync(dto.DeviceId.Value, cancellationToken))
+        if (features.DevicesEnabled && dto.DeviceId is not null
+            && !await DeviceExistsAsync(dto.DeviceId.Value, cancellationToken))
         {
             return new PlantWriteResult(PlantWriteStatus.InvalidDevice);
         }
@@ -144,7 +163,9 @@ public sealed class PlantService(
     }
 
     public async Task<PlantWriteResult> UpdateAsync(
-        int id, UpdatePlantRequestDto dto, CancellationToken cancellationToken = default)
+        int id,
+        UpdatePlantRequestDto dto,
+        CancellationToken cancellationToken = default)
     {
         var plant = await db.Plants
             .Include(p => p.CareTasks)
@@ -164,7 +185,8 @@ public sealed class PlantService(
             return new PlantWriteResult(PlantWriteStatus.InvalidRoom);
         }
 
-        if (features.DevicesEnabled && dto.DeviceId is not null && !await DeviceExistsAsync(dto.DeviceId.Value, cancellationToken))
+        if (features.DevicesEnabled && dto.DeviceId is not null
+            && !await DeviceExistsAsync(dto.DeviceId.Value, cancellationToken))
         {
             return new PlantWriteResult(PlantWriteStatus.InvalidDevice);
         }
@@ -211,7 +233,11 @@ public sealed class PlantService(
     /// single implicit transaction of one SaveChanges call.
     /// </summary>
     public async Task<PlantResponseDto?> WaterAsync(
-        int id, string? note, int? amountMilliliters = null, WateringMethod? method = null, CancellationToken cancellationToken = default)
+        int id,
+        string? note,
+        int? amountMilliliters = null,
+        WateringMethod? method = null,
+        CancellationToken cancellationToken = default)
     {
         var plant = await db.Plants
             .Include(p => p.PlantProfile!.Translations)
@@ -291,7 +317,8 @@ public sealed class PlantService(
     }
 
     public async Task<BulkWaterResult> BulkWaterAsync(
-        IReadOnlyList<int> ids, CancellationToken cancellationToken = default)
+        IReadOnlyList<int> ids,
+        CancellationToken cancellationToken = default)
     {
         var distinct = ids.Distinct().ToList();
         var skipped = new List<int>();
@@ -313,7 +340,8 @@ public sealed class PlantService(
     }
 
     public async Task<IReadOnlyList<WateringLogResponseDto>?> GetWateringHistoryAsync(
-        int id, CancellationToken cancellationToken = default)
+        int id,
+        CancellationToken cancellationToken = default)
     {
         if (!await db.Plants.AnyAsync(p => p.Id == id, cancellationToken))
         {
@@ -346,7 +374,10 @@ public sealed class PlantService(
     }
 
     public async Task<PlantPhotoResult> UploadPhotoAsync(
-        int id, Stream content, string? contentType, CancellationToken cancellationToken = default)
+        int id,
+        Stream content,
+        string? contentType,
+        CancellationToken cancellationToken = default)
     {
         var plant = await db.Plants.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
         if (plant is null)
@@ -364,7 +395,8 @@ public sealed class PlantService(
             return ex is PhotoStorageException photoError
                 ? new PlantPhotoResult(
                     PlantPhotoStatus.InvalidFile,
-                    ErrorKey: photoError.MessageKey, ErrorArgs: photoError.Args)
+                    ErrorKey: photoError.MessageKey,
+                    ErrorArgs: photoError.Args)
                 : new PlantPhotoResult(PlantPhotoStatus.InvalidFile, ErrorKey: ex.Message);
         }
 
@@ -433,7 +465,9 @@ public sealed class PlantService(
     }
 
     public async Task<PlantResponseDto?> SetSoilWetAsync(
-        int id, int days, CancellationToken cancellationToken = default)
+        int id,
+        int days,
+        CancellationToken cancellationToken = default)
     {
         var plant = await db.Plants
             .Include(p => p.PlantProfile!.Translations)
@@ -474,7 +508,8 @@ public sealed class PlantService(
     }
 
     public async Task<IReadOnlyList<PlantNoteResponseDto>?> GetNotesAsync(
-        int id, CancellationToken cancellationToken = default)
+        int id,
+        CancellationToken cancellationToken = default)
     {
         if (!await db.Plants.AnyAsync(p => p.Id == id, cancellationToken))
         {
@@ -496,7 +531,9 @@ public sealed class PlantService(
     }
 
     public async Task<PlantNoteResponseDto?> AddNoteAsync(
-        int id, string text, CancellationToken cancellationToken = default)
+        int id,
+        string text,
+        CancellationToken cancellationToken = default)
     {
         var plant = await db.Plants.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
         if (plant is null)
@@ -584,7 +621,8 @@ public sealed class PlantService(
                 : null,
             AcquiredDate = plant.AcquiredDate,
             PlantProfileId = plant.PlantProfileId,
-            ProfileCommonName = ProfileTranslations.LocalizedCommonName(profile, translation) ?? plant.PlantProfile?.CommonName,
+            ProfileCommonName = ProfileTranslations.LocalizedCommonName(profile, translation)
+                ?? plant.PlantProfile?.CommonName,
             ProfileScientificName = profile?.ScientificName,
             ProfileToxicToPets = profile?.ToxicToPets ?? false,
             ProfileToxicToChildren = profile?.ToxicToChildren ?? false,

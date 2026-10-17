@@ -10,7 +10,10 @@ public sealed record DeviceStateOptions(int WetThresholdPct, int DeferDays);
 
 /// <summary>Parsed state published by a device on <c>plantcare/{id}/state</c>.</summary>
 public sealed record DeviceStateMessage(
-    int? MoisturePct, DeviceWaterLevel? WaterLevel, DateTime? Timestamp, bool Watered)
+    int? MoisturePct,
+    DeviceWaterLevel? WaterLevel,
+    DateTime? Timestamp,
+    bool Watered)
 {
     public static DeviceStateMessage? TryParse(string payload)
     {
@@ -24,7 +27,8 @@ public sealed record DeviceStateMessage(
             }
 
             int? moisture = null;
-            if (root.TryGetProperty("moisturePct", out var m) && m.ValueKind == JsonValueKind.Number && m.TryGetInt32(out var mv))
+            if (root.TryGetProperty("moisturePct", out var m) && m.ValueKind == JsonValueKind.Number
+                && m.TryGetInt32(out var mv))
             {
                 moisture = mv;
             }
@@ -39,7 +43,9 @@ public sealed record DeviceStateMessage(
             if (root.TryGetProperty("ts", out var t) && t.ValueKind == JsonValueKind.String
                 && DateTime.TryParse(
                     t.GetString(),
-                    CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var tv))
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.RoundtripKind,
+                    out var tv))
             {
                 timestamp = tv;
             }
@@ -75,7 +81,11 @@ public interface IDeviceStateIngestor
 }
 
 public sealed partial class DeviceStateIngestor(
-    AppDbContext db, DeviceStateOptions options, ILogger<DeviceStateIngestor> logger, IPlantService plantService, IAppLocalizer localizer) : IDeviceStateIngestor
+    AppDbContext db,
+    DeviceStateOptions options,
+    ILogger<DeviceStateIngestor> logger,
+    IPlantService plantService,
+    IAppLocalizer localizer) : IDeviceStateIngestor
 {
     public async Task IngestAsync(string topic, string payload, CancellationToken cancellationToken = default)
     {
@@ -158,7 +168,8 @@ public sealed partial class DeviceStateIngestor(
         foreach (var plantId in plantIds)
         {
             var recent = await db.CareTasks.AnyAsync(t =>
-                t.PlantId == plantId && t.Type == CareTaskType.Watering && t.LastDoneAt >= recentlyWateredBefore, cancellationToken);
+                t.PlantId == plantId && t.Type == CareTaskType.Watering
+                    && t.LastDoneAt >= recentlyWateredBefore, cancellationToken);
             if (recent)
             {
                 continue;
@@ -166,7 +177,8 @@ public sealed partial class DeviceStateIngestor(
 
             await plantService.WaterAsync(
                 plantId,
-                localizer.T("device.wateredNote"), cancellationToken: cancellationToken);
+                localizer.T("device.wateredNote"),
+                cancellationToken: cancellationToken);
         }
 
         await db.SaveChangesAsync(cancellationToken);
@@ -191,7 +203,9 @@ public sealed partial class DeviceStateIngestor(
 /// (the ingestor needs a scoped <see cref="AppDbContext"/>).
 /// </summary>
 public sealed partial class DeviceStateService(
-    IDeviceBus bus, IServiceScopeFactory scopeFactory, ILogger<DeviceStateService> logger) : IHostedService
+    IDeviceBus bus,
+    IServiceScopeFactory scopeFactory,
+    ILogger<DeviceStateService> logger) : IHostedService
 {
     public Task StartAsync(CancellationToken cancellationToken)
     {

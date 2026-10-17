@@ -35,7 +35,7 @@ public class RoomsController(IRoomService rooms, IAppLocalizer localizer) : Cont
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult<RoomResponseDto>> Update(int id, RoomRequestDto dto, 
+    public async Task<ActionResult<RoomResponseDto>> Update(int id, RoomRequestDto dto,
         CancellationToken cancellationToken)
     {
         var result = await rooms.UpdateAsync(id, dto, cancellationToken);

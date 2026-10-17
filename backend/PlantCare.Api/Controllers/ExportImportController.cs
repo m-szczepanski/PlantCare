@@ -31,7 +31,8 @@ public partial class ExportImportController(IExportImportService exportImport, I
 
     [HttpPost("import")]
     public async Task<ActionResult<ImportResultDto>> Import(
-        ExportDocumentDto document, CancellationToken cancellationToken)
+        ExportDocumentDto document,
+        CancellationToken cancellationToken)
     {
         try
         {

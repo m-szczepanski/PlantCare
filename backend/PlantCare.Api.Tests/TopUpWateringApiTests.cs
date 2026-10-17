@@ -25,7 +25,13 @@ public class TopUpWateringApiTests : IDisposable
         public List<(string Title, string Message)> Published { get; } = [];
 
         public Task PublishAsync(
-            string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
+            string title,
+            string message,
+            int priority = 3,
+            string? clickUrl = null,
+            string? buttonLabel = null,
+            string? buttonUrl = null,
+            CancellationToken cancellationToken = default)
         {
             Published.Add((title, message));
             return Task.CompletedTask;
@@ -48,7 +54,10 @@ public class TopUpWateringApiTests : IDisposable
     }
 
     private async Task<PlantResponseDto> CreatePlant(
-        string nickName, SoilType? soilType, int intervalDays = 10, int? wateredDaysAgo = null)
+        string nickName,
+        SoilType? soilType,
+        int intervalDays = 10,
+        int? wateredDaysAgo = null)
     {
         var created = await _client.PostAsJsonAsync("/api/plants", new
         {
@@ -152,7 +161,8 @@ public class TopUpWateringApiTests : IDisposable
 
         var done = await _client.PostAsJsonAsync(
             $"/api/plants/{plant.Id}/care-tasks/TopUpWatering/done",
-            new { }, Options);
+            new { },
+            Options);
         Assert.Equal(HttpStatusCode.OK, done.StatusCode);
         var task = await done.Content.ReadFromJsonAsync<CareTaskResponseDto>(Options);
         Assert.NotNull(task!.LastDoneAt);
@@ -181,7 +191,8 @@ public class TopUpWateringApiTests : IDisposable
 
         var done = await _client.PostAsJsonAsync(
             $"/api/plants/{plant.Id}/care-tasks/TopUpWatering/done",
-            new { }, Options);
+            new { },
+            Options);
         Assert.Equal(HttpStatusCode.OK, done.StatusCode);
 
         // The drink counts: the overdue full watering is absorbed (anchored to
@@ -198,7 +209,8 @@ public class TopUpWateringApiTests : IDisposable
 
         var done = await _client.PostAsJsonAsync(
             $"/api/plants/{plant.Id}/care-tasks/TopUpWatering/done",
-            new { }, Options);
+            new { },
+            Options);
         Assert.Equal(HttpStatusCode.NotFound, done.StatusCode);
     }
 

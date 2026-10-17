@@ -18,7 +18,13 @@ public class StatusApiTests : IDisposable
     private sealed class SilentPublisher : INtfyPublisher
     {
         public Task PublishAsync(
-            string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
+            string title,
+            string message,
+            int priority = 3,
+            string? clickUrl = null,
+            string? buttonLabel = null,
+            string? buttonUrl = null,
+            CancellationToken cancellationToken = default)
             => Task.CompletedTask;
     }
 

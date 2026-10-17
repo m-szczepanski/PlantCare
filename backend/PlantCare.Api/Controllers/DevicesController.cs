@@ -39,7 +39,7 @@ public class DevicesController(IDeviceService devices, FeatureFlags features) : 
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult<DeviceResponseDto>> Update(int id, DeviceRequestDto dto, 
+    public async Task<ActionResult<DeviceResponseDto>> Update(int id, DeviceRequestDto dto,
         CancellationToken cancellationToken)
     {
         if (!features.DevicesEnabled)

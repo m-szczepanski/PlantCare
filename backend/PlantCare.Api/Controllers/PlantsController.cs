@@ -8,7 +8,7 @@ namespace PlantCare.Api.Controllers;
 [ApiController]
 [Route("api/plants")]
 [Produces("application/json")]
-public class PlantsController(IPlantService plants, ICareTaskService careTasks, IHealthCheckService healthChecks, 
+public class PlantsController(IPlantService plants, ICareTaskService careTasks, IHealthCheckService healthChecks,
     IAppLocalizer localizer, IDeviceCommandService deviceCommands, FeatureFlags features) : ControllerBase
 {
     [HttpGet]
@@ -23,7 +23,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
     }
 
     [HttpPost]
-    public async Task<ActionResult<PlantResponseDto>> Create(CreatePlantRequestDto dto, 
+    public async Task<ActionResult<PlantResponseDto>> Create(CreatePlantRequestDto dto,
         CancellationToken cancellationToken)
     {
         var result = await plants.CreateAsync(dto, cancellationToken);
@@ -31,17 +31,17 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
         {
             PlantWriteStatus.InvalidProfile => BadRequest(new ProblemDetails
             {
-                Title = localizer.T("error.unknownProfile.title"), 
+                Title = localizer.T("error.unknownProfile.title"),
                 Detail = localizer.Tf("error.unknownProfile.detail", dto.PlantProfileId!)
             }),
             PlantWriteStatus.InvalidRoom => BadRequest(new ProblemDetails
             {
-                Title = localizer.T("error.unknownRoom.title"), 
+                Title = localizer.T("error.unknownRoom.title"),
                 Detail = localizer.Tf("error.unknownRoom.detail", dto.RoomId!)
             }),
             PlantWriteStatus.InvalidDevice => BadRequest(new ProblemDetails
             {
-                Title = localizer.T("error.unknownDevice.title"), 
+                Title = localizer.T("error.unknownDevice.title"),
                 Detail = localizer.Tf("error.unknownDevice.detail", dto.DeviceId!)
             }),
             _ => CreatedAtAction(nameof(Get), new { id = result.Plant!.Id }, result.Plant),
@@ -49,7 +49,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult<PlantResponseDto>> Update(int id, UpdatePlantRequestDto dto, 
+    public async Task<ActionResult<PlantResponseDto>> Update(int id, UpdatePlantRequestDto dto,
         CancellationToken cancellationToken)
     {
         var result = await plants.UpdateAsync(id, dto, cancellationToken);
@@ -58,17 +58,17 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
             PlantWriteStatus.NotFound => NotFound(),
             PlantWriteStatus.InvalidProfile => BadRequest(new ProblemDetails
             {
-                Title = localizer.T("error.unknownProfile.title"), 
+                Title = localizer.T("error.unknownProfile.title"),
                 Detail = localizer.Tf("error.unknownProfile.detail", dto.PlantProfileId!)
             }),
             PlantWriteStatus.InvalidRoom => BadRequest(new ProblemDetails
             {
-                Title = localizer.T("error.unknownRoom.title"), 
+                Title = localizer.T("error.unknownRoom.title"),
                 Detail = localizer.Tf("error.unknownRoom.detail", dto.RoomId!)
             }),
             PlantWriteStatus.InvalidDevice => BadRequest(new ProblemDetails
             {
-                Title = localizer.T("error.unknownDevice.title"), 
+                Title = localizer.T("error.unknownDevice.title"),
                 Detail = localizer.Tf("error.unknownDevice.detail", dto.DeviceId!)
             }),
             _ => Ok(result.Plant),
@@ -80,7 +80,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
         => await plants.DeleteAsync(id, cancellationToken) ? NoContent() : NotFound();
 
     [HttpPost("{id:int}/water")]
-    public async Task<ActionResult<PlantResponseDto>> Water(int id, WaterPlantRequestDto? dto, 
+    public async Task<ActionResult<PlantResponseDto>> Water(int id, WaterPlantRequestDto? dto,
         CancellationToken cancellationToken)
     {
         var plant = await plants.WaterAsync(id, dto?.Note, dto?.AmountMilliliters, dto?.Method, cancellationToken);
@@ -88,7 +88,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
     }
 
     [HttpPost("bulk-water")]
-    public async Task<ActionResult<BulkWaterResponseDto>> BulkWater(BulkWaterRequestDto dto, 
+    public async Task<ActionResult<BulkWaterResponseDto>> BulkWater(BulkWaterRequestDto dto,
         CancellationToken cancellationToken)
     {
         var result = await plants.BulkWaterAsync(dto.Ids, cancellationToken);
@@ -133,13 +133,16 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
 
     [HttpPost("{id:int}/photo")]
     [RequestSizeLimit(10_000_000)]
-    public async Task<ActionResult<PlantResponseDto>> UploadPhoto(int id, IFormFile? file, 
+    public async Task<ActionResult<PlantResponseDto>> UploadPhoto(int id, IFormFile? file,
         CancellationToken cancellationToken)
     {
         if (file is null || file.Length == 0)
         {
-            return BadRequest(new ProblemDetails { Title = localizer.T("error.noPhoto.title"), 
-                Detail = localizer.T("error.noPhoto.detail") });
+            return BadRequest(new ProblemDetails
+            {
+                Title = localizer.T("error.noPhoto.title"),
+                Detail = localizer.T("error.noPhoto.detail")
+            });
         }
 
         await using var stream = file.OpenReadStream();
@@ -148,15 +151,17 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
         return result.Status switch
         {
             PlantPhotoStatus.NotFound => NotFound(),
-            PlantPhotoStatus.InvalidFile => BadRequest(new ProblemDetails { 
-                Title = localizer.T("error.unsupportedPhoto.title"), 
-                Detail = result.ErrorKey is null ? null : localizer.Tf(result.ErrorKey, result.ErrorArgs ?? []) }),
+            PlantPhotoStatus.InvalidFile => BadRequest(new ProblemDetails
+            {
+                Title = localizer.T("error.unsupportedPhoto.title"),
+                Detail = result.ErrorKey is null ? null : localizer.Tf(result.ErrorKey, result.ErrorArgs ?? [])
+            }),
             _ => Ok(result.Plant),
         };
     }
 
     [HttpPost("{id:int}/snooze")]
-    public async Task<ActionResult<PlantResponseDto>> Snooze(int id, SnoozeRequestDto dto, 
+    public async Task<ActionResult<PlantResponseDto>> Snooze(int id, SnoozeRequestDto dto,
         CancellationToken cancellationToken)
     {
         var plant = await plants.SetSnoozeAsync(id, dto.Days, cancellationToken);
@@ -172,14 +177,15 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
 
     [HttpPost("snooze-all")]
     public async Task<ActionResult<SnoozeAllResponseDto>> SnoozeAll(
-        SnoozeRequestDto dto, CancellationToken cancellationToken)
+        SnoozeRequestDto dto,
+        CancellationToken cancellationToken)
     {
         var count = await plants.SnoozeAllAsync(dto.Days, cancellationToken);
         return Ok(new SnoozeAllResponseDto { SnoozedPlants = count });
     }
 
     [HttpPost("{id:int}/soil-wet")]
-    public async Task<ActionResult<PlantResponseDto>> SetSoilWet(int id, SoilWetRequestDto dto, 
+    public async Task<ActionResult<PlantResponseDto>> SetSoilWet(int id, SoilWetRequestDto dto,
         CancellationToken cancellationToken)
     {
         var plant = await plants.SetSoilWetAsync(id, dto.Days, cancellationToken);
@@ -194,7 +200,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
     }
 
     [HttpGet("{id:int}/care-tasks")]
-    public async Task<ActionResult<IReadOnlyList<CareTaskResponseDto>>> CareTasks(int id, 
+    public async Task<ActionResult<IReadOnlyList<CareTaskResponseDto>>> CareTasks(int id,
         CancellationToken cancellationToken)
     {
         var tasks = await careTasks.ListForPlantAsync(id, cancellationToken);
@@ -202,15 +208,18 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
     }
 
     [HttpPost("{id:int}/care-tasks")]
-    public async Task<ActionResult<CareTaskResponseDto>> CreateCareTask(int id, CreateCareTaskRequestDto dto, 
+    public async Task<ActionResult<CareTaskResponseDto>> CreateCareTask(int id, CreateCareTaskRequestDto dto,
         CancellationToken cancellationToken)
     {
         var result = await careTasks.CreateAsync(id, dto.Type, dto.IntervalDays, dto.ReduceInWinter, cancellationToken);
         return result.Status switch
         {
             CareTaskWriteStatus.NotFound => NotFound(),
-            CareTaskWriteStatus.AlreadyExists => Conflict(new ProblemDetails { Title = localizer.T(
-                "error.duplicateCareTask.title") }),
+            CareTaskWriteStatus.AlreadyExists => Conflict(new ProblemDetails
+            {
+                Title = localizer.T(
+                "error.duplicateCareTask.title")
+            }),
             _ => Created($"/api/plants/{id}/care-tasks", result.Task),
         };
     }
@@ -220,7 +229,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
         => await careTasks.DeleteAsync(id, taskId, cancellationToken) ? NoContent() : NotFound();
 
     [HttpPost("{id:int}/care-tasks/{type}/done")]
-    public async Task<ActionResult<CareTaskResponseDto>> MarkCareTaskDone(int id, string type, 
+    public async Task<ActionResult<CareTaskResponseDto>> MarkCareTaskDone(int id, string type,
         WaterPlantRequestDto? dto, CancellationToken cancellationToken)
     {
         if (!Enum.TryParse<CareTaskType>(type, ignoreCase: true, out var taskType))
@@ -238,7 +247,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
     }
 
     [HttpGet("{id:int}/notes")]
-    public async Task<ActionResult<IReadOnlyList<PlantNoteResponseDto>>> Notes(int id, 
+    public async Task<ActionResult<IReadOnlyList<PlantNoteResponseDto>>> Notes(int id,
         CancellationToken cancellationToken)
     {
         var notes = await plants.GetNotesAsync(id, cancellationToken);
@@ -246,7 +255,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
     }
 
     [HttpPost("{id:int}/notes")]
-    public async Task<ActionResult<PlantNoteResponseDto>> AddNote(int id, PlantNoteRequestDto dto, 
+    public async Task<ActionResult<PlantNoteResponseDto>> AddNote(int id, PlantNoteRequestDto dto,
         CancellationToken cancellationToken)
     {
         var note = await plants.AddNoteAsync(id, dto.Text, cancellationToken);
@@ -254,7 +263,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
     }
 
     [HttpGet("{id:int}/watering-logs")]
-    public async Task<ActionResult<IReadOnlyList<WateringLogResponseDto>>> WateringLogs(int id, 
+    public async Task<ActionResult<IReadOnlyList<WateringLogResponseDto>>> WateringLogs(int id,
         CancellationToken cancellationToken)
     {
         var logs = await plants.GetWateringHistoryAsync(id, cancellationToken);
@@ -262,7 +271,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
     }
 
     [HttpGet("{id:int}/health-checks")]
-    public async Task<ActionResult<IReadOnlyList<HealthCheckResponseDto>>> HealthChecks(int id, 
+    public async Task<ActionResult<IReadOnlyList<HealthCheckResponseDto>>> HealthChecks(int id,
         CancellationToken cancellationToken)
     {
         var checks = await healthChecks.ListAsync(id, cancellationToken);
@@ -270,7 +279,7 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
     }
 
     [HttpPost("{id:int}/health-checks")]
-    public async Task<ActionResult<PlantResponseDto>> AddHealthCheck(int id, CreateHealthCheckRequestDto dto, 
+    public async Task<ActionResult<PlantResponseDto>> AddHealthCheck(int id, CreateHealthCheckRequestDto dto,
         CancellationToken cancellationToken)
     {
         var plant = await healthChecks.AddAsync(id, dto.Status!.Value, dto.Note, cancellationToken);

@@ -91,11 +91,13 @@ public class RoomEnvironmentApiTests : IDisposable
 
         var darkRoom = (await _client.PostAsJsonAsync(
             "/api/rooms",
-            new { name = "Dark " + Guid.NewGuid().ToString("N")[..8], lightExposure = "Low" }, Options)).Content;
+            new { name = "Dark " + Guid.NewGuid().ToString("N")[..8], lightExposure = "Low" },
+            Options)).Content;
         var dark = await darkRoom.ReadFromJsonAsync<RoomResponseDto>(Options);
         var brightRoom = (await _client.PostAsJsonAsync(
             "/api/rooms",
-            new { name = "Bright " + Guid.NewGuid().ToString("N")[..8], lightExposure = "Bright" }, Options)).Content;
+            new { name = "Bright " + Guid.NewGuid().ToString("N")[..8], lightExposure = "Bright" },
+            Options)).Content;
         var bright = await brightRoom.ReadFromJsonAsync<RoomResponseDto>(Options);
 
         var struggling = await CreatePlant("Struggling Steve", dark!.Id, profileId);

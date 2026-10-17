@@ -26,7 +26,8 @@ public sealed partial class NotificationTestService(
     ILogger<NotificationTestService> logger) : INotificationTestService
 {
     public async Task<NotificationTestResult> SendTestAsync(
-        string? customMessage, CancellationToken cancellationToken = default)
+        string? customMessage,
+        CancellationToken cancellationToken = default)
     {
         var title = localizer.T("test.title");
         var body = string.IsNullOrWhiteSpace(customMessage) ? localizer.T("test.body") : customMessage.Trim();

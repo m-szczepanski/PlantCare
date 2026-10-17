@@ -59,11 +59,13 @@ public class DeviceWaterApiTests : IDisposable
     }
 
     private async Task<DeviceResponseDto> CreateDevice(
-        DeviceType type = DeviceType.Valve, CommandStyle style = CommandStyle.Pulse)
+        DeviceType type = DeviceType.Valve,
+        CommandStyle style = CommandStyle.Pulse)
     {
         var response = await _client.PostAsJsonAsync(
             "/api/devices",
-            new { name = "Pump", type, commandStyle = style }, Options);
+            new { name = "Pump", type, commandStyle = style },
+            Options);
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         return (await response.Content.ReadFromJsonAsync<DeviceResponseDto>(Options))!;
     }
@@ -83,7 +85,8 @@ public class DeviceWaterApiTests : IDisposable
 
         var response = await _client.PostAsJsonAsync(
             $"/api/plants/{plant.Id}/device-water",
-            new { durationMs = 20000 }, Options);
+            new { durationMs = 20000 },
+            Options);
 
         Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
         var (topic, payload) = Assert.Single(_bus.Published);
@@ -98,7 +101,6 @@ public class DeviceWaterApiTests : IDisposable
         var plant = await CreatePlant(device.Id);
 
         await _client.PostAsync($"/api/plants/{plant.Id}/device-water", null);
-
         var (_, payload) = Assert.Single(_bus.Published);
         Assert.Equal("ON", payload);
     }

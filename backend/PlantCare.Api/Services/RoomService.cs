@@ -72,7 +72,9 @@ public sealed class RoomService(AppDbContext db) : IRoomService
     }
 
     public async Task<RoomWriteResult> UpdateAsync(
-        int id, RoomRequestDto dto, CancellationToken cancellationToken = default)
+        int id,
+        RoomRequestDto dto,
+        CancellationToken cancellationToken = default)
     {
         var room = await db.Rooms.FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
         if (room is null)

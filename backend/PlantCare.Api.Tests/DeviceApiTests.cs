@@ -94,7 +94,8 @@ public class DeviceApiTests : IDisposable
 
         var created = await _client.PostAsJsonAsync(
             "/api/plants",
-            new { nickName = "Fern", deviceId = device.Id }, Options);
+            new { nickName = "Fern", deviceId = device.Id },
+            Options);
         Assert.Equal(HttpStatusCode.Created, created.StatusCode);
         var plant = await created.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
 
@@ -133,7 +134,8 @@ public class DeviceApiTests : IDisposable
         var device = await CreateDevice("Pump to delete");
         var created = await _client.PostAsJsonAsync(
             "/api/plants",
-            new { nickName = "Orchid", deviceId = device.Id }, Options);
+            new { nickName = "Orchid", deviceId = device.Id },
+            Options);
         var plant = await created.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
 
         var delete = await _client.DeleteAsync($"/api/devices/{device.Id}");
@@ -149,7 +151,8 @@ public class DeviceApiTests : IDisposable
     {
         var created = await _client.PostAsJsonAsync(
             "/api/plants",
-            new { nickName = "No device", deviceId = 424242 }, Options);
+            new { nickName = "No device", deviceId = 424242 },
+            Options);
 
         Assert.Equal(HttpStatusCode.BadRequest, created.StatusCode);
     }
@@ -160,12 +163,14 @@ public class DeviceApiTests : IDisposable
         var device = await CreateDevice("Valve unlink");
         var created = await _client.PostAsJsonAsync(
             "/api/plants",
-            new { nickName = "Ivy", deviceId = device.Id }, Options);
+            new { nickName = "Ivy", deviceId = device.Id },
+            Options);
         var plant = await created.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
 
         var update = await _client.PutAsJsonAsync(
             $"/api/plants/{plant!.Id}",
-            new { nickName = "Ivy", deviceId = (int?)null, acquiredDate = plant.AcquiredDate }, Options);
+            new { nickName = "Ivy", deviceId = (int?)null, acquiredDate = plant.AcquiredDate },
+            Options);
         Assert.Equal(HttpStatusCode.OK, update.StatusCode);
         var updated = await update.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
 
@@ -209,7 +214,8 @@ public class DeviceDisabledApiTests : IDisposable
     {
         var created = await _client.PostAsJsonAsync(
             "/api/plants",
-            new { nickName = "No hardware", deviceId = 1 }, Options);
+            new { nickName = "No hardware", deviceId = 1 },
+            Options);
 
         Assert.Equal(HttpStatusCode.Created, created.StatusCode);
         var plant = await created.Content.ReadFromJsonAsync<PlantResponseDto>(Options);

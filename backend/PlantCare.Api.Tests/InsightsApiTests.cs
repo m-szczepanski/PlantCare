@@ -33,7 +33,10 @@ public class InsightsApiTests : IDisposable
     }
 
     private async Task<int> CreatePlant(
-        string nickName, int? interval, DateTime? lastWateredAt = null, int? profileId = null)
+        string nickName,
+        int? interval,
+        DateTime? lastWateredAt = null,
+        int? profileId = null)
     {
         var created = await _client.PostAsJsonAsync("/api/plants", new
         {

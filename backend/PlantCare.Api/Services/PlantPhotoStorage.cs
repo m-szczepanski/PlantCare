@@ -22,7 +22,11 @@ public sealed class PhotoStorageException(string messageKey, params object[] arg
 public interface IPlantPhotoStorage
 {
     Task<string> SaveAsync(
-        int plantId, Stream content, string contentType, string? subdirectory = null, CancellationToken cancellationToken = default);
+        int plantId,
+        Stream content,
+        string contentType,
+        string? subdirectory = null,
+        CancellationToken cancellationToken = default);
 
     void DeleteIfManaged(string? photoUrl);
 
@@ -54,7 +58,11 @@ public sealed class PlantPhotoStorage(PlantPhotoOptions options) : IPlantPhotoSt
     public static IReadOnlyCollection<string> SupportedContentTypes => [.. AllowedTypes.Keys];
 
     public async Task<string> SaveAsync(
-        int plantId, Stream content, string contentType, string? subdirectory = null, CancellationToken cancellationToken = default)
+        int plantId,
+        Stream content,
+        string contentType,
+        string? subdirectory = null,
+        CancellationToken cancellationToken = default)
     {
         if (!TryGetExtension(contentType, out var extension))
         {

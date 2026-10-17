@@ -151,7 +151,8 @@ public class CareTaskApiTests : IDisposable
 
         var done = await _client.PostAsJsonAsync(
             $"/api/plants/{plant.Id}/care-tasks/fertilizing/done",
-            new { }, Options);
+            new { },
+            Options);
         done.EnsureSuccessStatusCode();
         var doneTask = await done.Content.ReadFromJsonAsync<CareTaskResponseDto>(Options);
         Assert.NotNull(doneTask!.LastDoneAt);

@@ -19,10 +19,18 @@ public interface INtfyPublisher
 }
 
 public sealed partial class NtfyPublisher(
-    HttpClient http, NtfyOptions options, ILogger<NtfyPublisher> logger) : INtfyPublisher
+    HttpClient http,
+    NtfyOptions options,
+    ILogger<NtfyPublisher> logger) : INtfyPublisher
 {
     public async Task PublishAsync(
-        string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
+        string title,
+        string message,
+        int priority = 3,
+        string? clickUrl = null,
+        string? buttonLabel = null,
+        string? buttonUrl = null,
+        CancellationToken cancellationToken = default)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, $"{options.BaseUrl.TrimEnd('/')}/{options.Topic}");
         request.Headers.TryAddWithoutValidation("Title", title);

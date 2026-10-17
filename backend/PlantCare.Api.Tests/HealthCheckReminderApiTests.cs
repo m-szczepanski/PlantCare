@@ -23,7 +23,13 @@ public class HealthCheckReminderApiTests : IDisposable
         public List<(string Title, string Message)> Published { get; } = [];
 
         public Task PublishAsync(
-            string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
+            string title,
+            string message,
+            int priority = 3,
+            string? clickUrl = null,
+            string? buttonLabel = null,
+            string? buttonUrl = null,
+            CancellationToken cancellationToken = default)
         {
             Published.Add((title, message));
             return Task.CompletedTask;
@@ -48,7 +54,10 @@ public class HealthCheckReminderApiTests : IDisposable
     }
 
     private async Task<PlantResponseDto> CreatePlant(
-        string nickName, int acquiredDaysAgo = 60, int? daysSinceWatered = null, bool notifyEnabled = true)
+        string nickName,
+        int acquiredDaysAgo = 60,
+        int? daysSinceWatered = null,
+        bool notifyEnabled = true)
     {
         var created = await _client.PostAsJsonAsync("/api/plants", new
         {
@@ -128,7 +137,6 @@ public class HealthCheckReminderApiTests : IDisposable
         await SetReminderStampAsync(plant.Id, DateTime.UtcNow.AddDays(-31));
 
         await RunCheckAsync();
-
         var (_, message) = Assert.Single(_publisher.Published);
         Assert.Contains("Forgetful Fred", message);
     }

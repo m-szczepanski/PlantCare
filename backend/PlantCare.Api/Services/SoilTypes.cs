@@ -3,7 +3,10 @@ using PlantCare.Api.Models;
 namespace PlantCare.Api.Services;
 
 public readonly record struct SoilTypeInfo(
-    SoilType Type, double WateringIntervalFactor, IReadOnlyList<string> Mixes, bool TopUpEligible);
+    SoilType Type,
+    double WateringIntervalFactor,
+    IReadOnlyList<string> Mixes,
+    bool TopUpEligible);
 
 /// <summary>
 /// Permeability-driven watering factors for each soil type — the single source
@@ -55,7 +58,7 @@ public static class SoilTypes
         .. Drainage
             .Select(
                 kv => new SoilTypeInfo(kv.Key, Factor(kv.Key), MixesByType[kv.Key], PermeableSoils.Contains(kv.Key)))
-        .OrderBy(i => i.Type),
+            .OrderBy(i => i.Type),
     ];
 
     /// <summary>

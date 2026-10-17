@@ -38,7 +38,11 @@ public class JournalApiTests : IDisposable
     }
 
     private async Task<HttpResponseMessage> PostEntry(
-        int plantId, string? date = null, string? text = null, byte[]? photo = null, string contentType = "image/png")
+        int plantId,
+        string? date = null,
+        string? text = null,
+        byte[]? photo = null,
+        string contentType = "image/png")
     {
         var form = new MultipartFormDataContent();
         if (date is not null)

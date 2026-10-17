@@ -14,7 +14,13 @@ public class WateringScheduleServiceTests
     private static readonly DateOnly WinterDay = new(2026, 1, 15);
 
     private static Plant Plant(
-        int? intervalDays = null, DateTime? lastDoneAt = null, PlantProfile? profile = null, SoilType? soilType = null, DateTime? soilWetUntil = null, HealthStatus? health = null, DateTime? lastCheckupAt = null)
+        int? intervalDays = null,
+        DateTime? lastDoneAt = null,
+        PlantProfile? profile = null,
+        SoilType? soilType = null,
+        DateTime? soilWetUntil = null,
+        HealthStatus? health = null,
+        DateTime? lastCheckupAt = null)
     {
         var plant = new Plant
         {
@@ -168,7 +174,13 @@ public class WateringScheduleServiceTests
     [Fact]
     public void TaskIntervalOverridesProfileDefault()
     {
-        var profile = new PlantProfile { CommonName = "Monstera", DefaultWateringIntervalDays = 7, HumidityNotes = "", CareTips = "" };
+        var profile = new PlantProfile
+        {
+            CommonName = "Monstera",
+            DefaultWateringIntervalDays = 7,
+            HumidityNotes = "",
+            CareTips = ""
+        };
         var plant = Plant(intervalDays: 14, lastDoneAt: new DateTime(2026, 3, 5), profile: profile);
 
         var due = _service.GetDueInfo(Watering(plant), plant, Today);
@@ -180,7 +192,13 @@ public class WateringScheduleServiceTests
     [Fact]
     public void FallsBackToProfileDefaultWhenTaskHasNoInterval()
     {
-        var profile = new PlantProfile { CommonName = "Snake Plant", DefaultWateringIntervalDays = 14, HumidityNotes = "", CareTips = "" };
+        var profile = new PlantProfile
+        {
+            CommonName = "Snake Plant",
+            DefaultWateringIntervalDays = 14,
+            HumidityNotes = "",
+            CareTips = ""
+        };
         var plant = Plant(intervalDays: null, lastDoneAt: new DateTime(2026, 3, 11), profile: profile);
 
         var due = _service.GetDueInfo(Watering(plant), plant, Today);
@@ -243,9 +261,18 @@ public class WateringScheduleServiceTests
     [Fact]
     public void SoilType_ScalesProfileDefaultIntervalWhenNoCustom()
     {
-        var profile = new PlantProfile { CommonName = "Monstera", DefaultWateringIntervalDays = 10, HumidityNotes = "", CareTips = "" };
+        var profile = new PlantProfile
+        {
+            CommonName = "Monstera",
+            DefaultWateringIntervalDays = 10,
+            HumidityNotes = "",
+            CareTips = ""
+        };
         var plant = Plant(
-            intervalDays: null, lastDoneAt: new DateTime(2026, 3, 5), profile: profile, soilType: SoilType.SemiHydro);
+            intervalDays: null,
+            lastDoneAt: new DateTime(2026, 3, 5),
+            profile: profile,
+            soilType: SoilType.SemiHydro);
 
         var due = _service.GetDueInfo(Watering(plant), plant, Today);
 
@@ -287,7 +314,9 @@ public class WateringScheduleServiceTests
     {
         // Overdue by 5 days, but "soil wet until 3-18" -> due on 3-18 (3 days out).
         var plant = Plant(
-            intervalDays: 7, lastDoneAt: new DateTime(2026, 3, 3), soilWetUntil: new DateTime(2026, 3, 18));
+            intervalDays: 7,
+            lastDoneAt: new DateTime(2026, 3, 3),
+            soilWetUntil: new DateTime(2026, 3, 18));
 
         var due = _service.GetDueInfo(Watering(plant), plant, Today);
 
@@ -302,7 +331,9 @@ public class WateringScheduleServiceTests
         // Natural due was 3-10; the wet flag held it until 3-15. On the recheck day
         // the deferral has lapsed, so it comes back as (still) overdue.
         var plant = Plant(
-            intervalDays: 7, lastDoneAt: new DateTime(2026, 3, 3), soilWetUntil: new DateTime(2026, 3, 15));
+            intervalDays: 7,
+            lastDoneAt: new DateTime(2026, 3, 3),
+            soilWetUntil: new DateTime(2026, 3, 15));
 
         var due = _service.GetDueInfo(Watering(plant), plant, Today);
 
@@ -314,7 +345,9 @@ public class WateringScheduleServiceTests
     public void SoilWet_ExpiredDeferral_KeepsOverdueStatus()
     {
         var plant = Plant(
-            intervalDays: 7, lastDoneAt: new DateTime(2026, 3, 3), soilWetUntil: new DateTime(2026, 3, 10));
+            intervalDays: 7,
+            lastDoneAt: new DateTime(2026, 3, 3),
+            soilWetUntil: new DateTime(2026, 3, 10));
 
         var due = _service.GetDueInfo(Watering(plant), plant, Today);
 
@@ -327,7 +360,9 @@ public class WateringScheduleServiceTests
     {
         // Natural next due is 3-20; a wet flag for 3-17 must not move the due date earlier.
         var plant = Plant(
-            intervalDays: 7, lastDoneAt: new DateTime(2026, 3, 13), soilWetUntil: new DateTime(2026, 3, 17));
+            intervalDays: 7,
+            lastDoneAt: new DateTime(2026, 3, 13),
+            soilWetUntil: new DateTime(2026, 3, 17));
 
         var due = _service.GetDueInfo(Watering(plant), plant, Today);
 
@@ -358,7 +393,10 @@ public class WateringScheduleServiceTests
     {
         // 10-day base, semi-hydro x1.3 -> 13 -> natural due 3-18; wet flag for 3-22 pushes out to 3-22.
         var plant = Plant(
-            intervalDays: 10, lastDoneAt: new DateTime(2026, 3, 5), soilType: SoilType.SemiHydro, soilWetUntil: new DateTime(2026, 3, 22));
+            intervalDays: 10,
+            lastDoneAt: new DateTime(2026, 3, 5),
+            soilType: SoilType.SemiHydro,
+            soilWetUntil: new DateTime(2026, 3, 22));
 
         var due = _service.GetDueInfo(Watering(plant), plant, Today);
 
@@ -375,7 +413,10 @@ public class WateringScheduleServiceTests
     public void HealthStatus_ScalesWateringInterval(HealthStatus status, int baseInterval, int expected)
     {
         var plant = Plant(
-            intervalDays: baseInterval, lastDoneAt: new DateTime(2026, 3, 5), health: status, lastCheckupAt: new DateTime(2026, 3, 10));
+            intervalDays: baseInterval,
+            lastDoneAt: new DateTime(2026, 3, 5),
+            health: status,
+            lastCheckupAt: new DateTime(2026, 3, 10));
 
         var due = _service.GetDueInfo(Watering(plant), plant, Today);
 
@@ -387,7 +428,11 @@ public class WateringScheduleServiceTests
     {
         // Base 10 -> semi-hydro 13 -> sick x1.5 -> 19.5 -> 20 (away from zero).
         var plant = Plant(
-            intervalDays: 10, lastDoneAt: new DateTime(2026, 3, 5), soilType: SoilType.SemiHydro, health: HealthStatus.Sick, lastCheckupAt: new DateTime(2026, 3, 10));
+            intervalDays: 10,
+            lastDoneAt: new DateTime(2026, 3, 5),
+            soilType: SoilType.SemiHydro,
+            health: HealthStatus.Sick,
+            lastCheckupAt: new DateTime(2026, 3, 10));
 
         var due = _service.GetDueInfo(Watering(plant), plant, Today);
 
@@ -399,7 +444,10 @@ public class WateringScheduleServiceTests
     {
         // Base 10 -> excellent 8 -> winter doubling 16.
         var plant = Plant(
-            intervalDays: 10, lastDoneAt: new DateTime(2026, 1, 10), health: HealthStatus.Excellent, lastCheckupAt: new DateTime(2026, 1, 5));
+            intervalDays: 10,
+            lastDoneAt: new DateTime(2026, 1, 10),
+            health: HealthStatus.Excellent,
+            lastCheckupAt: new DateTime(2026, 1, 5));
         Watering(plant).ReduceInWinter = true;
 
         var due = _service.GetDueInfo(Watering(plant), plant, WinterDay);

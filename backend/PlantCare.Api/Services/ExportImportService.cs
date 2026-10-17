@@ -105,17 +105,18 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
                 })],
                 Journal = [.. journal.Where(j => j.PlantId == p.Id).OrderBy(j => j.EntryDate)
                     .Select(j => new ExportJournalEntryDto
-                {
-                    EntryDate = j.EntryDate,
-                    PhotoUrl = j.PhotoUrl,
-                    Text = j.Text,
+                        {
+                            EntryDate = j.EntryDate,
+                            PhotoUrl = j.PhotoUrl,
+                            Text = j.Text,
                         })],
             })],
         };
     }
 
     public async Task<ImportResultDto> ImportAsync(
-        ExportDocumentDto document, CancellationToken cancellationToken = default)
+        ExportDocumentDto document,
+        CancellationToken cancellationToken = default)
     {
         if (document.SchemaVersion != CurrentSchemaVersion)
         {
@@ -195,8 +196,11 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
             var entity = new Plant
             {
                 NickName = plant.NickName,
-                RoomId = plant.RoomName is not null && roomByName.TryGetValue(plant.RoomName, out var room) ? room.Id : null,
-                PlantProfileId = plant.ProfileCommonName is not null && profileByName.TryGetValue(plant.ProfileCommonName, out var profile) ? profile.Id : null,
+                RoomId = plant.RoomName is not null && roomByName.TryGetValue(plant.RoomName, out var room)
+                    ? room.Id
+                    : null,
+                PlantProfileId = plant.ProfileCommonName is not null
+                    && profileByName.TryGetValue(plant.ProfileCommonName, out var profile) ? profile.Id : null,
                 AcquiredDate = plant.AcquiredDate,
                 PhotoUrl = plant.PhotoUrl,
                 PotSizeCm = plant.PotSizeCm,
@@ -244,7 +248,13 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
 
             foreach (var entry in plant.Journal)
             {
-                db.JournalEntries.Add(new JournalEntry { Plant = entity, EntryDate = entry.EntryDate, PhotoUrl = entry.PhotoUrl, Text = entry.Text });
+                db.JournalEntries.Add(new JournalEntry
+                {
+                    Plant = entity,
+                    EntryDate = entry.EntryDate,
+                    PhotoUrl = entry.PhotoUrl,
+                    Text = entry.Text
+                });
             }
 
             db.Plants.Add(entity);

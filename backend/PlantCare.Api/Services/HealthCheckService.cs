@@ -10,7 +10,10 @@ public interface IHealthCheckService
     Task<IReadOnlyList<HealthCheckResponseDto>?> ListAsync(int plantId, CancellationToken cancellationToken = default);
 
     Task<PlantResponseDto?> AddAsync(
-        int plantId, HealthStatus status, string? note, CancellationToken cancellationToken = default);
+        int plantId,
+        HealthStatus status,
+        string? note,
+        CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -21,7 +24,8 @@ public interface IHealthCheckService
 public sealed class HealthCheckService(AppDbContext db, IPlantService plants) : IHealthCheckService
 {
     public async Task<IReadOnlyList<HealthCheckResponseDto>?> ListAsync(
-        int plantId, CancellationToken cancellationToken = default)
+        int plantId,
+        CancellationToken cancellationToken = default)
     {
         if (!await db.Plants.AnyAsync(p => p.Id == plantId, cancellationToken))
         {
@@ -44,7 +48,10 @@ public sealed class HealthCheckService(AppDbContext db, IPlantService plants) : 
     }
 
     public async Task<PlantResponseDto?> AddAsync(
-        int plantId, HealthStatus status, string? note, CancellationToken cancellationToken = default)
+        int plantId,
+        HealthStatus status,
+        string? note,
+        CancellationToken cancellationToken = default)
     {
         var plant = await db.Plants.FirstOrDefaultAsync(p => p.Id == plantId, cancellationToken);
         if (plant is null)

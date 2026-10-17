@@ -41,7 +41,8 @@ public interface IJournalService
 public sealed class JournalService(AppDbContext db, IPlantPhotoStorage photos) : IJournalService
 {
     public async Task<IReadOnlyList<JournalEntryResponseDto>?> ListAsync(
-        int plantId, CancellationToken cancellationToken = default)
+        int plantId,
+        CancellationToken cancellationToken = default)
     {
         if (!await db.Plants.AnyAsync(p => p.Id == plantId, cancellationToken))
         {
@@ -90,7 +91,10 @@ public sealed class JournalService(AppDbContext db, IPlantPhotoStorage photos) :
             {
                 photoUrl = await photos.SaveAsync(
                     plantId,
-                    photo, photoContentType ?? string.Empty, "journal", cancellationToken);
+                    photo,
+                    photoContentType ?? string.Empty,
+                    "journal",
+                    cancellationToken);
             }
             catch (PhotoStorageException ex)
             {
@@ -98,13 +102,15 @@ public sealed class JournalService(AppDbContext db, IPlantPhotoStorage photos) :
                 // (unsupported type / too large) instead of "the entry is empty".
                 return new JournalWriteResult(
                     JournalWriteStatus.InvalidPhoto,
-                    ErrorKey: ex.MessageKey, ErrorArgs: ex.Args);
+                    ErrorKey: ex.MessageKey,
+                    ErrorArgs: ex.Args);
             }
             catch (InvalidDataException)
             {
                 return new JournalWriteResult(
                     JournalWriteStatus.InvalidPhoto,
-                    ErrorKey: "error.photo.unsupportedType", ErrorArgs: [photoContentType ?? string.Empty]);
+                    ErrorKey: "error.photo.unsupportedType",
+                    ErrorArgs: [photoContentType ?? string.Empty]);
             }
         }
 
