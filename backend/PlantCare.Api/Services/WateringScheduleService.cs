@@ -42,14 +42,17 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
     {
         if (wateringTask?.Type == CareTaskType.TopUpWatering)
         {
-            var topUp = ComputeTopUp(plant.CareTasks.FirstOrDefault(t => t.Type == CareTaskType.Watering), wateringTask, plant, today);
+            var topUp = ComputeTopUp(
+                plant.CareTasks.FirstOrDefault(t => t.Type == CareTaskType.Watering), wateringTask, plant, today);
             if (topUp is null)
             {
                 return new PlantDueInfo(PlantDueStatus.NotScheduled, null, null, null, localizer.T("due.none"));
             }
 
             var (topUpStatus, topUpMessage) = StatusAndMessage(topUp.Value.NextDue, today);
-            return new PlantDueInfo(topUpStatus, topUp.Value.Interval, topUp.Value.NextDue.DayNumber - today.DayNumber, topUp.Value.NextDue, topUpMessage);
+            return new PlantDueInfo(
+                topUpStatus,
+                topUp.Value.Interval, topUp.Value.NextDue.DayNumber - today.DayNumber, topUp.Value.NextDue, topUpMessage);
         }
 
         var isWatering = (wateringTask?.Type ?? CareTaskType.Watering) == CareTaskType.Watering;
@@ -106,7 +109,7 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
             return new TopUpDueInfo(true, PlantDueStatus.NotScheduled, null, null, localizer.T("due.none"));
         }
 
-        var (nextDue, interval) = computed.Value;
+        var (nextDue, _) = computed.Value;
         var (status, message) = StatusAndMessage(nextDue, today);
         return new TopUpDueInfo(true, status, nextDue.DayNumber - today.DayNumber, nextDue, message);
     }
@@ -118,10 +121,11 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
     /// Cycles below <see cref="MinWateringCycleForTopUp"/> days have no room; a
     /// manual <see cref="CareTask.IntervalDays"/> runs its own clock.
     /// </summary>
-    private (DateOnly NextDue, int Interval)? ComputeTopUp(CareTask topUpTask, Plant plant, DateOnly today)
+    private static (DateOnly NextDue, int Interval)? ComputeTopUp(CareTask topUpTask, Plant plant, DateOnly today)
         => ComputeTopUp(plant.CareTasks.FirstOrDefault(t => t.Type == CareTaskType.Watering), topUpTask, plant, today);
 
-    private (DateOnly NextDue, int Interval)? ComputeTopUp(CareTask? wateringTask, CareTask topUpTask, Plant plant, DateOnly today)
+    private static (DateOnly NextDue, int Interval)? ComputeTopUp(
+        CareTask? wateringTask, CareTask topUpTask, Plant plant, DateOnly today)
     {
         if (wateringTask is null)
         {
@@ -135,7 +139,9 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
 
         // The substrate factor is deliberately not applied: the top-up is the
         // permeable-soil answer to the full, unadjusted watering cycle.
-        var (wateringAnchor, wateringInterval) = WateringCycle(wateringTask, plant, today, isWatering: true, applySoil: false);
+        var (wateringAnchor, wateringInterval) = WateringCycle(
+            wateringTask,
+            plant, today, isWatering: true, applySoil: false);
         if (wateringInterval < MinWateringCycleForTopUp)
         {
             return null;
@@ -161,7 +167,8 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
         return (anchor.AddDays(derived), derived);
     }
 
-    private (DateOnly Anchor, int EffectiveInterval) WateringCycle(CareTask? wateringTask, Plant plant, DateOnly today, bool isWatering, bool applySoil = true)
+    private static (DateOnly Anchor, int EffectiveInterval) WateringCycle(
+        CareTask? wateringTask, Plant plant, DateOnly today, bool isWatering, bool applySoil = true)
     {
         var intervalDays = wateringTask?.IntervalDays
             ?? (isWatering ? plant.PlantProfile?.DefaultWateringIntervalDays : null);

@@ -11,7 +11,8 @@ public static class Messages
 {
     public const string DefaultLanguage = "en";
 
-    private static readonly Dictionary<string, Dictionary<string, string>> Catalog = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, Dictionary<string, string>> Catalog = new(
+        StringComparer.OrdinalIgnoreCase)
     {
         ["en"] = new(StringComparer.Ordinal)
         {
@@ -38,13 +39,16 @@ public static class Messages
             ["digest.topups.header"] = "Water top-ups due ({0}):",
 
             ["test.title"] = "PlantCare test notification",
-            ["test.body"] = "This is a test push from PlantCare. If you can read this on your phone, notifications are wired up correctly.",
+            ["test.body"] = "This is a test push from PlantCare. If you can read this on your phone, "
+                + "notifications are wired up correctly.",
 
             ["hint.fertilizingWinter"] = "Winter rest: hold off feeding until spring.",
-            ["hint.fertilizingPaused"] = "Feeding is paused while the plant is unwell — it resumes at the next health checkup.",
+            ["hint.fertilizingPaused"] = "Feeding is paused while the plant is unwell — "
+                + "it resumes at the next health checkup.",
             ["hint.flush"] = "Flushing the soil with plain water helps clear fertilizer salts.",
             ["hint.wateringWinter"] = "Winter: watering interval is doubled.",
-            ["hint.topUpWatering"] = "A small drink between full waterings — fast-draining soil dries out sooner. The watering schedule stays as it is.",
+            ["hint.topUpWatering"] = "A small drink between full waterings — fast-draining soil "
+                + "dries out sooner. The watering schedule stays as it is.",
 
             ["calendar.name"] = "PlantCare watering",
             ["calendar.summary"] = "Water {0}",
@@ -82,7 +86,8 @@ public static class Messages
             ["error.duplicateProfile.title"] = "Profile name already in use.",
             ["error.duplicateProfile.detail"] = "A plant profile named '{0}' already exists.",
             ["error.invalidChecklist.title"] = "Invalid diagnosis checklist.",
-            ["error.invalidChecklist.detail"] = "Provide a JSON array of { symptom, causes[] } entries with non-empty values.",
+            ["error.invalidChecklist.detail"] = "Provide a JSON array of { symptom, causes[] } entries "
+                + "with non-empty values.",
             ["error.journalEmpty.title"] = "A journal entry needs a photo, a note, or both.",
             ["error.importFailed.title"] = "Import failed.",
             ["error.importFailed.detail"] = "The document conflicts with existing data or is otherwise invalid.",
@@ -118,13 +123,17 @@ public static class Messages
             ["digest.topups.header"] = "Uzupełnienia wody do zrobienia ({0}):",
 
             ["test.title"] = "Testowe powiadomienie PlantCare",
-            ["test.body"] = "To jest testowe powiadomienie z PlantCare. Jeśli to widzisz, powiadomienia są skonfigurowane poprawnie.",
+            ["test.body"] = "To jest testowe powiadomienie z PlantCare. Jeśli to widzisz, "
+                + "powiadomienia są skonfigurowane poprawnie.",
 
             ["hint.fertilizingWinter"] = "Zimowy spoczynek: wstrzymaj nawożenie do wiosny.",
-            ["hint.fertilizingPaused"] = "Nawożenie jest wstrzymane, dopóki roślina jest chora — wróci przy następnym przeglądzie zdrowia.",
+            ["hint.fertilizingPaused"] = "Nawożenie jest wstrzymane, dopóki roślina jest chora — "
+                + "wróci przy następnym przeglądzie zdrowia.",
             ["hint.flush"] = "Przepłukanie podłoża czystą wodą pomaga usunąć sole z nawozów.",
             ["hint.wateringWinter"] = "Zima: przedział podlewania jest wydłużony dwukrotnie.",
-            ["hint.topUpWatering"] = "Małe dozowanie wody między pełnymi podlaniami — szybko przesychające podłoże wymaga częstszego nawilżania. Harmonogram podlewania pozostaje bez zmian.",
+            ["hint.topUpWatering"] = "Małe dozowanie wody między pełnymi podlaniami — szybko "
+                + "przesychające podłoże wymaga częstszego nawilżania. Harmonogram podlewania "
+                + "pozostaje bez zmian.",
 
             ["calendar.name"] = "Podlewanie PlantCare",
             ["calendar.summary"] = "Podlej: {0}",
@@ -162,7 +171,8 @@ public static class Messages
             ["error.duplicateProfile.title"] = "Nazwa profilu jest już zajęta.",
             ["error.duplicateProfile.detail"] = "Profil rośliny o nazwie „{0}” już istnieje.",
             ["error.invalidChecklist.title"] = "Nieprawidłowa lista diagnostyczna.",
-            ["error.invalidChecklist.detail"] = "Podaj tablicę JSON z wpisami { symptom, causes[] } o niepustych wartościach.",
+            ["error.invalidChecklist.detail"] = "Podaj tablicę JSON z wpisami { symptom, causes[] } "
+                + "o niepustych wartościach.",
             ["error.journalEmpty.title"] = "Wpis dziennika wymaga zdjęcia, notatki lub obu.",
             ["error.importFailed.title"] = "Import nie powiódł się.",
             ["error.importFailed.detail"] = "Dokument jest sprzeczny z istniejącymi danymi lub jest nieprawidłowy.",
@@ -192,7 +202,8 @@ public static class Messages
         return string.Format(TryGet(language, $"{key}.other", out var other) ? other : $"{key}.other", count);
     }
 
-    /// <summary>Looks a key up in the language (falling back to the default) without returning the key itself on a miss.</summary>
+    /// <summary>Looks a key up in the language (falling back to the default) without returning the key itself on a
+    /// miss.</summary>
     private static bool TryGet(string language, string key, out string value)
     {
         if (Catalog.TryGetValue(language, out var messages) && messages.TryGetValue(key, out var localized))

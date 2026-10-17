@@ -41,7 +41,9 @@ public class CareTaskApiTests : IDisposable
     {
         var plant = await CreatePlant();
 
-        var tasks = await _client.GetFromJsonAsync<List<CareTaskResponseDto>>($"/api/plants/{plant.Id}/care-tasks", Options);
+        var tasks = await _client.GetFromJsonAsync<List<CareTaskResponseDto>>(
+            $"/api/plants/{plant.Id}/care-tasks",
+            Options);
 
         Assert.NotNull(tasks);
         var watering = Assert.Single(tasks);
@@ -68,7 +70,9 @@ public class CareTaskApiTests : IDisposable
         var fetched = await _client.GetFromJsonAsync<PlantResponseDto>($"/api/plants/{plant.Id}", Options);
         Assert.Equal(task.LastDoneAt, fetched!.LastWateredAt);
 
-        var logs = await _client.GetFromJsonAsync<List<WateringLogResponseDto>>($"/api/plants/{plant.Id}/watering-logs", Options);
+        var logs = await _client.GetFromJsonAsync<List<WateringLogResponseDto>>(
+            $"/api/plants/{plant.Id}/watering-logs",
+            Options);
         Assert.Equal("Carefully", Assert.Single(logs!).Note);
 
     }
@@ -81,7 +85,9 @@ public class CareTaskApiTests : IDisposable
         var response = await _client.PostAsJsonAsync($"/api/plants/{plant.Id}/water", new { });
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var tasks = await _client.GetFromJsonAsync<List<CareTaskResponseDto>>($"/api/plants/{plant.Id}/care-tasks", Options);
+        var tasks = await _client.GetFromJsonAsync<List<CareTaskResponseDto>>(
+            $"/api/plants/{plant.Id}/care-tasks",
+            Options);
         Assert.NotNull(tasks!.Single().LastDoneAt);
     }
 
@@ -111,7 +117,9 @@ public class CareTaskApiTests : IDisposable
         var updated = await response.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
         Assert.Equal(true, updated!.ReduceInWinter);
 
-        var tasks = await _client.GetFromJsonAsync<List<CareTaskResponseDto>>($"/api/plants/{plant.Id}/care-tasks", Options);
+        var tasks = await _client.GetFromJsonAsync<List<CareTaskResponseDto>>(
+            $"/api/plants/{plant.Id}/care-tasks",
+            Options);
         Assert.Equal(true, tasks!.Single().ReduceInWinter);
     }
 
@@ -135,11 +143,15 @@ public class CareTaskApiTests : IDisposable
         Assert.Equal(HttpStatusCode.Created, created.StatusCode);
         var task = await created.Content.ReadFromJsonAsync<CareTaskResponseDto>(Options);
 
-        var tasks = await _client.GetFromJsonAsync<List<CareTaskResponseDto>>($"/api/plants/{plant.Id}/care-tasks", Options);
+        var tasks = await _client.GetFromJsonAsync<List<CareTaskResponseDto>>(
+            $"/api/plants/{plant.Id}/care-tasks",
+            Options);
         Assert.Equal(2, tasks!.Count);
         Assert.Contains("Fertilizing", tasks.Select(t => t.Type.ToString()));
 
-        var done = await _client.PostAsJsonAsync($"/api/plants/{plant.Id}/care-tasks/fertilizing/done", new { }, Options);
+        var done = await _client.PostAsJsonAsync(
+            $"/api/plants/{plant.Id}/care-tasks/fertilizing/done",
+            new { }, Options);
         done.EnsureSuccessStatusCode();
         var doneTask = await done.Content.ReadFromJsonAsync<CareTaskResponseDto>(Options);
         Assert.NotNull(doneTask!.LastDoneAt);
@@ -153,7 +165,9 @@ public class CareTaskApiTests : IDisposable
         var delete = await _client.DeleteAsync($"/api/plants/{plant.Id}/care-tasks/{task!.Id}");
         Assert.Equal(HttpStatusCode.NoContent, delete.StatusCode);
 
-        var remaining = await _client.GetFromJsonAsync<List<CareTaskResponseDto>>($"/api/plants/{plant.Id}/care-tasks", Options);
+        var remaining = await _client.GetFromJsonAsync<List<CareTaskResponseDto>>(
+            $"/api/plants/{plant.Id}/care-tasks",
+            Options);
         Assert.Equal("Watering", Assert.Single(remaining!).Type.ToString());
     }
 
@@ -161,5 +175,6 @@ public class CareTaskApiTests : IDisposable
     {
         _client.Dispose();
         _database.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

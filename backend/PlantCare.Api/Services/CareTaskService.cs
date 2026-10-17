@@ -7,11 +7,14 @@ namespace PlantCare.Api.Services;
 
 public interface ICareTaskService
 {
-    Task<IReadOnlyList<CareTaskResponseDto>?> ListForPlantAsync(int plantId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<CareTaskResponseDto>?> ListForPlantAsync(
+        int plantId, CancellationToken cancellationToken = default);
 
-    Task<CareTaskResponseDto?> MarkDoneAsync(int plantId, CareTaskType type, string? note, int? amountMilliliters, WateringMethod? method, CancellationToken cancellationToken = default);
+    Task<CareTaskResponseDto?> MarkDoneAsync(
+        int plantId, CareTaskType type, string? note, int? amountMilliliters, WateringMethod? method, CancellationToken cancellationToken = default);
 
-    Task<CareTaskWriteResult> CreateAsync(int plantId, CareTaskType type, int intervalDays, bool reduceInWinter, CancellationToken cancellationToken = default);
+    Task<CareTaskWriteResult> CreateAsync(
+        int plantId, CareTaskType type, int intervalDays, bool reduceInWinter, CancellationToken cancellationToken = default);
 
     Task<bool> DeleteAsync(int plantId, int taskId, CancellationToken cancellationToken = default);
 }
@@ -29,14 +32,16 @@ public sealed record CareTaskWriteResult(CareTaskWriteStatus Status, CareTaskRes
 /// Generic typed care-task operations ("mark as done" per type). Watering stays
 /// a task of type Watering; the /water endpoint keeps working through it.
 /// </summary>
-public sealed class CareTaskService(AppDbContext db, IWateringScheduleService schedule, IAppLocalizer localizer) : ICareTaskService
+public sealed class CareTaskService(
+    AppDbContext db, IWateringScheduleService schedule, IAppLocalizer localizer) : ICareTaskService
 {
     public static readonly HashSet<int> WinterMonths = [12, 1, 2];
 
     /// <summary>Single source of truth for the (northern-hemisphere) winter window.</summary>
     internal static bool IsWinter(DateOnly today) => WinterMonths.Contains(today.Month);
 
-    public async Task<IReadOnlyList<CareTaskResponseDto>?> ListForPlantAsync(int plantId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<CareTaskResponseDto>?> ListForPlantAsync(
+        int plantId, CancellationToken cancellationToken = default)
     {
         var plant = await GetPlantAsync(plantId, cancellationToken);
         if (plant is null)
@@ -47,7 +52,8 @@ public sealed class CareTaskService(AppDbContext db, IWateringScheduleService sc
         return await EnsureTasksAsync(plant, cancellationToken);
     }
 
-    public async Task<CareTaskResponseDto?> MarkDoneAsync(int plantId, CareTaskType type, string? note, int? amountMilliliters, WateringMethod? method, CancellationToken cancellationToken = default)
+    public async Task<CareTaskResponseDto?> MarkDoneAsync(
+        int plantId, CareTaskType type, string? note, int? amountMilliliters, WateringMethod? method, CancellationToken cancellationToken = default)
     {
         var plant = await GetPlantAsync(plantId, cancellationToken);
         if (plant is null)
@@ -92,7 +98,8 @@ public sealed class CareTaskService(AppDbContext db, IWateringScheduleService sc
         return ToResponse(task, due, plant);
     }
 
-    public async Task<CareTaskWriteResult> CreateAsync(int plantId, CareTaskType type, int intervalDays, bool reduceInWinter, CancellationToken cancellationToken = default)
+    public async Task<CareTaskWriteResult> CreateAsync(
+        int plantId, CareTaskType type, int intervalDays, bool reduceInWinter, CancellationToken cancellationToken = default)
     {
         var plant = await GetPlantAsync(plantId, cancellationToken);
         if (plant is null)
@@ -114,7 +121,9 @@ public sealed class CareTaskService(AppDbContext db, IWateringScheduleService sc
         plant.CareTasks.Add(task);
         await db.SaveChangesAsync(cancellationToken);
 
-        return new CareTaskWriteResult(CareTaskWriteStatus.Success, ToResponse(task, schedule.GetDueInfo(task, plant), plant));
+        return new CareTaskWriteResult(
+            CareTaskWriteStatus.Success,
+            ToResponse(task, schedule.GetDueInfo(task, plant), plant));
     }
 
     public async Task<bool> DeleteAsync(int plantId, int taskId, CancellationToken cancellationToken = default)
@@ -137,7 +146,8 @@ public sealed class CareTaskService(AppDbContext db, IWateringScheduleService sc
             .Include(p => p.CareTasks)
             .FirstOrDefaultAsync(p => p.Id == plantId, cancellationToken);
 
-    private async Task<IReadOnlyList<CareTaskResponseDto>> EnsureTasksAsync(Plant plant, CancellationToken cancellationToken)
+    private async Task<IReadOnlyList<CareTaskResponseDto>> EnsureTasksAsync(
+        Plant plant, CancellationToken cancellationToken)
     {
         if (plant.CareTasks.Count == 0)
         {
@@ -146,13 +156,12 @@ public sealed class CareTaskService(AppDbContext db, IWateringScheduleService sc
             plant = (await GetPlantAsync(plant.Id, cancellationToken))!;
         }
 
-        return plant.CareTasks
+        return [.. plant.CareTasks
             .OrderBy(t => t.Type)
-            .Select(t => ToResponse(t, schedule.GetDueInfo(t, plant), plant))
-            .ToList();
+            .Select(t => ToResponse(t, schedule.GetDueInfo(t, plant), plant))];
     }
 
-    private CareTask CreateTask(Plant plant, CareTaskType type)
+    private static CareTask CreateTask(Plant plant, CareTaskType type)
     {
         var task = new CareTask { Type = type };
         plant.CareTasks.Add(task);

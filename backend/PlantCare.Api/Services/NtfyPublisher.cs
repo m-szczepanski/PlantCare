@@ -18,9 +18,11 @@ public interface INtfyPublisher
         CancellationToken cancellationToken = default);
 }
 
-public sealed class NtfyPublisher(HttpClient http, NtfyOptions options, ILogger<NtfyPublisher> logger) : INtfyPublisher
+public sealed partial class NtfyPublisher(
+    HttpClient http, NtfyOptions options, ILogger<NtfyPublisher> logger) : INtfyPublisher
 {
-    public async Task PublishAsync(string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
+    public async Task PublishAsync(
+        string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, $"{options.BaseUrl.TrimEnd('/')}/{options.Topic}");
         request.Headers.TryAddWithoutValidation("Title", title);
@@ -39,6 +41,9 @@ public sealed class NtfyPublisher(HttpClient http, NtfyOptions options, ILogger<
         var response = await http.SendAsync(request, cancellationToken);
         response.EnsureSuccessStatusCode();
 
-        logger.LogInformation("Published ntfy message to topic {Topic}.", options.Topic);
+        LogPublished(logger, options.Topic);
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Published ntfy message to topic {Topic}.")]
+    private static partial void LogPublished(ILogger logger, string topic);
 }

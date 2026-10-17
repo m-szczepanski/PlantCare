@@ -36,7 +36,7 @@ public sealed class RoomService(AppDbContext db) : IRoomService
             .OrderBy(r => r.Name)
             .ToListAsync(cancellationToken);
 
-        return rooms.Select(ToResponse).ToList();
+        return [.. rooms.Select(ToResponse)];
     }
 
     public async Task<RoomResponseDto?> GetAsync(int id, CancellationToken cancellationToken = default)
@@ -71,7 +71,8 @@ public sealed class RoomService(AppDbContext db) : IRoomService
         return new RoomWriteResult(RoomWriteStatus.Success, await GetAsync(room.Id, cancellationToken));
     }
 
-    public async Task<RoomWriteResult> UpdateAsync(int id, RoomRequestDto dto, CancellationToken cancellationToken = default)
+    public async Task<RoomWriteResult> UpdateAsync(
+        int id, RoomRequestDto dto, CancellationToken cancellationToken = default)
     {
         var room = await db.Rooms.FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
         if (room is null)

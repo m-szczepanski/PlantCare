@@ -97,5 +97,6 @@ public class CareTipsApiTests : IDisposable
     {
         _client.Dispose();
         _database.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

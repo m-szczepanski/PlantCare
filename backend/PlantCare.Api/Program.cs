@@ -32,7 +32,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     // against Npgsql's type defaults for the same schema. SQLite keeps the guard.
     if (usePostgres)
     {
-        options.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+        options.ConfigureWarnings(
+            w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
     }
 });
 
@@ -166,7 +167,7 @@ using (var scope = app.Services.CreateScope())
         }
         catch (Exception ex) when (usePostgres && attempt < 10)
         {
-            app.Logger.LogWarning(ex, "Database not ready (attempt {Attempt}); retrying migration.", attempt);
+            Log.DatabaseNotReady(app.Logger, ex, attempt);
             await Task.Delay(TimeSpan.FromSeconds(2));
         }
     }
@@ -201,4 +202,8 @@ app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 
 app.Run();
 
-public partial class Program;
+internal static partial class Log
+{
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Database not ready (attempt {Attempt}); retrying migration.")]
+    public static partial void DatabaseNotReady(ILogger logger, Exception exception, int attempt);
+}

@@ -37,7 +37,8 @@ public class JournalApiTests : IDisposable
         return (await created.Content.ReadFromJsonAsync<PlantResponseDto>(Options))!.Id;
     }
 
-    private async Task<HttpResponseMessage> PostEntry(int plantId, string? date = null, string? text = null, byte[]? photo = null, string contentType = "image/png")
+    private async Task<HttpResponseMessage> PostEntry(
+        int plantId, string? date = null, string? text = null, byte[]? photo = null, string contentType = "image/png")
     {
         var form = new MultipartFormDataContent();
         if (date is not null)
@@ -72,9 +73,12 @@ public class JournalApiTests : IDisposable
         var createdEntry = (await second.Content.ReadFromJsonAsync<JournalEntryResponseDto>(Options))!;
         Assert.NotNull(createdEntry.PhotoUrl);
         Assert.Contains("/journal/", createdEntry.PhotoUrl);
-        Assert.True(File.Exists(Path.Combine(_storagePath, createdEntry.PhotoUrl[PlantPhotoStorage.PublicUrlPrefix.Length..])));
+        Assert.True(
+            File.Exists(Path.Combine(_storagePath, createdEntry.PhotoUrl[PlantPhotoStorage.PublicUrlPrefix.Length..])));
 
-        var entries = await _client.GetFromJsonAsync<List<JournalEntryResponseDto>>($"/api/plants/{plantId}/journal", Options);
+        var entries = await _client.GetFromJsonAsync<List<JournalEntryResponseDto>>(
+            $"/api/plants/{plantId}/journal",
+            Options);
 
         Assert.Equal(2, entries!.Count);
         Assert.Equal("Big leaves now", entries[0].Text);
@@ -99,7 +103,9 @@ public class JournalApiTests : IDisposable
         var response = await PostEntry(plantId, "2026-03-05T15:30:00", "noon entry");
 
         response.EnsureSuccessStatusCode();
-        var entries = await _client.GetFromJsonAsync<List<JournalEntryResponseDto>>($"/api/plants/{plantId}/journal", Options);
+        var entries = await _client.GetFromJsonAsync<List<JournalEntryResponseDto>>(
+            $"/api/plants/{plantId}/journal",
+            Options);
         Assert.Equal(new DateTime(2026, 3, 5), entries![0].EntryDate);
     }
 
@@ -136,7 +142,9 @@ public class JournalApiTests : IDisposable
 
         Assert.Equal(HttpStatusCode.NoContent, delete.StatusCode);
         Assert.False(File.Exists(path));
-        var entries = await _client.GetFromJsonAsync<List<JournalEntryResponseDto>>($"/api/plants/{plantId}/journal", Options);
+        var entries = await _client.GetFromJsonAsync<List<JournalEntryResponseDto>>(
+            $"/api/plants/{plantId}/journal",
+            Options);
         Assert.Empty(entries!);
     }
 
@@ -154,5 +162,6 @@ public class JournalApiTests : IDisposable
         catch (UnauthorizedAccessException)
         {
         }
+        GC.SuppressFinalize(this);
     }
 }

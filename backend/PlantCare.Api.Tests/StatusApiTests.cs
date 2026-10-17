@@ -17,7 +17,8 @@ public class StatusApiTests : IDisposable
 
     private sealed class SilentPublisher : INtfyPublisher
     {
-        public Task PublishAsync(string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
+        public Task PublishAsync(
+            string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
             => Task.CompletedTask;
     }
 
@@ -45,7 +46,8 @@ public class StatusApiTests : IDisposable
     [Fact]
     public async Task Status_WithNtfyPublicPort_BuildsSubscribeUrlFromRequestHost()
     {
-        var factory = _database.CreateFactory(configureBuilder: builder => builder.UseSetting("NTFY_PUBLIC_PORT", "8080"));
+        var factory = _database.CreateFactory(
+            configureBuilder: builder => builder.UseSetting("NTFY_PUBLIC_PORT", "8080"));
         var client = factory.CreateClient();
 
         using var request = new HttpRequestMessage(HttpMethod.Get, "/api/status");
@@ -90,5 +92,6 @@ public class StatusApiTests : IDisposable
     {
         _client.Dispose();
         _database.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

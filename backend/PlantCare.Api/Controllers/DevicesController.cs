@@ -18,7 +18,10 @@ public class DevicesController(IDeviceService devices, FeatureFlags features) : 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<DeviceResponseDto>> Get(int id, CancellationToken cancellationToken)
     {
-        if (!features.DevicesEnabled) return NotFound();
+        if (!features.DevicesEnabled)
+        {
+            return NotFound();
+        }
         var device = await devices.GetAsync(id, cancellationToken);
         return device is null ? NotFound() : Ok(device);
 
@@ -27,7 +30,10 @@ public class DevicesController(IDeviceService devices, FeatureFlags features) : 
     [HttpPost]
     public async Task<ActionResult<DeviceResponseDto>> Create(DeviceRequestDto dto, CancellationToken cancellationToken)
     {
-        if (!features.DevicesEnabled) return NotFound();
+        if (!features.DevicesEnabled)
+        {
+            return NotFound();
+        }
         var result = await devices.CreateAsync(dto, cancellationToken);
         return CreatedAtAction(nameof(Get), new { id = result.Device!.Id }, result.Device);
     }
@@ -36,7 +42,10 @@ public class DevicesController(IDeviceService devices, FeatureFlags features) : 
     public async Task<ActionResult<DeviceResponseDto>> Update(int id, DeviceRequestDto dto, 
         CancellationToken cancellationToken)
     {
-        if (!features.DevicesEnabled) return NotFound();
+        if (!features.DevicesEnabled)
+        {
+            return NotFound();
+        }
         var result = await devices.UpdateAsync(id, dto, cancellationToken);
         return result.Status switch
         {

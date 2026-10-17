@@ -46,24 +46,16 @@ public interface IDeviceBus
     Task PublishAsync(string topic, string payload, CancellationToken cancellationToken = default);
 }
 
-public sealed class MqttDeviceBus : BackgroundService, IDeviceBus
+public sealed partial class MqttDeviceBus(MqttOptions options, ILogger<MqttDeviceBus> logger) : BackgroundService, IDeviceBus
 {
     private const int ReconnectDelayMs = 5000;
 
-    private readonly MqttOptions _options;
-    private readonly ILogger<MqttDeviceBus> _logger;
     private readonly MqttClientFactory _factory = new();
     private IMqttClient? _client;
 
-    public MqttDeviceBus(MqttOptions options, ILogger<MqttDeviceBus> logger)
-    {
-        _options = options;
-        _logger = logger;
-    }
-
     public event Func<string, string, Task>? MessageReceived;
 
-    public bool IsConnected => _client?.IsConnected == true;
+    public bool IsConnected => _client?.IsConnected is true;
 
     public async Task PublishAsync(string topic, string payload, CancellationToken cancellationToken = default)
     {
@@ -95,17 +87,17 @@ public sealed class MqttDeviceBus : BackgroundService, IDeviceBus
 
                 client.DisconnectedAsync += _ =>
                 {
-                    _logger.LogWarning("MQTT disconnected; reconnecting.");
+                    logger.LogWarning("MQTT disconnected; reconnecting.");
                     disconnected.TrySetResult();
                     return Task.CompletedTask;
                 };
                 client.ApplicationMessageReceivedAsync += OnMessageReceivedAsync;
 
-                _logger.LogInformation("Connecting to MQTT broker at {Host}:{Port}.", _options.Host, _options.Port);
+                LogConnecting(logger, options.Host, options.Port);
                 await client.ConnectAsync(BuildClientOptions(), stoppingToken);
                 await client.SubscribeAsync(BuildSubscribeOptions(), stoppingToken);
                 _client = client;
-                _logger.LogInformation("Connected and subscribed to MQTT broker at {Host}:{Port}.", _options.Host, _options.Port);
+                LogConnected(logger, options.Host, options.Port);
 
                 await disconnected.Task.WaitAsync(stoppingToken);
             }
@@ -115,7 +107,7 @@ public sealed class MqttDeviceBus : BackgroundService, IDeviceBus
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "MQTT connection failed; retrying in {DelayMs}ms.", ReconnectDelayMs);
+                LogConnectionFailed(logger, ex, ReconnectDelayMs);
             }
 
             try
@@ -138,14 +130,14 @@ public sealed class MqttDeviceBus : BackgroundService, IDeviceBus
     private MqttClientOptions BuildClientOptions()
     {
         var builder = _factory.CreateClientOptionsBuilder()
-            .WithTcpServer(_options.Host, _options.Port)
+            .WithTcpServer(options.Host, options.Port)
             .WithClientId("plantcare-api")
             .WithCleanSession(true)
             .WithTimeout(TimeSpan.FromSeconds(10));
 
-        if (!string.IsNullOrEmpty(_options.Username))
+        if (!string.IsNullOrEmpty(options.Username))
         {
-            builder = builder.WithCredentials(_options.Username, _options.Password);
+            builder = builder.WithCredentials(options.Username, options.Password);
         }
 
         return builder.Build();
@@ -154,7 +146,7 @@ public sealed class MqttDeviceBus : BackgroundService, IDeviceBus
     private MqttClientSubscribeOptions BuildSubscribeOptions()
     {
         var filter = _factory.CreateTopicFilterBuilder()
-            .WithTopic(DeviceTopics.StatePattern(_options.TopicPrefix))
+            .WithTopic(DeviceTopics.StatePattern(options.TopicPrefix))
             .Build();
 
         return _factory.CreateSubscribeOptionsBuilder()
@@ -166,7 +158,7 @@ public sealed class MqttDeviceBus : BackgroundService, IDeviceBus
     {
         var topic = e.ApplicationMessage.Topic;
         var payload = e.ApplicationMessage.ConvertPayloadToString();
-        _logger.LogInformation("MQTT message on {Topic}.", topic);
+        LogMessage(logger, topic);
 
         var handler = MessageReceived;
         if (handler is not null)
@@ -174,4 +166,16 @@ public sealed class MqttDeviceBus : BackgroundService, IDeviceBus
             await handler(topic, payload);
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Connecting to MQTT broker at {Host}:{Port}.")]
+    private static partial void LogConnecting(ILogger logger, string host, int port);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Connected and subscribed to MQTT broker at {Host}:{Port}.")]
+    private static partial void LogConnected(ILogger logger, string host, int port);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "MQTT connection failed; retrying in {DelayMs}ms.")]
+    private static partial void LogConnectionFailed(ILogger logger, Exception exception, int delayMs);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "MQTT message on {Topic}.")]
+    private static partial void LogMessage(ILogger logger, string topic);
 }

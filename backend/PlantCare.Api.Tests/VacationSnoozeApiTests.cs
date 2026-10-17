@@ -21,7 +21,8 @@ public class VacationSnoozeApiTests : IDisposable
     {
         public List<string> Messages { get; } = [];
 
-        public Task PublishAsync(string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
+        public Task PublishAsync(
+            string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
         {
             Messages.Add(message);
             return Task.CompletedTask;
@@ -129,8 +130,7 @@ public class VacationSnoozeApiTests : IDisposable
     {
         var bad = await _client.PostAsJsonAsync("/api/plants/snooze-all", new { days = 0 }, Options);
         Assert.Equal(HttpStatusCode.BadRequest, bad.StatusCode);
-
-        var plant = await CreateDuePlant("Ghost check");
+        _ = await CreateDuePlant("Ghost check");
         var missing = await _client.PostAsJsonAsync("/api/plants/424242/snooze", new { days = 5 }, Options);
         Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
     }
@@ -140,5 +140,6 @@ public class VacationSnoozeApiTests : IDisposable
         _client.Dispose();
         _factory.Dispose();
         _database.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

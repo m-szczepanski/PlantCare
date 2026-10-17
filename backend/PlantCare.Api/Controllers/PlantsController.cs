@@ -110,7 +110,10 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
     [HttpPost("{id:int}/device-water")]
     public async Task<ActionResult> DeviceWater(int id, DeviceWaterRequestDto? dto, CancellationToken cancellationToken)
     {
-        if (!features.DevicesEnabled) return NotFound();
+        if (!features.DevicesEnabled)
+        {
+            return NotFound();
+        }
         var result = await deviceCommands.WaterAsync(id, dto?.DurationMs, cancellationToken);
         return result.Status switch
         {
@@ -168,7 +171,8 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
     }
 
     [HttpPost("snooze-all")]
-    public async Task<ActionResult<SnoozeAllResponseDto>> SnoozeAll(SnoozeRequestDto dto, CancellationToken cancellationToken)
+    public async Task<ActionResult<SnoozeAllResponseDto>> SnoozeAll(
+        SnoozeRequestDto dto, CancellationToken cancellationToken)
     {
         var count = await plants.SnoozeAllAsync(dto.Days, cancellationToken);
         return Ok(new SnoozeAllResponseDto { SnoozedPlants = count });
@@ -220,11 +224,13 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
         WaterPlantRequestDto? dto, CancellationToken cancellationToken)
     {
         if (!Enum.TryParse<CareTaskType>(type, ignoreCase: true, out var taskType))
+        {
             return BadRequest(new ProblemDetails
             {
                 Title = localizer.T("error.unknownCareTaskType.title"),
                 Detail = localizer.Tf("error.unknownCareTaskType.detail", type)
             });
+        }
         var result = await careTasks.MarkDoneAsync(id, taskType, dto?.Note, dto?.AmountMilliliters,
             dto?.Method, cancellationToken);
         return result is null ? NotFound() : Ok(result);

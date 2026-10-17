@@ -65,7 +65,9 @@ public class ExportImportApiTests : IDisposable
         var targetPlants = await target.GetFromJsonAsync<List<PlantResponseDto>>("/api/plants", Options);
         var restored = targetPlants!.Single(p => p.NickName == "Exported Ernie");
         Assert.Equal("Attic", restored.RoomName);
-        var logs = await target.GetFromJsonAsync<List<WateringLogResponseDto>>($"/api/plants/{restored.Id}/watering-logs", Options);
+        var logs = await target.GetFromJsonAsync<List<WateringLogResponseDto>>(
+            $"/api/plants/{restored.Id}/watering-logs",
+            Options);
         Assert.Single(logs!);
 
         var secondResponse = await target.PostAsJsonAsync("/api/import", document, Options);
@@ -135,5 +137,6 @@ public class ExportImportApiTests : IDisposable
     {
         _source.Dispose();
         _target.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

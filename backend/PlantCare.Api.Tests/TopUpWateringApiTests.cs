@@ -24,7 +24,8 @@ public class TopUpWateringApiTests : IDisposable
     {
         public List<(string Title, string Message)> Published { get; } = [];
 
-        public Task PublishAsync(string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
+        public Task PublishAsync(
+            string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
         {
             Published.Add((title, message));
             return Task.CompletedTask;
@@ -46,7 +47,8 @@ public class TopUpWateringApiTests : IDisposable
         _client = _factory.CreateClient();
     }
 
-    private async Task<PlantResponseDto> CreatePlant(string nickName, SoilType? soilType, int intervalDays = 10, int? wateredDaysAgo = null)
+    private async Task<PlantResponseDto> CreatePlant(
+        string nickName, SoilType? soilType, int intervalDays = 10, int? wateredDaysAgo = null)
     {
         var created = await _client.PostAsJsonAsync("/api/plants", new
         {
@@ -131,7 +133,9 @@ public class TopUpWateringApiTests : IDisposable
     {
         var plant = await CreatePlant("Listed", SoilType.ChunkyBark, intervalDays: 10, wateredDaysAgo: 4);
 
-        var tasks = await _client.GetFromJsonAsync<CareTaskResponseDto[]>($"/api/plants/{plant.Id}/care-tasks", Options);
+        var tasks = await _client.GetFromJsonAsync<CareTaskResponseDto[]>(
+            $"/api/plants/{plant.Id}/care-tasks",
+            Options);
 
         var topUp = Assert.Single(tasks!, t => t.Type == CareTaskType.TopUpWatering);
         Assert.Equal(5, topUp.IntervalDays);
@@ -146,7 +150,9 @@ public class TopUpWateringApiTests : IDisposable
         var plant = await CreatePlant("Thirsty but watered", SoilType.ChunkyBark, intervalDays: 10, wateredDaysAgo: 5);
         Assert.Equal(PlantDueStatus.DueToday, plant.TopUpWateringStatus);
 
-        var done = await _client.PostAsJsonAsync($"/api/plants/{plant.Id}/care-tasks/TopUpWatering/done", new { }, Options);
+        var done = await _client.PostAsJsonAsync(
+            $"/api/plants/{plant.Id}/care-tasks/TopUpWatering/done",
+            new { }, Options);
         Assert.Equal(HttpStatusCode.OK, done.StatusCode);
         var task = await done.Content.ReadFromJsonAsync<CareTaskResponseDto>(Options);
         Assert.NotNull(task!.LastDoneAt);
@@ -173,7 +179,9 @@ public class TopUpWateringApiTests : IDisposable
         Assert.Equal(PlantDueStatus.Overdue, plant.DueStatus);
         Assert.Equal(PlantDueStatus.Overdue, plant.TopUpWateringStatus);
 
-        var done = await _client.PostAsJsonAsync($"/api/plants/{plant.Id}/care-tasks/TopUpWatering/done", new { }, Options);
+        var done = await _client.PostAsJsonAsync(
+            $"/api/plants/{plant.Id}/care-tasks/TopUpWatering/done",
+            new { }, Options);
         Assert.Equal(HttpStatusCode.OK, done.StatusCode);
 
         // The drink counts: the overdue full watering is absorbed (anchored to
@@ -188,7 +196,9 @@ public class TopUpWateringApiTests : IDisposable
     {
         var plant = await CreatePlant("No top up", SoilType.AllPurpose);
 
-        var done = await _client.PostAsJsonAsync($"/api/plants/{plant.Id}/care-tasks/TopUpWatering/done", new { }, Options);
+        var done = await _client.PostAsJsonAsync(
+            $"/api/plants/{plant.Id}/care-tasks/TopUpWatering/done",
+            new { }, Options);
         Assert.Equal(HttpStatusCode.NotFound, done.StatusCode);
     }
 
@@ -201,10 +211,10 @@ public class TopUpWateringApiTests : IDisposable
         var check = await RunCheckAsync();
 
         Assert.Equal(1, check.SentDigests);
-        var digest = Assert.Single(_publisher.Published);
-        Assert.Equal("1 plant needs a water top-up", digest.Title);
-        Assert.Contains("Water top-ups due (1):", digest.Message);
-        Assert.Contains("• Toppy", digest.Message);
+        var (title, message) = Assert.Single(_publisher.Published);
+        Assert.Equal("1 plant needs a water top-up", title);
+        Assert.Contains("Water top-ups due (1):", message);
+        Assert.Contains("• Toppy", message);
 
         // Taking the top-up (and clearing today's digest record) leaves nothing
         // due tomorrow: the next top-up lands mid-cycle of the next watering.
@@ -229,11 +239,11 @@ public class TopUpWateringApiTests : IDisposable
 
         await RunCheckAsync();
 
-        var digest = Assert.Single(_publisher.Published);
-        Assert.Equal("1 plant needs water (1 overdue)", digest.Title);
-        Assert.Contains("• Dry one", digest.Message);
-        Assert.Contains("Water top-ups due (1):", digest.Message);
-        Assert.Contains("• Top-up one", digest.Message);
+        var (title, message) = Assert.Single(_publisher.Published);
+        Assert.Equal("1 plant needs water (1 overdue)", title);
+        Assert.Contains("• Dry one", message);
+        Assert.Contains("Water top-ups due (1):", message);
+        Assert.Contains("• Top-up one", message);
     }
 
     [Fact]
@@ -303,5 +313,6 @@ public class TopUpWateringApiTests : IDisposable
         _client.Dispose();
         _factory.Dispose();
         _database.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

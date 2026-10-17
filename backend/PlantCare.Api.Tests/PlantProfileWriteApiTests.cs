@@ -188,14 +188,18 @@ public class PlantProfileWriteApiTests : IDisposable
     {
         var profile = await CreateProfileAsync();
 
-        var response = await _client.PutAsJsonAsync($"/api/plant-profiles/{profile.Id}", Payload(profile.CommonName), Options);
+        var response = await _client.PutAsJsonAsync(
+            $"/api/plant-profiles/{profile.Id}",
+            Payload(profile.CommonName), Options);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     private async Task<PlantProfileResponseDto> CreateProfileAsync(string? commonName = null)
     {
-        var created = await _client.PostAsJsonAsync("/api/plant-profiles", Payload(commonName ?? "String of Diamonds"), Options);
+        var created = await _client.PostAsJsonAsync(
+            "/api/plant-profiles",
+            Payload(commonName ?? "String of Diamonds"), Options);
         created.EnsureSuccessStatusCode();
         return (await created.Content.ReadFromJsonAsync<PlantProfileResponseDto>(Options))!;
     }
@@ -217,5 +221,6 @@ public class PlantProfileWriteApiTests : IDisposable
     {
         _client.Dispose();
         _database.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

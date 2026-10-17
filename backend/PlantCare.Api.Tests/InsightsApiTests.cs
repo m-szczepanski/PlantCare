@@ -32,7 +32,8 @@ public class InsightsApiTests : IDisposable
         return response;
     }
 
-    private async Task<int> CreatePlant(string nickName, int? interval, DateTime? lastWateredAt = null, int? profileId = null)
+    private async Task<int> CreatePlant(
+        string nickName, int? interval, DateTime? lastWateredAt = null, int? profileId = null)
     {
         var created = await _client.PostAsJsonAsync("/api/plants", new
         {
@@ -89,7 +90,7 @@ public class InsightsApiTests : IDisposable
         Assert.Equal(2, insights.ScheduledPlants);
         Assert.Equal(1, insights.UnscheduledPlants);
         Assert.Equal(1, insights.SpeciesCount);
-        Assert.Equal(new[] { profileId }, insights.Species.Select(s => s.PlantProfileId));
+        Assert.Equal([profileId], insights.Species.Select(s => s.PlantProfileId));
         Assert.Equal(2, insights.Species[0].PlantCount);
         Assert.Equal("Ignored Ivy", insights.MostNeglected[0].NickName);
         Assert.InRange(insights.MostNeglected[0].DaysSinceLastWatering, 39, 41);
@@ -109,7 +110,7 @@ public class InsightsApiTests : IDisposable
         Assert.Equal(3, insights.ExpectedWateringsInWindow);
         Assert.Equal(2, insights.ActualWateringsInWindow);
         Assert.InRange(insights.AdherencePercent, 65, 68);
-        Assert.Equal(new[] { 2 }, insights.Streaks.Select(s => s.ConsecutiveOnTimeWaterings));
+        Assert.Equal([2], insights.Streaks.Select(s => s.ConsecutiveOnTimeWaterings));
     }
 
     [Fact]
@@ -120,7 +121,7 @@ public class InsightsApiTests : IDisposable
 
         var insights = await GetInsights();
 
-        Assert.Equal(new[] { 1 }, insights.Streaks.Select(s => s.ConsecutiveOnTimeWaterings));
+        Assert.Equal([1], insights.Streaks.Select(s => s.ConsecutiveOnTimeWaterings));
     }
 
     [Fact]
@@ -140,5 +141,6 @@ public class InsightsApiTests : IDisposable
     {
         _client.Dispose();
         _database.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

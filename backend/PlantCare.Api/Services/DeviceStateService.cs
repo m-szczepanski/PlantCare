@@ -9,7 +9,8 @@ namespace PlantCare.Api.Services;
 public sealed record DeviceStateOptions(int WetThresholdPct, int DeferDays);
 
 /// <summary>Parsed state published by a device on <c>plantcare/{id}/state</c>.</summary>
-public sealed record DeviceStateMessage(int? MoisturePct, DeviceWaterLevel? WaterLevel, DateTime? Timestamp, bool Watered)
+public sealed record DeviceStateMessage(
+    int? MoisturePct, DeviceWaterLevel? WaterLevel, DateTime? Timestamp, bool Watered)
 {
     public static DeviceStateMessage? TryParse(string payload)
     {
@@ -36,7 +37,9 @@ public sealed record DeviceStateMessage(int? MoisturePct, DeviceWaterLevel? Wate
 
             DateTime? timestamp = null;
             if (root.TryGetProperty("ts", out var t) && t.ValueKind == JsonValueKind.String
-                && DateTime.TryParse(t.GetString(), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var tv))
+                && DateTime.TryParse(
+                    t.GetString(),
+                    CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var tv))
             {
                 timestamp = tv;
             }
@@ -71,33 +74,34 @@ public interface IDeviceStateIngestor
     Task IngestAsync(string topic, string payload, CancellationToken cancellationToken = default);
 }
 
-public sealed class DeviceStateIngestor(AppDbContext db, DeviceStateOptions options, ILogger<DeviceStateIngestor> logger, IPlantService plantService, IAppLocalizer localizer) : IDeviceStateIngestor
+public sealed partial class DeviceStateIngestor(
+    AppDbContext db, DeviceStateOptions options, ILogger<DeviceStateIngestor> logger, IPlantService plantService, IAppLocalizer localizer) : IDeviceStateIngestor
 {
     public async Task IngestAsync(string topic, string payload, CancellationToken cancellationToken = default)
     {
         if (!DeviceTopics.TryParseStateTopic(topic, out var deviceId))
         {
-            logger.LogWarning("Ignoring MQTT message on unexpected topic {Topic}.", topic);
+            LogUnexpectedTopic(logger, topic);
             return;
         }
 
         var state = DeviceStateMessage.TryParse(payload);
         if (state is null)
         {
-            logger.LogWarning("Ignoring malformed device state payload on {Topic}.", topic);
+            LogMalformedPayload(logger, topic);
             return;
         }
 
         if (state.MoisturePct is null && state.WaterLevel is null)
         {
-            logger.LogWarning("Ignoring device state with no readable fields on {Topic}.", topic);
+            LogNoReadableFields(logger, topic);
             return;
         }
 
         var device = await db.Devices.FirstOrDefaultAsync(d => d.Id == deviceId, cancellationToken);
         if (device is null)
         {
-            logger.LogWarning("Ignoring state for unknown device {DeviceId}.", deviceId);
+            LogUnknownDevice(logger, deviceId);
             return;
         }
 
@@ -160,11 +164,25 @@ public sealed class DeviceStateIngestor(AppDbContext db, DeviceStateOptions opti
                 continue;
             }
 
-            await plantService.WaterAsync(plantId, localizer.T("device.wateredNote"), cancellationToken: cancellationToken);
+            await plantService.WaterAsync(
+                plantId,
+                localizer.T("device.wateredNote"), cancellationToken: cancellationToken);
         }
 
         await db.SaveChangesAsync(cancellationToken);
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Ignoring MQTT message on unexpected topic {Topic}.")]
+    private static partial void LogUnexpectedTopic(ILogger logger, string topic);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Ignoring malformed device state payload on {Topic}.")]
+    private static partial void LogMalformedPayload(ILogger logger, string topic);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Ignoring device state with no readable fields on {Topic}.")]
+    private static partial void LogNoReadableFields(ILogger logger, string topic);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Ignoring state for unknown device {DeviceId}.")]
+    private static partial void LogUnknownDevice(ILogger logger, int deviceId);
 }
 
 /// <summary>
@@ -172,7 +190,8 @@ public sealed class DeviceStateIngestor(AppDbContext db, DeviceStateOptions opti
 /// Runs as a hosted service so each message is handled in its own DI scope
 /// (the ingestor needs a scoped <see cref="AppDbContext"/>).
 /// </summary>
-public sealed class DeviceStateService(IDeviceBus bus, IServiceScopeFactory scopeFactory, ILogger<DeviceStateService> logger) : IHostedService
+public sealed partial class DeviceStateService(
+    IDeviceBus bus, IServiceScopeFactory scopeFactory, ILogger<DeviceStateService> logger) : IHostedService
 {
     public Task StartAsync(CancellationToken cancellationToken)
     {
@@ -196,7 +215,10 @@ public sealed class DeviceStateService(IDeviceBus bus, IServiceScopeFactory scop
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to ingest device state from {Topic}.", topic);
+            LogIngestFailed(logger, ex, topic);
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to ingest device state from {Topic}.")]
+    private static partial void LogIngestFailed(ILogger logger, Exception exception, string topic);
 }

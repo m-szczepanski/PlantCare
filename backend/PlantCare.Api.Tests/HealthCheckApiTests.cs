@@ -28,7 +28,8 @@ public class HealthCheckApiTests : IDisposable
         _client = _factory.CreateClient();
     }
 
-    private async Task<PlantResponseDto> CreatePlant(string nickName, int intervalDays = 7, int daysSinceWatered = 0, int daysSinceAcquired = 60)
+    private async Task<PlantResponseDto> CreatePlant(
+        string nickName, int intervalDays = 7, int daysSinceWatered = 0, int daysSinceAcquired = 60)
     {
         var created = await _client.PostAsJsonAsync("/api/plants", new
         {
@@ -82,7 +83,9 @@ public class HealthCheckApiTests : IDisposable
         await Checkup(plant.Id, new { status = "Bad", note = "First" });
         await Checkup(plant.Id, new { status = "Good", note = "Second" });
 
-        var list = await _client.GetFromJsonAsync<List<HealthCheckResponseDto>>($"/api/plants/{plant.Id}/health-checks", Options);
+        var list = await _client.GetFromJsonAsync<List<HealthCheckResponseDto>>(
+            $"/api/plants/{plant.Id}/health-checks",
+            Options);
 
         Assert.Equal(2, list!.Count);
         Assert.Equal(HealthStatus.Good, list[0].Status);
@@ -158,7 +161,9 @@ public class HealthCheckApiTests : IDisposable
 
         await Checkup(plant.Id, new { status = "Sick" });
 
-        var tasks = await _client.GetFromJsonAsync<List<CareTaskResponseDto>>($"/api/plants/{plant.Id}/care-tasks", Options);
+        var tasks = await _client.GetFromJsonAsync<List<CareTaskResponseDto>>(
+            $"/api/plants/{plant.Id}/care-tasks",
+            Options);
         var fertilizing = tasks!.Single(t => t.Type == CareTaskType.Fertilizing);
 
         Assert.Contains("paused", fertilizing.Hint);
@@ -198,5 +203,6 @@ public class HealthCheckApiTests : IDisposable
         _client.Dispose();
         _factory.Dispose();
         _database.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

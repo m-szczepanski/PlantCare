@@ -22,7 +22,8 @@ public class HealthCheckReminderApiTests : IDisposable
     {
         public List<(string Title, string Message)> Published { get; } = [];
 
-        public Task PublishAsync(string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
+        public Task PublishAsync(
+            string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
         {
             Published.Add((title, message));
             return Task.CompletedTask;
@@ -46,7 +47,8 @@ public class HealthCheckReminderApiTests : IDisposable
         _client = _factory.CreateClient();
     }
 
-    private async Task<PlantResponseDto> CreatePlant(string nickName, int acquiredDaysAgo = 60, int? daysSinceWatered = null, bool notifyEnabled = true)
+    private async Task<PlantResponseDto> CreatePlant(
+        string nickName, int acquiredDaysAgo = 60, int? daysSinceWatered = null, bool notifyEnabled = true)
     {
         var created = await _client.PostAsJsonAsync("/api/plants", new
         {
@@ -98,10 +100,10 @@ public class HealthCheckReminderApiTests : IDisposable
         var result = await RunCheckAsync();
 
         Assert.Equal(1, result.SentDigests);
-        var digest = Assert.Single(_publisher.Published);
-        Assert.Equal("1 health checkup is due", digest.Title);
-        Assert.Contains("Health checkups due (1):", digest.Message);
-        Assert.Contains("• Sipped Sam", digest.Message);
+        var (title, message) = Assert.Single(_publisher.Published);
+        Assert.Equal("1 health checkup is due", title);
+        Assert.Contains("Health checkups due (1):", message);
+        Assert.Contains("• Sipped Sam", message);
         Assert.NotNull(await GetReminderStampAsync(thirsty.Id));
     }
 
@@ -127,8 +129,8 @@ public class HealthCheckReminderApiTests : IDisposable
 
         await RunCheckAsync();
 
-        var digest = Assert.Single(_publisher.Published);
-        Assert.Contains("Forgetful Fred", digest.Message);
+        var (_, message) = Assert.Single(_publisher.Published);
+        Assert.Contains("Forgetful Fred", message);
     }
 
     [Fact]
@@ -142,12 +144,12 @@ public class HealthCheckReminderApiTests : IDisposable
         var result = await RunCheckAsync();
 
         Assert.Equal(1, result.SentDigests);
-        var digest = Assert.Single(_publisher.Published);
-        Assert.Equal("1 plant needs water", digest.Title);
-        Assert.Contains("Health checkups due (1):", digest.Message);
-        Assert.Contains("• Checked Chuck", digest.Message);
+        var (title, message) = Assert.Single(_publisher.Published);
+        Assert.Equal("1 plant needs water", title);
+        Assert.Contains("Health checkups due (1):", message);
+        Assert.Contains("• Checked Chuck", message);
         // Chuck is the sole stale checkup; Paula is reminded-free but water-thirsty.
-        var checkupSection = digest.Message.Split("Health checkups due")[1];
+        var checkupSection = message.Split("Health checkups due")[1];
         Assert.DoesNotContain("Parched Paula", checkupSection);
     }
 
@@ -171,9 +173,9 @@ public class HealthCheckReminderApiTests : IDisposable
 
         await RunCheckAsync();
 
-        var digest = Assert.Single(_publisher.Published);
-        Assert.Equal("1 plant needs water", digest.Title);
-        Assert.DoesNotContain("checkup", digest.Message);
+        var (title, message) = Assert.Single(_publisher.Published);
+        Assert.Equal("1 plant needs water", title);
+        Assert.DoesNotContain("checkup", message);
     }
 
     [Fact]
@@ -193,5 +195,6 @@ public class HealthCheckReminderApiTests : IDisposable
         _client.Dispose();
         _factory.Dispose();
         _database.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

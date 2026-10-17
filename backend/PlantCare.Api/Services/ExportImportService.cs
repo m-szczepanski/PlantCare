@@ -42,15 +42,15 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
         {
             SchemaVersion = CurrentSchemaVersion,
             ExportedAt = DateTime.UtcNow,
-            Rooms = rooms.Select(r => new ExportRoomDto
+            Rooms = [.. rooms.Select(r => new ExportRoomDto
             {
                 Name = r.Name,
                 Orientation = r.Orientation,
                 LightExposure = r.LightExposure,
                 Humidity = r.Humidity,
                 TemperatureCelsius = r.TemperatureCelsius,
-            }).ToList(),
-            PlantProfiles = profiles.Select(p => new ExportProfileDto
+            })],
+            PlantProfiles = [.. profiles.Select(p => new ExportProfileDto
             {
                 CommonName = p.CommonName,
                 ScientificName = p.ScientificName,
@@ -62,8 +62,8 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
                 ToxicToPets = p.ToxicToPets,
                 ToxicToChildren = p.ToxicToChildren,
                 DiagnosisChecklist = p.DiagnosisChecklist,
-            }).ToList(),
-            Plants = plants.Select(p => new ExportPlantDto
+            })],
+            Plants = [.. plants.Select(p => new ExportPlantDto
             {
                 NickName = p.NickName,
                 RoomName = p.Room?.Name,
@@ -78,42 +78,44 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
                 SoilWetUntil = p.SoilWetUntil,
                 HealthStatus = p.HealthStatus,
                 LastCheckupAt = p.LastCheckupAt,
-                HealthChecks = p.HealthChecks.OrderBy(h => h.CheckedAt).Select(h => new ExportHealthCheckDto
+                HealthChecks = [.. p.HealthChecks.OrderBy(h => h.CheckedAt).Select(h => new ExportHealthCheckDto
                 {
                     CheckedAt = h.CheckedAt,
                     Status = h.Status,
                     Note = h.Note,
-                }).ToList(),
-                CareTasks = p.CareTasks.OrderBy(t => t.Type).Select(t => new ExportCareTaskDto
+                })],
+                CareTasks = [.. p.CareTasks.OrderBy(t => t.Type).Select(t => new ExportCareTaskDto
                 {
                     Type = t.Type,
                     IntervalDays = t.IntervalDays,
                     LastDoneAt = t.LastDoneAt,
                     ReduceInWinter = t.ReduceInWinter,
-                    Logs = t.Logs.OrderBy(l => l.DoneAt).Select(l => new ExportCareTaskLogDto
+                    Logs = [.. t.Logs.OrderBy(l => l.DoneAt).Select(l => new ExportCareTaskLogDto
                     {
                         DoneAt = l.DoneAt,
                         Note = l.Note,
                         AmountMilliliters = l.AmountMilliliters,
                         Method = l.Method,
-                    }).ToList(),
-                }).ToList(),
-                Notes = notes.Where(n => n.PlantId == p.Id).OrderBy(n => n.CreatedAt).Select(n => new ExportNoteDto
+                    })],
+                })],
+                Notes = [.. notes.Where(n => n.PlantId == p.Id).OrderBy(n => n.CreatedAt).Select(n => new ExportNoteDto
                 {
                     CreatedAt = n.CreatedAt,
                     Text = n.Text,
-                }).ToList(),
-                Journal = journal.Where(j => j.PlantId == p.Id).OrderBy(j => j.EntryDate).Select(j => new ExportJournalEntryDto
+                })],
+                Journal = [.. journal.Where(j => j.PlantId == p.Id).OrderBy(j => j.EntryDate)
+                    .Select(j => new ExportJournalEntryDto
                 {
                     EntryDate = j.EntryDate,
                     PhotoUrl = j.PhotoUrl,
                     Text = j.Text,
-                }).ToList(),
-            }).ToList(),
+                        })],
+            })],
         };
     }
 
-    public async Task<ImportResultDto> ImportAsync(ExportDocumentDto document, CancellationToken cancellationToken = default)
+    public async Task<ImportResultDto> ImportAsync(
+        ExportDocumentDto document, CancellationToken cancellationToken = default)
     {
         if (document.SchemaVersion != CurrentSchemaVersion)
         {
@@ -125,7 +127,8 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
 
         var roomsCreated = 0;
-        var roomByName = await db.Rooms.ToDictionaryAsync(r => r.Name, StringComparer.OrdinalIgnoreCase, cancellationToken);
+        var roomByName = await db.Rooms
+            .ToDictionaryAsync(r => r.Name, StringComparer.OrdinalIgnoreCase, cancellationToken);
         foreach (var room in document.Rooms)
         {
             if (roomByName.ContainsKey(room.Name))
@@ -148,7 +151,8 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
         await db.SaveChangesAsync(cancellationToken);
 
         var profilesCreated = 0;
-        var profileByName = await db.PlantProfiles.ToDictionaryAsync(p => p.CommonName, StringComparer.OrdinalIgnoreCase, cancellationToken);
+        var profileByName = await db.PlantProfiles
+            .ToDictionaryAsync(p => p.CommonName, StringComparer.OrdinalIgnoreCase, cancellationToken);
         foreach (var profile in document.PlantProfiles)
         {
             if (profileByName.ContainsKey(profile.CommonName))
@@ -223,13 +227,13 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
                     IntervalDays = task.IntervalDays,
                     LastDoneAt = task.LastDoneAt,
                     ReduceInWinter = task.ReduceInWinter,
-                    Logs = task.Logs.Select(l => new CareTaskLog
+                    Logs = [.. task.Logs.Select(l => new CareTaskLog
                     {
                         DoneAt = l.DoneAt,
                         Note = l.Note,
                         AmountMilliliters = l.AmountMilliliters,
                         Method = l.Method,
-                    }).ToList(),
+                    })],
                 });
             }
 

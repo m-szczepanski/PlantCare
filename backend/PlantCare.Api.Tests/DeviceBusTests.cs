@@ -22,7 +22,8 @@ public class DeviceBusTests
     [Fact]
     public async Task PublishAsync_Throws_WhenNotConnected()
     {
-        using var bus = new MqttDeviceBus(new MqttOptions("127.0.0.1", 1, null, null, "plantcare"), NullLogger<MqttDeviceBus>.Instance);
+        using var bus = new MqttDeviceBus(
+            new MqttOptions("127.0.0.1", 1, null, null, "plantcare"), NullLogger<MqttDeviceBus>.Instance);
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => bus.PublishAsync("plantcare/1/command", "{}"));
     }
@@ -30,7 +31,8 @@ public class DeviceBusTests
     [Fact]
     public async Task Bus_DoesNotCrash_WhenBrokerUnreachable()
     {
-        using var bus = new MqttDeviceBus(new MqttOptions("127.0.0.1", 1, null, null, "plantcare"), NullLogger<MqttDeviceBus>.Instance);
+        using var bus = new MqttDeviceBus(
+            new MqttOptions("127.0.0.1", 1, null, null, "plantcare"), NullLogger<MqttDeviceBus>.Instance);
         using var cts = new CancellationTokenSource();
 
         await bus.StartAsync(cts.Token);

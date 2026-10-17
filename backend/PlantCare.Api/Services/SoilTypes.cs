@@ -2,7 +2,8 @@ using PlantCare.Api.Models;
 
 namespace PlantCare.Api.Services;
 
-public readonly record struct SoilTypeInfo(SoilType Type, double WateringIntervalFactor, IReadOnlyList<string> Mixes, bool TopUpEligible);
+public readonly record struct SoilTypeInfo(
+    SoilType Type, double WateringIntervalFactor, IReadOnlyList<string> Mixes, bool TopUpEligible);
 
 /// <summary>
 /// Permeability-driven watering factors for each soil type — the single source
@@ -10,7 +11,8 @@ public readonly record struct SoilTypeInfo(SoilType Type, double WateringInterva
 /// A factor above 1 means the mix holds water longer (water later); mixes that
 /// drain and dry faster than the all-purpose baseline (below 1) keep the base
 /// interval as-is and instead get the mid-cycle "top up water" prompt (see
-/// <see cref="TopUpWatering"/> and <see cref="WateringScheduleService.GetTopUpDueInfo"/>) —
+/// <see cref="TopUpWatering"/> and
+/// <see cref="WateringScheduleService.GetTopUpDueInfo(CareTask?, CareTask?, Plant)"/>) —
 /// topping up is their answer to fast drainage, not a shortened cycle.
 /// Each type also lists well-known substrate blends ("mixes") that map onto it,
 /// so the plant-form picker can offer the old soil-mix catalog names without a
@@ -30,7 +32,8 @@ public static class SoilTypes
         [SoilType.SelfWatering] = 1.5,
     };
 
-    private static readonly HashSet<SoilType> PermeableSoils = Drainage.Where(kv => kv.Value < 1.0).Select(kv => kv.Key).ToHashSet();
+    private static readonly HashSet<SoilType> PermeableSoils = [.. Drainage.Where(kv => kv.Value < 1.0)
+        .Select(kv => kv.Key)];
 
     private static readonly Dictionary<SoilType, IReadOnlyList<string>> MixesByType = new()
     {
@@ -47,10 +50,13 @@ public static class SoilTypes
         .SelectMany(kv => kv.Value.Select(mix => (mix, kv.Key)))
         .ToDictionary(x => x.mix, x => x.Key, StringComparer.Ordinal);
 
-    public static IReadOnlyList<SoilTypeInfo> All { get; } = Drainage
-        .Select(kv => new SoilTypeInfo(kv.Key, Factor(kv.Key), MixesByType[kv.Key], PermeableSoils.Contains(kv.Key)))
-        .OrderBy(i => i.Type)
-        .ToList();
+    public static IReadOnlyList<SoilTypeInfo> All { get; } =
+    [
+        .. Drainage
+            .Select(
+                kv => new SoilTypeInfo(kv.Key, Factor(kv.Key), MixesByType[kv.Key], PermeableSoils.Contains(kv.Key)))
+        .OrderBy(i => i.Type),
+    ];
 
     /// <summary>
     /// The factor applied to the watering interval: retentive mixes scale it up,

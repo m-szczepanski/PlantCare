@@ -63,7 +63,9 @@ public class RoomApiTests : IDisposable
         var rooms = await _client.GetFromJsonAsync<List<RoomResponseDto>>("/api/rooms", Options);
         Assert.Equal(1, rooms!.Single(r => r.Id == room.Id).PlantCount);
 
-        var update = await _client.PutAsJsonAsync($"/api/rooms/{room.Id}", new { name = "Library", orientation = (RoomOrientation?)null }, Options);
+        var update = await _client.PutAsJsonAsync(
+            $"/api/rooms/{room.Id}",
+            new { name = "Library", orientation = (RoomOrientation?)null }, Options);
         Assert.Equal(HttpStatusCode.OK, update.StatusCode);
         var renamed = await update.Content.ReadFromJsonAsync<RoomResponseDto>(Options);
         Assert.Equal("Library", renamed!.Name);
@@ -74,7 +76,9 @@ public class RoomApiTests : IDisposable
     public async Task Delete_SetsPlantRoomIdNull()
     {
         var room = await CreateRoom("Attic");
-        var created = await _client.PostAsJsonAsync("/api/plants", new { nickName = "Attic Andy", roomId = room.Id }, Options);
+        var created = await _client.PostAsJsonAsync(
+            "/api/plants",
+            new { nickName = "Attic Andy", roomId = room.Id }, Options);
         var plant = await created.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
 
         var delete = await _client.DeleteAsync($"/api/rooms/{room.Id}");
@@ -97,7 +101,9 @@ public class RoomApiTests : IDisposable
     public async Task PlantResponse_IncludesRoomName()
     {
         var room = await CreateRoom("Balcony");
-        var created = await _client.PostAsJsonAsync("/api/plants", new { nickName = "Figgy", roomId = room.Id }, Options);
+        var created = await _client.PostAsJsonAsync(
+            "/api/plants",
+            new { nickName = "Figgy", roomId = room.Id }, Options);
         var plant = await created.Content.ReadFromJsonAsync<PlantResponseDto>(Options);
 
         Assert.Equal(room.Id, plant!.RoomId);
@@ -108,5 +114,6 @@ public class RoomApiTests : IDisposable
     {
         _client.Dispose();
         _database.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

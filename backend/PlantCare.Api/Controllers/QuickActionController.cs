@@ -10,7 +10,7 @@ namespace PlantCare.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/plants/{id:int}/quick-water")]
-public class QuickActionController(
+public partial class QuickActionController(
     IPlantService plants,
     QuickActionOptions options,
     QuickActionRateLimiter limiter,
@@ -35,11 +35,11 @@ public class QuickActionController(
         {
             if (!limiter.TryAllow($"{id}:{remoteIp}"))
             {
-                logger.LogWarning("Quick action for plant {PlantId} rate limited ({RemoteIp}).", id, remoteIp);
+                LogRateLimited(logger, id, remoteIp);
                 return StatusCode(StatusCodes.Status429TooManyRequests, localizer.T("quick.rateLimited"));
             }
 
-            logger.LogWarning("Quick action for plant {PlantId} rejected: bad secret ({RemoteIp}).", id, remoteIp);
+            LogBadSecret(logger, id, remoteIp);
             return StatusCode(StatusCodes.Status403Forbidden, localizer.T("quick.invalidKey"));
         }
 
@@ -47,11 +47,25 @@ public class QuickActionController(
             "quick.note"), cancellationToken: cancellationToken);
         if (plant is null)
         {
-            logger.LogWarning("Quick action hit unknown plant {PlantId} ({RemoteIp}).", id, remoteIp);
+            LogUnknownPlant(logger, id, remoteIp);
             return NotFound(localizer.T("quick.notFound"));
         }
 
-        logger.LogInformation("Quick action watered plant {PlantId} ({RemoteIp}).", id, remoteIp);
+        LogWatered(logger, id, remoteIp);
         return Ok(localizer.Tf("quick.done", plant.NickName));
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Quick action for plant {PlantId} rate limited ({RemoteIp}).")]
+    private static partial void LogRateLimited(ILogger logger, int plantId, string remoteIp);
+
+    [LoggerMessage(
+        Level = LogLevel.Warning,
+        Message = "Quick action for plant {PlantId} rejected: bad secret ({RemoteIp}).")]
+    private static partial void LogBadSecret(ILogger logger, int plantId, string remoteIp);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Quick action hit unknown plant {PlantId} ({RemoteIp}).")]
+    private static partial void LogUnknownPlant(ILogger logger, int plantId, string remoteIp);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Quick action watered plant {PlantId} ({RemoteIp}).")]
+    private static partial void LogWatered(ILogger logger, int plantId, string remoteIp);
 }

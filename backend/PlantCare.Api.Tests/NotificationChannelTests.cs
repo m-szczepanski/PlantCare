@@ -19,7 +19,8 @@ public class NotificationChannelTests
 
         public HttpStatusCode Status { get; set; } = HttpStatusCode.OK;
 
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request, CancellationToken cancellationToken)
         {
             Request = request;
             Body = request.Content is null ? null : await request.Content.ReadAsStringAsync(cancellationToken);
@@ -29,9 +30,11 @@ public class NotificationChannelTests
 
     private sealed class FakePublisher : INtfyPublisher
     {
-        public (string Title, string Message, int Priority, string? Click, string? ButtonUrl)? Last { get; private set; }
+        public (
+            string Title, string Message, int Priority, string? Click, string? ButtonUrl)? Last { get; private set; }
 
-        public Task PublishAsync(string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
+        public Task PublishAsync(
+            string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
         {
             Last = (title, message, priority, clickUrl, buttonUrl);
             return Task.CompletedTask;

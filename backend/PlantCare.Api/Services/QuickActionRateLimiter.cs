@@ -10,7 +10,7 @@ public sealed class QuickActionRateLimiter
     private const int MaxTrackedKeys = 1024;
     private static readonly TimeSpan Window = TimeSpan.FromMinutes(10);
 
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
     private readonly Dictionary<string, List<DateTime>> _attempts = [];
 
     public bool TryAllow(string key)

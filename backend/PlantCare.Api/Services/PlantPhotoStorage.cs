@@ -21,7 +21,8 @@ public sealed class PhotoStorageException(string messageKey, params object[] arg
 /// </summary>
 public interface IPlantPhotoStorage
 {
-    Task<string> SaveAsync(int plantId, Stream content, string contentType, string? subdirectory = null, CancellationToken cancellationToken = default);
+    Task<string> SaveAsync(
+        int plantId, Stream content, string contentType, string? subdirectory = null, CancellationToken cancellationToken = default);
 
     void DeleteIfManaged(string? photoUrl);
 
@@ -34,7 +35,8 @@ public sealed class PlantPhotoStorage(PlantPhotoOptions options) : IPlantPhotoSt
 
     public const string PublicUrlPrefix = "/uploads/";
 
-    private static readonly IReadOnlyDictionary<string, string> AllowedTypes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly IReadOnlyDictionary<string, string> AllowedTypes = new Dictionary<string, string>(
+        StringComparer.OrdinalIgnoreCase)
     {
         ["image/jpeg"] = ".jpg",
         ["image/png"] = ".png",
@@ -49,9 +51,10 @@ public sealed class PlantPhotoStorage(PlantPhotoOptions options) : IPlantPhotoSt
         return mediaType is not null && AllowedTypes.TryGetValue(mediaType, out extension!);
     }
 
-    public static IReadOnlyCollection<string> SupportedContentTypes => AllowedTypes.Keys.ToList();
+    public static IReadOnlyCollection<string> SupportedContentTypes => [.. AllowedTypes.Keys];
 
-    public async Task<string> SaveAsync(int plantId, Stream content, string contentType, string? subdirectory = null, CancellationToken cancellationToken = default)
+    public async Task<string> SaveAsync(
+        int plantId, Stream content, string contentType, string? subdirectory = null, CancellationToken cancellationToken = default)
     {
         if (!TryGetExtension(contentType, out var extension))
         {

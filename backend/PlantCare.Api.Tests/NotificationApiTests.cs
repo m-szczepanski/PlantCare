@@ -20,7 +20,8 @@ public class NotificationApiTests : IDisposable
 
         public int Count { get; private set; }
 
-        public Task PublishAsync(string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
+        public Task PublishAsync(
+            string title, string message, int priority = 3, string? clickUrl = null, string? buttonLabel = null, string? buttonUrl = null, CancellationToken cancellationToken = default)
         {
             Last = (title, message, priority);
             Count += 1;
@@ -38,7 +39,11 @@ public class NotificationApiTests : IDisposable
 
     private readonly TempDatabase _database = new();
 
-    public void Dispose() => _database.Dispose();
+    public void Dispose()
+    {
+        _database.Dispose();
+        GC.SuppressFinalize(this);
+    }
 
     private HttpClient ClientWith(Action<IServiceCollection>? extra = null)
     {
@@ -57,7 +62,9 @@ public class NotificationApiTests : IDisposable
     {
         var client = ClientWith();
 
-        var response = await client.PostAsJsonAsync("/api/notifications/test", new { message = (string?)null }, Options);
+        var response = await client.PostAsJsonAsync(
+            "/api/notifications/test",
+            new { message = (string?)null }, Options);
 
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<NotificationTestResult>(Options);

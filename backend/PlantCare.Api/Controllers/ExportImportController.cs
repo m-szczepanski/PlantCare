@@ -9,19 +9,20 @@ namespace PlantCare.Api.Controllers;
 
 [ApiController]
 [Route("api")]
-public class ExportImportController(IExportImportService exportImport, IAppLocalizer localizer) : ControllerBase
+public partial class ExportImportController(IExportImportService exportImport, IAppLocalizer localizer) : ControllerBase
 {
+    private static readonly JsonSerializerOptions ExportOptions = new(JsonSerializerDefaults.Web)
+    {
+        Converters = { new JsonStringEnumConverter() },
+        WriteIndented = true,
+    };
+
     [HttpGet("export")]
     public async Task<IActionResult> Export(CancellationToken cancellationToken)
     {
         var document = await exportImport.ExportAsync(cancellationToken);
         return new FileContentResult(
-            JsonSerializer.SerializeToUtf8Bytes(document,
-                new JsonSerializerOptions(JsonSerializerDefaults.Web)
-                {
-                    Converters = { new JsonStringEnumConverter() },
-                    WriteIndented = true,
-                }),
+            JsonSerializer.SerializeToUtf8Bytes(document, ExportOptions),
             "application/json")
         {
             FileDownloadName = $"plantcare-export-{DateTime.UtcNow:yyyyMMdd-HHmm}.json",
@@ -29,7 +30,8 @@ public class ExportImportController(IExportImportService exportImport, IAppLocal
     }
 
     [HttpPost("import")]
-    public async Task<ActionResult<ImportResultDto>> Import(ExportDocumentDto document, CancellationToken cancellationToken)
+    public async Task<ActionResult<ImportResultDto>> Import(
+        ExportDocumentDto document, CancellationToken cancellationToken)
     {
         try
         {
@@ -38,7 +40,8 @@ public class ExportImportController(IExportImportService exportImport, IAppLocal
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new ProblemDetails { Title = localizer.T("error.importFailed.title"), Detail = ex.Message });
+            return BadRequest(
+                new ProblemDetails { Title = localizer.T("error.importFailed.title"), Detail = ex.Message });
         }
         catch (DbUpdateException)
         {

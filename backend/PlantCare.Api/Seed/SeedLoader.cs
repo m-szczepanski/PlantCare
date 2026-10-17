@@ -6,7 +6,7 @@ using PlantCare.Api.Models;
 
 namespace PlantCare.Api.Seed;
 
-public static class SeedLoader
+public static partial class SeedLoader
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -24,7 +24,7 @@ public static class SeedLoader
     {
         if (!File.Exists(seedFilePath))
         {
-            logger.LogWarning("Seed file {SeedFilePath} not found; skipping plant profile seeding.", seedFilePath);
+            LogSeedFileMissing(logger, seedFilePath);
             return;
         }
 
@@ -56,7 +56,7 @@ public static class SeedLoader
             }
             catch (JsonException ex)
             {
-                logger.LogWarning(ex, "Skipping invalid custom seed file {File}.", file);
+                LogInvalidCustomSeedFile(logger, ex, file);
             }
         }
     }
@@ -68,7 +68,9 @@ public static class SeedLoader
         CancellationToken cancellationToken)
     {
         await using var stream = File.OpenRead(path);
-        var seedProfiles = await JsonSerializer.DeserializeAsync<List<SeedPlantProfile>>(stream, JsonOptions, cancellationToken)
+        var seedProfiles = await JsonSerializer.DeserializeAsync<List<SeedPlantProfile>>(
+            stream,
+            JsonOptions, cancellationToken)
             ?? [];
 
         var existingNames = await db.PlantProfiles
@@ -102,7 +104,7 @@ public static class SeedLoader
         if (added > 0)
         {
             await db.SaveChangesAsync(cancellationToken);
-            logger.LogInformation("Seeded {AddedCount} plant profile(s) from {SeedFilePath}.", added, path);
+            LogSeededProfiles(logger, added, path);
         }
     }
 
@@ -129,7 +131,8 @@ public static class SeedLoader
         ILogger logger,
         CancellationToken cancellationToken = default)
     {
-        foreach (var file in Directory.EnumerateFiles(seedDirectory, "plant-profiles.*.json").Order(StringComparer.Ordinal))
+        foreach (var file in Directory.EnumerateFiles(seedDirectory, "plant-profiles.*.json")
+            .Order(StringComparer.Ordinal))
         {
             var language = Path.GetFileName(file)["plant-profiles.".Length..^".json".Length];
             if (language.Length != 2 || !Services.Localization.Messages.IsSupported(language))
@@ -143,7 +146,7 @@ public static class SeedLoader
             }
             catch (JsonException ex)
             {
-                logger.LogWarning(ex, "Skipping invalid translation seed file {File}.", file);
+                LogInvalidTranslationSeedFile(logger, ex, file);
             }
         }
     }
@@ -156,7 +159,9 @@ public static class SeedLoader
         CancellationToken cancellationToken)
     {
         await using var stream = File.OpenRead(path);
-        var entries = await JsonSerializer.DeserializeAsync<List<SeedProfileTranslation>>(stream, JsonOptions, cancellationToken)
+        var entries = await JsonSerializer.DeserializeAsync<List<SeedProfileTranslation>>(
+            stream,
+            JsonOptions, cancellationToken)
             ?? [];
 
         var profiles = await db.PlantProfiles
@@ -169,7 +174,7 @@ public static class SeedLoader
         {
             if (!byName.TryGetValue(entry.Profile, out var profile))
             {
-                logger.LogDebug("Translation entry for unknown profile {Profile} in {File}; skipping.", entry.Profile, path);
+                LogUnknownTranslationProfile(logger, entry.Profile, path);
                 continue;
             }
 
@@ -192,9 +197,33 @@ public static class SeedLoader
         if (upserted > 0)
         {
             await db.SaveChangesAsync(cancellationToken);
-            logger.LogInformation("Seeded {Count} {Language} profile translation(s) from {File}.", upserted, language, path);
+            LogSeededTranslations(logger, upserted, language, path);
         }
     }
+
+    [LoggerMessage(
+        Level = LogLevel.Warning,
+        Message = "Seed file {SeedFilePath} not found; skipping plant profile seeding.")]
+    private static partial void LogSeedFileMissing(ILogger logger, string seedFilePath);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Skipping invalid custom seed file {File}.")]
+    private static partial void LogInvalidCustomSeedFile(ILogger logger, Exception exception, string file);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Seeded {AddedCount} plant profile(s) from {SeedFilePath}.")]
+    private static partial void LogSeededProfiles(ILogger logger, int addedCount, string seedFilePath);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Skipping invalid translation seed file {File}.")]
+    private static partial void LogInvalidTranslationSeedFile(ILogger logger, Exception exception, string file);
+
+    [LoggerMessage(
+        Level = LogLevel.Debug,
+        Message = "Translation entry for unknown profile {Profile} in {File}; skipping.")]
+    private static partial void LogUnknownTranslationProfile(ILogger logger, string profile, string file);
+
+    [LoggerMessage(
+        Level = LogLevel.Information,
+        Message = "Seeded {Count} {Language} profile translation(s) from {File}.")]
+    private static partial void LogSeededTranslations(ILogger logger, int count, string language, string file);
 
     private sealed record SeedProfileTranslation(
         [property: JsonPropertyName("profile")] string Profile,
