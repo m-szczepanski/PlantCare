@@ -131,6 +131,26 @@ Acceptance criteria:
 - `feature/manual-water`: "Water now" publishes a command to the correct topic; a `watered:true` feedback message marks the task done (re-anchors the schedule) with no duplicate log row; absent/failed feedback leaves the schedule unchanged and surfaces a toast.
 - `feature/scheduled-auto-water`: the job waters only due plants with a linked device; respects the moisture threshold, duration cap, per-day cap, snooze and soil-wet; reports feedback failures in the digest without auto-retrying; at most one command per plant per day; disabled by default and env-gated.
 
+## Epic 12 — Hardware Diagnostics & Test Bench
+
+> Setup-time tooling on top of Epic 11: let a user who just wired up a pump/sensor
+> verify the MQTT path end to end — broker reachable, command published, device
+> acked, reading ingested — without waiting for the cron, forcing plant state, or
+> reading server logs. Gated by `ENABLE_DEVICES`; **no schema change** (recent
+> traffic is an in-memory ring buffer). Design notes in `hardware-integration.md`
+> § Diagnostics & test bench.
+
+| Branch | Deliverable | Depends on | Covers idea |
+|--------|-------------|------------|-------------|
+| `feature/device-connection-status` | Surface broker connectivity + traffic: a bounded in-memory ring buffer fed by the bus's `MessageReceived` (incoming) and by publishes (outgoing); `GET /api/devices/{id}/diagnostics` (broker connected, host/port/prefix, resolved command/state topics, an example payload for the device's `CommandStyle`, last-seen reading, recent messages); broker state exposed on `GET /api/status` | scheduled-auto-water | Func: hardware diagnostics |
+| `feature/device-test-commands` | `POST /api/devices/{id}/test-command` (publish, then wait for the device's `watered:true` within a timeout → `{published, acked, elapsedMs}`; explicit broker-down result); `POST /api/devices/{id}/test-reading` (publish a synthetic `{moisturePct, waterLevel}` to the state topic); `POST /api/devices/{id}/run-auto-water` (invoke the auto-water pass now) | device-connection-status | Func: hardware test bench |
+| `feature/device-diagnostics-ui` | Per-device diagnostics panel on `/devices` (connection indicator, resolved topics + example payload, send test command with duration, send test reading, run auto-water, last-seen, recent-traffic list) + a shell broker indicator; typed client + hooks + EN/PL | device-test-commands | UI: hardware test bench |
+
+Acceptance criteria:
+- `feature/device-connection-status`: `GET /api/devices/{id}/diagnostics` reports broker `connected` and the device's resolved command/state topics and a ready-to-inspect example payload for its command style; it lists the last N (bounded) MQTT messages with direction, topic, payload and timestamp for both incoming state and outgoing commands; `GET /api/status` reports broker connectivity; with the flag off every route is 404; tests reuse the existing `IDeviceBus` fake.
+- `feature/device-test-commands`: a test command publishes to the device's resolved command topic and reports `acked` + elapsed time when the `watered:true` echo arrives within the timeout, or `acked:false` on timeout; a publish while the broker is down returns a distinct, localized result rather than a generic failure; a test command is **not** recorded in `DeviceWateringLog` and does **not** count against `AUTO_WATER_MAX_PER_DAY`; a test reading updates the linked plant's displayed moisture through the normal ingestion path; `run-auto-water` returns the same summary as the scheduled pass; no migration.
+- `feature/device-diagnostics-ui`: the panel is reachable per device behind `ENABLE_DEVICES`, shows live broker/device state and the resolved topics, lets the user trigger a command/reading/auto-water pass and see sent-vs-acked plus recent traffic, warns before watering a linked (real) plant, and is fully EN/PL; a broker outage renders as an explicit "not connected" state instead of a silent failure.
+
 ## Progress
 
 - `feature/theme-toggle` — done. `ThemeProvider` + `useTheme` (light/dark/system, persisted in `localStorage`, system-following), `ModeToggle` dropdown in the header, pre-paint FOUC script in `index.html`, Vitest coverage; dark tokens unchanged in `index.css`.
@@ -234,7 +254,7 @@ Acceptance criteria:
 2. Epic 5 (rooms) before Epic 9's bulk-water and before room-dependent views.
 3. Epic 6's `care-task-model` is the one invasive migration — schedule a deliberate window, keep watering behavior intact.
 4. Epics 7 and 8 can interleave with 2 and 4 based on interest.
-5. Epic 11 (hardware) is independent of the others and can land whenever hardware is wanted — build monitoring (slice 1) before actuation (slices 2–3) so the MQTT path is proven read-only first.
+5. Epic 11 (hardware) is independent of the others and can land whenever hardware is wanted — build monitoring (slice 1) before actuation (slices 2–3) so the MQTT path is proven read-only first. Epic 12 (hardware diagnostics) is a setup-time aid on top of Epic 11 and lands after it.
 
 ## Explicitly deferred / not planned
 
