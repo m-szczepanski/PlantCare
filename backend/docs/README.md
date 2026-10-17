@@ -162,3 +162,9 @@ All runtime knobs come from environment variables / `.env`:
 - Controllers stay thin; business logic belongs in `Services/`.
 - DTOs are separate from EF Core entities — never expose entities directly.
 - Tests live in `PlantCare.Api.Tests/` (unit + integration).
+- Lines are capped at 120 characters. `dotnet format` has no line-length rule, so the cap is
+  enforced by `Roslynator.Formatting.Analyzers` (RCS0056, error severity), configured in
+  `backend/.editorconfig`. EF migrations are excluded.
+- RCS0056 does not flag a line that starts with a string literal (e.g. a `Message = "..."` attribute
+  argument), so long messages keep under the cap by splitting the literal with `+` concatenation.
+- Logging uses source-generated `[LoggerMessage]` partial methods (`private static partial void LogX(ILogger logger, …)`).
