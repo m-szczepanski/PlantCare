@@ -49,6 +49,10 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.MapOpenApi();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/openapi/v1.json", "PlantCare API v1");
+});
 app.MapControllers();
 
 var schedulerLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Coravel.Scheduler");

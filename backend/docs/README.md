@@ -13,9 +13,11 @@ backend/
 │   ├── Models/         # EF Core entities
 │   ├── Dtos/           # Request/response DTOs (separate from entities)
 │   ├── Data/           # DbContext, EF Core migrations
+│   ├── Configuration/  # AddPlantCare registration + config reading/validation
 │   ├── Services/       # Business logic: scheduling, notification, care tips
+│   │   └── Logging/    # source-generated [LoggerMessage] partial methods
 │   ├── Seed/           # Default species/profile seed data (JSON)
-│   ├── Program.cs      # Composition root / DI registration
+│   ├── Program.cs      # Thin composition root
 │   └── Dockerfile      # API service image
 └── PlantCare.Api.Tests/   # unit/integration tests
 ```
@@ -75,6 +77,10 @@ POST   /api/plants/{id}/device-water   publish a "water now" command to the plan
 > gated by `ENABLE_DEVICES` (default `false` — every route returns 404 when off).
 
 Profile data: `DiagnosisChecklist` is a validated JSON array (`[{symptom, causes[]}]`, `DiagnosisChecklist.TryValidate`) served inside `PlantProfile` responses and the embedded care tips; `ToxicToPets`/`ToxicToChildren` flags surface on cards, the detail page and the watering digest. `SeedLoader` also scans `SEED_CUSTOM_PATH` (default `/data/seed-custom`, on the plant-data volume) at startup for drop-in `*.json` user species — existing names skipped, malformed files logged and ignored. (single source of truth). ICS output uses CRLF line endings with 74-char folding and text escaping; adherence counts logs in the last 30 days against `window / interval` expectations; a streak is consecutive recent waterings whose gaps stay within `interval + 2` days.
+
+## API Documentation
+
+`GET /openapi/v1.json` serves the OpenAPI 3.1 document (`Microsoft.AspNetCore.OpenApi`); XML doc comments on controllers/DTOs are included. The interactive Swagger UI is served at `/swagger` and points at that document, so endpoints can be browsed and tried out from the browser. Both `/openapi` and `/swagger` are proxied by nginx, and the API is also reachable directly on `5001` in the compose stack.
 
 ## Data Model
 

@@ -42,7 +42,15 @@ public static class PlantCareServiceCollectionExtensions
         });
 
         services.AddHttpContextAccessor();
-        services.AddOpenApi();
+        services.AddOpenApi(options =>
+        {
+            options.AddDocumentTransformer((document, _, _) =>
+            {
+                document.Info.Title = "PlantCare API";
+                document.Info.Description = "Self-hosted plant tracking API.";
+                return Task.CompletedTask;
+            });
+        });
         services.AddControllers().AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
