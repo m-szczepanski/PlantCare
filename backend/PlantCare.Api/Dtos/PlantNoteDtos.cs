@@ -16,4 +16,11 @@ public class PlantNoteResponseDto
     public DateTime CreatedAt { get; set; }
 
     public required string Text { get; set; }
+
+    public bool IsPinned { get; set; }
+}
+
+public class PinPlantNoteRequestDto
+{
+    public bool Pinned { get; set; }
 }

@@ -71,6 +71,12 @@ public interface IPlantService
 
     Task<PlantNoteResponseDto?> AddNoteAsync(int id, string text, CancellationToken cancellationToken = default);
 
+    Task<PlantNoteResponseDto?> SetNotePinnedAsync(
+        int id,
+        int noteId,
+        bool pinned,
+        CancellationToken cancellationToken = default);
+
     Task<PlantResponseDto?> SetSnoozeAsync(int id, int days, CancellationToken cancellationToken = default);
 
     Task<PlantResponseDto?> ClearSnoozeAsync(int id, CancellationToken cancellationToken = default);
@@ -519,13 +525,15 @@ public sealed class PlantService(
         return await db.PlantNotes
             .AsNoTracking()
             .Where(n => n.PlantId == id)
-            .OrderByDescending(n => n.CreatedAt)
+            .OrderByDescending(n => n.IsPinned)
+            .ThenByDescending(n => n.CreatedAt)
             .ThenByDescending(n => n.Id)
             .Select(n => new PlantNoteResponseDto
             {
                 Id = n.Id,
                 CreatedAt = n.CreatedAt,
                 Text = n.Text,
+                IsPinned = n.IsPinned,
             })
             .ToListAsync(cancellationToken);
     }
@@ -555,6 +563,32 @@ public sealed class PlantService(
             Id = note.Id,
             CreatedAt = note.CreatedAt,
             Text = note.Text,
+            IsPinned = note.IsPinned,
+        };
+    }
+
+    public async Task<PlantNoteResponseDto?> SetNotePinnedAsync(
+        int id,
+        int noteId,
+        bool pinned,
+        CancellationToken cancellationToken = default)
+    {
+        var note = await db.PlantNotes
+            .FirstOrDefaultAsync(n => n.Id == noteId && n.PlantId == id, cancellationToken);
+        if (note is null)
+        {
+            return null;
+        }
+
+        note.IsPinned = pinned;
+        await db.SaveChangesAsync(cancellationToken);
+
+        return new PlantNoteResponseDto
+        {
+            Id = note.Id,
+            CreatedAt = note.CreatedAt,
+            Text = note.Text,
+            IsPinned = note.IsPinned,
         };
     }
 

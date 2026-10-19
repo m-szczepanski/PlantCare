@@ -11,4 +11,7 @@ public class PlantNote
     public DateTime CreatedAt { get; set; }
 
     public required string Text { get; set; }
+
+    /// <summary>Pinned notes surface above the regular notes list on the plant detail page.</summary>
+    public bool IsPinned { get; set; }
 }

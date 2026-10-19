@@ -69,6 +69,66 @@ public class PlantNotesApiTests : IDisposable
     }
 
     [Fact]
+    public async Task PinNote_PutsItFirst_AndUnpinRestoresNewestFirst()
+    {
+        var id = await CreatePlant();
+        var first = await _client.PostAsJsonAsync(
+            $"/api/plants/{id}/notes",
+            new { text = "Keep this visible" },
+            Options);
+        var firstNote = await first.Content.ReadFromJsonAsync<PlantNoteResponseDto>(Options);
+        await _client.PostAsJsonAsync($"/api/plants/{id}/notes", new { text = "Regular note" }, Options);
+
+        var pinned = await _client.PutAsJsonAsync(
+            $"/api/plants/{id}/notes/{firstNote!.Id}/pin",
+            new { pinned = true },
+            Options);
+        Assert.Equal(HttpStatusCode.OK, pinned.StatusCode);
+        var pinnedBody = await pinned.Content.ReadFromJsonAsync<PlantNoteResponseDto>(Options);
+        Assert.True(pinnedBody!.IsPinned);
+
+        var notes = await _client.GetFromJsonAsync<List<PlantNoteResponseDto>>($"/api/plants/{id}/notes", Options);
+        Assert.Equal("Keep this visible", notes![0].Text);
+        Assert.True(notes[0].IsPinned);
+        Assert.False(notes[1].IsPinned);
+
+        var unpinned = await _client.PutAsJsonAsync(
+            $"/api/plants/{id}/notes/{firstNote.Id}/pin",
+            new { pinned = false },
+            Options);
+        var unpinnedBody = await unpinned.Content.ReadFromJsonAsync<PlantNoteResponseDto>(Options);
+        Assert.False(unpinnedBody!.IsPinned);
+
+        var reordered = await _client.GetFromJsonAsync<List<PlantNoteResponseDto>>(
+            $"/api/plants/{id}/notes", Options);
+        Assert.Equal("Regular note", reordered![0].Text);
+    }
+
+    [Fact]
+    public async Task PinNote_UnknownNoteOrWrongPlant_Returns404()
+    {
+        var id = await CreatePlant();
+        var otherId = await CreatePlant();
+        var created = await _client.PostAsJsonAsync(
+            $"/api/plants/{id}/notes",
+            new { text = "Mine" },
+            Options);
+        var note = await created.Content.ReadFromJsonAsync<PlantNoteResponseDto>(Options);
+
+        var wrongPlant = await _client.PutAsJsonAsync(
+            $"/api/plants/{otherId}/notes/{note!.Id}/pin",
+            new { pinned = true },
+            Options);
+        var missing = await _client.PutAsJsonAsync(
+            $"/api/plants/{id}/notes/424242/pin",
+            new { pinned = true },
+            Options);
+
+        Assert.Equal(HttpStatusCode.NotFound, wrongPlant.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
+    }
+
+    [Fact]
     public async Task Notes_UnknownPlant_Returns404()
     {
         var list = await _client.GetAsync("/api/plants/424242/notes");

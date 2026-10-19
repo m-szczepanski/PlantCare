@@ -118,6 +118,8 @@ public class ExportNoteDto
     public DateTime CreatedAt { get; set; }
 
     public required string Text { get; set; }
+
+    public bool Pinned { get; set; }
 }
 
 public class ExportHealthCheckDto
