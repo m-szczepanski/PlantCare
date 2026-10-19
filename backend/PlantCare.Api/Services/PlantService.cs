@@ -80,6 +80,14 @@ public interface IPlantService
 
     Task<PlantNoteResponseDto?> AddNoteAsync(int id, string text, CancellationToken cancellationToken = default);
 
+    Task<PlantNoteResponseDto?> UpdateNoteAsync(
+        int id,
+        int noteId,
+        string text,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> DeleteNoteAsync(int id, int noteId, CancellationToken cancellationToken = default);
+
     Task<PlantNotePinResult> SetNotePinnedAsync(
         int id,
         int noteId,
@@ -568,13 +576,40 @@ public sealed class PlantService(
         db.PlantNotes.Add(note);
         await db.SaveChangesAsync(cancellationToken);
 
-        return new PlantNoteResponseDto
+        return ToNoteResponse(note);
+    }
+
+    public async Task<PlantNoteResponseDto?> UpdateNoteAsync(
+        int id,
+        int noteId,
+        string text,
+        CancellationToken cancellationToken = default)
+    {
+        var note = await db.PlantNotes
+            .FirstOrDefaultAsync(n => n.Id == noteId && n.PlantId == id, cancellationToken);
+        if (note is null)
         {
-            Id = note.Id,
-            CreatedAt = note.CreatedAt,
-            Text = note.Text,
-            IsPinned = note.IsPinned,
-        };
+            return null;
+        }
+
+        note.Text = text.Trim();
+        await db.SaveChangesAsync(cancellationToken);
+
+        return ToNoteResponse(note);
+    }
+
+    public async Task<bool> DeleteNoteAsync(int id, int noteId, CancellationToken cancellationToken = default)
+    {
+        var note = await db.PlantNotes
+            .FirstOrDefaultAsync(n => n.Id == noteId && n.PlantId == id, cancellationToken);
+        if (note is null)
+        {
+            return false;
+        }
+
+        db.PlantNotes.Remove(note);
+        await db.SaveChangesAsync(cancellationToken);
+        return true;
     }
 
     public async Task<PlantNotePinResult> SetNotePinnedAsync(
@@ -603,14 +638,16 @@ public sealed class PlantService(
         note.IsPinned = pinned;
         await db.SaveChangesAsync(cancellationToken);
 
-        return new PlantNotePinResult(PlantNotePinStatus.Success, new PlantNoteResponseDto
-        {
-            Id = note.Id,
-            CreatedAt = note.CreatedAt,
-            Text = note.Text,
-            IsPinned = note.IsPinned,
-        });
+        return new PlantNotePinResult(PlantNotePinStatus.Success, ToNoteResponse(note));
     }
+
+    private static PlantNoteResponseDto ToNoteResponse(PlantNote note) => new()
+    {
+        Id = note.Id,
+        CreatedAt = note.CreatedAt,
+        Text = note.Text,
+        IsPinned = note.IsPinned,
+    };
 
     private async Task<bool> ProfileExistsAsync(int profileId, CancellationToken cancellationToken)
         => await db.PlantProfiles.AnyAsync(p => p.Id == profileId, cancellationToken);

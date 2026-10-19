@@ -262,6 +262,21 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
         return note is null ? NotFound() : Created($"/api/plants/{id}/notes/{note.Id}", note);
     }
 
+    [HttpPut("{id:int}/notes/{noteId:int}")]
+    public async Task<ActionResult<PlantNoteResponseDto>> UpdateNote(int id, int noteId,
+        PlantNoteRequestDto dto, CancellationToken cancellationToken)
+    {
+        var note = await plants.UpdateNoteAsync(id, noteId, dto.Text, cancellationToken);
+        return note is null ? NotFound() : Ok(note);
+    }
+
+    [HttpDelete("{id:int}/notes/{noteId:int}")]
+    public async Task<IActionResult> DeleteNote(int id, int noteId, CancellationToken cancellationToken)
+    {
+        var deleted = await plants.DeleteNoteAsync(id, noteId, cancellationToken);
+        return deleted ? NoContent() : NotFound();
+    }
+
     [HttpPut("{id:int}/notes/{noteId:int}/pin")]
     public async Task<ActionResult<PlantNoteResponseDto>> PinNote(int id, int noteId,
         PinPlantNoteRequestDto dto, CancellationToken cancellationToken)
