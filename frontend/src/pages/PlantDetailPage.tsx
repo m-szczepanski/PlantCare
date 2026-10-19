@@ -2,11 +2,12 @@ import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { AlertTriangle, Droplets } from "lucide-react";
+import { AlertTriangle, Droplets, Pin } from "lucide-react";
 import { CareTasksCard } from "@/components/CareTasksCard";
 import { DiagnosticsCard } from "@/components/DiagnosticsCard";
 import { HealthCheckCard } from "@/components/HealthCheckCard";
 import { JournalCard } from "@/components/JournalCard";
+import { PinnedNotesCard } from "@/components/PinnedNotesCard";
 import { CareTipsCard } from "@/components/CareTipsCard";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { DueStatusBadge } from "@/components/DueStatusBadge";
@@ -46,6 +47,7 @@ import {
   useDeletePlant,
   usePlant,
   usePlantNotes,
+  useSetNotePinned,
   useSetSoilWet,
   useSnoozePlant,
   useUnsnoozePlant,
@@ -70,6 +72,7 @@ export function PlantDetailPage() {
   const { data: wateringLogs } = useWateringLogs(plantId);
   const { data: notes } = usePlantNotes(plantId);
   const addNote = useAddPlantNote(plantId);
+  const setNotePinned = useSetNotePinned(plantId);
   const snooze = useSnoozePlant(plantId);
   const unsnooze = useUnsnoozePlant(plantId);
   const setSoilWet = useSetSoilWet(plantId);
@@ -83,6 +86,8 @@ export function PlantDetailPage() {
   const [note, setNote] = useState("");
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState<WateringMethod | "none">("none");
+  const pinnedNotes = notes?.filter((entry) => entry.isPinned) ?? [];
+  const unpinnedNotes = notes?.filter((entry) => !entry.isPinned) ?? [];
 
   if (isPending) {
     return <PlantDetailSkeleton />;
@@ -352,6 +357,11 @@ export function PlantDetailPage() {
       ) : null}
 
       {plant.careTips ? <CareTipsCard tips={plant.careTips} /> : null}
+      <PinnedNotesCard
+        notes={pinnedNotes}
+        onUnpin={(noteId) => setNotePinned.mutate({ noteId, pinned: false })}
+        unpinning={setNotePinned.isPending}
+      />
       {plant.careTips?.diagnosisChecklist ? (
         <DiagnosticsCard
           checklist={plant.careTips.diagnosisChecklist}
@@ -465,14 +475,28 @@ export function PlantDetailPage() {
           </div>
           {!notes || notes.length === 0 ? (
             <p className="text-sm text-muted-foreground">{t("detail.noNotes")}</p>
+          ) : unpinnedNotes.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{t("detail.noUnpinnedNotes")}</p>
           ) : (
             <ul className="space-y-2 text-sm">
-              {notes.map((note) => (
-                <li key={note.id} className="rounded-md border p-3">
-                  <p>{note.text}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {formatInstant(note.createdAt)}
-                  </p>
+              {unpinnedNotes.map((note) => (
+                <li key={note.id} className="flex items-start justify-between gap-3 rounded-md border p-3">
+                  <div>
+                    <p>{note.text}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {formatInstant(note.createdAt)}
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label={t("detail.pinNote")}
+                    disabled={setNotePinned.isPending}
+                    onClick={() => setNotePinned.mutate({ noteId: note.id, pinned: true })}
+                  >
+                    <Pin className="h-4 w-4" aria-hidden="true" />
+                  </Button>
                 </li>
               ))}
             </ul>

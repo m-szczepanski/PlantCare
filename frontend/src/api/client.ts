@@ -128,6 +128,11 @@ export const plantsApi = {
   notes: (id: number) => request<PlantNote[]>(`/plants/${id}/notes`),
   addNote: (id: number, text: string) =>
     request<PlantNote>(`/plants/${id}/notes`, { method: "POST", body: JSON.stringify({ text }) }),
+  setNotePinned: (id: number, noteId: number, pinned: boolean) =>
+    request<PlantNote>(`/plants/${id}/notes/${noteId}/pin`, {
+      method: "PUT",
+      body: JSON.stringify({ pinned }),
+    }),
   healthChecks: (id: number) => request<HealthCheckEntry[]>(`/plants/${id}/health-checks`),
   addHealthCheck: (id: number, input: { status: HealthStatus; note?: string }) =>
     request<Plant>(`/plants/${id}/health-checks`, { method: "POST", body: JSON.stringify(input) }),

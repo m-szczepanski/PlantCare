@@ -17,6 +17,7 @@ vi.mock("@/api/client", () => ({
     uploadPhoto: vi.fn(),
     notes: vi.fn(),
     addNote: vi.fn(),
+    setNotePinned: vi.fn(),
     careTasks: vi.fn(),
     snooze: vi.fn(),
     clearSnooze: vi.fn(),
@@ -79,9 +80,10 @@ describe("PlantDetailPage", () => {
     vi.mocked(plantsApi.get).mockReset().mockResolvedValue(plant);
     vi.mocked(plantsApi.wateringLogs).mockReset().mockResolvedValue(logs);
     vi.mocked(plantsApi.notes).mockReset().mockResolvedValue([
-      { id: 9, createdAt: "2026-03-02T10:00:00Z", text: "New leaf unfurling" },
+      { id: 9, createdAt: "2026-03-02T10:00:00Z", text: "New leaf unfurling", isPinned: false },
     ]);
     vi.mocked(plantsApi.addNote).mockReset();
+    vi.mocked(plantsApi.setNotePinned).mockReset();
     vi.mocked(plantsApi.healthChecks).mockReset().mockResolvedValue([]);
     vi.mocked(plantsApi.addHealthCheck).mockReset();
     vi.mocked(plantsApi.careTasks).mockReset().mockResolvedValue([
@@ -286,6 +288,7 @@ describe("PlantDetailPage", () => {
       id: 10,
       createdAt: new Date().toISOString(),
       text: "Yellowing tip",
+      isPinned: false,
     });
 
     renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
@@ -296,6 +299,47 @@ describe("PlantDetailPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Add note" }));
 
     await waitFor(() => expect(plantsApi.addNote).toHaveBeenCalledWith(1, "Yellowing tip"));
+  });
+
+  it("pins a note from the notes list", async () => {
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    await screen.findByText("New leaf unfurling");
+    fireEvent.click(screen.getByRole("button", { name: "Pin note" }));
+
+    await waitFor(() => expect(plantsApi.setNotePinned).toHaveBeenCalledWith(1, 9, true));
+  });
+
+  it("shows pinned notes right after care tips and lets them be unpinned", async () => {
+    vi.mocked(plantsApi.get).mockResolvedValue({
+      ...plant,
+      profileCommonName: "Monstera",
+      careTips: {
+        commonName: "Monstera",
+        lightRequirement: "Bright",
+        humidityNotes: "Loves misting.",
+        careTips: "Water weekly.",
+        diagnosisChecklist: null,
+      },
+    });
+    vi.mocked(plantsApi.notes).mockResolvedValue([
+      { id: 8, createdAt: "2026-03-01T10:00:00Z", text: "Pinned reminder", isPinned: true },
+      { id: 9, createdAt: "2026-03-02T10:00:00Z", text: "New leaf unfurling", isPinned: false },
+    ]);
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    const careTips = await screen.findByText(/Care tips — Monstera/);
+    const pinnedHeading = screen.getByText("Pinned notes");
+    expect(
+      careTips.compareDocumentPosition(pinnedHeading) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(screen.getAllByText("Pinned reminder")).toHaveLength(1);
+    expect(screen.getByText("New leaf unfurling")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Unpin note" }));
+
+    await waitFor(() => expect(plantsApi.setNotePinned).toHaveBeenCalledWith(1, 8, false));
   });
 
   it("logs a one-tap health checkup with an optional note", async () => {
