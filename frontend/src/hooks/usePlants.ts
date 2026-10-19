@@ -421,6 +421,31 @@ export function useAddPlantNote(id: number) {
   });
 }
 
+export function useUpdatePlantNote(id: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ noteId, text }: { noteId: number; text: string }) =>
+      plantsApi.updateNote(id, noteId, text),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: plantKeys.notes(id) });
+      toast.success(i18n.t("toasts.noteUpdated"));
+    },
+    onError: (error) => toastError(i18n.t("toasts.noteUpdateFailed"), error),
+  });
+}
+
+export function useDeletePlantNote(id: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (noteId: number) => plantsApi.deleteNote(id, noteId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: plantKeys.notes(id) });
+      toast.success(i18n.t("toasts.noteDeleted"));
+    },
+    onError: (error) => toastError(i18n.t("toasts.noteDeleteFailed"), error),
+  });
+}
+
 export function useSetNotePinned(id: number) {
   const queryClient = useQueryClient();
   return useMutation({

@@ -17,6 +17,8 @@ vi.mock("@/api/client", () => ({
     uploadPhoto: vi.fn(),
     notes: vi.fn(),
     addNote: vi.fn(),
+    updateNote: vi.fn(),
+    deleteNote: vi.fn(),
     setNotePinned: vi.fn(),
     careTasks: vi.fn(),
     snooze: vi.fn(),
@@ -83,6 +85,8 @@ describe("PlantDetailPage", () => {
       { id: 9, createdAt: "2026-03-02T10:00:00Z", text: "New leaf unfurling", isPinned: false },
     ]);
     vi.mocked(plantsApi.addNote).mockReset();
+    vi.mocked(plantsApi.updateNote).mockReset();
+    vi.mocked(plantsApi.deleteNote).mockReset();
     vi.mocked(plantsApi.setNotePinned).mockReset();
     vi.mocked(plantsApi.healthChecks).mockReset().mockResolvedValue([]);
     vi.mocked(plantsApi.addHealthCheck).mockReset();
@@ -308,6 +312,66 @@ describe("PlantDetailPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Pin note" }));
 
     await waitFor(() => expect(plantsApi.setNotePinned).toHaveBeenCalledWith(1, 9, true));
+  });
+
+  it("edits an existing note inline", async () => {
+    vi.mocked(plantsApi.updateNote).mockResolvedValue({
+      id: 9,
+      createdAt: "2026-03-02T10:00:00Z",
+      text: "Corrected text",
+      isPinned: false,
+    });
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    fireEvent.click(await screen.findByRole("button", { name: "Edit note" }));
+    fireEvent.change(screen.getByLabelText("Note text"), { target: { value: "Corrected text" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => expect(plantsApi.updateNote).toHaveBeenCalledWith(1, 9, "Corrected text"));
+  });
+
+  it("deletes a note after a confirmation dialog", async () => {
+    vi.mocked(plantsApi.deleteNote).mockResolvedValue(undefined);
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    fireEvent.click(await screen.findByRole("button", { name: "Delete note" }));
+    const dialog = await screen.findByRole("alertdialog");
+    expect(dialog).toHaveTextContent("Delete this note?");
+
+    fireEvent.click(within(dialog).getByRole("button", { name: "Delete" }));
+    await waitFor(() => expect(plantsApi.deleteNote).toHaveBeenCalledWith(1, 9));
+  });
+
+  it("edits and deletes a pinned note from its card", async () => {
+    vi.mocked(plantsApi.notes).mockResolvedValue([
+      { id: 8, createdAt: "2026-03-01T10:00:00Z", text: "Pinned reminder", isPinned: true },
+    ]);
+    vi.mocked(plantsApi.updateNote).mockResolvedValue({
+      id: 8,
+      createdAt: "2026-03-01T10:00:00Z",
+      text: "Updated reminder",
+      isPinned: true,
+    });
+    vi.mocked(plantsApi.deleteNote).mockResolvedValue(undefined);
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    const region = await screen.findByRole("region", { name: "Pinned notes" });
+    fireEvent.click(within(region).getByRole("button", { name: "Edit note" }));
+    fireEvent.change(within(region).getByLabelText("Note text"), {
+      target: { value: "Updated reminder" },
+    });
+    fireEvent.click(within(region).getByRole("button", { name: "Save" }));
+
+    await waitFor(() => expect(plantsApi.updateNote).toHaveBeenCalledWith(1, 8, "Updated reminder"));
+
+    fireEvent.click(within(region).getByRole("button", { name: "Delete note" }));
+    const dialog = await screen.findByRole("alertdialog");
+    fireEvent.click(within(dialog).getByRole("button", { name: "Delete" }));
+
+    await waitFor(() => expect(plantsApi.deleteNote).toHaveBeenCalledWith(1, 8));
   });
 
   it("shows pinned notes right after care tips and lets them be unpinned", async () => {

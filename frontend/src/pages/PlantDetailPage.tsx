@@ -2,11 +2,12 @@ import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { AlertTriangle, Droplets, Pin } from "lucide-react";
+import { AlertTriangle, Droplets, Pencil, Pin, Trash2 } from "lucide-react";
 import { CareTasksCard } from "@/components/CareTasksCard";
 import { DiagnosticsCard } from "@/components/DiagnosticsCard";
 import { HealthCheckCard } from "@/components/HealthCheckCard";
 import { JournalCard } from "@/components/JournalCard";
+import { NoteEditForm } from "@/components/NoteEditForm";
 import { PinnedNotesCard } from "@/components/PinnedNotesCard";
 import { CareTipsCard } from "@/components/CareTipsCard";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -45,12 +46,14 @@ import {
   useAddPlantNote,
   useClearSoilWet,
   useDeletePlant,
+  useDeletePlantNote,
   usePlant,
   usePlantNotes,
   useSetNotePinned,
   useSetSoilWet,
   useSnoozePlant,
   useUnsnoozePlant,
+  useUpdatePlantNote,
   useUploadPlantPhoto,
   useWaterPlant,
   useWateringLogs,
@@ -74,6 +77,8 @@ export function PlantDetailPage() {
   const { data: wateringLogs } = useWateringLogs(plantId);
   const { data: notes } = usePlantNotes(plantId);
   const addNote = useAddPlantNote(plantId);
+  const updateNote = useUpdatePlantNote(plantId);
+  const deleteNote = useDeletePlantNote(plantId);
   const setNotePinned = useSetNotePinned(plantId);
   const snooze = useSnoozePlant(plantId);
   const unsnooze = useUnsnoozePlant(plantId);
@@ -83,6 +88,8 @@ export function PlantDetailPage() {
   const [snoozeDays, setSnoozeDays] = useState("14");
   const [soilWetDays, setSoilWetDays] = useState("3");
   const [noteText, setNoteText] = useState("");
+  const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
+  const [deletingNoteId, setDeletingNoteId] = useState<number | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [note, setNote] = useState("");
@@ -142,6 +149,15 @@ export function PlantDetailPage() {
     } catch {
       // the hook already surfaced the failure toast
     }
+  }
+
+  function saveNoteEdit(noteId: number, text: string) {
+    updateNote.mutate({ noteId, text }, { onSuccess: () => setEditingNoteId(null) });
+  }
+
+  function confirmDeleteNote() {
+    if (deletingNoteId == null) return;
+    deleteNote.mutate(deletingNoteId);
   }
 
   return (
@@ -362,8 +378,14 @@ export function PlantDetailPage() {
       {plant.careTips ? <CareTipsCard tips={plant.careTips} /> : null}
       <PinnedNotesCard
         notes={pinnedNotes}
+        editingId={editingNoteId}
+        saving={updateNote.isPending}
+        onEdit={setEditingNoteId}
+        onCancelEdit={() => setEditingNoteId(null)}
+        onSaveEdit={saveNoteEdit}
         onUnpin={(noteId) => setNotePinned.mutate({ noteId, pinned: false })}
         unpinning={setNotePinned.isPending}
+        onDelete={setDeletingNoteId}
       />
       {plant.careTips?.diagnosisChecklist ? (
         <DiagnosticsCard
@@ -483,23 +505,54 @@ export function PlantDetailPage() {
           ) : (
             <ul className="space-y-2 text-sm">
               {unpinnedNotes.map((note) => (
-                <li key={note.id} className="flex items-start justify-between gap-3 rounded-md border p-3">
-                  <div>
-                    <p>{note.text}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {formatInstant(note.createdAt)}
-                    </p>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-label={t("detail.pinNote")}
-                    disabled={setNotePinned.isPending || pinLimitReached}
-                    onClick={() => setNotePinned.mutate({ noteId: note.id, pinned: true })}
-                  >
-                    <Pin className="h-4 w-4" aria-hidden="true" />
-                  </Button>
+                <li key={note.id} className="rounded-md border p-3">
+                  {editingNoteId === note.id ? (
+                    <NoteEditForm
+                      text={note.text}
+                      saving={updateNote.isPending}
+                      onCancel={() => setEditingNoteId(null)}
+                      onSave={(text) => saveNoteEdit(note.id, text)}
+                    />
+                  ) : (
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p>{note.text}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {formatInstant(note.createdAt)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label={t("detail.pinNote")}
+                          disabled={setNotePinned.isPending || pinLimitReached}
+                          onClick={() => setNotePinned.mutate({ noteId: note.id, pinned: true })}
+                        >
+                          <Pin className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label={t("detail.editNote")}
+                          onClick={() => setEditingNoteId(note.id)}
+                        >
+                          <Pencil className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label={t("detail.deleteNote")}
+                          onClick={() => setDeletingNoteId(note.id)}
+                        >
+                          <Trash2 className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
@@ -511,6 +564,29 @@ export function PlantDetailPage() {
           ) : null}
         </CardContent>
       </Card>
+
+      <AlertDialog
+        open={deletingNoteId !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletingNoteId(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("detail.deleteNoteTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("detail.deleteNoteDescription")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={confirmDeleteNote}
+            >
+              {t("common.delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
