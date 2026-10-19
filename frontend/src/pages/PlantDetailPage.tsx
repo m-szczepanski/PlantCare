@@ -60,6 +60,8 @@ import type { WaterDetails, WateringMethod } from "@/api/types";
 import { touchButton, touchField } from "@/lib/ui";
 import { formatDate, formatInstant, parseInstant } from "@/lib/dates";
 
+const PINNED_NOTES_LIMIT = 3;
+
 export function PlantDetailPage() {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
@@ -88,6 +90,7 @@ export function PlantDetailPage() {
   const [method, setMethod] = useState<WateringMethod | "none">("none");
   const pinnedNotes = notes?.filter((entry) => entry.isPinned) ?? [];
   const unpinnedNotes = notes?.filter((entry) => !entry.isPinned) ?? [];
+  const pinLimitReached = pinnedNotes.length >= PINNED_NOTES_LIMIT;
 
   if (isPending) {
     return <PlantDetailSkeleton />;
@@ -492,7 +495,7 @@ export function PlantDetailPage() {
                     variant="ghost"
                     size="icon"
                     aria-label={t("detail.pinNote")}
-                    disabled={setNotePinned.isPending}
+                    disabled={setNotePinned.isPending || pinLimitReached}
                     onClick={() => setNotePinned.mutate({ noteId: note.id, pinned: true })}
                   >
                     <Pin className="h-4 w-4" aria-hidden="true" />
@@ -501,6 +504,11 @@ export function PlantDetailPage() {
               ))}
             </ul>
           )}
+          {pinLimitReached && unpinnedNotes.length > 0 ? (
+            <p className="text-xs text-muted-foreground">
+              {t("detail.pinLimitHint", { count: PINNED_NOTES_LIMIT })}
+            </p>
+          ) : null}
         </CardContent>
       </Card>
     </div>

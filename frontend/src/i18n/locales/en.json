@@ -558,6 +558,7 @@
     "noUnpinnedNotes": "No other notes.",
     "pinNote": "Pin note",
     "unpinNote": "Unpin note",
+    "pinLimitHint": "You can pin up to {{count}} notes.",
     "markWatered": "Mark as watered",
     "waterNow": "Water now",
     "wateringDevice": "Watering...",

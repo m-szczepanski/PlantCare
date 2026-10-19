@@ -642,6 +642,7 @@
     "noUnpinnedNotes": "Brak pozostałych notatek.",
     "pinNote": "Przypnij notatkę",
     "unpinNote": "Odepnij notatkę",
+    "pinLimitHint": "Możesz przypiąć maksymalnie {{count}} notatki.",
     "markWatered": "Oznacz jako podlaną",
     "waterNow": "Podlej teraz",
     "wateringDevice": "Podlewanie...",
