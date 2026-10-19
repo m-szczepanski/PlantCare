@@ -4,3 +4,7 @@ export const touchIcon = "h-11 w-11 sm:h-9 sm:w-9";
 
 // h-11 + text-base on phones: 44px targets and no iOS focus-zoom; back to compact from sm.
 export const touchField = "h-11 text-base sm:h-9 sm:text-sm";
+
+// Multi-line sibling of touchField (no fixed height): taller targets on phones, compact from sm.
+export const touchTextarea =
+  "w-full resize-y rounded-md border border-input bg-transparent p-3 text-base sm:text-sm";

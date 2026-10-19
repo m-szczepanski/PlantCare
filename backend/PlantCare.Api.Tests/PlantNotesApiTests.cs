@@ -69,6 +69,165 @@ public class PlantNotesApiTests : IDisposable
     }
 
     [Fact]
+    public async Task UpdateNote_ReplacesText_AndKeepsPin()
+    {
+        var id = await CreatePlant();
+        var created = await _client.PostAsJsonAsync(
+            $"/api/plants/{id}/notes", new { text = "Original text" }, Options);
+        var note = await created.Content.ReadFromJsonAsync<PlantNoteResponseDto>(Options);
+        await _client.PutAsJsonAsync(
+            $"/api/plants/{id}/notes/{note!.Id}/pin", new { pinned = true }, Options);
+
+        var response = await _client.PutAsJsonAsync(
+            $"/api/plants/{id}/notes/{note.Id}", new { text = "  Corrected text  " }, Options);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var updated = await response.Content.ReadFromJsonAsync<PlantNoteResponseDto>(Options);
+        Assert.Equal("Corrected text", updated!.Text);
+        Assert.True(updated.IsPinned);
+        Assert.Equal(note.CreatedAt, updated.CreatedAt);
+
+        var notes = await _client.GetFromJsonAsync<List<PlantNoteResponseDto>>($"/api/plants/{id}/notes", Options);
+        Assert.Single(notes!);
+        Assert.Equal("Corrected text", notes![0].Text);
+    }
+
+    [Fact]
+    public async Task UpdateNote_EmptyText_Returns400()
+    {
+        var id = await CreatePlant();
+        var created = await _client.PostAsJsonAsync(
+            $"/api/plants/{id}/notes", new { text = "Keep me" }, Options);
+        var note = await created.Content.ReadFromJsonAsync<PlantNoteResponseDto>(Options);
+
+        var response = await _client.PutAsJsonAsync(
+            $"/api/plants/{id}/notes/{note!.Id}", new { text = "" }, Options);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task UpdateNote_UnknownNoteOrWrongPlant_Returns404()
+    {
+        var id = await CreatePlant();
+        var otherId = await CreatePlant();
+        var created = await _client.PostAsJsonAsync(
+            $"/api/plants/{id}/notes", new { text = "Mine" }, Options);
+        var note = await created.Content.ReadFromJsonAsync<PlantNoteResponseDto>(Options);
+
+        var wrongPlant = await _client.PutAsJsonAsync(
+            $"/api/plants/{otherId}/notes/{note!.Id}", new { text = "Hijacked" }, Options);
+        var missing = await _client.PutAsJsonAsync(
+            $"/api/plants/{id}/notes/424242", new { text = "Ghost" }, Options);
+
+        Assert.Equal(HttpStatusCode.NotFound, wrongPlant.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
+    }
+
+    [Fact]
+    public async Task DeleteNote_RemovesOnlyThatNote()
+    {
+        var id = await CreatePlant();
+        var keep = await _client.PostAsJsonAsync(
+            $"/api/plants/{id}/notes", new { text = "Keep" }, Options);
+        var keepNote = await keep.Content.ReadFromJsonAsync<PlantNoteResponseDto>(Options);
+        var drop = await _client.PostAsJsonAsync(
+            $"/api/plants/{id}/notes", new { text = "Drop" }, Options);
+        var dropNote = await drop.Content.ReadFromJsonAsync<PlantNoteResponseDto>(Options);
+
+        var response = await _client.DeleteAsync($"/api/plants/{id}/notes/{dropNote!.Id}");
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        var notes = await _client.GetFromJsonAsync<List<PlantNoteResponseDto>>($"/api/plants/{id}/notes", Options);
+        Assert.Single(notes!);
+        Assert.Equal(keepNote!.Id, notes![0].Id);
+    }
+
+    [Fact]
+    public async Task DeleteNote_UnknownNoteOrWrongPlant_Returns404()
+    {
+        var id = await CreatePlant();
+        var otherId = await CreatePlant();
+        var created = await _client.PostAsJsonAsync(
+            $"/api/plants/{id}/notes", new { text = "Mine" }, Options);
+        var note = await created.Content.ReadFromJsonAsync<PlantNoteResponseDto>(Options);
+
+        var wrongPlant = await _client.DeleteAsync($"/api/plants/{otherId}/notes/{note!.Id}");
+        var missing = await _client.DeleteAsync($"/api/plants/{id}/notes/424242");
+
+        Assert.Equal(HttpStatusCode.NotFound, wrongPlant.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
+        var notes = await _client.GetFromJsonAsync<List<PlantNoteResponseDto>>($"/api/plants/{id}/notes", Options);
+        Assert.Single(notes!);
+    }
+
+    [Fact]
+    public async Task RestoreNote_ReInsertsWithOriginalTimestamp()
+    {
+        var id = await CreatePlant();
+        var created = await _client.PostAsJsonAsync(
+            $"/api/plants/{id}/notes", new { text = "Bring me back" }, Options);
+        var note = await created.Content.ReadFromJsonAsync<PlantNoteResponseDto>(Options);
+        await _client.DeleteAsync($"/api/plants/{id}/notes/{note!.Id}");
+
+        var restored = await _client.PostAsJsonAsync(
+            $"/api/plants/{id}/notes/restore",
+            new { createdAt = note.CreatedAt, text = note.Text, pinned = false },
+            Options);
+
+        Assert.Equal(HttpStatusCode.Created, restored.StatusCode);
+        var body = await restored.Content.ReadFromJsonAsync<PlantNoteResponseDto>(Options);
+        Assert.Equal("Bring me back", body!.Text);
+        Assert.Equal(note.CreatedAt, body.CreatedAt);
+
+        var notes = await _client.GetFromJsonAsync<List<PlantNoteResponseDto>>($"/api/plants/{id}/notes", Options);
+        Assert.Single(notes!);
+    }
+
+    [Fact]
+    public async Task RestoreNote_EmptyText_Returns400()
+    {
+        var id = await CreatePlant();
+
+        var response = await _client.PostAsJsonAsync(
+            $"/api/plants/{id}/notes/restore", new { text = "", pinned = false }, Options);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task RestoreNote_UnknownPlant_Returns404()
+    {
+        var response = await _client.PostAsJsonAsync(
+            "/api/plants/424242/notes/restore", new { text = "hello", pinned = false }, Options);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task RestoreNote_PinnedPastLimit_RestoresUnpinned()
+    {
+        var id = await CreatePlant();
+        for (var i = 0; i < 3; i++)
+        {
+            var created = await _client.PostAsJsonAsync(
+                $"/api/plants/{id}/notes", new { text = $"Pinned {i}" }, Options);
+            var note = await created.Content.ReadFromJsonAsync<PlantNoteResponseDto>(Options);
+            var pinned = await _client.PutAsJsonAsync(
+                $"/api/plants/{id}/notes/{note!.Id}/pin", new { pinned = true }, Options);
+            Assert.Equal(HttpStatusCode.OK, pinned.StatusCode);
+        }
+
+        var restored = await _client.PostAsJsonAsync(
+            $"/api/plants/{id}/notes/restore", new { text = "Undo a pin", pinned = true }, Options);
+
+        Assert.Equal(HttpStatusCode.Created, restored.StatusCode);
+        var body = await restored.Content.ReadFromJsonAsync<PlantNoteResponseDto>(Options);
+        Assert.False(body!.IsPinned);
+    }
+
+
+    [Fact]
     public async Task PinNote_PutsItFirst_AndUnpinRestoresNewestFirst()
     {
         var id = await CreatePlant();

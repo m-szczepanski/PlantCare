@@ -50,6 +50,24 @@ public class DashboardServiceTests
             CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
+        public Task<PlantCare.Api.Dtos.PlantNoteResponseDto?> UpdateNoteAsync(
+            int id,
+            int noteId,
+            string text,
+            CancellationToken cancellationToken = default)
+            => throw new NotSupportedException();
+
+        public Task<bool> DeleteNoteAsync(int id, int noteId, CancellationToken cancellationToken = default)
+            => throw new NotSupportedException();
+
+        public Task<PlantCare.Api.Dtos.PlantNoteResponseDto?> RestoreNoteAsync(
+            int id,
+            DateTime? createdAt,
+            string text,
+            bool pinned,
+            CancellationToken cancellationToken = default)
+            => throw new NotSupportedException();
+
         public Task<PlantCare.Api.Services.PlantNotePinResult> SetNotePinnedAsync(
             int id,
             int noteId,

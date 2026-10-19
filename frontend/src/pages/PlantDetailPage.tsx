@@ -2,11 +2,12 @@ import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { AlertTriangle, Droplets, Pin } from "lucide-react";
+import { AlertTriangle, Droplets, Pencil, Pin, Trash2 } from "lucide-react";
 import { CareTasksCard } from "@/components/CareTasksCard";
 import { DiagnosticsCard } from "@/components/DiagnosticsCard";
 import { HealthCheckCard } from "@/components/HealthCheckCard";
 import { JournalCard } from "@/components/JournalCard";
+import { NoteEditForm } from "@/components/NoteEditForm";
 import { PinnedNotesCard } from "@/components/PinnedNotesCard";
 import { CareTipsCard } from "@/components/CareTipsCard";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -45,22 +46,25 @@ import {
   useAddPlantNote,
   useClearSoilWet,
   useDeletePlant,
+  useDeletePlantNote,
   usePlant,
   usePlantNotes,
   useSetNotePinned,
   useSetSoilWet,
   useSnoozePlant,
   useUnsnoozePlant,
+  useUpdatePlantNote,
   useUploadPlantPhoto,
   useWaterPlant,
   useWateringLogs,
 } from "@/hooks/usePlants";
 import { useWaterNow } from "@/hooks/useDevices";
 import type { WaterDetails, WateringMethod } from "@/api/types";
-import { touchButton, touchField } from "@/lib/ui";
+import { touchButton, touchField, touchTextarea } from "@/lib/ui";
 import { formatDate, formatInstant, parseInstant } from "@/lib/dates";
 
 const PINNED_NOTES_LIMIT = 3;
+const NOTE_MAX_LENGTH = 2000;
 
 export function PlantDetailPage() {
   const { t, i18n } = useTranslation();
@@ -74,6 +78,8 @@ export function PlantDetailPage() {
   const { data: wateringLogs } = useWateringLogs(plantId);
   const { data: notes } = usePlantNotes(plantId);
   const addNote = useAddPlantNote(plantId);
+  const updateNote = useUpdatePlantNote(plantId);
+  const deleteNote = useDeletePlantNote(plantId);
   const setNotePinned = useSetNotePinned(plantId);
   const snooze = useSnoozePlant(plantId);
   const unsnooze = useUnsnoozePlant(plantId);
@@ -83,6 +89,7 @@ export function PlantDetailPage() {
   const [snoozeDays, setSnoozeDays] = useState("14");
   const [soilWetDays, setSoilWetDays] = useState("3");
   const [noteText, setNoteText] = useState("");
+  const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [note, setNote] = useState("");
@@ -142,6 +149,15 @@ export function PlantDetailPage() {
     } catch {
       // the hook already surfaced the failure toast
     }
+  }
+
+  function saveNoteEdit(noteId: number, text: string) {
+    updateNote.mutate({ noteId, text }, { onSuccess: () => setEditingNoteId(null) });
+  }
+
+  function submitNote() {
+    if (noteText.trim() === "" || addNote.isPending) return;
+    addNote.mutate(noteText.trim(), { onSuccess: () => setNoteText("") });
   }
 
   return (
@@ -458,23 +474,36 @@ export function PlantDetailPage() {
           <CardTitle>{t("detail.notes")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex flex-wrap gap-2">
-            <Input
+          <div className="space-y-2">
+            <textarea
               aria-label={t("detail.newNoteAria")}
               value={noteText}
               onChange={(event) => setNoteText(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+                  event.preventDefault();
+                  submitNote();
+                }
+              }}
               placeholder={t("detail.noteListPlaceholder")}
-              className={`min-w-48 flex-1 ${touchField}`}
+              maxLength={NOTE_MAX_LENGTH}
+              rows={2}
+              className={touchTextarea}
             />
-            <Button
-              disabled={noteText.trim() === "" || addNote.isPending}
-              onClick={() =>
-                addNote.mutate(noteText.trim(), { onSuccess: () => setNoteText("") })
-              }
-              className={touchButton}
-            >
-              {addNote.isPending ? t("common.adding") : t("detail.addNote")}
-            </Button>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-xs text-muted-foreground">
+                {noteText.length > 0
+                  ? t("detail.noteLength", { used: noteText.length, max: NOTE_MAX_LENGTH })
+                  : ""}
+              </p>
+              <Button
+                disabled={noteText.trim() === "" || addNote.isPending}
+                onClick={submitNote}
+                className={touchButton}
+              >
+                {addNote.isPending ? t("common.adding") : t("detail.addNote")}
+              </Button>
+            </div>
           </div>
           {!notes || notes.length === 0 ? (
             <p className="text-sm text-muted-foreground">{t("detail.noNotes")}</p>
@@ -483,23 +512,54 @@ export function PlantDetailPage() {
           ) : (
             <ul className="space-y-2 text-sm">
               {unpinnedNotes.map((note) => (
-                <li key={note.id} className="flex items-start justify-between gap-3 rounded-md border p-3">
-                  <div>
-                    <p>{note.text}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {formatInstant(note.createdAt)}
-                    </p>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-label={t("detail.pinNote")}
-                    disabled={setNotePinned.isPending || pinLimitReached}
-                    onClick={() => setNotePinned.mutate({ noteId: note.id, pinned: true })}
-                  >
-                    <Pin className="h-4 w-4" aria-hidden="true" />
-                  </Button>
+                <li key={note.id} className="rounded-md border p-3">
+                  {editingNoteId === note.id ? (
+                    <NoteEditForm
+                      text={note.text}
+                      saving={updateNote.isPending}
+                      onCancel={() => setEditingNoteId(null)}
+                      onSave={(text) => saveNoteEdit(note.id, text)}
+                    />
+                  ) : (
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="whitespace-pre-wrap break-words">{note.text}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {formatInstant(note.createdAt)}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label={t("detail.pinNote")}
+                          disabled={setNotePinned.isPending || pinLimitReached}
+                          onClick={() => setNotePinned.mutate({ noteId: note.id, pinned: true })}
+                        >
+                          <Pin className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label={t("detail.editNote")}
+                          onClick={() => setEditingNoteId(note.id)}
+                        >
+                          <Pencil className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label={t("detail.deleteNote")}
+                          onClick={() => deleteNote.mutate(note)}
+                        >
+                          <Trash2 className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>

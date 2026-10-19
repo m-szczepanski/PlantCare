@@ -17,6 +17,9 @@ vi.mock("@/api/client", () => ({
     uploadPhoto: vi.fn(),
     notes: vi.fn(),
     addNote: vi.fn(),
+    updateNote: vi.fn(),
+    deleteNote: vi.fn(),
+    restoreNote: vi.fn(),
     setNotePinned: vi.fn(),
     careTasks: vi.fn(),
     snooze: vi.fn(),
@@ -83,6 +86,9 @@ describe("PlantDetailPage", () => {
       { id: 9, createdAt: "2026-03-02T10:00:00Z", text: "New leaf unfurling", isPinned: false },
     ]);
     vi.mocked(plantsApi.addNote).mockReset();
+    vi.mocked(plantsApi.updateNote).mockReset();
+    vi.mocked(plantsApi.deleteNote).mockReset();
+    vi.mocked(plantsApi.restoreNote).mockReset();
     vi.mocked(plantsApi.setNotePinned).mockReset();
     vi.mocked(plantsApi.healthChecks).mockReset().mockResolvedValue([]);
     vi.mocked(plantsApi.addHealthCheck).mockReset();
@@ -293,12 +299,32 @@ describe("PlantDetailPage", () => {
 
     renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
 
-    expect(await screen.findByText("New leaf unfurling")).toBeInTheDocument();
+    const existing = await screen.findByText("New leaf unfurling");
+    // Multi-line notes keep their line breaks and break long words in the list.
+    expect(existing).toHaveClass("whitespace-pre-wrap", "break-words");
+    expect(screen.getByLabelText("New note")).toHaveAttribute("maxlength", "2000");
 
     fireEvent.change(screen.getByLabelText("New note"), { target: { value: "Yellowing tip" } });
     fireEvent.click(screen.getByRole("button", { name: "Add note" }));
 
     await waitFor(() => expect(plantsApi.addNote).toHaveBeenCalledWith(1, "Yellowing tip"));
+  });
+
+  it("adds a note with the keyboard shortcut", async () => {
+    vi.mocked(plantsApi.addNote).mockResolvedValue({
+      id: 10,
+      createdAt: new Date().toISOString(),
+      text: "Ctrl+Enter note",
+      isPinned: false,
+    });
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    const field = await screen.findByLabelText("New note");
+    fireEvent.change(field, { target: { value: "Ctrl+Enter note" } });
+    fireEvent.keyDown(field, { key: "Enter", ctrlKey: true });
+
+    await waitFor(() => expect(plantsApi.addNote).toHaveBeenCalledWith(1, "Ctrl+Enter note"));
   });
 
   it("pins a note from the notes list", async () => {
@@ -308,6 +334,51 @@ describe("PlantDetailPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Pin note" }));
 
     await waitFor(() => expect(plantsApi.setNotePinned).toHaveBeenCalledWith(1, 9, true));
+  });
+
+  it("edits an existing note inline", async () => {
+    vi.mocked(plantsApi.updateNote).mockResolvedValue({
+      id: 9,
+      createdAt: "2026-03-02T10:00:00Z",
+      text: "Corrected text",
+      isPinned: false,
+    });
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    fireEvent.click(await screen.findByRole("button", { name: "Edit note" }));
+    fireEvent.change(screen.getByLabelText("Note text"), { target: { value: "Corrected text" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => expect(plantsApi.updateNote).toHaveBeenCalledWith(1, 9, "Corrected text"));
+  });
+
+  it("deletes a note directly, with undo replacing the confirm dialog", async () => {
+    vi.mocked(plantsApi.deleteNote).mockResolvedValue(undefined);
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    fireEvent.click(await screen.findByRole("button", { name: "Delete note" }));
+    await waitFor(() => expect(plantsApi.deleteNote).toHaveBeenCalledWith(1, 9));
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+  });
+
+  it("only offers unpin on pinned notes, leaving edit/delete to the notes list", async () => {
+    vi.mocked(plantsApi.notes).mockResolvedValue([
+      { id: 8, createdAt: "2026-03-01T10:00:00Z", text: "Pinned reminder", isPinned: true },
+      { id: 9, createdAt: "2026-03-02T10:00:00Z", text: "New leaf unfurling", isPinned: false },
+    ]);
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    const region = await screen.findByRole("region", { name: "Pinned notes" });
+    expect(within(region).getByRole("button", { name: "Unpin note" })).toBeInTheDocument();
+    expect(within(region).queryByRole("button", { name: "Edit note" })).not.toBeInTheDocument();
+    expect(within(region).queryByRole("button", { name: "Delete note" })).not.toBeInTheDocument();
+
+    // Edit/delete appear only on the unpinned note in the Notes list.
+    expect(screen.getByRole("button", { name: "Edit note" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Delete note" })).toBeInTheDocument();
   });
 
   it("shows pinned notes right after care tips and lets them be unpinned", async () => {
