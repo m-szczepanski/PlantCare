@@ -344,34 +344,22 @@ describe("PlantDetailPage", () => {
     await waitFor(() => expect(plantsApi.deleteNote).toHaveBeenCalledWith(1, 9));
   });
 
-  it("edits and deletes a pinned note from its card", async () => {
+  it("only offers unpin on pinned notes, leaving edit/delete to the notes list", async () => {
     vi.mocked(plantsApi.notes).mockResolvedValue([
       { id: 8, createdAt: "2026-03-01T10:00:00Z", text: "Pinned reminder", isPinned: true },
+      { id: 9, createdAt: "2026-03-02T10:00:00Z", text: "New leaf unfurling", isPinned: false },
     ]);
-    vi.mocked(plantsApi.updateNote).mockResolvedValue({
-      id: 8,
-      createdAt: "2026-03-01T10:00:00Z",
-      text: "Updated reminder",
-      isPinned: true,
-    });
-    vi.mocked(plantsApi.deleteNote).mockResolvedValue(undefined);
 
     renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
 
     const region = await screen.findByRole("region", { name: "Pinned notes" });
-    fireEvent.click(within(region).getByRole("button", { name: "Edit note" }));
-    fireEvent.change(within(region).getByLabelText("Note text"), {
-      target: { value: "Updated reminder" },
-    });
-    fireEvent.click(within(region).getByRole("button", { name: "Save" }));
+    expect(within(region).getByRole("button", { name: "Unpin note" })).toBeInTheDocument();
+    expect(within(region).queryByRole("button", { name: "Edit note" })).not.toBeInTheDocument();
+    expect(within(region).queryByRole("button", { name: "Delete note" })).not.toBeInTheDocument();
 
-    await waitFor(() => expect(plantsApi.updateNote).toHaveBeenCalledWith(1, 8, "Updated reminder"));
-
-    fireEvent.click(within(region).getByRole("button", { name: "Delete note" }));
-    const dialog = await screen.findByRole("alertdialog");
-    fireEvent.click(within(dialog).getByRole("button", { name: "Delete" }));
-
-    await waitFor(() => expect(plantsApi.deleteNote).toHaveBeenCalledWith(1, 8));
+    // Edit/delete appear only on the unpinned note in the Notes list.
+    expect(screen.getByRole("button", { name: "Edit note" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Delete note" })).toBeInTheDocument();
   });
 
   it("shows pinned notes right after care tips and lets them be unpinned", async () => {

@@ -378,14 +378,8 @@ export function PlantDetailPage() {
       {plant.careTips ? <CareTipsCard tips={plant.careTips} /> : null}
       <PinnedNotesCard
         notes={pinnedNotes}
-        editingId={editingNoteId}
-        saving={updateNote.isPending}
-        onEdit={setEditingNoteId}
-        onCancelEdit={() => setEditingNoteId(null)}
-        onSaveEdit={saveNoteEdit}
         onUnpin={(noteId) => setNotePinned.mutate({ noteId, pinned: false })}
         unpinning={setNotePinned.isPending}
-        onDelete={setDeletingNoteId}
       />
       {plant.careTips?.diagnosisChecklist ? (
         <DiagnosticsCard
