@@ -335,8 +335,11 @@ describe("PlantDetailPage", () => {
       careTips.compareDocumentPosition(pinnedRegion) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     const pinnedItem = within(pinnedRegion).getByRole("listitem");
-    expect(pinnedItem).toHaveClass("bg-sticky");
+    expect(pinnedItem.querySelector('[aria-pressed="true"]')).not.toBeNull();
     expect(within(pinnedRegion).getByRole("list")).toHaveClass("sm:grid-cols-1");
+    const pinnedText = within(pinnedRegion).getByText("Pinned reminder");
+    expect(pinnedText).toHaveClass("sm:line-clamp-4");
+    expect(pinnedText).toHaveClass("sm:group-hover:line-clamp-none");
     expect(screen.getAllByText("Pinned reminder")).toHaveLength(1);
     expect(screen.getByText("New leaf unfurling")).toBeInTheDocument();
 
