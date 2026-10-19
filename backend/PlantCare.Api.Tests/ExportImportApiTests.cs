@@ -35,7 +35,11 @@ public class ExportImportApiTests : IDisposable
         }, Options);
         var plantId = (await plant.Content.ReadFromJsonAsync<PlantResponseDto>(Options))!.Id;
         await client.PostAsJsonAsync($"/api/plants/{plantId}/water", new { note = "twice" }, Options);
-        await client.PostAsJsonAsync($"/api/plants/{plantId}/notes", new { text = "looks happy" }, Options);
+        var note = await client.PostAsJsonAsync(
+            $"/api/plants/{plantId}/notes", new { text = "looks happy" }, Options);
+        var noteId = (await note.Content.ReadFromJsonAsync<PlantNoteResponseDto>(Options))!.Id;
+        await client.PutAsJsonAsync(
+            $"/api/plants/{plantId}/notes/{noteId}/pin", new { pinned = true }, Options);
 
         var exportResponse = await client.GetAsync("/api/export");
         exportResponse.EnsureSuccessStatusCode();
@@ -53,6 +57,7 @@ public class ExportImportApiTests : IDisposable
         Assert.Equal("Attic", ernie.RoomName);
         Assert.NotEmpty(ernie.CareTasks.Single(t => t.Type.ToString() == "Watering").Logs);
         Assert.Single(ernie.Notes);
+        Assert.True(ernie.Notes[0].Pinned);
 
         using var targetFactory = _target.CreateFactory();
         var target = targetFactory.CreateClient();
@@ -65,6 +70,10 @@ public class ExportImportApiTests : IDisposable
         var targetPlants = await target.GetFromJsonAsync<List<PlantResponseDto>>("/api/plants", Options);
         var restored = targetPlants!.Single(p => p.NickName == "Exported Ernie");
         Assert.Equal("Attic", restored.RoomName);
+        var restoredNotes = await target.GetFromJsonAsync<List<PlantNoteResponseDto>>(
+            $"/api/plants/{restored.Id}/notes",
+            Options);
+        Assert.True(Assert.Single(restoredNotes!).IsPinned);
         var logs = await target.GetFromJsonAsync<List<WateringLogResponseDto>>(
             $"/api/plants/{restored.Id}/watering-logs",
             Options);

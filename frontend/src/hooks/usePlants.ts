@@ -421,6 +421,19 @@ export function useAddPlantNote(id: number) {
   });
 }
 
+export function useSetNotePinned(id: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ noteId, pinned }: { noteId: number; pinned: boolean }) =>
+      plantsApi.setNotePinned(id, noteId, pinned),
+    onSuccess: (_note, variables) => {
+      queryClient.invalidateQueries({ queryKey: plantKeys.notes(id) });
+      toast.success(i18n.t(variables.pinned ? "toasts.notePinned" : "toasts.noteUnpinned"));
+    },
+    onError: (error) => toastError(i18n.t("toasts.notePinFailed"), error),
+  });
+}
+
 export function useHealthChecks(id: number) {
   return useQuery({
     queryKey: plantKeys.healthChecks(id),

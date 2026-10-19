@@ -29,6 +29,15 @@ public sealed record PlantPhotoResult(
     string? ErrorKey = null,
     object[]? ErrorArgs = null);
 
+public enum PlantNotePinStatus
+{
+    Success,
+    NotFound,
+    LimitReached,
+}
+
+public sealed record PlantNotePinResult(PlantNotePinStatus Status, PlantNoteResponseDto? Note = null);
+
 public sealed record BulkWaterResult(int Requested, int Watered, IReadOnlyList<int> SkippedIds);
 
 public interface IPlantService
@@ -71,6 +80,12 @@ public interface IPlantService
 
     Task<PlantNoteResponseDto?> AddNoteAsync(int id, string text, CancellationToken cancellationToken = default);
 
+    Task<PlantNotePinResult> SetNotePinnedAsync(
+        int id,
+        int noteId,
+        bool pinned,
+        CancellationToken cancellationToken = default);
+
     Task<PlantResponseDto?> SetSnoozeAsync(int id, int days, CancellationToken cancellationToken = default);
 
     Task<PlantResponseDto?> ClearSnoozeAsync(int id, CancellationToken cancellationToken = default);
@@ -89,6 +104,7 @@ public sealed class PlantService(
     IPlantPhotoStorage photos,
     IAppLocalizer localizer) : IPlantService
 {
+    public const int MaxPinnedNotes = 3;
     public async Task<IReadOnlyList<PlantResponseDto>> ListAsync(CancellationToken cancellationToken = default)
     {
         var plants = await db.Plants
@@ -519,13 +535,15 @@ public sealed class PlantService(
         return await db.PlantNotes
             .AsNoTracking()
             .Where(n => n.PlantId == id)
-            .OrderByDescending(n => n.CreatedAt)
+            .OrderByDescending(n => n.IsPinned)
+            .ThenByDescending(n => n.CreatedAt)
             .ThenByDescending(n => n.Id)
             .Select(n => new PlantNoteResponseDto
             {
                 Id = n.Id,
                 CreatedAt = n.CreatedAt,
                 Text = n.Text,
+                IsPinned = n.IsPinned,
             })
             .ToListAsync(cancellationToken);
     }
@@ -555,7 +573,43 @@ public sealed class PlantService(
             Id = note.Id,
             CreatedAt = note.CreatedAt,
             Text = note.Text,
+            IsPinned = note.IsPinned,
         };
+    }
+
+    public async Task<PlantNotePinResult> SetNotePinnedAsync(
+        int id,
+        int noteId,
+        bool pinned,
+        CancellationToken cancellationToken = default)
+    {
+        var note = await db.PlantNotes
+            .FirstOrDefaultAsync(n => n.Id == noteId && n.PlantId == id, cancellationToken);
+        if (note is null)
+        {
+            return new PlantNotePinResult(PlantNotePinStatus.NotFound);
+        }
+
+        if (pinned && !note.IsPinned)
+        {
+            var pinnedCount = await db.PlantNotes
+                .CountAsync(n => n.PlantId == id && n.IsPinned && n.Id != noteId, cancellationToken);
+            if (pinnedCount >= MaxPinnedNotes)
+            {
+                return new PlantNotePinResult(PlantNotePinStatus.LimitReached);
+            }
+        }
+
+        note.IsPinned = pinned;
+        await db.SaveChangesAsync(cancellationToken);
+
+        return new PlantNotePinResult(PlantNotePinStatus.Success, new PlantNoteResponseDto
+        {
+            Id = note.Id,
+            CreatedAt = note.CreatedAt,
+            Text = note.Text,
+            IsPinned = note.IsPinned,
+        });
     }
 
     private async Task<bool> ProfileExistsAsync(int profileId, CancellationToken cancellationToken)

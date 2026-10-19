@@ -262,6 +262,23 @@ public class PlantsController(IPlantService plants, ICareTaskService careTasks, 
         return note is null ? NotFound() : Created($"/api/plants/{id}/notes/{note.Id}", note);
     }
 
+    [HttpPut("{id:int}/notes/{noteId:int}/pin")]
+    public async Task<ActionResult<PlantNoteResponseDto>> PinNote(int id, int noteId,
+        PinPlantNoteRequestDto dto, CancellationToken cancellationToken)
+    {
+        var result = await plants.SetNotePinnedAsync(id, noteId, dto.Pinned, cancellationToken);
+        return result.Status switch
+        {
+            PlantNotePinStatus.NotFound => NotFound(),
+            PlantNotePinStatus.LimitReached => BadRequest(new ProblemDetails
+            {
+                Title = localizer.T("error.tooManyPinnedNotes.title"),
+                Detail = localizer.Tf("error.tooManyPinnedNotes.detail", PlantService.MaxPinnedNotes)
+            }),
+            _ => Ok(result.Note),
+        };
+    }
+
     [HttpGet("{id:int}/watering-logs")]
     public async Task<ActionResult<IReadOnlyList<WateringLogResponseDto>>> WateringLogs(int id,
         CancellationToken cancellationToken)

@@ -314,6 +314,7 @@ export interface PlantNote {
   id: number;
   createdAt: string;
   text: string;
+  isPinned: boolean;
 }
 
 export interface PlantInput {

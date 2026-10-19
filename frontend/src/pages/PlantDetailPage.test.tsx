@@ -17,6 +17,7 @@ vi.mock("@/api/client", () => ({
     uploadPhoto: vi.fn(),
     notes: vi.fn(),
     addNote: vi.fn(),
+    setNotePinned: vi.fn(),
     careTasks: vi.fn(),
     snooze: vi.fn(),
     clearSnooze: vi.fn(),
@@ -79,9 +80,10 @@ describe("PlantDetailPage", () => {
     vi.mocked(plantsApi.get).mockReset().mockResolvedValue(plant);
     vi.mocked(plantsApi.wateringLogs).mockReset().mockResolvedValue(logs);
     vi.mocked(plantsApi.notes).mockReset().mockResolvedValue([
-      { id: 9, createdAt: "2026-03-02T10:00:00Z", text: "New leaf unfurling" },
+      { id: 9, createdAt: "2026-03-02T10:00:00Z", text: "New leaf unfurling", isPinned: false },
     ]);
     vi.mocked(plantsApi.addNote).mockReset();
+    vi.mocked(plantsApi.setNotePinned).mockReset();
     vi.mocked(plantsApi.healthChecks).mockReset().mockResolvedValue([]);
     vi.mocked(plantsApi.addHealthCheck).mockReset();
     vi.mocked(plantsApi.careTasks).mockReset().mockResolvedValue([
@@ -286,6 +288,7 @@ describe("PlantDetailPage", () => {
       id: 10,
       createdAt: new Date().toISOString(),
       text: "Yellowing tip",
+      isPinned: false,
     });
 
     renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
@@ -296,6 +299,86 @@ describe("PlantDetailPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Add note" }));
 
     await waitFor(() => expect(plantsApi.addNote).toHaveBeenCalledWith(1, "Yellowing tip"));
+  });
+
+  it("pins a note from the notes list", async () => {
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    await screen.findByText("New leaf unfurling");
+    fireEvent.click(screen.getByRole("button", { name: "Pin note" }));
+
+    await waitFor(() => expect(plantsApi.setNotePinned).toHaveBeenCalledWith(1, 9, true));
+  });
+
+  it("shows pinned notes right after care tips and lets them be unpinned", async () => {
+    vi.mocked(plantsApi.get).mockResolvedValue({
+      ...plant,
+      profileCommonName: "Monstera",
+      careTips: {
+        commonName: "Monstera",
+        lightRequirement: "Bright",
+        humidityNotes: "Loves misting.",
+        careTips: "Water weekly.",
+        diagnosisChecklist: null,
+      },
+    });
+    vi.mocked(plantsApi.notes).mockResolvedValue([
+      { id: 8, createdAt: "2026-03-01T10:00:00Z", text: "Pinned reminder", isPinned: true },
+      { id: 9, createdAt: "2026-03-02T10:00:00Z", text: "New leaf unfurling", isPinned: false },
+    ]);
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    const careTips = await screen.findByText(/Care tips — Monstera/);
+    const pinnedRegion = screen.getByRole("region", { name: "Pinned notes" });
+    expect(
+      careTips.compareDocumentPosition(pinnedRegion) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    const pinnedItem = within(pinnedRegion).getByRole("listitem");
+    expect(pinnedItem.querySelector('[aria-pressed="true"]')).not.toBeNull();
+    expect(within(pinnedRegion).getByRole("list")).toHaveClass("sm:grid-cols-1");
+    const pinnedText = within(pinnedRegion).getByText("Pinned reminder");
+    expect(pinnedText).toHaveClass("sm:line-clamp-4");
+    expect(pinnedText).toHaveClass("sm:group-hover:line-clamp-none");
+    expect(screen.getAllByText("Pinned reminder")).toHaveLength(1);
+    expect(screen.getByText("New leaf unfurling")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Unpin note" }));
+
+    await waitFor(() => expect(plantsApi.setNotePinned).toHaveBeenCalledWith(1, 8, false));
+  });
+
+  it("shares the width between two pinned notes and blocks a fourth pin", async () => {
+    vi.mocked(plantsApi.notes).mockResolvedValue([
+      { id: 8, createdAt: "2026-03-01T10:00:00Z", text: "Pinned one", isPinned: true },
+      { id: 7, createdAt: "2026-03-01T09:00:00Z", text: "Pinned two", isPinned: true },
+      { id: 9, createdAt: "2026-03-02T10:00:00Z", text: "Regular note", isPinned: false },
+    ]);
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    const region = await screen.findByRole("region", { name: "Pinned notes" });
+    expect(within(region).getAllByRole("listitem")).toHaveLength(2);
+    expect(within(region).getByRole("list")).toHaveClass("sm:grid-cols-2");
+    expect(screen.getByRole("button", { name: "Pin note" })).not.toBeDisabled();
+  });
+
+  it("caps pinned notes at three with a hint and disabled pin buttons", async () => {
+    vi.mocked(plantsApi.notes).mockResolvedValue([
+      { id: 8, createdAt: "2026-03-01T10:00:00Z", text: "Pinned one", isPinned: true },
+      { id: 7, createdAt: "2026-03-01T09:00:00Z", text: "Pinned two", isPinned: true },
+      { id: 6, createdAt: "2026-03-01T08:00:00Z", text: "Pinned three", isPinned: true },
+      { id: 9, createdAt: "2026-03-02T10:00:00Z", text: "Regular note", isPinned: false },
+    ]);
+
+    renderWithProviders(<PlantDetailPage />, { path: "/plants/:id", route: "/plants/1" });
+
+    const region = await screen.findByRole("region", { name: "Pinned notes" });
+    expect(within(region).getAllByRole("listitem")).toHaveLength(3);
+    expect(within(region).getByRole("list")).toHaveClass("sm:grid-cols-2");
+    expect(within(region).getByRole("list")).toHaveClass("lg:grid-cols-3");
+    expect(screen.getByRole("button", { name: "Pin note" })).toBeDisabled();
+    expect(screen.getByText("You can pin up to 3 notes.")).toBeInTheDocument();
   });
 
   it("logs a one-tap health checkup with an optional note", async () => {

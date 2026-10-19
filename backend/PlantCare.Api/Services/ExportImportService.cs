@@ -102,6 +102,7 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
                 {
                     CreatedAt = n.CreatedAt,
                     Text = n.Text,
+                    Pinned = n.IsPinned,
                 })],
                 Journal = [.. journal.Where(j => j.PlantId == p.Id).OrderBy(j => j.EntryDate)
                     .Select(j => new ExportJournalEntryDto
@@ -243,7 +244,13 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
 
             foreach (var note in plant.Notes)
             {
-                db.PlantNotes.Add(new PlantNote { Plant = entity, CreatedAt = note.CreatedAt, Text = note.Text });
+                db.PlantNotes.Add(new PlantNote
+                {
+                    Plant = entity,
+                    CreatedAt = note.CreatedAt,
+                    Text = note.Text,
+                    IsPinned = note.Pinned,
+                });
             }
 
             foreach (var entry in plant.Journal)
