@@ -60,10 +60,11 @@ import {
 } from "@/hooks/usePlants";
 import { useWaterNow } from "@/hooks/useDevices";
 import type { WaterDetails, WateringMethod } from "@/api/types";
-import { touchButton, touchField } from "@/lib/ui";
+import { touchButton, touchField, touchTextarea } from "@/lib/ui";
 import { formatDate, formatInstant, parseInstant } from "@/lib/dates";
 
 const PINNED_NOTES_LIMIT = 3;
+const NOTE_MAX_LENGTH = 2000;
 
 export function PlantDetailPage() {
   const { t, i18n } = useTranslation();
@@ -89,7 +90,6 @@ export function PlantDetailPage() {
   const [soilWetDays, setSoilWetDays] = useState("3");
   const [noteText, setNoteText] = useState("");
   const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
-  const [deletingNoteId, setDeletingNoteId] = useState<number | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [note, setNote] = useState("");
@@ -155,9 +155,9 @@ export function PlantDetailPage() {
     updateNote.mutate({ noteId, text }, { onSuccess: () => setEditingNoteId(null) });
   }
 
-  function confirmDeleteNote() {
-    if (deletingNoteId == null) return;
-    deleteNote.mutate(deletingNoteId);
+  function submitNote() {
+    if (noteText.trim() === "" || addNote.isPending) return;
+    addNote.mutate(noteText.trim(), { onSuccess: () => setNoteText("") });
   }
 
   return (
@@ -474,23 +474,36 @@ export function PlantDetailPage() {
           <CardTitle>{t("detail.notes")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex flex-wrap gap-2">
-            <Input
+          <div className="space-y-2">
+            <textarea
               aria-label={t("detail.newNoteAria")}
               value={noteText}
               onChange={(event) => setNoteText(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+                  event.preventDefault();
+                  submitNote();
+                }
+              }}
               placeholder={t("detail.noteListPlaceholder")}
-              className={`min-w-48 flex-1 ${touchField}`}
+              maxLength={NOTE_MAX_LENGTH}
+              rows={2}
+              className={touchTextarea}
             />
-            <Button
-              disabled={noteText.trim() === "" || addNote.isPending}
-              onClick={() =>
-                addNote.mutate(noteText.trim(), { onSuccess: () => setNoteText("") })
-              }
-              className={touchButton}
-            >
-              {addNote.isPending ? t("common.adding") : t("detail.addNote")}
-            </Button>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-xs text-muted-foreground">
+                {noteText.length > 0
+                  ? t("detail.noteLength", { used: noteText.length, max: NOTE_MAX_LENGTH })
+                  : ""}
+              </p>
+              <Button
+                disabled={noteText.trim() === "" || addNote.isPending}
+                onClick={submitNote}
+                className={touchButton}
+              >
+                {addNote.isPending ? t("common.adding") : t("detail.addNote")}
+              </Button>
+            </div>
           </div>
           {!notes || notes.length === 0 ? (
             <p className="text-sm text-muted-foreground">{t("detail.noNotes")}</p>
@@ -509,13 +522,13 @@ export function PlantDetailPage() {
                     />
                   ) : (
                     <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p>{note.text}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="whitespace-pre-wrap break-words">{note.text}</p>
                         <p className="mt-1 text-xs text-muted-foreground">
                           {formatInstant(note.createdAt)}
                         </p>
                       </div>
-                      <div className="flex items-center gap-1">
+                      <div className="flex shrink-0 items-center gap-1">
                         <Button
                           type="button"
                           variant="ghost"
@@ -540,7 +553,7 @@ export function PlantDetailPage() {
                           variant="ghost"
                           size="icon"
                           aria-label={t("detail.deleteNote")}
-                          onClick={() => setDeletingNoteId(note.id)}
+                          onClick={() => deleteNote.mutate(note)}
                         >
                           <Trash2 className="h-4 w-4" aria-hidden="true" />
                         </Button>
@@ -558,29 +571,6 @@ export function PlantDetailPage() {
           ) : null}
         </CardContent>
       </Card>
-
-      <AlertDialog
-        open={deletingNoteId !== null}
-        onOpenChange={(open) => {
-          if (!open) setDeletingNoteId(null);
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("detail.deleteNoteTitle")}</AlertDialogTitle>
-            <AlertDialogDescription>{t("detail.deleteNoteDescription")}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={confirmDeleteNote}
-            >
-              {t("common.delete")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

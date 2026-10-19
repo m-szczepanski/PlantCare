@@ -4,8 +4,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { toast } from "sonner";
 import { plantsApi } from "@/api/client";
-import type { Plant } from "@/api/types";
-import { plantKeys, useCreatePlant, usePlants, useWaterPlant } from "@/hooks/usePlants";
+import type { Plant, PlantNote } from "@/api/types";
+import { plantKeys, useCreatePlant, useDeletePlantNote, usePlants, useWaterPlant } from "@/hooks/usePlants";
 
 vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn() },
@@ -21,6 +21,8 @@ vi.mock("@/api/client", () => ({
     water: vi.fn(),
     undoWater: vi.fn(),
     wateringLogs: vi.fn(),
+    deleteNote: vi.fn(),
+    restoreNote: vi.fn(),
   },
   plantProfilesApi: { list: vi.fn().mockResolvedValue([]) },
   ApiError: class ApiError extends Error {},
@@ -83,6 +85,8 @@ describe("usePlants hooks", () => {
     vi.mocked(plantsApi.create).mockReset();
     vi.mocked(plantsApi.water).mockReset();
     vi.mocked(plantsApi.undoWater).mockReset();
+    vi.mocked(plantsApi.deleteNote).mockReset();
+    vi.mocked(plantsApi.restoreNote).mockReset();
     vi.mocked(toast.success).mockReset();
     vi.mocked(toast.error).mockReset();
   });
@@ -179,6 +183,46 @@ describe("usePlants hooks", () => {
     await waitFor(() => expect(plantsApi.undoWater).toHaveBeenCalledWith(1));
     await waitFor(() =>
       expect(toast.success).toHaveBeenCalledWith("Watering undone", { description: "Pothos restored." }),
+    );
+  });
+
+  it("useDeletePlantNote removes the note optimistically and restores it from the toast", async () => {
+    const { wrapper: w, queryClient } = createWrapper();
+    const note: PlantNote = {
+      id: 9,
+      createdAt: "2026-03-02T10:00:00Z",
+      text: "New leaf unfurling",
+      isPinned: false,
+    };
+    queryClient.setQueryData(plantKeys.notes(1), [note]);
+
+    let resolveDelete: () => void = () => {};
+    vi.mocked(plantsApi.deleteNote).mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveDelete = resolve;
+      }),
+    );
+
+    const { result } = renderHook(() => useDeletePlantNote(1), { wrapper: w });
+    act(() => result.current.mutate(note));
+
+    await waitFor(() => expect(queryClient.getQueryData(plantKeys.notes(1))).toEqual([]));
+
+    act(() => resolveDelete());
+    await waitFor(() => expect(toast.success).toHaveBeenCalled());
+    const options = vi.mocked(toast.success).mock.calls.at(-1)?.[1] as
+      | { action?: { label: string; onClick: () => void } }
+      | undefined;
+    expect(options?.action?.label).toBe("Undo");
+
+    vi.mocked(plantsApi.restoreNote).mockResolvedValue(note);
+    act(() => options?.action?.onClick());
+    await waitFor(() =>
+      expect(plantsApi.restoreNote).toHaveBeenCalledWith(1, {
+        createdAt: "2026-03-02T10:00:00Z",
+        text: "New leaf unfurling",
+        pinned: false,
+      }),
     );
   });
 });

@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tansta
 import { toast } from "sonner";
 import { plantsApi } from "@/api/client";
 import i18n from "@/i18n";
-import type { Dashboard, HealthStatus, Plant, PlantInput, WaterDetails } from "@/api/types";
+import type { Dashboard, HealthStatus, Plant, PlantInput, PlantNote, WaterDetails } from "@/api/types";
 import { toastError } from "@/lib/toast";
 import { dashboardKeys } from "@/hooks/useDashboard";
 import { dateKey } from "@/lib/dates";
@@ -437,13 +437,45 @@ export function useUpdatePlantNote(id: number) {
 export function useDeletePlantNote(id: number) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (noteId: number) => plantsApi.deleteNote(id, noteId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: plantKeys.notes(id) });
-      toast.success(i18n.t("toasts.noteDeleted"));
+    mutationFn: (note: PlantNote) => plantsApi.deleteNote(id, note.id),
+    onMutate: async (note) => {
+      await queryClient.cancelQueries({ queryKey: plantKeys.notes(id) });
+      const previous = queryClient.getQueryData<PlantNote[]>(plantKeys.notes(id));
+      if (previous) {
+        queryClient.setQueryData(
+          plantKeys.notes(id),
+          previous.filter((entry) => entry.id !== note.id),
+        );
+      }
+      return { previous };
     },
-    onError: (error) => toastError(i18n.t("toasts.noteDeleteFailed"), error),
+    onError: (error, _note, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(plantKeys.notes(id), context.previous);
+      }
+      toastError(i18n.t("toasts.noteDeleteFailed"), error);
+    },
+    onSuccess: (_deleted, note) => {
+      queryClient.invalidateQueries({ queryKey: plantKeys.notes(id) });
+      toast.success(i18n.t("toasts.noteDeleted"), {
+        action: { label: i18n.t("common.undo"), onClick: () => void restoreNote(id, queryClient, note) },
+      });
+    },
   });
+}
+
+async function restoreNote(id: number, queryClient: QueryClient, note: PlantNote) {
+  try {
+    await plantsApi.restoreNote(id, {
+      createdAt: note.createdAt,
+      text: note.text,
+      pinned: note.isPinned,
+    });
+    queryClient.invalidateQueries({ queryKey: plantKeys.notes(id) });
+    toast.success(i18n.t("toasts.noteRestored"));
+  } catch (error) {
+    toastError(i18n.t("toasts.noteRestoreFailed"), error);
+  }
 }
 
 export function useSetNotePinned(id: number) {

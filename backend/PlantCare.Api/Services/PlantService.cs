@@ -88,6 +88,13 @@ public interface IPlantService
 
     Task<bool> DeleteNoteAsync(int id, int noteId, CancellationToken cancellationToken = default);
 
+    Task<PlantNoteResponseDto?> RestoreNoteAsync(
+        int id,
+        DateTime? createdAt,
+        string text,
+        bool pinned,
+        CancellationToken cancellationToken = default);
+
     Task<PlantNotePinResult> SetNotePinnedAsync(
         int id,
         int noteId,
@@ -610,6 +617,39 @@ public sealed class PlantService(
         db.PlantNotes.Remove(note);
         await db.SaveChangesAsync(cancellationToken);
         return true;
+    }
+
+    public async Task<PlantNoteResponseDto?> RestoreNoteAsync(
+        int id,
+        DateTime? createdAt,
+        string text,
+        bool pinned,
+        CancellationToken cancellationToken = default)
+    {
+        if (!await db.Plants.AnyAsync(p => p.Id == id, cancellationToken))
+        {
+            return null;
+        }
+
+        var keepPinned = pinned;
+        if (keepPinned)
+        {
+            var pinnedCount = await db.PlantNotes
+                .CountAsync(n => n.PlantId == id && n.IsPinned, cancellationToken);
+            keepPinned = pinnedCount < MaxPinnedNotes;
+        }
+
+        var note = new PlantNote
+        {
+            PlantId = id,
+            CreatedAt = createdAt ?? DateTime.UtcNow,
+            Text = text.Trim(),
+            IsPinned = keepPinned,
+        };
+        db.PlantNotes.Add(note);
+        await db.SaveChangesAsync(cancellationToken);
+
+        return ToNoteResponse(note);
     }
 
     public async Task<PlantNotePinResult> SetNotePinnedAsync(

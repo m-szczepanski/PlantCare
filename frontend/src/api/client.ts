@@ -132,6 +132,8 @@ export const plantsApi = {
     request<PlantNote>(`/plants/${id}/notes/${noteId}`, { method: "PUT", body: JSON.stringify({ text }) }),
   deleteNote: (id: number, noteId: number) =>
     request<void>(`/plants/${id}/notes/${noteId}`, { method: "DELETE" }),
+  restoreNote: (id: number, note: { createdAt: string; text: string; pinned: boolean }) =>
+    request<PlantNote>(`/plants/${id}/notes/restore`, { method: "POST", body: JSON.stringify(note) }),
   setNotePinned: (id: number, noteId: number, pinned: boolean) =>
     request<PlantNote>(`/plants/${id}/notes/${noteId}/pin`, {
       method: "PUT",

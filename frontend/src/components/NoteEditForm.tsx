@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { touchTextarea } from "@/lib/ui";
+
+const NOTE_MAX_LENGTH = 2000;
 
 interface NoteEditFormProps {
   text: string;
@@ -21,9 +24,9 @@ export function NoteEditForm({ text, saving, onSave, onCancel }: NoteEditFormPro
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
         rows={3}
-        maxLength={2000}
+        maxLength={NOTE_MAX_LENGTH}
         autoFocus
-        className="w-full resize-y rounded-md border border-input bg-transparent p-3 text-base sm:text-sm"
+        className={touchTextarea}
       />
       <div className="flex flex-wrap gap-2">
         <Button
