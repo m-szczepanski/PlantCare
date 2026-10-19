@@ -129,6 +129,37 @@ public class PlantNotesApiTests : IDisposable
     }
 
     [Fact]
+    public async Task PinNote_BeyondThree_Returns400_AndKeepsThree()
+    {
+        var id = await CreatePlant();
+        var noteIds = new List<int>();
+        for (var i = 0; i < 4; i++)
+        {
+            var response = await _client.PostAsJsonAsync(
+                $"/api/plants/{id}/notes", new { text = $"Note {i}" }, Options);
+            noteIds.Add((await response.Content.ReadFromJsonAsync<PlantNoteResponseDto>(Options))!.Id);
+        }
+
+        foreach (var noteId in noteIds.Take(3))
+        {
+            var pinned = await _client.PutAsJsonAsync(
+                $"/api/plants/{id}/notes/{noteId}/pin", new { pinned = true }, Options);
+            Assert.Equal(HttpStatusCode.OK, pinned.StatusCode);
+        }
+
+        var fourth = await _client.PutAsJsonAsync(
+            $"/api/plants/{id}/notes/{noteIds[3]}/pin", new { pinned = true }, Options);
+        Assert.Equal(HttpStatusCode.BadRequest, fourth.StatusCode);
+
+        var again = await _client.PutAsJsonAsync(
+            $"/api/plants/{id}/notes/{noteIds[0]}/pin", new { pinned = true }, Options);
+        Assert.Equal(HttpStatusCode.OK, again.StatusCode);
+
+        var notes = await _client.GetFromJsonAsync<List<PlantNoteResponseDto>>($"/api/plants/{id}/notes", Options);
+        Assert.Equal(3, notes!.Count(n => n.IsPinned));
+    }
+
+    [Fact]
     public async Task Notes_UnknownPlant_Returns404()
     {
         var list = await _client.GetAsync("/api/plants/424242/notes");
