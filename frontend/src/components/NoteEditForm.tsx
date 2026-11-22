@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { touchTextarea } from "@/lib/ui";
+import { touchButton, touchTextarea } from "@/lib/ui";
 
 const NOTE_MAX_LENGTH = 2000;
 
@@ -32,12 +32,13 @@ export function NoteEditForm({ text, saving, onSave, onCancel }: NoteEditFormPro
         <Button
           type="button"
           size="sm"
+          className={touchButton}
           disabled={saving || trimmed === ""}
           onClick={() => onSave(trimmed)}
         >
           {saving ? t("common.saving") : t("common.save")}
         </Button>
-        <Button type="button" size="sm" variant="ghost" disabled={saving} onClick={onCancel}>
+        <Button type="button" size="sm" variant="ghost" className={touchButton} disabled={saving} onClick={onCancel}>
           {t("common.cancel")}
         </Button>
       </div>

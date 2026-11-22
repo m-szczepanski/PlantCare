@@ -103,6 +103,7 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 ### App Shell
 
 - `src/components/AppShell.tsx` is the single layout wrapper (used by `App.tsx`): a persistent shadcn sidebar with the brand and the main nav (Dashboard / Calendar / Insights / Rooms / Profiles / Status / Plants / Add plant), an active-item state driven by the route, a sticky `h-16` top bar on mobile (sidebar trigger + brand), and the theme + language toggles. The page column is a generous `max-w-7xl` (`px-4 sm:px-6 lg:px-8`) so the tile grids breathe on wide screens, and page titles are `text-3xl`. `/wall` deliberately renders outside the shell.
+- The sidebar's links (nav items + brand) call `useSidebar().setOpenMobile(false)` on click (`feature/sidebar-behaviour-mobile`): on phones the off-canvas sheet navigates **and** dismisses in one tap instead of covering the page; desktop is unaffected. The wiring lives in `AppShell`'s inner provider child (`ui/sidebar.tsx` stays generated and untouched).
 - The responsive "is mobile" state comes from `src/hooks/use-mobile.tsx` (shadcn's `useIsMobile`).
 
 ### First-Run Setup
@@ -131,7 +132,8 @@ cva / lucide dependencies. See `components.json` for the active preset (`new-yor
 ### Mobile
 
 - `src/lib/ui.ts` holds the shared responsive classes: `touchButton` (≥44px targets below `sm`), `touchField` (h-11 + `text-base` on phones to stop iOS focus-zoom, compact from `sm`), `touchIcon`.
-- Audit (phone width ~360–390px): dashboard/list/detail cards are single-column grids; headers wrap (`flex-wrap`); action rows wrap; long plant names break (`break-words`); sidebar collapses to the off-canvas sheet with a 44px trigger; theme toggle stays 44px on mobile. Generated shadcn files are untouched — classes are passed in at usage sites.
+- Audit (phone width ~360–390px): dashboard/list/detail cards are single-column grids; headers wrap (`flex-wrap`); action rows wrap; long plant names break (`break-words`); sidebar collapses to the off-canvas sheet with a 44px trigger; theme toggle stays 44px on mobile. Tapping any sidebar link (nav item or brand) navigates and auto-closes the sheet (`feature/sidebar-behaviour-mobile`). Generated shadcn files are untouched — classes are passed in at usage sites.
+- Mobile UX round on the same branch (`feature/sidebar-behaviour-mobile`): the **calendar** drops the 7-column grid below `sm` — days stack as full-width rows with the weekday inline, the weekday header hides, month-view empty cells disappear, and the month toolbar wraps with 44px chevrons. **`MonthlyBarChart`** (Insights + watering history) scrolls horizontally instead of squishing 12 labels — the row sits in an `overflow-x-auto` wrapper and every column carries `min-w-10`. The five bare native `<select>`s (dashboard "Snooze all", detail snooze + soil-wet, journal compare) use `touchField` (44px + `text-base` — no iOS focus zoom). Every `size="sm"` action button in a core tap flow gained `touchButton` (care-task mark-done/remove, dashboard grouping toggles + "Water all", detail snooze/soil-wet buttons, room/device card footers, profile edit, journal delete, note-editor save/cancel), and the dashboard toolbar wraps.
 
 ### Server State & Data Fetching
 

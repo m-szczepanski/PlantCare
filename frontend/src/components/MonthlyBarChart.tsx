@@ -22,23 +22,25 @@ export function MonthlyBarChart({
 
   return (
     <figure className="space-y-2" aria-label={ariaLabel}>
-      <div className={cn("flex items-end gap-2", className)} aria-hidden="true">
-        {data.map((datum) => (
-          <div key={datum.key} className="flex flex-1 flex-col items-center justify-end gap-1">
-            <span className="text-xs font-medium text-muted-foreground">{datum.count}</span>
-            <div
-              className={cn(
-                "w-full rounded",
-                datum.count === 0 ? "h-px bg-border" : "bg-chart-1 transition-all",
-              )}
-              style={{
-                height: datum.count === 0 ? 1 : `${Math.max(8, (datum.count / max) * 100)}%`,
-              }}
-              title={t("chart.monthCount", { month: datum.label, count: datum.count })}
-            />
-            <span className="text-xs text-muted-foreground">{datum.shortLabel}</span>
-          </div>
-        ))}
+      <div className="overflow-x-auto">
+        <div className={cn("flex items-end gap-2", className)} aria-hidden="true">
+          {data.map((datum) => (
+            <div key={datum.key} className="flex min-w-10 flex-1 flex-col items-center justify-end gap-1">
+              <span className="text-xs font-medium text-muted-foreground">{datum.count}</span>
+              <div
+                className={cn(
+                  "w-full rounded",
+                  datum.count === 0 ? "h-px bg-border" : "bg-chart-1 transition-all",
+                )}
+                style={{
+                  height: datum.count === 0 ? 1 : `${Math.max(8, (datum.count / max) * 100)}%`,
+                }}
+                title={t("chart.monthCount", { month: datum.label, count: datum.count })}
+              />
+              <span className="text-xs text-muted-foreground">{datum.shortLabel}</span>
+            </div>
+          ))}
+        </div>
       </div>
       <figcaption className="sr-only">
         <table>

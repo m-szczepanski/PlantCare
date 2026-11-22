@@ -99,4 +99,25 @@ describe("CalendarPage", () => {
     const nav = await screen.findByRole("navigation", { name: "Breadcrumb" });
     expect(nav).toBeInTheDocument();
   });
+
+  it("stacks days into a single-column list below the sm breakpoint", async () => {
+    renderWithProviders(<CalendarPage />, { route: "/calendar" });
+
+    const cell = await screen.findByLabelText(/Monstera Mike/);
+    const grid = cell.parentElement!;
+    expect(grid).toHaveClass("grid", "sm:grid-cols-7");
+    expect(grid).not.toHaveClass("grid-cols-7");
+    expect(cell).toHaveClass("sm:min-h-24");
+    expect(cell).not.toHaveClass("min-h-24");
+  });
+
+  it("wraps the month toolbar and enlarges the chevrons on phones", async () => {
+    renderWithProviders(<CalendarPage />, { route: "/calendar" });
+
+    fireEvent.click(await screen.findByRole("button", { name: "Month" }));
+
+    const next = screen.getByRole("button", { name: "Next month" });
+    expect(next).toHaveClass("h-11", "sm:h-9");
+    expect(next.parentElement).toHaveClass("flex-wrap");
+  });
 });

@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PlantCardSkeletonGrid } from "@/components/PlantCardSkeleton";
 import { usePlants } from "@/hooks/usePlants";
 import { dateKey, projectOccurrences } from "@/lib/scheduleProjection";
+import { touchIcon } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
 const WEEKDAY_BASE = new Date(2024, 0, 1);
@@ -49,15 +50,20 @@ function DayCell({
           : t("calendar.emptyDay")
       }
       className={cn(
-        "min-h-24 rounded-lg border p-2 text-sm",
-        !date && "border-dashed opacity-40",
+        "rounded-lg border p-2 text-sm sm:min-h-24",
+        !date && "hidden border-dashed opacity-40 sm:block",
         date && muted && "opacity-50",
         today && "ring-2 ring-primary",
       )}
     >
       {date ? (
         <>
-          <div className="font-medium">{date.getDate()}</div>
+          <div className="font-medium">
+            <span className="mr-1.5 text-muted-foreground sm:hidden">
+              {date.toLocaleDateString(i18n.language, { weekday: "short" })}
+            </span>
+            {date.getDate()}
+          </div>
           <ul className="mt-1 space-y-1">
             {names.slice(0, 3).map((name) => (
               <li key={name} className="truncate rounded bg-primary/10 px-1.5 py-0.5 text-xs text-primary">
@@ -134,12 +140,13 @@ export function CalendarPage() {
       <Breadcrumbs items={[{ label: t("common.home"), to: "/" }, { label: t("calendar.title") }]} />
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-3xl font-bold">{t("calendar.title")}</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {view === "month" ? (
             <>
               <Button
                 variant="outline"
                 size="icon"
+                className={touchIcon}
                 aria-label={t("calendar.previousMonth")}
                 onClick={() => setAnchor(new Date(anchor.getFullYear(), anchor.getMonth() - 1, 1))}
               >
@@ -149,6 +156,7 @@ export function CalendarPage() {
               <Button
                 variant="outline"
                 size="icon"
+                className={touchIcon}
                 aria-label={t("calendar.nextMonth")}
                 onClick={() => setAnchor(new Date(anchor.getFullYear(), anchor.getMonth() + 1, 1))}
               >
@@ -181,12 +189,12 @@ export function CalendarPage() {
 
       <Card>
         <CardContent className="p-4">
-          <div className="mb-2 grid grid-cols-7 gap-2 text-center text-xs font-medium text-muted-foreground">
+          <div className="mb-2 hidden grid-cols-7 gap-2 text-center text-xs font-medium text-muted-foreground sm:grid">
             {weekdayLabels(i18n.language).map((day, index) => (
               <div key={index}>{day}</div>
             ))}
           </div>
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid gap-2 sm:grid-cols-7">
             {cells.map((cell, index) => (
               <DayCell
                 key={cell ? dateKey(cell) : `empty-${index}`}

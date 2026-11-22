@@ -14,7 +14,7 @@ import { useStatus } from "@/hooks/useStatus";
 import { useBulkWater, useSnoozeAllPlants, useWaterPlant } from "@/hooks/usePlants";
 import { dashboardSections, type DashboardSection } from "@/lib/dashboard";
 import type { Dashboard } from "@/api/types";
-import { touchButton } from "@/lib/ui";
+import { touchButton, touchField } from "@/lib/ui";
 
 export function DashboardPage() {
   const { t, i18n } = useTranslation();
@@ -61,12 +61,12 @@ export function DashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-3xl font-bold">{t("dashboard.title")}</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <select
             aria-label={t("dashboard.snoozeDaysAria")}
             value={vacationDays}
             onChange={(event) => setVacationDays(event.target.value)}
-            className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
+            className={`${touchField} rounded-md border border-input bg-transparent px-2`}
           >
             {[3, 7, 14, 30, 60].map((days) => (
               <option key={days} value={String(days)}>{t("common.days", { count: days })}</option>
@@ -92,10 +92,11 @@ export function DashboardPage() {
         plants={[...dashboard.overdue, ...dashboard.dueToday, ...dashboard.upcoming].filter((p) => p.checkupDue)}
       />
 
-      <div className="flex gap-2" role="group" aria-label={t("dashboard.groupingAria")}>
+      <div className="flex flex-wrap gap-2" role="group" aria-label={t("dashboard.groupingAria")}>
         <Button
           size="sm"
           variant={group === "room" ? "outline" : "default"}
+          className={touchButton}
           aria-pressed={group !== "room"}
           onClick={() => setParams(new URLSearchParams(), { replace: true })}
         >
@@ -104,6 +105,7 @@ export function DashboardPage() {
         <Button
           size="sm"
           variant={group === "room" ? "default" : "outline"}
+          className={touchButton}
           aria-pressed={group === "room"}
           onClick={() => setParams(new URLSearchParams({ group: "room" }), { replace: true })}
         >
@@ -122,6 +124,7 @@ export function DashboardPage() {
                 <Button
                   size="sm"
                   variant="outline"
+                  className={touchButton}
                   disabled={bulkWater.isPending}
                   onClick={() => bulkWater.mutate(plants.map((p) => p.id))}
                 >
