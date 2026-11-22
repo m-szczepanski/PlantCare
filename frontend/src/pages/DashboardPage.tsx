@@ -14,7 +14,7 @@ import { useStatus } from "@/hooks/useStatus";
 import { useBulkWater, useSnoozeAllPlants, useWaterPlant } from "@/hooks/usePlants";
 import { dashboardSections, type DashboardSection } from "@/lib/dashboard";
 import type { Dashboard } from "@/api/types";
-import { touchButton } from "@/lib/ui";
+import { touchButton, touchField } from "@/lib/ui";
 
 export function DashboardPage() {
   const { t, i18n } = useTranslation();
@@ -61,12 +61,12 @@ export function DashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-3xl font-bold">{t("dashboard.title")}</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <select
             aria-label={t("dashboard.snoozeDaysAria")}
             value={vacationDays}
             onChange={(event) => setVacationDays(event.target.value)}
-            className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
+            className={`${touchField} rounded-md border border-input bg-transparent px-2`}
           >
             {[3, 7, 14, 30, 60].map((days) => (
               <option key={days} value={String(days)}>{t("common.days", { count: days })}</option>

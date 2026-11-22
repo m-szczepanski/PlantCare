@@ -147,7 +147,7 @@ export function JournalCard({ plantId, nickName }: { plantId: number; nickName: 
               aria-label={t("journal.beforeEntry")}
               value={String(from?.id ?? "")}
               onChange={(e) => setFromId(Number(e.target.value))}
-              className="h-9 rounded-md border border-input bg-transparent px-2"
+              className={`${touchField} rounded-md border border-input bg-transparent px-2`}
             >
               {sortedForSelect.map((entry) => (
                 <option key={entry.id} value={String(entry.id)}>
@@ -160,7 +160,7 @@ export function JournalCard({ plantId, nickName }: { plantId: number; nickName: 
               aria-label={t("journal.afterEntry")}
               value={String(to?.id ?? "")}
               onChange={(e) => setToId(Number(e.target.value))}
-              className="h-9 rounded-md border border-input bg-transparent px-2"
+              className={`${touchField} rounded-md border border-input bg-transparent px-2`}
             >
               {sortedForSelect.map((entry) => (
                 <option key={entry.id} value={String(entry.id)}>

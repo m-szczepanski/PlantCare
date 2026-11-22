@@ -285,7 +285,7 @@ export function PlantDetailPage() {
                     aria-label={t("detail.snoozeDaysAria")}
                     value={snoozeDays}
                     onChange={(event) => setSnoozeDays(event.target.value)}
-                    className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
+                    className={`${touchField} rounded-md border border-input bg-transparent px-2`}
                   >
                     {[3, 7, 14, 30].map((days) => (
                       <option key={days} value={String(days)}>{t("common.days", { count: days })}</option>
@@ -327,7 +327,7 @@ export function PlantDetailPage() {
                     aria-label={t("detail.soilWetDaysAria")}
                     value={soilWetDays}
                     onChange={(event) => setSoilWetDays(event.target.value)}
-                    className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
+                    className={`${touchField} rounded-md border border-input bg-transparent px-2`}
                   >
                     {[2, 3, 5, 7].map((days) => (
                       <option key={days} value={String(days)}>{t("common.days", { count: days })}</option>
