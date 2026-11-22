@@ -22,6 +22,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 interface NavItem {
@@ -48,11 +49,26 @@ function isNavItemActive({ to, end }: NavItem, pathname: string): boolean {
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
+  return (
+    <SidebarProvider>
+      <ShellContent>{children}</ShellContent>
+    </SidebarProvider>
+  );
+}
+
+function ShellContent({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const devicesEnabled = useDevicesEnabled();
+  const { isMobile, setOpenMobile } = useSidebar();
   const navItems = devicesEnabled ? NAV_ITEMS : NAV_ITEMS.filter((item) => item.to !== "/devices");
+
+  // On phones the sidebar renders as an off-canvas sheet; tapping a link should
+  // navigate and dismiss it in one action instead of covering the page.
+  const closeSidebarOnMobile = () => {
+    if (isMobile) setOpenMobile(false);
+  };
 
   useEffect(() => {
     const refetch = () => void queryClient.invalidateQueries();
@@ -63,7 +79,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [queryClient]);
 
   return (
-    <SidebarProvider>
+    <>
       <KeyboardShortcuts />
       <ScrollRestoration />
       <Sidebar collapsible="offcanvas">
@@ -71,7 +87,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" asChild>
-                <Link to="/">
+                <Link to="/" onClick={closeSidebarOnMobile}>
                   <Leaf className="text-primary" />
                   <span className="font-bold">PlantCare</span>
                 </Link>
@@ -89,7 +105,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     asChild
                     isActive={isNavItemActive(item, pathname)}
                   >
-                    <NavLink to={item.to} end={item.end}>
+                    <NavLink to={item.to} end={item.end} onClick={closeSidebarOnMobile}>
                       <item.icon />
                       <span>{t(item.labelKey)}</span>
                     </NavLink>
@@ -116,6 +132,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           {children}
         </main>
       </SidebarInset>
-    </SidebarProvider>
+    </>
   );
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { screen } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { AppShell } from "@/components/AppShell";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { renderWithProviders } from "@/test/render";
@@ -13,6 +13,10 @@ function renderShell(route: string) {
     </ThemeProvider>,
     { route },
   );
+}
+
+function setViewportWidth(width: number) {
+  Object.defineProperty(window, "innerWidth", { configurable: true, writable: true, value: width });
 }
 
 describe("AppShell", () => {
@@ -49,5 +53,36 @@ describe("AppShell", () => {
     expect(screen.getByRole("link", { name: "Add plant" })).not.toHaveAttribute(
       "aria-current",
     );
+  });
+
+  it("closes the mobile sidebar sheet when a nav item is tapped", async () => {
+    setViewportWidth(375);
+    try {
+      renderShell("/");
+      fireEvent.click(screen.getByRole("button", { name: "Toggle Sidebar" }));
+
+      const plants = await screen.findByRole("link", { name: "Plants" });
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+      fireEvent.click(plants);
+      await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    } finally {
+      setViewportWidth(1024);
+    }
+  });
+
+  it("closes the mobile sidebar sheet when the brand link is tapped", async () => {
+    setViewportWidth(375);
+    try {
+      renderShell("/plants");
+      fireEvent.click(screen.getByRole("button", { name: "Toggle Sidebar" }));
+
+      const dialog = await screen.findByRole("dialog");
+      fireEvent.click(within(dialog).getByRole("link", { name: /PlantCare/ }));
+
+      await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    } finally {
+      setViewportWidth(1024);
+    }
   });
 });
