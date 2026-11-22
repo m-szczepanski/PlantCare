@@ -130,6 +130,7 @@ export function JournalCard({ plantId, nickName }: { plantId: number; nickName: 
                 <Button
                   size="sm"
                   variant="ghost"
+                  className={touchButton}
                   disabled={remove.isPending}
                   onClick={() => remove.mutate(entry.id)}
                 >

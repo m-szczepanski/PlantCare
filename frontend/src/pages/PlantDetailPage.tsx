@@ -273,6 +273,7 @@ export function PlantDetailPage() {
                   <Button
                     size="sm"
                     variant="outline"
+                    className={touchButton}
                     disabled={unsnooze.isPending}
                     onClick={() => unsnooze.mutate()}
                   >
@@ -294,6 +295,7 @@ export function PlantDetailPage() {
                   <Button
                     size="sm"
                     variant="outline"
+                    className={touchButton}
                     disabled={snooze.isPending}
                     onClick={() => snooze.mutate(Number(snoozeDays))}
                   >
@@ -315,6 +317,7 @@ export function PlantDetailPage() {
                   <Button
                     size="sm"
                     variant="outline"
+                    className={touchButton}
                     disabled={clearSoilWet.isPending}
                     onClick={() => clearSoilWet.mutate()}
                   >
@@ -336,6 +339,7 @@ export function PlantDetailPage() {
                   <Button
                     size="sm"
                     variant="outline"
+                    className={touchButton}
                     disabled={setSoilWet.isPending}
                     onClick={() => setSoilWet.mutate(Number(soilWetDays))}
                   >

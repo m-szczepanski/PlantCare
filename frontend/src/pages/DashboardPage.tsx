@@ -92,10 +92,11 @@ export function DashboardPage() {
         plants={[...dashboard.overdue, ...dashboard.dueToday, ...dashboard.upcoming].filter((p) => p.checkupDue)}
       />
 
-      <div className="flex gap-2" role="group" aria-label={t("dashboard.groupingAria")}>
+      <div className="flex flex-wrap gap-2" role="group" aria-label={t("dashboard.groupingAria")}>
         <Button
           size="sm"
           variant={group === "room" ? "outline" : "default"}
+          className={touchButton}
           aria-pressed={group !== "room"}
           onClick={() => setParams(new URLSearchParams(), { replace: true })}
         >
@@ -104,6 +105,7 @@ export function DashboardPage() {
         <Button
           size="sm"
           variant={group === "room" ? "default" : "outline"}
+          className={touchButton}
           aria-pressed={group === "room"}
           onClick={() => setParams(new URLSearchParams({ group: "room" }), { replace: true })}
         >
@@ -122,6 +124,7 @@ export function DashboardPage() {
                 <Button
                   size="sm"
                   variant="outline"
+                  className={touchButton}
                   disabled={bulkWater.isPending}
                   onClick={() => bulkWater.mutate(plants.map((p) => p.id))}
                 >

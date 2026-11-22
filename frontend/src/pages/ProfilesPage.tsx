@@ -267,7 +267,7 @@ export function ProfilesPage() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="ml-auto"
+                    className={`ml-auto ${touchButton}`}
                     onClick={() => startEdit(profile)}
                   >
                     {t("common.edit")}

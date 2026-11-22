@@ -255,21 +255,21 @@ function DeviceCard({ device }: { device: Device }) {
         <div className={cn("flex flex-wrap gap-2", !editing && "mt-auto border-t pt-3")}>
           {editing ? (
             <>
-              <Button size="sm" disabled={update.isPending || name.trim() === ""} onClick={save}>
+              <Button size="sm" className={touchButton} disabled={update.isPending || name.trim() === ""} onClick={save}>
                 {update.isPending ? t("common.saving") : t("common.save")}
               </Button>
-              <Button size="sm" variant="ghost" disabled={update.isPending} onClick={() => { syncFromDevice(); setEditing(false); }}>
+              <Button size="sm" variant="ghost" className={touchButton} disabled={update.isPending} onClick={() => { syncFromDevice(); setEditing(false); }}>
                 {t("common.cancel")}
               </Button>
             </>
           ) : (
-            <Button size="sm" variant="outline" disabled={remove.isPending} onClick={() => { syncFromDevice(); setEditing(true); }}>
+            <Button size="sm" variant="outline" className={touchButton} disabled={remove.isPending} onClick={() => { syncFromDevice(); setEditing(true); }}>
               {t("common.edit")}
             </Button>
           )}
           <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
             <AlertDialogTrigger asChild>
-              <Button size="sm" variant="outline" disabled={remove.isPending}>
+              <Button size="sm" variant="outline" className={touchButton} disabled={remove.isPending}>
                 {t("common.delete")}
               </Button>
             </AlertDialogTrigger>

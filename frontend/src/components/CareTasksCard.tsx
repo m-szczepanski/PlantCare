@@ -54,6 +54,7 @@ export function CareTasksCard({ plantId }: { plantId: number }) {
               <Button
                 size="sm"
                 variant="outline"
+                className={touchButton}
                 disabled={markDone.isPending}
                 onClick={() => markDone.mutate(task.type)}
               >
@@ -63,6 +64,7 @@ export function CareTasksCard({ plantId }: { plantId: number }) {
                 <Button
                   size="sm"
                   variant="ghost"
+                  className={touchButton}
                   aria-label={t("careTask.removeAria", { task: labels[task.type] ?? t("common.unknown") })}
                   disabled={remove.isPending}
                   onClick={() => remove.mutate(task.id)}
