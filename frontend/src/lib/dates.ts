@@ -50,3 +50,12 @@ export function formatInstant(value: string | null | undefined, withTime = true)
   const locale = i18n.language;
   return withTime ? date.toLocaleString(locale) : date.toLocaleDateString(locale);
 }
+
+// The server's soil-wet clamp works on UTC calendar days: a deferral stays in
+// effect for its whole recheck day (due today on it, overdue from it after).
+// Mirrored here so the "recheck" note and the due badge never disagree.
+export function soilWetPending(value: string | null | undefined): boolean {
+  if (!value) return false;
+  const recheckUtcDay = parseInstant(value).toISOString().slice(0, 10);
+  return recheckUtcDay >= new Date().toISOString().slice(0, 10);
+}

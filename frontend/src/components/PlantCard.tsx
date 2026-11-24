@@ -7,7 +7,7 @@ import { PlantPhoto } from "@/components/PlantPhoto";
 import { RoomLightBadge } from "@/components/RoomLightBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { formatDate, formatInstant, parseInstant, wateredRelative } from "@/lib/dates";
+import { formatDate, formatInstant, soilWetPending, wateredRelative } from "@/lib/dates";
 import { touchButton } from "@/lib/ui";
 import type { Plant } from "@/api/types";
 
@@ -19,8 +19,7 @@ interface PlantCardProps {
 
 export function PlantCard({ plant, onWater, isWatering }: PlantCardProps) {
   const { t, i18n } = useTranslation();
-  const soilWetActive =
-    !!plant.soilWetUntil && parseInstant(plant.soilWetUntil).getTime() > Date.now();
+  const soilWetActive = soilWetPending(plant.soilWetUntil);
   return (
     <Card
       data-plant-card={plant.id}

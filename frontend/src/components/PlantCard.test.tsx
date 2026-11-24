@@ -111,6 +111,22 @@ describe("PlantCard", () => {
     expect(screen.getByText("Watered 3 days ago")).toBeInTheDocument();
   });
 
+  it("keeps the soil-wet note through the whole recheck day", () => {
+    // Midnight UTC on today's calendar day: the instant has passed, but the
+    // server's due-date clamp runs on UTC calendar days and the note must agree.
+    const todayUtcDay = `${new Date().toISOString().slice(0, 10)}T00:00:00.000Z`;
+    renderCard(<PlantCard plant={plant({ soilWetUntil: todayUtcDay })} />);
+
+    expect(screen.getByText(/Soil wet/)).toBeInTheDocument();
+  });
+
+  it("hides the soil-wet note once the recheck day has passed", () => {
+    const yesterdayUtcDay = `${new Date(Date.now() - 86_400_000).toISOString().slice(0, 10)}T00:00:00.000Z`;
+    renderCard(<PlantCard plant={plant({ soilWetUntil: yesterdayUtcDay })} />);
+
+    expect(screen.queryByText(/Soil wet/)).not.toBeInTheDocument();
+  });
+
   it("says not watered yet without a last watering", () => {
     renderCard(<PlantCard plant={plant({})} />);
 
