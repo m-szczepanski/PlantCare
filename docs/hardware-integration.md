@@ -174,9 +174,13 @@ when none). The device endpoints and the plant DTO fields are all behind
   device per day.
 - **Respect soil-wet deferrals:** `SoilWetUntil` ("soil still wet") is honoured
   because the due-plant collection reuses `WateringScheduleService`, and a wet
-  sensor reading maps onto the same deferral. Vacation snooze does **not** block
-  auto-watering — `SnoozedUntil` is a notification-only mute and watering while
-  away is the point; the moisture and per-day guards are the real safety net.
+  sensor reading maps onto the same deferral. The reading owns only deferrals it
+  set itself (`SoilWetSource = Sensor`): a wet reading refreshes those and a dry
+  one clears them, while a manual (`Manual`) deferral is never overwritten,
+  shortened or cleared by sensor traffic until it lapses. Vacation snooze does
+  **not** block auto-watering — `SnoozedUntil` is a notification-only mute and
+  watering while away is the point; the moisture and per-day guards are the real
+  safety net.
 - **Feedback timeout:** if a device does not report `watered: true` within
   `WATER_FEEDBACK_TIMEOUT_MS`, the run logs the failure, surfaces it in the
   digest, and does **not** auto-retry the same day.
@@ -191,7 +195,7 @@ when none). The device endpoints and the plant DTO fields are all behind
 | `MQTT_HOST` / `MQTT_PORT` | Broker address (container name in compose) | `mqtt` / `1883` |
 | `MQTT_USERNAME` / `MQTT_PASSWORD` | Optional broker auth (LAN default: none) | empty |
 | `MQTT_TOPIC_PREFIX` | Topic namespace | `plantcare` |
-| `MOISTURE_WET_THRESHOLD_PCT` | Reading at/above this defers the plant (soil-wet) | `60` |
+| `MOISTURE_WET_THRESHOLD_PCT` | Reading at/above this defers the plant (soil-wet); sensor traffic owns only sensor-set deferrals | `60` |
 | `SOIL_WET_DEFER_DAYS` | Days a wet reading pushes the due date out | `1` |
 | `DEVICE_WATERING_CRON` | Cron for the auto-water job | `0 8 * * *` |
 | `WATER_MAX_DURATION_MS` | Hard cap on command duration | `60000` |

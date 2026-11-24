@@ -154,6 +154,38 @@ public class DeviceWaterApiTests : IDisposable
         Assert.Null(dry!.SoilWetUntil);
     }
 
+    [Fact]
+    public async Task MoistureReading_Dry_KeepsManualDeferral()
+    {
+        var device = await CreateDevice(type: DeviceType.Sensor);
+        var plant = await CreatePlant(device.Id);
+
+        await _client.PostAsJsonAsync($"/api/plants/{plant.Id}/soil-wet", new { days = 5 }, Options);
+
+        await _bus.RaiseAsync($"plantcare/{device.Id}/state", "{\"moisturePct\":30}");
+
+        var fetched = await _client.GetFromJsonAsync<PlantResponseDto>($"/api/plants/{plant.Id}", Options);
+        Assert.NotNull(fetched!.SoilWetUntil);
+        Assert.True(fetched.SoilWetUntil > DateTime.UtcNow.AddDays(4));
+    }
+
+    [Fact]
+    public async Task MoistureReading_Wet_DoesNotShortenManualDeferral()
+    {
+        var device = await CreateDevice(type: DeviceType.Sensor);
+        var plant = await CreatePlant(device.Id);
+
+        await _client.PostAsJsonAsync($"/api/plants/{plant.Id}/soil-wet", new { days = 7 }, Options);
+
+        // A wet reading would re-arm the sensor's own short (1-day) window;
+        // the manual deferral must stand untouched.
+        await _bus.RaiseAsync($"plantcare/{device.Id}/state", "{\"moisturePct\":80}");
+
+        var fetched = await _client.GetFromJsonAsync<PlantResponseDto>($"/api/plants/{plant.Id}", Options);
+        Assert.NotNull(fetched!.SoilWetUntil);
+        Assert.True(fetched.SoilWetUntil > DateTime.UtcNow.AddDays(6));
+    }
+
     public void Dispose()
     {
         _client.Dispose();

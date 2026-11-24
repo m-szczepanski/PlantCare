@@ -104,7 +104,8 @@ Plant (user's owned instance)
 - SoilType (nullable enum: AllPurpose/CactusMix/ChunkyBark/PeatCoco/SemiHydro/SelfWatering — its water permeability scales the watering interval; fast-draining mixes keep the base interval and instead enable the derived "Top up water" task)
 - CustomWateringIntervalDays (nullable — overrides profile default)
 - LastWateredAt
-- SoilWetUntil (nullable — "soil is still wet" deferral that pushes the watering due date out to this instant)
+- SoilWetUntil (nullable — "soil is still wet" deferral that floors the watering due date at its recheck day: the plant is due on that day and overdue counts from it, never from the pre-deferral schedule)
+- SoilWetSource (nullable enum: Manual/Sensor — who set the deferral; device state ingestion only refreshes or clears Sensor-owned deferrals and never overrides a human-set one)
 - DeviceId (FK, nullable — links the plant to a self-watering/monitoring device; see Device)
 
 WateringLog

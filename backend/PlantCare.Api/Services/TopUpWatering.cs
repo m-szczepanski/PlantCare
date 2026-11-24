@@ -43,6 +43,7 @@ public static class TopUpWatering
         {
             wateringTask.LastDoneAt = doneAt;
             plant.SoilWetUntil = null;
+            plant.SoilWetSource = null;
         }
 
         SyncTask(plant);

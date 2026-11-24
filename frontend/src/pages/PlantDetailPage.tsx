@@ -61,7 +61,7 @@ import {
 import { useWaterNow } from "@/hooks/useDevices";
 import type { WaterDetails, WateringMethod } from "@/api/types";
 import { touchButton, touchField, touchTextarea } from "@/lib/ui";
-import { formatDate, formatInstant, parseInstant } from "@/lib/dates";
+import { formatDate, formatInstant, parseInstant, soilWetPending } from "@/lib/dates";
 
 const PINNED_NOTES_LIMIT = 3;
 const NOTE_MAX_LENGTH = 2000;
@@ -309,7 +309,7 @@ export function PlantDetailPage() {
           <div>
             <dt className="text-muted-foreground">{t("detail.soilWet")}</dt>
             <dd className="flex flex-wrap items-center gap-2">
-              {plant.soilWetUntil && parseInstant(plant.soilWetUntil) > new Date() ? (
+              {soilWetPending(plant.soilWetUntil) ? (
                 <>
                   <span className="text-muted-foreground">
                     {t("detail.soilWetUntil", { date: formatInstant(plant.soilWetUntil, false) })}

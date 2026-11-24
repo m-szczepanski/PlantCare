@@ -76,6 +76,7 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
                 NotifyEnabled = p.NotifyEnabled,
                 SnoozedUntil = p.SnoozedUntil,
                 SoilWetUntil = p.SoilWetUntil,
+                SoilWetSource = p.SoilWetSource,
                 HealthStatus = p.HealthStatus,
                 LastCheckupAt = p.LastCheckupAt,
                 HealthChecks = [.. p.HealthChecks.OrderBy(h => h.CheckedAt).Select(h => new ExportHealthCheckDto
@@ -210,6 +211,7 @@ public sealed class ExportImportService(AppDbContext db) : IExportImportService
                 NotifyEnabled = plant.NotifyEnabled,
                 SnoozedUntil = plant.SnoozedUntil,
                 SoilWetUntil = plant.SoilWetUntil,
+                SoilWetSource = plant.SoilWetSource,
                 HealthStatus = plant.HealthStatus,
                 LastCheckupAt = plant.LastCheckupAt,
             };

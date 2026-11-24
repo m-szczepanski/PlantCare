@@ -75,23 +75,26 @@ public sealed class WateringScheduleService(IAppLocalizer localizer) : IWatering
         var nextDue = anchor.AddDays(effectiveInterval);
 
         // A soil-wet deferral pushes the due date out to the recheck day (never
-        // earlier; watering only) so the plant leaves the due/overdue buckets
-        // until the deferral lapses.
+        // earlier; watering only): the plant leaves the overdue/due-today buckets
+        // while deferred, resurfaces as due on the recheck day itself, and counts
+        // overdue from that day — the deferral postpones the watering instead of
+        // merely hiding the schedule until the old due date snaps back.
         if (isWatering && plant.SoilWetUntil is { } wetUntil)
         {
             var recheck = DateOnly.FromDateTime(wetUntil.Date);
-            if (recheck > today && recheck > nextDue)
+            if (recheck > nextDue)
             {
                 nextDue = recheck;
             }
         }
 
         // A sick/bad checkup answer pauses fertilizing: clamp the due date out to
-        // the next checkup day (the soil-wet clamp pattern).
+        // the next checkup day (the soil-wet clamp pattern: a floor, never a pull
+        // forward, and overdue after the resume day counts from it).
         if (!isWatering && wateringTask?.Type == CareTaskType.Fertilizing
             && HealthPolicy.PausesFertilizing(plant.HealthStatus)
             && HealthPolicy.NextCheckupDue(plant) is { } resume
-            && resume > today && resume > nextDue)
+            && resume > nextDue)
         {
             nextDue = resume;
         }

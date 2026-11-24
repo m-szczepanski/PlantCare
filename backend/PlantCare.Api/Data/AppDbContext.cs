@@ -61,6 +61,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             entity.Property(p => p.SoilType).HasConversion<string>();
             entity.Property(p => p.HealthStatus).HasConversion<string>();
+            entity.Property(p => p.SoilWetSource).HasConversion<string>();
 
             entity.HasOne(p => p.PlantProfile)
                 .WithMany(pp => pp.Plants)

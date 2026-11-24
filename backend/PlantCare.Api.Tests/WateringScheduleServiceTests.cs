@@ -326,10 +326,10 @@ public class WateringScheduleServiceTests
     }
 
     [Fact]
-    public void SoilWet_RecheckDayToday_ResurfacesAsDue()
+    public void SoilWet_RecheckDayToday_ResurfacesAsDueToday()
     {
-        // Natural due was 3-10; the wet flag held it until 3-15. On the recheck day
-        // the deferral has lapsed, so it comes back as (still) overdue.
+        // Natural due was 3-10; the wet flag held it until 3-15. The recheck day
+        // itself is the due day: "due today", not overdue off the old anchor.
         var plant = Plant(
             intervalDays: 7,
             lastDoneAt: new DateTime(2026, 3, 3),
@@ -337,8 +337,27 @@ public class WateringScheduleServiceTests
 
         var due = _service.GetDueInfo(Watering(plant), plant, Today);
 
+        Assert.Equal(PlantDueStatus.DueToday, due.Status);
+        Assert.Equal(0, due.DaysUntilDue);
+        Assert.Equal(new DateOnly(2026, 3, 15), due.NextDueDate);
+    }
+
+    [Fact]
+    public void SoilWet_ExpiredDeferral_CountsOverdueFromRecheckDay()
+    {
+        // Deferred until 3-12 though the natural due was 3-08: after the deferral
+        // lapses the overdue count runs from the recheck day, never from the
+        // schedule the deferral postponed.
+        var plant = Plant(
+            intervalDays: 5,
+            lastDoneAt: new DateTime(2026, 3, 3),
+            soilWetUntil: new DateTime(2026, 3, 12));
+
+        var due = _service.GetDueInfo(Watering(plant), plant, Today);
+
         Assert.Equal(PlantDueStatus.Overdue, due.Status);
-        Assert.Equal(-5, due.DaysUntilDue);
+        Assert.Equal(-3, due.DaysUntilDue);
+        Assert.Equal(new DateOnly(2026, 3, 12), due.NextDueDate);
     }
 
     [Fact]

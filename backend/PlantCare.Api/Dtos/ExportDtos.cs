@@ -75,6 +75,9 @@ public class ExportPlantDto
 
     public DateTime? SoilWetUntil { get; set; }
 
+    /// <summary>Deferral owner; absent in pre-provenance exports (schema stays at v1).</summary>
+    public SoilWetSource? SoilWetSource { get; set; }
+
     public HealthStatus? HealthStatus { get; set; }
 
     public DateTime? LastCheckupAt { get; set; }

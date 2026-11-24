@@ -269,6 +269,9 @@ namespace PlantCare.Api.Data.Migrations
                     b.Property<string>("SoilType")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("SoilWetSource")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("SoilWetUntil")
                         .HasColumnType("TEXT");
 
