@@ -39,6 +39,9 @@ public class Plant
     /// </summary>
     public DateTime? SoilWetUntil { get; set; }
 
+    /// <summary>Whether a human or the moisture sensor set the deferral.</summary>
+    public SoilWetSource? SoilWetSource { get; set; }
+
     public DateTime AcquiredDate { get; set; }
 
     /// <summary>Current health from the latest checkup (null = never checked); see <c>HealthPolicy</c>.</summary>

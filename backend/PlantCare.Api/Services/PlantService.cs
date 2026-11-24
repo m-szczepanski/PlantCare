@@ -285,8 +285,9 @@ public sealed class PlantService(
         var wateredAt = DateTime.UtcNow;
         var watering = WateringTask(plant) ?? NewWateringTask(plant);
         watering.LastDoneAt = wateredAt;
-        // Watering clears a soil-wet deferral and re-anchors the derived top-up cycle.
+        // Watering clears a soil-wet deferral (and its owner) and re-anchors the derived top-up cycle.
         plant.SoilWetUntil = null;
+        plant.SoilWetSource = null;
         TopUpWatering.SyncTask(plant);
         watering.Logs.Add(new CareTaskLog
         {
@@ -514,6 +515,7 @@ public sealed class PlantService(
         var now = DateTime.UtcNow;
         var from = plant.SoilWetUntil is { } existing && existing > now ? existing : now;
         plant.SoilWetUntil = from.AddDays(days);
+        plant.SoilWetSource = SoilWetSource.Manual;
         await db.SaveChangesAsync(cancellationToken);
 
         return ToResponse(plant);
@@ -533,6 +535,7 @@ public sealed class PlantService(
         }
 
         plant.SoilWetUntil = null;
+        plant.SoilWetSource = null;
         await db.SaveChangesAsync(cancellationToken);
 
         return ToResponse(plant);

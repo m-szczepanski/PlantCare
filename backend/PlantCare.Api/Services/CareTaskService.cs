@@ -94,6 +94,7 @@ public sealed class CareTaskService(
         {
             // Completing the watering clears a soil-wet deferral and re-anchors the top-up cycle.
             plant.SoilWetUntil = null;
+            plant.SoilWetSource = null;
             TopUpWatering.SyncTask(plant);
         }
         else if (type == CareTaskType.TopUpWatering)

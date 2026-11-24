@@ -73,7 +73,8 @@ public sealed record DeviceStateMessage(
 /// Applies an incoming device state message: mirrors the latest reading on the
 /// device and, for a linked plant, defers watering while the soil reads wet
 /// (reusing the existing <see cref="Plant.SoilWetUntil"/> deferral) or clears
-/// the deferral once it reads dry.
+/// the deferral once it reads dry. Sensor traffic only owns sensor-set
+/// deferrals: a Manual one is never shortened or cleared by a reading.
 /// </summary>
 public interface IDeviceStateIngestor
 {
@@ -134,8 +135,8 @@ public sealed partial class DeviceStateIngestor(
 
     private async Task SyncSoilWetAsync(int deviceId, int moisture, CancellationToken cancellationToken)
     {
+        var now = DateTime.UtcNow;
         var wet = moisture >= options.WetThresholdPct;
-        var until = wet ? DateTime.UtcNow.AddDays(options.DeferDays) : (DateTime?)null;
 
         var plants = await db.Plants
             .Where(p => p.DeviceId == deviceId)
@@ -143,7 +144,26 @@ public sealed partial class DeviceStateIngestor(
 
         foreach (var plant in plants)
         {
-            plant.SoilWetUntil = until;
+            // A sensor owns its deferrals only: it refreshes or clears Sensor-
+            // sourced values, never an active Manual one (the human override
+            // stands until it lapses or is watered away).
+            var sensorOwned = plant.SoilWetSource == SoilWetSource.Sensor;
+            var deferralActive = plant.SoilWetUntil > now;
+            if (deferralActive && !sensorOwned)
+            {
+                continue;
+            }
+
+            if (wet)
+            {
+                plant.SoilWetUntil = now.AddDays(options.DeferDays);
+                plant.SoilWetSource = SoilWetSource.Sensor;
+            }
+            else if (sensorOwned)
+            {
+                plant.SoilWetUntil = null;
+                plant.SoilWetSource = null;
+            }
         }
     }
 
