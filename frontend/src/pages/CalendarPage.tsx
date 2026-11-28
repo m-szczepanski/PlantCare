@@ -12,9 +12,9 @@ import { cn } from "@/lib/utils";
 
 const WEEKDAY_BASE = new Date(2024, 0, 1);
 
-function weekdayLabels(locale: string): string[] {
+export function weekdayLabels(locale: string): string[] {
   return Array.from({ length: 7 }, (_, index) =>
-    new Date(WEEKDAY_BASE.getFullYear(), WEEKDAY_BASE.getMonth(), WEEKDAY_BASE.getDate() + index * 7).toLocaleDateString(locale, { weekday: "short" }),
+    new Date(WEEKDAY_BASE.getFullYear(), WEEKDAY_BASE.getMonth(), WEEKDAY_BASE.getDate() + index).toLocaleDateString(locale, { weekday: "short" }),
   );
 }
 
@@ -86,16 +86,18 @@ export function CalendarPage() {
   const [view, setView] = useState<View>("week");
   const [anchor, setAnchor] = useState<Date>(() => startOfDay(new Date()));
 
-  const { cells, from, to, monthLabel } = useMemo(() => {
+  const { cells, headerLabels, from, to, monthLabel } = useMemo(() => {
     const today = startOfDay(new Date());
     if (view === "week") {
       const from = today;
       const to = addDays(from, 6);
+      const cells = Array.from({ length: 7 }, (_, index) => addDays(from, index));
       return {
         from,
         to,
         monthLabel: null as string | null,
-        cells: Array.from({ length: 7 }, (_, index) => addDays(from, index)),
+        cells,
+        headerLabels: cells.map((cell) => cell.toLocaleDateString(i18n.language, { weekday: "short" })),
       };
     }
     const from = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
@@ -110,6 +112,7 @@ export function CalendarPage() {
       to,
       monthLabel: anchor.toLocaleDateString(i18n.language, { month: "long", year: "numeric" }),
       cells,
+      headerLabels: weekdayLabels(i18n.language),
     };
   }, [view, anchor, i18n.language]);
 
@@ -190,7 +193,7 @@ export function CalendarPage() {
       <Card>
         <CardContent className="p-4">
           <div className="mb-2 hidden grid-cols-7 gap-2 text-center text-xs font-medium text-muted-foreground sm:grid">
-            {weekdayLabels(i18n.language).map((day, index) => (
+            {headerLabels.map((day, index) => (
               <div key={index}>{day}</div>
             ))}
           </div>
