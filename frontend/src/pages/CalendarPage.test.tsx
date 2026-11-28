@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, screen } from "@testing-library/react";
 import { plantsApi } from "@/api/client";
 import type { Plant } from "@/api/types";
-import CalendarPage from "@/pages/CalendarPage";
+import CalendarPage, { weekdayLabels } from "@/pages/CalendarPage";
 import { renderWithProviders } from "@/test/render";
 
 vi.mock("@/api/client", () => ({
@@ -119,5 +119,37 @@ describe("CalendarPage", () => {
     const next = screen.getByRole("button", { name: "Next month" });
     expect(next).toHaveClass("h-11", "sm:h-9");
     expect(next.parentElement).toHaveClass("flex-wrap");
+  });
+
+  it("labels the weekday columns Monday through Sunday instead of repeating one day", () => {
+    expect(weekdayLabels("en")).toEqual(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]);
+
+    const polish = weekdayLabels("pl");
+    expect(polish).toHaveLength(7);
+    expect(new Set(polish).size).toBe(7);
+    expect(polish[0]).toBe("pon.");
+  });
+
+  it("shows weekday headers matching the upcoming days in week view", async () => {
+    const { container } = renderWithProviders(<CalendarPage />, { route: "/calendar" });
+    await screen.findByLabelText(/Monstera Mike/);
+
+    const header = container.querySelector(".grid-cols-7");
+    expect(header).not.toBeNull();
+    const expected = Array.from({ length: 7 }, (_, index) => {
+      const date = new Date();
+      date.setDate(date.getDate() + index);
+      return date.toLocaleDateString("en", { weekday: "short" });
+    });
+    expect(Array.from(header!.children).map((child) => child.textContent)).toEqual(expected);
+  });
+
+  it("shows Monday-first weekday headers in month view", async () => {
+    const { container } = renderWithProviders(<CalendarPage />, { route: "/calendar" });
+    fireEvent.click(await screen.findByRole("button", { name: "Month" }));
+
+    const header = container.querySelector(".grid-cols-7");
+    expect(header).not.toBeNull();
+    expect(Array.from(header!.children).map((child) => child.textContent)).toEqual(weekdayLabels("en"));
   });
 });
