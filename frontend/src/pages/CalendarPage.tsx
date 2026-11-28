@@ -10,7 +10,6 @@ import { dateKey, projectOccurrences } from "@/lib/scheduleProjection";
 import { touchIcon } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
-// 2024-01-01 is a Monday, matching the Monday-first month grid below.
 const WEEKDAY_BASE = new Date(2024, 0, 1);
 
 export function weekdayLabels(locale: string): string[] {
