@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { MonthlyBarChart } from "@/components/MonthlyBarChart";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
+import { MonthlyBarChart } from "@/components/charts/MonthlyBarChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlantCardSkeletonGrid } from "@/components/PlantCardSkeleton";
+import { PlantCardSkeletonGrid } from "@/components/plants/PlantCardSkeleton";
 import { useInsights } from "@/hooks/useInsights";
 
 function monthLabel(key: string, locale: string, options: Intl.DateTimeFormatOptions): string {

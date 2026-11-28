@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
-import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
+import { KeyboardShortcuts } from "@/components/layout/KeyboardShortcuts";
 
 function Harness({ onWater }: { onWater: () => void }) {
   const location = useLocation();

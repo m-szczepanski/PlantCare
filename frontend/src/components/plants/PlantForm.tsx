@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PhotoPicker } from "@/components/PhotoPicker";
-import { ProfileCombobox } from "@/components/ProfileCombobox";
+import { PhotoPicker } from "@/components/plants/PhotoPicker";
+import { ProfileCombobox } from "@/components/plants/ProfileCombobox";
 import {
   Select,
   SelectContent,

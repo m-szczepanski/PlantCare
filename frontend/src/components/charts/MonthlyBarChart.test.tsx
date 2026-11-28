@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MonthlyBarChart } from "@/components/MonthlyBarChart";
+import { MonthlyBarChart } from "@/components/charts/MonthlyBarChart";
 import { renderWithProviders } from "@/test/render";
 
 function months(count: number) {

@@ -5,7 +5,7 @@ import {
   ThemeProvider,
   useTheme,
   type Theme,
-} from "@/components/ThemeProvider";
+} from "@/components/theme/ThemeProvider";
 
 function Probe() {
   const { theme, resolvedTheme, setTheme } = useTheme();

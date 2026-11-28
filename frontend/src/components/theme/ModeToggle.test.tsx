@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { ModeToggle } from "@/components/ModeToggle";
-import { THEME_STORAGE_KEY, ThemeProvider } from "@/components/ThemeProvider";
+import { ModeToggle } from "@/components/theme/ModeToggle";
+import { THEME_STORAGE_KEY, ThemeProvider } from "@/components/theme/ThemeProvider";
 
 beforeEach(() => {
   window.localStorage.clear();

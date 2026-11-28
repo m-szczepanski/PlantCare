@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { PlantCardSkeletonGrid } from "@/components/PlantCardSkeleton";
+import { PlantCardSkeletonGrid } from "@/components/plants/PlantCardSkeleton";
 import { usePlants } from "@/hooks/usePlants";
 import { dateKey, projectOccurrences } from "@/lib/scheduleProjection";
 import { touchIcon } from "@/lib/ui";

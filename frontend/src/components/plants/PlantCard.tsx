@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { AlertTriangle, CalendarClock, Compass, Droplet, Droplets, Stethoscope } from "lucide-react";
-import { DueCount, DueStatusBadge } from "@/components/DueStatusBadge";
-import { HealthBadge } from "@/components/HealthBadge";
-import { PlantPhoto } from "@/components/PlantPhoto";
-import { RoomLightBadge } from "@/components/RoomLightBadge";
+import { DueCount, DueStatusBadge } from "@/components/plants/DueStatusBadge";
+import { HealthBadge } from "@/components/plants/HealthBadge";
+import { PlantPhoto } from "@/components/plants/PlantPhoto";
+import { RoomLightBadge } from "@/components/plants/RoomLightBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDate, formatInstant, soilWetPending, wateredRelative } from "@/lib/dates";

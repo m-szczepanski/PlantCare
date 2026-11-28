@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { PlantPhoto } from "@/components/PlantPhoto";
+import { PlantPhoto } from "@/components/plants/PlantPhoto";
 
 describe("PlantPhoto", () => {
   it("renders the plant photo when a URL is set", () => {

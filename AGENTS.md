@@ -67,6 +67,7 @@ Verify builds and tests pass before finishing any task.
 
 ### Frontend
 - Functional components only; typed API client in `src/api/`, hooks in `src/hooks/` (TanStack Query), pages in `src/pages/`.
+- App components live in `src/components/<domain>/` (tests colocated, one level deep); `src/components/ui/` is generated shadcn and stays flat.
 - No raw `fetch` in components.
 - Compose shadcn primitives; never edit generated shadcn files in place.
 - Theming centralized in `src/index.css` (Tailwind v4, CSS-first config).

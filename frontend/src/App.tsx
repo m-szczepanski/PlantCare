@@ -1,6 +1,6 @@
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
-import { AppShell } from "@/components/AppShell";
-import { SetupGate } from "@/components/SetupGate";
+import { AppShell } from "@/components/layout/AppShell";
+import { SetupGate } from "@/components/setup/SetupGate";
 import { CalendarPage } from "@/pages/CalendarPage";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { InsightsPage } from "@/pages/InsightsPage";

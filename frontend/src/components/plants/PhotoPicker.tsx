@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { PlantPhoto } from "@/components/PlantPhoto";
+import { PlantPhoto } from "@/components/plants/PlantPhoto";
 import { Button } from "@/components/ui/button";
 import { touchButton } from "@/lib/ui";
 

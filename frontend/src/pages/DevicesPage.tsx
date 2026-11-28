@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Cpu, Droplets, Gauge, Sprout } from "lucide-react";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import {
   AlertDialog,
   AlertDialogAction,

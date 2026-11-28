@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import type { ReactElement } from "react";
-import { PlantCard } from "@/components/PlantCard";
+import { PlantCard } from "@/components/plants/PlantCard";
 import type { Plant } from "@/api/types";
 
 function plant(over: Partial<Plant>): Plant {

@@ -1,11 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
 import { SearchX } from "lucide-react";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { EmptyState } from "@/components/EmptyState";
-import { NoPlantsEmptyState } from "@/components/NoPlantsEmptyState";
-import { PlantCard } from "@/components/PlantCard";
-import { PlantCardSkeletonGrid } from "@/components/PlantCardSkeleton";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { NoPlantsEmptyState } from "@/components/shared/NoPlantsEmptyState";
+import { PlantCard } from "@/components/plants/PlantCard";
+import { PlantCardSkeletonGrid } from "@/components/plants/PlantCardSkeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

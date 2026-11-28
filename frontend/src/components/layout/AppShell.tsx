@@ -5,10 +5,10 @@ import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import i18n from "@/i18n";
 import { useEffect } from "react";
-import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
-import { LanguageToggle } from "@/components/LanguageToggle";
-import { ModeToggle } from "@/components/ModeToggle";
-import { ScrollRestoration } from "@/components/ScrollRestoration";
+import { KeyboardShortcuts } from "@/components/layout/KeyboardShortcuts";
+import { LanguageToggle } from "@/components/theme/LanguageToggle";
+import { ModeToggle } from "@/components/theme/ModeToggle";
+import { ScrollRestoration } from "@/components/layout/ScrollRestoration";
 import { useDevicesEnabled } from "@/hooks/useDevices";
 import {
   Sidebar,

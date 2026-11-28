@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useNavigate } from "react-router-dom";
-import { ScrollRestoration } from "@/components/ScrollRestoration";
+import { ScrollRestoration } from "@/components/layout/ScrollRestoration";
 
 let scrollY = 0;
 

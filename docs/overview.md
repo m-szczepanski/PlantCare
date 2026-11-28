@@ -52,7 +52,7 @@ plant-care-app/
 │   └── docs/                        # backend documentation
 ├── frontend/                        # React + Vite SPA
 │   ├── src/
-│   │   ├── components/              # shadcn/ui-based components
+│   │   ├── components/              # app components grouped by domain (+ ui/ primitives)
 │   │   ├── pages/                   # route views
 │   │   ├── api/                     # typed API client helpers
 │   │   ├── hooks/                   # custom React hooks for data fetching
