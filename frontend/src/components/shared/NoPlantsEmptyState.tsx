@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Sprout } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { EmptyState } from "@/components/EmptyState";
+import { EmptyState } from "@/components/shared/EmptyState";
 
 export function NoPlantsEmptyState() {
   const { t } = useTranslation();

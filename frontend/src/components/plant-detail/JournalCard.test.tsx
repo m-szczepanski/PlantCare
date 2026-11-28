@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { plantsApi } from "@/api/client";
 import type { JournalEntry } from "@/api/types";
-import JournalCard from "@/components/JournalCard";
+import JournalCard from "@/components/plant-detail/JournalCard";
 import { renderWithProviders } from "@/test/render";
 
 vi.mock("@/api/client", () => ({

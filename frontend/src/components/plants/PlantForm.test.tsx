@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, screen } from "@testing-library/react";
 import { plantProfilesApi } from "@/api/client";
 import type { Plant, PlantProfile } from "@/api/types";
-import { PlantForm } from "@/components/PlantForm";
+import { PlantForm } from "@/components/plants/PlantForm";
 import { renderWithProviders } from "@/test/render";
 
 vi.mock("@/api/client", () => ({

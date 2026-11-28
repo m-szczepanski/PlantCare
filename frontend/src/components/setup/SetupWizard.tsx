@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, ArrowRight, Check, Leaf, Languages, Moon, Sun, X } from "lucide-react";
-import { PlantForm } from "@/components/PlantForm";
-import { useTheme, type Theme } from "@/components/ThemeProvider";
+import { PlantForm } from "@/components/plants/PlantForm";
+import { useTheme, type Theme } from "@/components/theme/ThemeProvider";
 import {
   AlertDialog,
   AlertDialogAction,

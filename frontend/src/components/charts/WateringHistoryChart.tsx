@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { MonthlyBarChart, type MonthlyBarDatum } from "@/components/MonthlyBarChart";
+import { MonthlyBarChart, type MonthlyBarDatum } from "@/components/charts/MonthlyBarChart";
 import { parseInstant } from "@/lib/dates";
 import type { WateringLogEntry } from "@/api/types";
 

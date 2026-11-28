@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Armchair, Droplets, Sprout, Sun, Thermometer } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PlantPhoto } from "@/components/PlantPhoto";
+import { PlantPhoto } from "@/components/plants/PlantPhoto";
 import { wateredRelative } from "@/lib/dates";
 import {
   useCreateRoom,
@@ -35,7 +35,7 @@ import {
   useUpdateRoom,
 } from "@/hooks/useRooms";
 import { usePlants } from "@/hooks/usePlants";
-import { RoomLightBadge } from "@/components/RoomLightBadge";
+import { RoomLightBadge } from "@/components/plants/RoomLightBadge";
 import type { HumidityLevel, LightRequirement, Plant, Room, RoomOrientation } from "@/api/types";
 import { cn } from "@/lib/utils";
 import { touchButton, touchField } from "@/lib/ui";

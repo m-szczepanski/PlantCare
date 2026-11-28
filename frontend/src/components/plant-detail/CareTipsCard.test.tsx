@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { CareTipsCard } from "@/components/CareTipsCard";
+import { CareTipsCard } from "@/components/plant-detail/CareTipsCard";
 import type { PlantCareTips } from "@/api/types";
 
 const tips: PlantCareTips = {

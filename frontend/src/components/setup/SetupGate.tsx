@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { SetupWizard } from "@/components/SetupWizard";
+import { SetupWizard } from "@/components/setup/SetupWizard";
 import { usePlants } from "@/hooks/usePlants";
 import { useRooms } from "@/hooks/useRooms";
 

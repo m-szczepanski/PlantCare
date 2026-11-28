@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import type { WateringLogEntry } from "@/api/types";
-import { WateringHistoryChart } from "@/components/WateringHistoryChart";
+import { WateringHistoryChart } from "@/components/charts/WateringHistoryChart";
 
 const DAY_MS = 86_400_000;
 

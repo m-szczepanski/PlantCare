@@ -1,8 +1,8 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { PlantInput } from "@/api/types";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { PlantForm } from "@/components/PlantForm";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
+import { PlantForm } from "@/components/plants/PlantForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { splitApiError } from "@/lib/validation";
 import {

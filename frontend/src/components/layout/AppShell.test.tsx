@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
-import { AppShell } from "@/components/AppShell";
-import { ThemeProvider } from "@/components/ThemeProvider";
+import { AppShell } from "@/components/layout/AppShell";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { renderWithProviders } from "@/test/render";
 
 function renderShell(route: string) {

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import i18n from "@/i18n";
 import { LANGUAGE_STORAGE_KEY } from "@/i18n";
-import { LanguageToggle } from "@/components/LanguageToggle";
+import { LanguageToggle } from "@/components/theme/LanguageToggle";
 
 beforeEach(() => {
   window.localStorage.clear();

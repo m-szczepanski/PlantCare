@@ -1,5 +1,5 @@
 import { Toaster as SonnerToaster, type ToasterProps as SonnerToasterProps } from "sonner";
-import { useTheme } from "@/components/ThemeProvider";
+import { useTheme } from "@/components/theme/ThemeProvider";
 
 type ToasterProps = SonnerToasterProps;
 

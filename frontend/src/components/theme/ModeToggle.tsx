@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useTheme, type Theme } from "@/components/ThemeProvider";
+import { useTheme, type Theme } from "@/components/theme/ThemeProvider";
 
 const options: { value: Theme; labelKey: string }[] = [
   { value: "light", labelKey: "theme.light" },

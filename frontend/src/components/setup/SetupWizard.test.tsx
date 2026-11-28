@@ -3,8 +3,8 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import i18n from "@/i18n";
 import { plantProfilesApi, plantsApi, roomsApi } from "@/api/client";
 import type { Plant, Room } from "@/api/types";
-import { SetupWizard } from "@/components/SetupWizard";
-import { ThemeProvider } from "@/components/ThemeProvider";
+import { SetupWizard } from "@/components/setup/SetupWizard";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { renderWithProviders } from "@/test/render";
 
 vi.mock("@/api/client", () => ({

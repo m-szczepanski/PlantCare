@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Leaf } from "lucide-react";
-import { DashboardStatsStrip } from "@/components/DashboardStatsStrip";
-import { PlantCard } from "@/components/PlantCard";
-import { PlantCardSkeletonGrid } from "@/components/PlantCardSkeleton";
+import { DashboardStatsStrip } from "@/components/dashboard/DashboardStatsStrip";
+import { PlantCard } from "@/components/plants/PlantCard";
+import { PlantCardSkeletonGrid } from "@/components/plants/PlantCardSkeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { useDashboard } from "@/hooks/useDashboard";
 import { dashboardSections } from "@/lib/dashboard";
